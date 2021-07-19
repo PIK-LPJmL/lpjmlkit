@@ -9,9 +9,9 @@
 #' @param nyear Number of years of data included in file (default: 1)
 #' @param firstcell Index of first data item (default: 0)
 #' @param ncell Number of data items per band
-#' @param nbands Number of bands per year of data (default: 1)
+#' @param nbands Number of bands per year of data (default: 2)
 #' @param cellsize_lon Longitude cellsize in deg (default: 0.5)
-#' @param scalar Conversion factor applied to data when it is read by LPJmL (default: 1.0)
+#' @param scalar Conversion factor applied to data when it is read by LPJmL (default: 0.01)
 #' @param cellsize_lat Latitude cellsize in deg (default: cellsize_lon)
 #' @param datatype LPJmL data type in file (see LPJmL code for valid data type codes; default: 1)
 #' @param endian: Endianness to use for file (either "big" or "little", by default uses
@@ -42,11 +42,12 @@
 #'    If 'firstcell' > 0, LPJmL assumes the first 'firstcell' cells to be missing in data.
 #'    Valid codes for the 'datatype' attribute and the corresponding LPJmL data types are: 0 (LPJ_BYTE),
 #'    1 (LPJ_SHORT), 2 (LPJ_INT), 3 (LPJ_FLOAT), 4 (LPJ_DOUBLE).
+#'    Default parameters of the function are valid for grid input files.
 #'
 #' @seealso [readHeader()] for reading headers from LPJmL files and [writeHeader()] for writing headers to files.
 #'
 #' @export
-newHeader <- function(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=1, firstcell=0, ncell, nbands=1, cellsize_lon=0.5, scalar=1, cellsize_lat=cellsize_lon, datatype=1, endian=.Platform$endian) {
+newHeader <- function(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=1, firstcell=0, ncell, nbands=2, cellsize_lon=0.5, scalar=0.01, cellsize_lat=cellsize_lon, datatype=1, endian=.Platform$endian) {
   header <- list()
   if(is.character(name) && length(name) == 1) {
     header[["name"]] <- name
