@@ -2,6 +2,7 @@
 
 export(autoReadInput)
 export(calcEFRs)
+export(cellArea)
 export(evenGrid2lpjGrid)
 export(freadheader)
 export(fwriteheader)
