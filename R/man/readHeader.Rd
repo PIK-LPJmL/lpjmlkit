@@ -9,22 +9,22 @@ readHeader(filename, force_version = NULL)
 \arguments{
 \item{filename}{Filename to read header from}
 
-\item{force_version}{Manually set clm version (default value 'NULL' means 
+\item{force_version}{Manually set clm version (default value 'NULL' means
 that version is determined automatically from header; set only if version
 number in file is incorrect)}
 }
 \value{
 The function returns a list with 3 components:
-    - name: header name, e.g. "LPJGRID"; describes the type of data in file
-    - header: vector of header values ('version', 'order', 'firstyear',
-      'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-      'cellsize_lat', 'datatype') describing the file structure; if header
-      version is <3, partially filled with default values
-    - endian: endianness of file (little or big)
+- name: header name, e.g. "LPJGRID"; describes the type of data in file
+- header: vector of header values ('version', 'order', 'firstyear',
+'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
+'cellsize_lat', 'datatype') describing the file structure; if header
+version is <3, partially filled with default values
+- endian: endianness of file (little or big)
 }
 \description{
 Reads a header from an LPJmL clm file. CLM is the default
-   format used for LPJmL input files but can also be used for output files.
+format used for LPJmL input files but can also be used for output files.
 }
 \examples{
 \dontrun{
@@ -33,6 +33,6 @@ readHeader(filename)
 
 }
 \seealso{
-[newHeader()] for a more detailed description of the LPJmL header format,
-    [writeHeader()] for writing headers to files.
+\code{\link[=newHeader]{newHeader()}} for a more detailed description of the LPJmL header format,
+\code{\link[=writeHeader]{writeHeader()}} for writing headers to files.
 }

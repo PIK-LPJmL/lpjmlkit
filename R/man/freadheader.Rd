@@ -11,15 +11,15 @@ freadheader(f.in)
 }
 \value{
 data_frame of header data
-    h$v : header version,
-    h$o : order,
-    h$fy : firstyear,
-    h$ny : nyear,
-    h$fc : firstcell,
-    h$nc : ncells,
-    h$nb : nbands,
-    h$r : resolution,
-    h$b : scaling
+h$v : header version,
+h$o : order,
+h$fy : firstyear,
+h$ny : nyear,
+h$fc : firstcell,
+h$nc : ncells,
+h$nb : nbands,
+h$r : resolution,
+h$b : scaling
 }
 \description{
 Reads the header of a binary CLM(2) LPJmL input file and returns the content as data_frame

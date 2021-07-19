@@ -11,13 +11,13 @@ lpjDatatype(header)
 }
 \value{
 The function returns a list object with three components:
-    - type: R data type; can be used with 'what' parameter of readBin()
-    - size: size of data type; can be used with 'size' parameter of readBin()
-    - signed: whether or not the data type is signed, only relevant for integers with size 1 or 2; can be used with 'signed' parameter of readBin()
+- type: R data type; can be used with 'what' parameter of readBin()
+- size: size of data type; can be used with 'size' parameter of readBin()
+- signed: whether or not the data type is signed, only relevant for integers with size 1 or 2; can be used with 'signed' parameter of readBin()
 }
 \description{
 Provide information on the data type used in an LPJmL file
-    based on the 'datatype' attribute included in the file header.
+based on the 'datatype' attribute included in the file header.
 }
 \examples{
 \dontrun{
@@ -27,5 +27,5 @@ lpjDatatype(header)
 
 }
 \seealso{
-[readHeader()] for reading headers from LPJmL files, [newHeader()] for creating headers from scratch
+\code{\link[=readHeader]{readHeader()}} for reading headers from LPJmL files, \code{\link[=newHeader]{newHeader()}} for creating headers from scratch
 }

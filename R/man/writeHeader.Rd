@@ -18,8 +18,8 @@ None
 }
 \description{
 Write an LPJmL clm header to a file. The header has to be
-   a list following the structure returned by readHeader() or newHeader().
-   The function will fail if the output file exists already unless overwrite is set to TRUE.
+a list following the structure returned by readHeader() or newHeader().
+The function will fail if the output file exists already unless overwrite is set to TRUE.
 }
 \examples{
 \dontrun{
@@ -28,6 +28,6 @@ writeheader(filename="filename.clm", header=header, overwrite=FALSE)
 
 }
 \seealso{
-[newHeader()] for creating headers from scratch and for a more detailed
-    description of the LPJmL header format, [readHeader()] for reading headers from files.
+\code{\link[=newHeader]{newHeader()}} for creating headers from scratch and for a more detailed
+description of the LPJmL header format, \code{\link[=readHeader]{readHeader()}} for reading headers from files.
 }
