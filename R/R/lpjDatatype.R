@@ -12,6 +12,7 @@
 #'
 #' @examples
 #' \dontrun{
+#' header <- readHeader("filename.clm")
 #' lpjDatatype(header)
 #' }
 #'
