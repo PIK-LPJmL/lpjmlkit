@@ -2,7 +2,7 @@
 % Please edit documentation in R/readHeader.R
 \name{readHeader}
 \alias{readHeader}
-\title{readHeader}
+\title{Read header (any version) from LPJmL file.}
 \usage{
 readHeader(filename, force_version = NULL)
 }
@@ -15,20 +15,22 @@ number in file is incorrect)}
 }
 \value{
 The function returns a list with 3 components:
-- name: header name, e.g. "LPJGRID"; describes the type of data in file
-- header: vector of header values ('version', 'order', 'firstyear',
+\itemize{
+\item name: header name, e.g. "LPJGRID"; describes the type of data in file
+\item header: vector of header values ('version', 'order', 'firstyear',
 'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
 'cellsize_lat', 'datatype') describing the file structure; if header
 version is <3, partially filled with default values
-- endian: endianness of file (little or big)
+\item endian: endianness of file (little or big)
+}
 }
 \description{
 Reads a header from an LPJmL clm file. CLM is the default
-format used for LPJmL input files but can also be used for output files.
+format used for LPJmL input files and can also be used for output files.
 }
 \examples{
 \dontrun{
-readHeader(filename)
+header <- readHeader(filename)
 }
 
 }

@@ -1,8 +1,8 @@
-#' @title writeHeader
+#' @title Write header (any version) to LPJmL file
 #'
 #' @description Write an LPJmL clm header to a file. The header has to be
-#'    a list following the structure returned by readHeader() or newHeader().
-#'    The function will fail if the output file exists already unless overwrite is set to TRUE.
+#' a list following the structure returned by readHeader() or newHeader().
+#' The function will fail if the output file exists already unless overwrite is set to TRUE.
 #'
 #' @param filename filename to write header into
 #' @param header The header to be written
@@ -11,11 +11,12 @@
 #' @return None
 #'
 #' @seealso [newHeader()] for creating headers from scratch and for a more detailed
-#'     description of the LPJmL header format, [readHeader()] for reading headers from files.
+#' description of the LPJmL header format, [readHeader()] for reading headers from files.
 #'
 #' @examples
 #' \dontrun{
-#' writeheader(filename="filename.clm", header=header, overwrite=FALSE)
+#' header <- readHeader(filename="old_filename.clm")
+#' writeHeader(filename="new_filename.clm", header=header, overwrite=FALSE)
 #' }
 #'
 #' @export

@@ -2,7 +2,7 @@
 % Please edit documentation in R/writeHeader.R
 \name{writeHeader}
 \alias{writeHeader}
-\title{writeHeader}
+\title{Write header (any version) to LPJmL file}
 \usage{
 writeHeader(filename, header, overwrite = FALSE)
 }
@@ -23,7 +23,8 @@ The function will fail if the output file exists already unless overwrite is set
 }
 \examples{
 \dontrun{
-writeheader(filename="filename.clm", header=header, overwrite=FALSE)
+header <- readHeader(filename="old_filename.clm")
+writeHeader(filename="new_filename.clm", header=header, overwrite=FALSE)
 }
 
 }
