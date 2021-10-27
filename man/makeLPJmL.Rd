@@ -20,5 +20,5 @@ Defaults to TRUE}
 see \code{pretty_print}
 }
 \description{
-Compiles LPJmL and create executables by internally executing make all
+Compiles LPJmL and create executables by internally executing make all.
 }

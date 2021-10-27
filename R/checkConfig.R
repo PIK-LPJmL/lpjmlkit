@@ -1,7 +1,7 @@
 #' Check LPJmL config JSON files using lpjcheck
 #'
 #' Check if created LPJmL config JSON files (\link[lpjmlKit]{writeConfig}) are
-#' valid
+#' valid.
 #'
 #' @param config_files character vector providing config_files
 #' (hint: \link[lpjmlKit]{writeConfig} returns config_files as a list entry)

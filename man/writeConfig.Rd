@@ -45,7 +45,7 @@ Tibble in this format is required for \link[lpjmlKit]{submitLPJmL}.
 \description{
 Requires a tibble/data frame in a defined format (see details) and writes
 model configuration files (config_*.json) based on the parameters set
-in each row (corresponds to each model run)
+in each row (corresponds to each model run).
 }
 \details{
 Supply a \link[tibble]{tibble} (or data frame) for \code{params} in the form of
@@ -88,6 +88,7 @@ and shows the type of each column, further advantages
 }
 }
 \examples{
+\dontrun{
 my_params <- tibble::tibble(
  sim_name = c("scen1", "scen2"),
  random_seed = as.integer(c(42, 666)),
@@ -102,5 +103,5 @@ config_names <- writeConfig(params = my_params)
   <chr>           <int>  <chr>                 <dbl>  <lgl>     
 1 scen1               5  first_tree               NA  TRUE      
 2 scen2               4  NA                     0.03  FALSE     
-
+}
 }

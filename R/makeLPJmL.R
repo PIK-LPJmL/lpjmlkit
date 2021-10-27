@@ -1,6 +1,6 @@
 #' Make all (compile, link, etc.) LPJmL
 #'
-#' Compiles LPJmL and create executables by internally executing make all
+#' Compiles LPJmL and create executables by internally executing make all.
 #'
 #' @param model_path character string providing the path to LPJmL
 #' (equal to LPJROOT)

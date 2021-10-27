@@ -15,18 +15,19 @@ nested list object representing the structure of \code{config.json}
 }
 \description{
 Reads a JSON file (not \code{lpjml.js}!, but its precompiled version
-using \code{parseConfig} and turns it into a nested list object
+using \code{parseConfig} and turns it into a nested list object.
 }
 \examples{
-config <- readConfig(filename = "config.json")
+\dontrun{
+ config <- readConfig(filename = "config.json")
+ 
+ config[["version"]]
+ # [1] "5.3"
 
-config[["version"]]
-# [1] "5.3"
+ config[["pftpar"]][[1]][["name"]]
+ # [1] "tropical broadleaved evergreen tree"
 
-config[["pftpar"]][[1]][["name"]]
-# [1] "tropical broadleaved evergreen tree"
-
-config[["input"]][["coord"]][["name"]]
-# [1] "input_VERSION2/grid.bin"
-
+ config[["input"]][["coord"]][["name"]]
+ # [1] "input_VERSION2/grid.bin"
+}
 }

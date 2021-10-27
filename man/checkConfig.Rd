@@ -25,5 +25,5 @@ see \code{pretty_print}
 }
 \description{
 Check if created LPJmL config JSON files (\link[lpjmlKit]{writeConfig}) are
-valid
+valid.
 }

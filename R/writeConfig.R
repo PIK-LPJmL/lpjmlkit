@@ -2,7 +2,7 @@
 #'
 #' Requires a tibble/data frame in a defined format (see details) and writes
 #' model configuration files (config_*.json) based on the parameters set
-#' in each row (corresponds to each model run)
+#' in each row (corresponds to each model run).
 #'
 #' @param params a tibble/data frame in a defined format (see details)
 #'
@@ -17,7 +17,7 @@
 #' If defined only these defined outputs will be written. Defaults to NULL
 #'
 #' @param output_format character string defining the format of the output.
-#' Defaults to `"clm"` (use a header), further options would be `"cdf"` or 
+#' Defaults to `"clm"` (use a header), further options would be `"cdf"` or
 #' `"raw"`
 #'
 #' @param js_filename character string providing name of the main js file to be
@@ -71,6 +71,7 @@
 #'   [here](https://tibble.tidyverse.org/)
 #'
 #' @examples
+#' \dontrun{
 #' my_params <- tibble::tibble(
 #'  sim_name = c("scen1", "scen2"),
 #'  random_seed = as.integer(c(42, 666)),
@@ -85,7 +86,7 @@
 #'   <chr>           <int>  <chr>                 <dbl>  <lgl>     
 #' 1 scen1               5  first_tree               NA  TRUE      
 #' 2 scen2               4  NA                     0.03  FALSE     
-#'
+#' }
 #' @md
 #' @importFrom foreach "%dopar%"
 #' @importFrom magrittr %>%
@@ -122,6 +123,7 @@ writeConfig <- function(params,
   cl <- parallel::makeCluster(parallel_cores)
   doParallel::registerDoParallel(cl)
 
+  row_id <- NULL
   # parallel foreach with rbinding each config_details
   config_details <- foreach::foreach(row_id = seq_len(nrow(params)),
                                      .combine = "rbind"
