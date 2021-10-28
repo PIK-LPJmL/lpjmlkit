@@ -39,29 +39,29 @@ mutateConfigOutputRestart <- function(x,
   }
 
   # replace restart paths if write restart is set
-    rpath <- paste(output_path, "restart", params[["sim_name"]], "", sep = "/")
-    if (dir_create) dir.create(rpath, recursive = TRUE, showWarnings = FALSE)
-    if (!is.null(x[["checkpoint_filename"]])) {
-      x[["checkpoint_filename"]] <- gsub("restart/",
-                                         rpath,
-                                         x[["checkpoint_filename"]])
-    }
-    if (!is.null(x[["restart_filename"]])) {
-      # if dependency is defined start from restart file of dependency sim_name
-      x[["restart_filename"]] <- gsub("restart/",
-                                            ifelse(is.null(x[["dependency"]]),
-                                              rpath,
-                                              paste(output_path,
-                                                    "restart",
-                                                    params[["dependency"]],
-                                                    "",
-                                                    sep = "/")
-                                            ),
-                                            x[["restart_filename"]])
-    }
-    x[["write_restart_filename"]] <- gsub("restart/",
-                                          rpath,
-                                          x[["write_restart_filename"]])
+  rpath <- paste(output_path, "restart", params[["sim_name"]], "", sep = "/")
+  if (dir_create) dir.create(rpath, recursive = TRUE, showWarnings = FALSE)
+  if (!is.null(x[["checkpoint_filename"]])) {
+    x[["checkpoint_filename"]] <- gsub("restart/",
+                                       rpath,
+                                       x[["checkpoint_filename"]])
+  }
+  if (!is.null(x[["restart_filename"]]) && !is.null(params[["dependency"]])) {
+    # if dependency is defined start from restart file of dependency sim_name
+    x[["restart_filename"]] <- gsub("restart/",
+                                          ifelse(is.na(params[["dependency"]]),
+                                            rpath,
+                                            paste(output_path,
+                                                  "restart",
+                                                  params[["dependency"]],
+                                                  "",
+                                                  sep = "/")
+                                          ),
+                                          x[["restart_filename"]])
+  }
+  x[["write_restart_filename"]] <- gsub("restart/",
+                                        rpath,
+                                        x[["write_restart_filename"]])
 
   return(x)
 }

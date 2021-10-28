@@ -61,7 +61,7 @@
 #' #### Important
 #' * a **sim_name** has to be provided
 #' * macros as well as the pseudo parameters ("order", "dependency") are
-#'   optionalbut lay the basis for subsequent runs using
+#'   optional but lay the basis for subsequent runs using
 #'   \link[lpjmlKit]{submitLPJmL}
 #' * use R booleans/logical constants, namely `TRUE` and `FALSE`
 #' * make sure to set value types correctly, e.g. you may want to use
@@ -126,7 +126,8 @@ writeConfig <- function(params,
   row_id <- NULL
   # parallel foreach with rbinding each config_details
   config_details <- foreach::foreach(row_id = seq_len(nrow(params)),
-                                     .combine = "rbind"
+                                     .combine = "rbind",
+                                     .packages = "tibble"
   ) %dopar% {
     # write single call
     writeSingleConfig(params = params[row_id, ],
@@ -146,7 +147,7 @@ writeConfig <- function(params,
   #   config_details[row_id,] <- writeSingleConfig(params[row_id, ],
   #                                             model_path = model_path,
   #                                             output_path = output_path,
-  #                                             output_form = output_format,
+  #                                             output_format = output_format,
   #                                             output_list = output_list,
   #                                             js_filename = js_filename,
   #                                             config_tmp = config_tmp)

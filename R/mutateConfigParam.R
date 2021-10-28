@@ -5,10 +5,9 @@
 #   level, e.g. "key.1.subkey" -> "soilpar.1.name"
 mutateConfigParam <- function(x, params, exclude_macros) {
   # every column represents a key in config.json
-  params[c("order", "dependency", "from_restart", exclude_macros)] <- NULL
+  params[c("order", "dependency", exclude_macros)] <- NULL
 
   for (colname in colnames(params)) {
-
     # test if NA is supplied, then default value is used
     param_value <- unlist(params[[colname]])
     if (is.na(param_value)) next

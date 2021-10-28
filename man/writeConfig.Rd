@@ -76,7 +76,7 @@ automatically set. Also a complex order is possible, e.g. nested or > 2.\tabular
 \itemize{
 \item a \strong{sim_name} has to be provided
 \item macros as well as the pseudo parameters ("order", "dependency") are
-optionalbut lay the basis for subsequent runs using
+optional but lay the basis for subsequent runs using
 \link[lpjmlKit]{submitLPJmL}
 \item use R booleans/logical constants, namely \code{TRUE} and \code{FALSE}
 \item make sure to set value types correctly, e.g. you may want to use

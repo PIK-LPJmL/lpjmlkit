@@ -11,12 +11,13 @@ test_that("write correct config", {
       dependency = c(NA),
       )
 
-  # call function rowwise on dataframe/tibble
+  # create template that would usually be created by writeConfig directly
   test_tmp <- tibble::tibble(sim_name = NA,
                              config_file = NA,
                              order = NA,
                              dependency = NA)
 
+  # test main function of writeConfig since writeConfig is hard to test
   tmp_objects <- writeSingleConfig(params = test_params,
                                    model_path = "testthat",
                                    output_path = "testthat",
