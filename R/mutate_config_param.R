@@ -3,7 +3,7 @@
 #   Nested keys can be reached via "key.subkey,subsubkey" -> "input.soil.name".
 #   For the second level (only) indices can be used, lists occur quite on that
 #   level, e.g. "key.1.subkey" -> "soilpar.1.name"
-mutateConfigParam <- function(x, params, exclude_macros) {
+mutate_config_param <- function(x, params, exclude_macros) {
   # every column represents a key in config.json
   params[c("order", "dependency", exclude_macros)] <- NULL
 

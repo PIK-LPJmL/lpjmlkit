@@ -1,14 +1,14 @@
 #' Submit LPJmL
 #'
 #' LPJmL runs are submitted to Slurm using config*.json files written by
-#' \link[lpjmlKit]{writeConfig}. `writeConfig` returns a tibble that can be
+#' \link[lpjmlKit]{write_config}. `write_config` returns a tibble that can be
 #' used as an input (see `run_details`). It serves the details to submit sinlge
 #' or multiple (dependent/subsequent) model runs.
 #'
 #' @param run_details tibble with at least "sim_name" and "config_file"
 #' defined as columns. Runs as rows. Optional pseudo parameters "order" and
 #' "dependency" used for subsequent runs (see details). Hint:
-#' \link[lpjmlKit]{writeConfig} returns a tibble in the required format
+#' \link[lpjmlKit]{write_config} returns a tibble in the required format
 #'
 #' @param model_path character string providing the path to LPJmL
 #' (equal to LPJROOT)
@@ -56,14 +56,14 @@
 #'
 #'
 #' @export
-submitLPJmL <- function(run_details,
-                        model_path,
-                        output_path = NULL,
-                        group = "lpjml",
-                        sclass = "short",
-                        ntasks = 256,
-                        wtime = "",
-                        blocking = "") {
+submit_lpjml <- function(run_details,
+                         model_path,
+                         output_path = NULL,
+                         group = "lpjml",
+                         sclass = "short",
+                         ntasks = 256,
+                         wtime = "",
+                         blocking = "") {
   if (is.null(output_path)) output_path <- model_path
 
   submitter <- function(sim_name,

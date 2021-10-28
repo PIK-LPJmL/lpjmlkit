@@ -2,14 +2,14 @@
 #   config.json file
 #   mutate* functions are applied to change params/keys after provided
 #   data frame/tibble
-writeSingleConfig <- function(params,
-                              model_path,
-                              output_path,
-                              output_list,
-                              output_format,
-                              js_filename,
-                              config_tmp,
-                              test_it = FALSE) {
+write_single_config <- function(params,
+                                model_path,
+                                output_path,
+                                output_list,
+                                output_format,
+                                js_filename,
+                                config_tmp,
+                                test_it = FALSE) {
   # read json file without simplification (to vector) to avoid destroying the
   #   original json structure (important to be readable for LPJmL)
   #   save it as config.json (as a convention)
@@ -56,21 +56,21 @@ writeSingleConfig <- function(params,
     macro_name <- ""
   }
   # parse config using the cpp precompiler and thereby evaluate macros
-  tmp_json <- parseConfig(path = model_path,
-                          from_restart = from_restart,
-                          js_filename = js_filename,
-                          macro = macro,
-                          test_file = test_it) %>%
+  tmp_json <- parse_config(path = model_path,
+                           from_restart = from_restart,
+                           js_filename = js_filename,
+                           macro = macro,
+                           test_file = test_it) %>%
     # replace output and restart params (paths, output format & which outputs)
-    mutateConfigOutputRestart(params = params,
-                              output_path = output_path,
-                              output_format = output_format,
-                              output_list = output_list,
-                              dir_create = !test_it) %>%
+    mutate_config_output(params = params,
+                         output_path = output_path,
+                         output_format = output_format,
+                         output_list = output_list,
+                         dir_create = !test_it) %>%
     # params/keys insert from params data frame
     #   columns as keys and rows as values (values, vectors possible)
-    mutateConfigParam(params = params,
-                      exclude_macros = macro_name)
+    mutate_config_param(params = params,
+                        exclude_macros = macro_name)
 
   if (!test_it) {
     # write config json file, use sim_name for naming

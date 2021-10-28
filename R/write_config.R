@@ -17,8 +17,8 @@
 #' If defined only these defined outputs will be written. Defaults to NULL
 #'
 #' @param output_format character string defining the format of the output.
-#' Defaults to `"clm"` (use a header), further options would be `"cdf"` or
-#' `"raw"`
+#' Defaults to `"raw"`, further options would be `"cdf"` (write netcdf) or
+#' `"clm"` (use a header)
 #'
 #' @param js_filename character string providing name of the main js file to be
 #' parsed. Default is "lpjml.js"
@@ -28,7 +28,7 @@
 #'
 #' @return tibble with at least columns "sime_name" and "config_file" defined.
 #' If defined in params pseude parameters "order" and dependency are included.
-#' Tibble in this format is required for \link[lpjmlKit]{submitLPJmL}.
+#' Tibble in this format is required for \link[lpjmlKit]{submit_lpjml}.
 #'
 #' @details
 #'
@@ -37,7 +37,7 @@
 #'
 #' | **sim_name**      | **random_seed** | **pftpar.1.name** |
 #'  **param.k_temp** | **firewood** |
-#' |:------------- |-----------:|:------------- | -----------------:| ------------:|
+#' |:------------- |------------:|:------------- | -----------------:| ------------:|
 #' | scen1         | 42          | first_tree    | NA                | TRUE         |
 #' | scen2         | 404         | NA            | 0.03              | FALSE        |
 #'
@@ -52,7 +52,7 @@
 #' Another option would be to set two pseudo parameters to link runs with each
 #' other. The macro "-DFROM_RESTART" is not (!) required here, but is
 #' automatically set. Also a complex order is possible, e.g. nested or > 2.
-#' 
+#'
 #' | **sim_name**      | **random_seed** | **order** | **dependeny** |
 #' |:----------------- | ---------------:|:--------- | -------------:|
 #' | scen1_spinup      | 42              | 1         | NA            |
@@ -62,7 +62,7 @@
 #' * a **sim_name** has to be provided
 #' * macros as well as the pseudo parameters ("order", "dependency") are
 #'   optional but lay the basis for subsequent runs using
-#'   \link[lpjmlKit]{submitLPJmL}
+#'   \link[lpjmlKit]{submit_lpjml}
 #' * use R booleans/logical constants, namely `TRUE` and `FALSE`
 #' * make sure to set value types correctly, e.g. you may want to use
 #'   `as.integer()` for integer value columns
@@ -72,7 +72,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' my_params <- tibble::tibble(
+#' library(tibble)
+#'
+#' my_params <- tibble(
 #'  sim_name = c("scen1", "scen2"),
 #'  random_seed = as.integer(c(42, 666)),
 #'  pftpar.1.name = c("first_tree", NA),
@@ -80,7 +82,7 @@
 #'  firewood = c(TRUE, FALSE)
 #' )
 #'
-#' config_names <- writeConfig(params = my_params)
+#' config_names <- write_config(params = my_params)
 #'
 #'   sim_name  random_seed  pftpar.1.name  param.k_temp  `firewood`
 #'   <chr>           <int>  <chr>                 <dbl>  <lgl>     
@@ -91,19 +93,19 @@
 #' @importFrom foreach "%dopar%"
 #' @importFrom magrittr %>%
 #' @export
-writeConfig <- function(params,
-                        model_path,
-                        output_path = NULL,
-                        output_list = c(),
-                        output_format = "clm",
-                        js_filename = "lpjml.js",
-                        parallel_cores = 4) {
+write_config <- function(params,
+                         model_path,
+                         output_path = NULL,
+                         output_list = c(),
+                         output_format = "raw",
+                         js_filename = "lpjml.js",
+                         parallel_cores = 4) {
 
   # if output_path is not supplied use model_path as output_path
   if (is.null(output_path)) {
     output_path <- model_path
   }
-  # create configurations directory to store config*.json files
+  # create configurations directory to store config_*.json files
   dir.create(
     paste(ifelse(is.null(output_path), model_path, output_path),
           "configurations",
@@ -118,7 +120,7 @@ writeConfig <- function(params,
                                order = NA,
                                dependency = NA)
 
-  # parallelize writeSingleConfig, parsing and replacing json takes some time
+  # parallelize write_single_config, parsing and replacing json takes some time
   # create and register cluster based on available CPU cores
   cl <- parallel::makeCluster(parallel_cores)
   doParallel::registerDoParallel(cl)
@@ -130,13 +132,13 @@ writeConfig <- function(params,
                                      .packages = "tibble"
   ) %dopar% {
     # write single call
-    writeSingleConfig(params = params[row_id, ],
-                      model_path = model_path,
-                      output_path = output_path,
-                      output_format = output_format,
-                      output_list = output_list,
-                      js_filename = js_filename,
-                      config_tmp = config_tmp)
+    write_single_config(params = params[row_id, ],
+                        model_path = model_path,
+                        output_path = output_path,
+                        output_format = output_format,
+                        output_list = output_list,
+                        js_filename = js_filename,
+                        config_tmp = config_tmp)
   }
   # close cluster
   parallel::stopCluster(cl)
@@ -144,13 +146,13 @@ writeConfig <- function(params,
   # USE FOR DEBUGGING
   # config_details <- config_tmp
   # for (row_id in seq_len(dim(params)[1])) {
-  #   config_details[row_id,] <- writeSingleConfig(params[row_id, ],
-  #                                             model_path = model_path,
-  #                                             output_path = output_path,
-  #                                             output_format = output_format,
-  #                                             output_list = output_list,
-  #                                             js_filename = js_filename,
-  #                                             config_tmp = config_tmp)
+  #   config_details[row_id,] <- write_single_config(params[row_id, ],
+  #                                              model_path = model_path,
+  #                                              output_path = output_path,
+  #                                              output_format = output_format,
+  #                                              output_list = output_list,
+  #                                              js_filename = js_filename,
+  #                                              config_tmp = config_tmp)
   # }
 
   # return config_details with sim_names as well as config_names

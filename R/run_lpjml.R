@@ -1,9 +1,9 @@
 #' Run LPJmL
 #'
-#' LPJmL is run using a config*.json written by \link[lpjmlKit]{writeConfig}.
+#' LPJmL is run using a config_*.json written by \link[lpjmlKit]{write_config}.
 #' `runLPJmL` can only perform single or subsequent model runs. For multiple
-#' runs (via slurm) you may consider to use \link[lpjmlKit]{submitLPJmL} or
-#' loop over an R-script containing `runLPJmL`.
+#' runs (via slurm) you may consider to use \link[lpjmlKit]{submit_lpjml} or
+#' loop over an R-script containing `run_lpjml`.
 #'
 #' @param sim_name_s character vector providing sim_name or sim_names if the
 #' runs are dependent from each other (e.g. spin-up and transient run)
@@ -18,9 +18,9 @@
 #' @return "Done."
 #'
 #' @export
-runLPJmL <- function(sim_name_s,
-                     model_path,
-                     output_path = NULL) {
+run_lpjml <- function(sim_name_s,
+                      model_path,
+                      output_path = NULL) {
 
   if (is.null(output_path)) output_path <- model_path
 

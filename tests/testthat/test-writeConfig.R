@@ -18,17 +18,17 @@ test_that("write correct config", {
                              dependency = NA)
 
   # test main function of writeConfig since writeConfig is hard to test
-  tmp_objects <- writeSingleConfig(params = test_params,
-                                   model_path = "testthat",
-                                   output_path = "testthat",
-                                   output_list = c(),
-                                   output_format = "clm",
-                                   js_filename = "lpjml.js",
-                                   config_tmp = test_tmp,
-                                   test_it = TRUE)
+  tmp_objects <- write_single_config(params = test_params,
+                                     model_path = "testthat",
+                                     output_path = "testthat",
+                                     output_list = c(),
+                                     output_format = "clm",
+                                     js_filename = "lpjml.js",
+                                     config_tmp = test_tmp,
+                                     test_it = TRUE)
 
   # check json mutate functions to result in correct json file
-  check_json <- readConfig("../testdata/config_spinup_pnv.json")
+  check_json <- read_config("../testdata/config_spinup_pnv.json")
   expect_true(all(unlist(tmp_objects[[1]]) == unlist(check_json)))
 
 

@@ -1,10 +1,10 @@
 #' Check LPJmL config JSON files using lpjcheck
 #'
-#' Check if created LPJmL config JSON files (\link[lpjmlKit]{writeConfig}) are
+#' Check if created LPJmL config JSON files (\link[lpjmlKit]{write_config}) are
 #' valid.
 #'
 #' @param config_files character vector providing config_files
-#' (hint: \link[lpjmlKit]{writeConfig} returns config_files as a list entry)
+#' (hint: \link[lpjmlKit]{write_config} returns config_files as a list entry)
 #'
 #' @param model_path character string providing the path to LPJmL
 #' (equal to LPJROOT)
@@ -19,10 +19,10 @@
 #' @return see `pretty_print`
 #'
 #' @export
-checkConfig <- function(config_files,
-                        model_path,
-                        output_path = NULL,
-                        pretty_print = TRUE) {
+check_config <- function(config_files,
+                         model_path,
+                         output_path = NULL,
+                         pretty_print = TRUE) {
 
   if (is.null(output_path)) output_path <- model_path
 

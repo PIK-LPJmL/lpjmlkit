@@ -1,12 +1,12 @@
 # Function to rewrite parts in the output and restart section of precompiled
 #   and read (as list) lpjml.js > config.json
 #   output format (raw, clm cdf), output selection, output path, restart_path
-mutateConfigOutputRestart <- function(x,
-                                      params,
-                                      output_path,
-                                      output_format,
-                                      output_list,
-                                      dir_create = FALSE) {
+mutate_config_output <- function(x,
+                                 params,
+                                 output_path,
+                                 output_format,
+                                 output_list,
+                                 dir_create = FALSE) {
   # create vector to fill with outputs to delete (non matches with output_list)
   to_remove <- c()
 

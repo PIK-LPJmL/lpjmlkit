@@ -14,7 +14,7 @@
 #' @return see `pretty_print`
 #'
 #' @export
-makeLPJmL <- function(model_path = ".", make_fast=TRUE, pretty_print = TRUE) {
+make_lpjml <- function(model_path = ".", make_fast=TRUE, pretty_print = TRUE) {
   # take precompiled config.json as proxy if LPJmL was already configured
   if (file.exists(paste0(model_path, "bin/lpjml"))) {
     init <- processx::run(command = "make",
