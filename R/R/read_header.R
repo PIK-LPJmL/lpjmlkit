@@ -18,14 +18,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' header <- readHeader(filename)
+#' header <- read_header("filename.clm")
 #' }
 #'
-#' @seealso [newHeader()] for a more detailed description of the LPJmL header format,
-#'     [writeHeader()] for writing headers to files.
+#' @seealso [new_header()] for a more detailed description of the LPJmL header format,
+#'     [write_header()] for writing headers to files.
 #' 
 #' @export
-readHeader <- function(filename, force_version=NULL) {
+read_header <- function(filename, force_version=NULL) {
   if(!file.exists(filename)) {
     stop(paste(filename, "does not exist"))
   }
@@ -40,6 +40,10 @@ readHeader <- function(filename, force_version=NULL) {
   if(substr(headername, 1,3) != "LPJ") {
     close(zz)
     stop(paste("Invalid header name", headername))
+  }
+  if(headername == "LPJRESTART") {
+    close(zz)
+    stop("LPJRESTART header detected. This function does not support restart headers at the moment")
   }
   # skip over header
   seek(zz, nchar(headername))
@@ -61,13 +65,13 @@ readHeader <- function(filename, force_version=NULL) {
   # read main header data that is included in all header versions
   headerdata <- readBin(zz, integer(), size=4, n=6, endian=endian)
   names(headerdata) <- c("order", "firstyear", "nyear", "firstcell", "ncell", "nbands")
-  # header version 2 added two more parameters
   if(version == 2) {
+    # header version 2 added two more parameters
     headerdata <- c(headerdata, readBin(zz, double(), size=4, n=2, endian=endian))
     names(headerdata) <- c(names(headerdata[1:6]), "cellsize_lon", "scalar")
   }
-  # header version 3 added two more parameters on top of parameters added in version 2
   if(version == 3) {
+    # header version 3 added two more parameters on top of parameters added in version 2
     headerdata <- c(headerdata, readBin(zz, double(), size=4, n=3, endian=endian))
     headerdata <- c(headerdata, readBin(zz, integer(), size=4, n=1, endian=endian))
     names(headerdata) <- c(names(headerdata[1:(length(headerdata)-4)]), "cellsize_lon", "scalar", "cellsize_lat", "datatype")
