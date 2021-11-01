@@ -1,6 +1,6 @@
 #' @title Create new LPJmL file header from scratch.
 #'
-#' @description Create a header in the format required by writeHeader().
+#' @description Create a header in the format required by write_header().
 #'
 #' @param name Header name attribute (default: "LPJGRID")
 #' @param version CLM version to use (default: 3)
@@ -25,14 +25,15 @@
 #' * endian
 #'
 #' @examples
-#' header <- newHeader(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=1, firstcell=0,
+#' header <- new_header(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=1, firstcell=0,
 #'           ncell=67420, nbands=2, cellsize_lon=0.5, scalar=0.01, cellsize_lat=0.5, datatype=1,
 #'           endian=.Platform$endian)
 #'
 #' @details File headers in input files are used by LPJmL to determine the structure
 #' of the file and how to read it.
 #'
-#' Header names usually start with "LPJ" followed by a word or abbreviation describing the type of input data. See LPJmL code for valid header names.
+#' Header names usually start with "LPJ" followed by a word or abbreviation describing the type
+#' of input data. See LPJmL code for valid header names.
 #'
 #' The version number determines the amount of header information included in the file. All versions
 #' save the header name and header attributes 'version', 'order', 'firstyear', 'nyear', 'firstcell',
@@ -50,10 +51,10 @@
 #'
 #' Default parameters of the function are valid for grid input files.
 #'
-#' @seealso [readHeader()] for reading headers from LPJmL files and [writeHeader()] for writing headers to files.
+#' @seealso [read_header()] for reading headers from LPJmL files and [write_header()] for writing headers to files.
 #'
 #' @export
-newHeader <- function(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=1, firstcell=0, ncell, nbands=2, cellsize_lon=0.5, scalar=0.01, cellsize_lat=cellsize_lon, datatype=1, endian=.Platform$endian) {
+new_header <- function(name = "LPJGRID", version = 3, order = 1, firstyear = 1901, nyear = 1, firstcell = 0, ncell, nbands = 2, cellsize_lon = 0.5, scalar = 0.01, cellsize_lat = cellsize_lon, datatype = 1, endian = .Platform$endian) {
   header <- list()
   if(is.character(name) && length(name) == 1) {
     header[["name"]] <- name
@@ -65,7 +66,7 @@ newHeader <- function(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=
   header[["header"]] <- numeric(0)
   # check that valid values have been provided for all parameters included header version 1
   for(check in c("version", "order", "firstyear", "nyear", "firstcell", "ncell", "nbands")) {
-    if(is.numeric(get(check)) && length(get(check)) == 1 && get(check)==as.integer(get(check))) {
+    if(is.numeric(get(check)) && length(get(check)) == 1 && get(check) == as.integer(get(check))) {
       header[["header"]] <- c(header[["header"]], get(check))
       names(header[["header"]])[length(header[["header"]])] <- check
     } else {
@@ -90,9 +91,9 @@ newHeader <- function(name="LPJGRID", version=3, order=1, firstyear=1901, nyear=
         stop("cellsize_lat must be a float of length 1")
       }
       if(length(datatype)==1) {
-        if(!is.null(lpjDatatype(c(header[["header"]], datatype=datatype)))) {
+        if(!is.null(lpj_datatype(c(header[["header"]], datatype=datatype)))) {
           header[["header"]] <- c(header[["header"]], datatype=as.integer(datatype))
-          print(paste0("Setting datatype to ", ifelse(datatype < 1, "unsigned ", ""), typeof(lpjDatatype(header)$type), " with size ", lpjDatatype(header)$size))
+          print(paste0("Setting datatype to ", ifelse(lpj_datatype(header)$signed, "", "unsigned "), typeof(lpj_datatype(header)$type), " with size ", lpj_datatype(header)$size))
         } else {
           stop(paste("Unknown datatype", datatype))
         }
