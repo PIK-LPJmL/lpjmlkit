@@ -93,7 +93,13 @@ new_header <- function(name = "LPJGRID", version = 3, order = 1, firstyear = 190
       if(length(datatype)==1) {
         if(!is.null(lpj_datatype(c(header[["header"]], datatype=datatype)))) {
           header[["header"]] <- c(header[["header"]], datatype=as.integer(datatype))
-          print(paste0("Setting datatype to ", ifelse(lpj_datatype(header)$signed, "", "unsigned "), typeof(lpj_datatype(header)$type), " with size ", lpj_datatype(header)$size))
+          print(paste0("Setting datatype to ",
+                       ifelse(lpj_datatype(header)$signed, "", "unsigned "),
+                       typeof(lpj_datatype(header)$type),
+                       " with size ",
+                       lpj_datatype(header)$size
+                      )
+               )
         } else {
           stop(paste("Unknown datatype", datatype))
         }
