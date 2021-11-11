@@ -124,7 +124,7 @@ submit_lpjml <- function(run_details,
   run_details$job_id <- rep(NA, nrow(run_details))
   run_details$status <- rep("submitted", nrow(run_details))
 
-  if (!is.null(run_details$order)) {
+  if ("order" %in% run_details) {
     for (order in unique(sort(run_details$order))) {
       sim_names <- run_details$sim_name[
         which(run_details$order == order)
@@ -161,7 +161,7 @@ submit_lpjml <- function(run_details,
       }
     }
   } else {
-    for (sim_name in sim_names) {
+    for (sim_name in run_details$sim_name) {
       job <- submitter(sim_name,
                        model_path,
                        output_path,
