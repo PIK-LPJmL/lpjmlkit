@@ -101,6 +101,12 @@ write_config <- function(params,
                          js_filename = "lpjml.js",
                          parallel_cores = 4) {
 
+  # check if model_path valid
+  if (!dir.exists(model_path)) {
+    stop(
+      paste0("Folder of model_path \"", model_path, "\" does not exist!")
+    )
+  }
   # if output_path is not supplied use model_path as output_path
   if (is.null(output_path)) {
     output_path <- model_path
