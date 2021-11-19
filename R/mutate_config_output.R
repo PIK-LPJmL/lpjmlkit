@@ -10,6 +10,10 @@ mutate_config_output <- function(x,
   # create vector to fill with outputs to delete (non matches with output_list)
   to_remove <- c()
 
+  # concatenate output path and create folder if set
+  opath <- paste(output_path, "output", params[["sim_name"]], "", sep = "/")
+  if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
+
   for (x_id in seq_len(length(x[["output"]]))) {
 
     # if output_list is defined append output index to to_remove vector
@@ -25,12 +29,10 @@ mutate_config_output <- function(x,
       x[["output"]][[x_id]]$file$fmt <- output_format
     }
 
-    # concatenate output path and folder and replace in x
-    opath <- paste(output_path, "output", params[["sim_name"]], "", sep = "/")
+    # replace output path replace in x
     x[["output"]][[x_id]]$file$name <- gsub("output/",
                                             opath,
                                             x[["output"]][[x_id]]$file$name)
-    if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
   }
 
   # remove non matching outputs
