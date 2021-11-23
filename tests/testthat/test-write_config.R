@@ -67,7 +67,7 @@ test_that("include non output defined outputvars", {
                                      js_filename = "lpjml.js",
                                      config_tmp = test_tmp,
                                      test_it = TRUE)
-  print(tmp_objects)
+
   # check if defined outputvar (id) exists as last output
   expect_true(
     tmp_objects[[1]][["output"]][[
