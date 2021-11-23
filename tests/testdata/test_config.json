@@ -183,6 +183,28 @@
 "compress_cmd" : "gzip -f",
 "compress_suffix" : ".gz",
 "csv_delimit" : ",",
+"outputvar": [
+  {
+    "id": 0,
+    "name": "grid",
+    "timestep": "annual",
+    "var": "soil",
+    "descr": "coordinates",
+    "unit": "degree",
+    "scale": 1.0,
+    "offset": 0.0
+  },
+  {
+    "id": 21,
+    "name": "irrig",
+    "timestep": "monthly",
+    "var": "irrig",
+    "descr": "irrigation",
+    "unit": "mm/month",
+    "scale": 1.0,
+    "offset": 0.0
+  }
+],
 "inpath" : "/p/projects/lpjml/input/historical",
 "soilmap" : [null,"clay", "silty clay", "sandy clay", "clay loam", "silty clay loam",
              "sandy clay loam", "loam", "silt loam", "sandy loam", "silt",
@@ -246,7 +268,7 @@
   "crop_irrigation" : false,
   "output" :
   [
-    { "id" : "globalflux", "file" : { "fmt" : "txt", "name" : "output/globalflux_spinup.csv"}}
+    { "id" : "grid", "file" : { "fmt" : "clm", "name" : "output/grid.clm"}}
   ],
   "startgrid" : "all",
   "endgrid" : -1,

@@ -128,7 +128,7 @@ write_config <- function(params,
 
   # parallelize write_single_config, parsing and replacing json takes some time
   # create and register cluster based on available CPU cores
-  cl <- parallel::makeCluster(parallel_cores)
+  cl <- parallel::makeCluster(parallel_cores, outfile = "")
   doParallel::registerDoParallel(cl)
 
   row_id <- NULL
