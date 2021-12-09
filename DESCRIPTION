@@ -8,7 +8,7 @@ Description: Function kit for handling and processing LPJmL related stuff,
     such as input, output, plotting, aggregation.
 License: GPL-3
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 Imports:
     magrittr,
