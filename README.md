@@ -5,8 +5,13 @@
 This project contains reading, writing, plotting or processing functions that are related to the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. 
 It further provides functions to run the LPJmL as well as process model related data such as In- and Outputs. It comes in the [R package format](https://r-pkgs.org/intro.html). Main functions are:
 
-* `writeConfig()` *write config\*.json based on precompiled lpjml.js and params data frame*
-* `makeLPJmL()` and `runLPJmL()` *to compile and run LPJmL with config\*.json* 
+#### Run LPJmL
+* `write_config()` *to write config\*.json based on precompiled lpjml.js and params data frame*
+* `make_lpjml()` and `run_lpjml()` *to compile and run LPJmL with config\*.json* 
+#### Work with LPJmL files
+* `read_header()` *to read header information from LPJmL files (usually input files, but output files can also contain headers)*
+* `create_header()` and `write_header()` *to create LPJmL files with headers yourself*
+* `get_datatype()` *to use header information about the data type of an LPJmL file in `readBin()` or `writeBin()` functions*
 
 
 ## Usage/Installation
