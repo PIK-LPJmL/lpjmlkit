@@ -57,14 +57,16 @@ After the installation, you can use `lpjmlKit` as any other R package.
 ```R
 # Load lpjmlKit
 library(lpjmlKit)
-
-# Get an overview of all functions included:
-ls("package:lpjmlkit")
+```
+To get an overview of all functions included you can use:
+```R
+library(help = "lpjmlKit")
 ```
 
-- in `lpjmlKit` there are functions to handle input-file headers, e.g.:
-  - `R read_header` to read the header of LPJmL input files
-  - `get_headersize` to get the size of a file header
+- In `lpjmlKit` there are functions to handle LPJmL file headers (mostly used in input files), e.g.:
+  - `read_header()`, to read the header of LPJmL files
+  - `get_headersize()`, to get the size of a file header
+  - `get_datatype()`, to get information on the data type used in different LPJmL files
 - You can also configure, compile and run LPJmL, e.g.:
   - `write_config` to write config*.json based on a precompiled lpjml.js and parameters data-frame
   - `make_lpjml` to compile LPJmL
