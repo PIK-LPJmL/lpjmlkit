@@ -64,13 +64,13 @@ library(help = "lpjmlKit")
 ```
 
 - In `lpjmlKit` there are functions to handle LPJmL file headers (mostly used in input files), e.g.:
-  - `read_header()`, to read the header of LPJmL files
-  - `get_headersize()`, to get the size of a file header
-  - `get_datatype()`, to get information on the data type used in different LPJmL files
+  - `read_header` *read the header of LPJmL files*
+  - `get_headersize` *to get the size of a file header*
+  - `get_datatype` *get information on the data type used in different LPJmL files*
 - You can also configure, compile and run LPJmL, e.g.:
-  - `write_config` to write config*.json based on a precompiled lpjml.js and parameters data-frame
-  - `make_lpjml` to compile LPJmL
-  - `run_lpjml` to run LPJmL with config\*.json
+  - `write_config` *write \*_config.json based on a precompiled lpjml.js and parameters data-frame*
+  - `make_lpjml` *compile LPJmL*
+  - `run_lpjml`, `submit_lpjml` *run or submit LPJmL (to Slurm) with \*_config.json*
 
 
 [Go to Top](#)
