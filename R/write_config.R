@@ -26,7 +26,7 @@
 #' @param parallel_cores integer defining the number of available CPU cores for
 #' parallelization. Defaults to 4 (min)
 #'
-#' @return tibble with at least columns "sime_name" and "config_file" defined.
+#' @return tibble with at least columns "sime_name" defined.
 #' If defined in params pseude parameters "order" and dependency are included.
 #' Tibble in this format is required for \link[lpjmlKit]{submit_lpjml}.
 #'
@@ -47,7 +47,7 @@
 #' | **sim_name**      | **random_seed** | **-DFROM_RESTART** |
 #' |:----------------- | ---------------:|:------------------ |
 #' | scen1_spinup      | 42              | FALSE              |
-#' | scen1_transient   | 42              | TRUE               |
+#' | scen1_transient   | 404              | TRUE               |
 #'
 #' Another option would be to set two pseudo parameters to link runs with each
 #' other. The macro "-DFROM_RESTART" is not (!) required here, but is
@@ -55,8 +55,8 @@
 #'
 #' | **sim_name**      | **random_seed** | **order** | **dependeny** |
 #' |:----------------- | ---------------:|:--------- | -------------:|
-#' | scen1_spinup      | 42              | 1         | NA            |
-#' | scen1_transient   | 42              | 2         | scen1_spinup  |
+#' | scen1_spinup      | 1              | 1         | NA            |
+#' | scen1_transient   | 404              | 2         | scen1_spinup  |
 #'
 #' #### Important
 #' * a **sim_name** has to be provided
@@ -74,20 +74,51 @@
 #' \dontrun{
 #' library(tibble)
 #'
+#' # basic
 #' my_params <- tibble(
 #'  sim_name = c("scen1", "scen2"),
-#'  random_seed = as.integer(c(42, 666)),
+#'  random_seed = as.integer(c(12, )),
 #'  pftpar.1.name = c("first_tree", NA),
 #'  param.k_temp = c(NA, 0.03),
 #'  firewood = c(TRUE, FALSE)
 #' )
 #'
 #' config_names <- write_config(params = my_params)
+#' config_names
+#' #   sim_name  random_seed  pftpar.1.name  param.k_temp  `firewood`
+#' #   <chr>           <int>  <chr>                 <dbl>  <lgl>     
+#' # 1 scen1              42  first_tree               NA  TRUE      
+#' # 2 scen2             404  NA                     0.03  FALSE     
 #'
-#'   sim_name  random_seed  pftpar.1.name  param.k_temp  `firewood`
-#'   <chr>           <int>  <chr>                 <dbl>  <lgl>     
-#' 1 scen1               5  first_tree               NA  TRUE      
-#' 2 scen2               4  NA                     0.03  FALSE     
+#' # defining macros
+#' my_params2 <- tibble(
+#'  sim_name = c("scen1_spinup", "scen1_transient"),
+#'  random_seed = as.integer(c(42, 666)),
+#'  `-DFROM_RESTART` = c(FALSE, TRUE)
+#' )
+#'
+#' config_names2 <- write_config(params = my_params)
+#' config_names2
+#' #   sim_name        random_seed `-DFROM_RESTART`
+#' #   <chr>                 <int> <lgl>           
+#' # 1 scen1_spinup             42 FALSE           
+#' # 2 scen1_transient         666 TRUE            
+#'
+#' # with dependent runs
+#' my_params3 <- tibble(
+#'  sim_name = c("scen1_spinup", "scen1_transient"),
+#'  random_seed = as.integer(c(42, 666)),
+#'  order = c(FALSE, TRUE),
+#'  dependency = c(NA, "scen1_spinup")
+#' )
+#' #' config_names3 <- write_config(params = my_params)
+#'
+#' config_names3
+#' #   sim_name        random_seed order dependency  
+#' #   <chr>                 <int> <lgl> <chr>       
+#' # 1 scen1_spinup             42 FALSE NA          
+#' # 2 scen1_transient         666 TRUE  scen1_spinup
+#'
 #' }
 #' @md
 #' @importFrom foreach "%dopar%"
@@ -122,22 +153,23 @@ write_config <- function(params,
 
   # call function rowwise on dataframe/tibble
   config_tmp <- tibble::tibble(sim_name = NA,
-                               config_file = NA,
                                order = NA,
                                dependency = NA)
 
+  error_file <- tempfile(fileext = ".txt")
   # parallelize write_single_config, parsing and replacing json takes some time
   # create and register cluster based on available CPU cores
-  cl <- parallel::makeCluster(parallel_cores, outfile = "")
+  cl <- parallel::makeCluster(parallel_cores, outfile = error_file)
   doParallel::registerDoParallel(cl)
 
   row_id <- NULL
-  # parallel foreach with rbinding each config_details
-  config_details <- foreach::foreach(row_id = seq_len(nrow(params)),
+  # parallel foreach with rbinding each job_details
+  job_details <- foreach::foreach(row_id = seq_len(nrow(params)),
                                      .combine = "rbind",
                                      .packages = "tibble"
   ) %dopar% {
     # write single call
+    tryCatch({
     write_single_config(params = params[row_id, ],
                         model_path = model_path,
                         output_path = output_path,
@@ -145,14 +177,18 @@ write_config <- function(params,
                         output_list = output_list,
                         js_filename = js_filename,
                         config_tmp = config_tmp)
+    }, error = function(e) {
+      errors <- readLines(error_file, warn = FALSE)
+      stop(paste0(unique(errors[grepl("!", errors)]), collapse = "\n"))
+    })
   }
   # close cluster
   parallel::stopCluster(cl)
 
   # USE FOR DEBUGGING
-  # config_details <- config_tmp
+  # job_details <- config_tmp
   # for (row_id in seq_len(dim(params)[1])) {
-  #   config_details[row_id,] <- write_single_config(params[row_id, ],
+  #   job_details[row_id,] <- write_single_config(params[row_id, ],
   #                                              model_path = model_path,
   #                                              output_path = output_path,
   #                                              output_format = output_format,
@@ -161,12 +197,13 @@ write_config <- function(params,
   #                                              config_tmp = config_tmp)
   # }
 
-  # return config_details with sim_names as well as config_names
+  # return job_details with sim_names as well as config_names
   #   order and dependency are only returned if defined in the params
-  if (any(is.na(config_details$order)) ||
-      all(is.na(config_details$dependency))) {
-    config_details$order <- NULL
-    config_details$dependency <- NULL
+  if (any(is.na(job_details$order)) ||
+      all(is.na(job_details$dependency))) {
+    job_details$order <- NULL
+    job_details$dependency <- NULL
   }
-  return(config_details)
+  attr(job_details, "stages") <- c("config")
+  return(job_details)
 }

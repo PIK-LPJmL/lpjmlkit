@@ -4,11 +4,12 @@
 \alias{check_config}
 \title{Check LPJmL config JSON files using lpjcheck}
 \usage{
-check_config(config_files, model_path, output_path = NULL, pretty_print = TRUE)
+check_config(x, model_path, output_path = NULL, pretty_print = TRUE)
 }
 \arguments{
-\item{config_files}{character vector providing config_files
-(hint: \link[lpjmlKit]{write_config} returns config_files as a list entry)}
+\item{x}{job_details object returned by \link[lpjmlKit]{write_config} or
+character vector providing the config file names
+(hint: returns x as a list entry)}
 
 \item{model_path}{character string providing the path to LPJmL
 (equal to LPJROOT)}

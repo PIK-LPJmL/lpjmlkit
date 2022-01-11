@@ -13,7 +13,6 @@ test_that("write correct config", {
 
   # create template that would usually be created by writeConfig directly
   test_tmp <- tibble::tibble(sim_name = NA,
-                             config_file = NA,
                              order = NA,
                              dependency = NA)
 
@@ -35,8 +34,8 @@ test_that("write correct config", {
   # check returned tibble to come in the right format with equal data
   check_tibble <- test_tmp
   check_tibble[1,
-    c("sim_name", "config_file", "dependency", "order")
-  ] <- list("spinup_pnv", "config_spinup_pnv.json", NA, 1)
+    c("sim_name", "dependency", "order")
+  ] <- list("spinup_pnv", NA, 1)
   expect_true(all(
       tmp_objects[[2]][1, which(tmp_objects != "dependency")] ==
       check_tibble[1, which(tmp_objects != "dependency")]))
@@ -54,7 +53,6 @@ test_that("include non output defined outputvars", {
 
   # create template that would usually be created by writeConfig directly
   test_tmp <- tibble::tibble(sim_name = NA,
-                             config_file = NA,
                              order = NA,
                              dependency = NA)
 

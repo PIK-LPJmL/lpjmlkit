@@ -24,7 +24,7 @@ run_lpjml <- function(sim_name_s,
 
   if (is.null(output_path)) output_path <- model_path
 
-  runner <- function(sim_name,
+  do_run <- function(sim_name,
                      model_path,
                      output_path) {
     config_file <- paste0("config_",
@@ -57,7 +57,7 @@ run_lpjml <- function(sim_name_s,
                   cleanup_tree = TRUE)
   }
   for (sim_name in sim_name_s) {
-    runner(sim_name, model_path, output_path)
+    do_run(sim_name, model_path, output_path)
   }
   cat("\nDone.")
 }

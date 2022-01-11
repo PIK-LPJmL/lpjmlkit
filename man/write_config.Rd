@@ -38,7 +38,7 @@ parsed. Default is "lpjml.js"}
 parallelization. Defaults to 4 (min)}
 }
 \value{
-tibble with at least columns "sime_name" and "config_file" defined.
+tibble with at least columns "sime_name" defined.
 If defined in params pseude parameters "order" and dependency are included.
 Tibble in this format is required for \link[lpjmlKit]{submit_lpjml}.
 }
@@ -60,7 +60,7 @@ To set a macro (e.g. FROM_RESTART or CHECKPOINT) provide it as a flag in
 in bash: "-DFROM_RESTART" "-DCHECKPOINT"\tabular{lrl}{
    \strong{sim_name} \tab \strong{random_seed} \tab \strong{-DFROM_RESTART} \cr
    scen1_spinup \tab 42 \tab FALSE \cr
-   scen1_transient \tab 42 \tab TRUE \cr
+   scen1_transient \tab 404 \tab TRUE \cr
 }
 
 
@@ -68,8 +68,8 @@ Another option would be to set two pseudo parameters to link runs with each
 other. The macro "-DFROM_RESTART" is not (!) required here, but is
 automatically set. Also a complex order is possible, e.g. nested or > 2.\tabular{lrlr}{
    \strong{sim_name} \tab \strong{random_seed} \tab \strong{order} \tab \strong{dependeny} \cr
-   scen1_spinup \tab 42 \tab 1 \tab NA \cr
-   scen1_transient \tab 42 \tab 2 \tab scen1_spinup \cr
+   scen1_spinup \tab 1 \tab 1 \tab NA \cr
+   scen1_transient \tab 404 \tab 2 \tab scen1_spinup \cr
 }
 
 \subsection{Important}{
@@ -91,19 +91,50 @@ and shows the type of each column, further advantages
 \dontrun{
 library(tibble)
 
+# basic
 my_params <- tibble(
  sim_name = c("scen1", "scen2"),
- random_seed = as.integer(c(42, 666)),
+ random_seed = as.integer(c(12, )),
  pftpar.1.name = c("first_tree", NA),
  param.k_temp = c(NA, 0.03),
  firewood = c(TRUE, FALSE)
 )
 
 config_names <- write_config(params = my_params)
+config_names
+#   sim_name  random_seed  pftpar.1.name  param.k_temp  `firewood`
+#   <chr>           <int>  <chr>                 <dbl>  <lgl>     
+# 1 scen1              42  first_tree               NA  TRUE      
+# 2 scen2             404  NA                     0.03  FALSE     
 
-  sim_name  random_seed  pftpar.1.name  param.k_temp  `firewood`
-  <chr>           <int>  <chr>                 <dbl>  <lgl>     
-1 scen1               5  first_tree               NA  TRUE      
-2 scen2               4  NA                     0.03  FALSE     
+# defining macros
+my_params2 <- tibble(
+ sim_name = c("scen1_spinup", "scen1_transient"),
+ random_seed = as.integer(c(42, 666)),
+ `-DFROM_RESTART` = c(FALSE, TRUE)
+)
+
+config_names2 <- write_config(params = my_params)
+config_names2
+#   sim_name        random_seed `-DFROM_RESTART`
+#   <chr>                 <int> <lgl>           
+# 1 scen1_spinup             42 FALSE           
+# 2 scen1_transient         666 TRUE            
+
+# with dependent runs
+my_params3 <- tibble(
+ sim_name = c("scen1_spinup", "scen1_transient"),
+ random_seed = as.integer(c(42, 666)),
+ order = c(FALSE, TRUE),
+ dependency = c(NA, "scen1_spinup")
+)
+#' config_names3 <- write_config(params = my_params)
+
+config_names3
+#   sim_name        random_seed order dependency  
+#   <chr>                 <int> <lgl> <chr>       
+# 1 scen1_spinup             42 FALSE NA          
+# 2 scen1_transient         666 TRUE  scen1_spinup
+
 }
 }
