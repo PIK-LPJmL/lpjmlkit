@@ -14,12 +14,10 @@ write_single_config <- function(params,
   #   original json structure (important to be readable for LPJmL)
   #   save it as config.json (as a convention)
   if (is.null(params[["sim_name"]])) {
-    stop(cat("In params a sim_name is missing!"))
+    stop(cat("In params a sim_name is missing!\n"))
   }
   config_tmp$sim_name <- params[["sim_name"]]
-  config_tmp$config_file <- paste0("config_",
-                                       params[["sim_name"]],
-                                       ".json")
+
   # check if order and dependency is defined to set sequence of dependent runs
   #   include error catching for missing order or dependency if other is def
   if (!is.null(params[["order"]])) {
@@ -31,12 +29,12 @@ write_single_config <- function(params,
       config_tmp$order <- params[["order"]]
       if (is.null(params[["dependency"]])) {
         stop(cat(paste0(params[["sim_name"]],
-                        "'s field dependency is missing")))
+                        "'s field dependency is missing!\n")))
       } else {
         config_tmp$dependency <- params[["dependency"]]
       }
     } else {
-      stop(cat(paste0(params[["sim_name"]], "'s field order not legit")))
+      stop(cat(paste0(params[["sim_name"]], "'s field order not legit!\n")))
     }
   } else {
     from_restart <- FALSE

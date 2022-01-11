@@ -3,8 +3,9 @@
 #' Check if created LPJmL config JSON files (\link[lpjmlKit]{write_config}) are
 #' valid.
 #'
-#' @param config_files character vector providing config_files
-#' (hint: \link[lpjmlKit]{write_config} returns config_files as a list entry)
+#' @param x job_details object returned by \link[lpjmlKit]{write_config} or
+#' character vector providing the config file names
+#' (hint: returns x as a list entry)
 #'
 #' @param model_path character string providing the path to LPJmL
 #' (equal to LPJROOT)
@@ -19,14 +20,14 @@
 #' @return see `pretty_print`
 #'
 #' @export
-check_config <- function(config_files,
+check_config <- function(x,
                          model_path,
                          output_path = NULL,
                          pretty_print = TRUE) {
 
   if (is.null(output_path)) output_path <- model_path
-
-  if (length(config_files) > 1) {
+  config_files <- paste0("config_", x$sim_name, ".json")
+  if (length(x) > 1) {
       files <- paste0(output_path,
                       "/configurations/",
                       config_files,
