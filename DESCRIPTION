@@ -1,9 +1,15 @@
 Package: lpjmlKit
 Type: Package
 Title: Function kit for handling and processing LPJmL related stuff, such as input, output, plotting, aggregation
-Version: 0.3.1
+Version: 0.3.2
 Author: LPJmL Team at PIK Potsdam
-Maintainer: Christoph Mueller <cmueller@pik-potsdam.de>, Fabian Stenzel <stenzel@pik-potsdam.de>, Sara Minoli <minoli@pik-potsdam.de>, Jannes Breier <jannesbr@pik-potsdam.de>
+Maintainer: 
+    Christoph Mueller <cmueller@pik-potsdam.de>,
+    Fabian Stenzel <stenzel@pik-potsdam.de>,
+    Sara Minoli <minoli@pik-potsdam.de>,
+    Jannes Breier <jannesbr@pik-potsdam.de>,
+    Sebastian Ostberg <ostberg@pik-potsdam.de>,
+    Stephen Wirth <wirth@pik-potsdam.de>
 Description: Function kit for handling and processing LPJmL related stuff, 
     such as input, output, plotting, aggregation.
 License: GPL-3
@@ -18,5 +24,8 @@ Imports:
     doParallel,
     foreach
 Suggests: 
+    rmarkdown,
+    knitr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

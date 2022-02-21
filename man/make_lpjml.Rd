@@ -4,17 +4,17 @@
 \alias{make_lpjml}
 \title{Make all (compile, link, etc.) LPJmL}
 \usage{
-make_lpjml(model_path = ".", make_fast = TRUE, pretty_print = TRUE)
+make_lpjml(model_path = ".", make_fast = TRUE, make_clean = FALSE)
 }
 \arguments{
 \item{model_path}{character string providing the path to LPJmL
 (equal to LPJROOT)}
 
-\item{make_fast}{boolean - if TRUE \verb{make -j8 all} is executed.
+\item{make_fast}{logical - if TRUE \verb{make -j8 all} is executed.
 Defaults to TRUE}
 
-\item{pretty_print}{boolean - if TRUE print stdout/stderr else return.
-Defaults to TRUE}
+\item{make_clean}{logical - if TRUE execute make clean first.
+Defaults to FALSE}
 }
 \value{
 see \code{pretty_print}

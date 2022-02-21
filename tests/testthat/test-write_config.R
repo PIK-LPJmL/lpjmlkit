@@ -15,20 +15,24 @@ test_that("write correct config", {
   test_tmp <- tibble::tibble(sim_name = NA,
                              order = NA,
                              dependency = NA)
+  slurm_args <- c("sclass", "ntask", "wtime", "blocking")
+  test_tmp[slurm_args] <- NA
 
   # test main function of writeConfig since writeConfig is hard to test
   tmp_objects <- write_single_config(params = test_params,
                                      model_path = "testthat",
                                      output_path = "testthat",
                                      output_list = c(),
+                                     output_list_timestep = "annual",
                                      output_format = "clm",
                                      js_filename = "lpjml.js",
                                      config_tmp = test_tmp,
+                                     slurm_args = slurm_args,
                                      test_it = TRUE)
 
   # check json mutate functions to result in correct json file
   check_json <- read_config("../testdata/config_spinup_pnv.json")
-  expect_true(all(unlist(tmp_objects[[1]]) == unlist(check_json)))
+  expect_true(all(unlist(tmp_objects[[1]]) %in% unlist(check_json)))
 
 
   # check returned tibble to come in the right format with equal data
@@ -37,7 +41,7 @@ test_that("write correct config", {
     c("sim_name", "dependency", "order")
   ] <- list("spinup_pnv", NA, 1)
   expect_true(all(
-      tmp_objects[[2]][1, which(tmp_objects != "dependency")] ==
+      tmp_objects[[2]][1, which(tmp_objects != "dependency")] %in%
       check_tibble[1, which(tmp_objects != "dependency")]))
 
 })
@@ -55,15 +59,19 @@ test_that("include non output defined outputvars", {
   test_tmp <- tibble::tibble(sim_name = NA,
                              order = NA,
                              dependency = NA)
+  slurm_args <- c("sclass", "ntask", "wtime", "blocking")
+  test_tmp[slurm_args] <- NA
 
   # test main function of writeConfig since writeConfig is hard to test
   tmp_objects <- write_single_config(params = test_params,
                                      model_path = "testthat",
                                      output_path = "testthat",
                                      output_list = c("grid", "irrig"),
+                                     output_list_timestep = "annual",
                                      output_format = "clm",
                                      js_filename = "lpjml.js",
                                      config_tmp = test_tmp,
+                                     slurm_args = slurm_args,
                                      test_it = TRUE)
 
   # check if defined outputvar (id) exists as last output
@@ -75,7 +83,7 @@ test_that("include non output defined outputvars", {
 
   # check if filename is set correctly
   expect_true(
-    grepl("mirrig.clm",
+    grepl("irrig.clm",
           tmp_objects[[1]][["output"]][[
             length(tmp_objects[[1]][["output"]])
           ]]$file$name)

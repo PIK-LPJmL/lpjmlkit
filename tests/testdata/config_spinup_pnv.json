@@ -272,7 +272,7 @@
   ],
   "startgrid" : "all",
   "endgrid" : -1,
-  "nspinup" : 30000,
+  "nspinup" : 499,
   "nspinyear" : 30,
   "firstyear": 1901,
   "lastyear" : 1901,
@@ -280,5 +280,6 @@
   "outputyear" : -28099,
   "write_restart" : true,
   "write_restart_filename" : "testthat/restart/spinup_pnv/restart_1840_nv_stdfire.lpj",
-  "restart_year": 1840
+  "restart_year": 1840,
+  "sim_githash": ""
 }

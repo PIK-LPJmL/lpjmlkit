@@ -14,8 +14,8 @@
 #' model_path - path where an output, a restart and a configuration
 #' folder are created
 #'
-#' @param pretty_print boolean - if TRUE print stdout/stderr else return.
-#' Defaults to TRUE
+#' @param return_output boolean - if FALSE print stdout/stderr else return.
+#' Defaults to FALSE
 #'
 #' @return see `pretty_print`
 #'
@@ -23,11 +23,11 @@
 check_config <- function(x,
                          model_path,
                          output_path = NULL,
-                         pretty_print = TRUE) {
+                         return_output = FALSE) {
 
   if (is.null(output_path)) output_path <- model_path
   config_files <- paste0("config_", x$sim_name, ".json")
-  if (length(x) > 1) {
+  if (length(config_files) > 1) {
       files <- paste0(output_path,
                       "/configurations/",
                       config_files,
@@ -56,7 +56,7 @@ check_config <- function(x,
                          args = c("-c", inner_command),
                          error_on_status = FALSE,
                          cleanup_tree = TRUE)
-  if (pretty_print) {
+  if (!return_output) {
     return(
       cat(check$stdout,
           "\n",
