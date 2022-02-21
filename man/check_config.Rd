@@ -4,7 +4,7 @@
 \alias{check_config}
 \title{Check LPJmL config JSON files using lpjcheck}
 \usage{
-check_config(x, model_path, output_path = NULL, pretty_print = TRUE)
+check_config(x, model_path, output_path = NULL, return_output = FALSE)
 }
 \arguments{
 \item{x}{job_details object returned by \link[lpjmlKit]{write_config} or
@@ -18,8 +18,8 @@ character vector providing the config file names
 model_path - path where an output, a restart and a configuration
 folder are created}
 
-\item{pretty_print}{boolean - if TRUE print stdout/stderr else return.
-Defaults to TRUE}
+\item{return_output}{boolean - if FALSE print stdout/stderr else return.
+Defaults to FALSE}
 }
 \value{
 see \code{pretty_print}

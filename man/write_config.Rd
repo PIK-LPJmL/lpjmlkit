@@ -9,132 +9,274 @@ write_config(
   model_path,
   output_path = NULL,
   output_list = c(),
+  output_list_timestep = "annual",
   output_format = "raw",
   js_filename = "lpjml.js",
-  parallel_cores = 4
+  parallel_cores = 4,
+  debug = FALSE
 )
 }
 \arguments{
-\item{params}{a tibble/data frame in a defined format (see details)}
+\item{params}{a tibble in a defined format (see details)}
 
 \item{model_path}{character string providing the path to LPJmL
 (equal to LPJROOT)}
 
-\item{output_path}{character string - if output_path should differ from
-model_path - provide a path where an output, a restart and a configuration
+\item{output_path}{character string - if \code{output_path} should differ from
+\code{model_path} - provide a path where an output, a restart and a configuration
 folder that will be containing each files are created}
 
-\item{output_list}{character vector containing the \strong{id} of outputvars.
+\item{output_list}{character vector containing the \code{"id"} of outputvars.
 If defined only these defined outputs will be written. Defaults to NULL}
+
+\item{output_list_timestep}{single character string or character vector
+defining what temporal resolution the defined output from \code{output_list}
+should have. Either provide a single character string for all outputs or
+a vector with the length of \code{output_list} defining each individually. Choose
+between \code{"annual"}, \code{"monthly"} or \code{"daily"}.}
 
 \item{output_format}{character string defining the format of the output.
 Defaults to \code{"raw"}, further options would be \code{"cdf"} (write netcdf) or
 \code{"clm"} (use a header)}
 
 \item{js_filename}{character string providing name of the main js file to be
-parsed. Default is "lpjml.js"}
+parsed. Default is \code{"lpjml.js"}}
 
 \item{parallel_cores}{integer defining the number of available CPU cores for
-parallelization. Defaults to 4 (min)}
+parallelization. Defaults to \code{4}}
+
+\item{debug}{logical If \code{TRUE} inner parallelization is switched off
+to enable tracebacks and all types of error messages. Defaults to \code{FALSE}}
 }
 \value{
-tibble with at least columns "sime_name" defined.
-If defined in params pseude parameters "order" and dependency are included.
-Tibble in this format is required for \link[lpjmlKit]{submit_lpjml}.
+\link[tibble]{tibble} with at least columns \code{"sime_name"} defined.
+If defined in params run parameters \code{"order"} and \code{"dependency"} are
+included. \link[tibble]{tibble} in this format is required for
+\link[lpjmlKit]{submit_lpjml}.
 }
 \description{
-Requires a tibble/data frame in a defined format (see details) and writes
-model configuration files (config_*.json) based on the parameters set
-in each row (corresponds to each model run).
+Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
+specific format (see details & examples) to write model configuration files
+\code{"config_*.json"} based on the parameters set in each row (corresponds to
+each model run) to override them from the base file \code{"lpjml.js"}.
 }
 \details{
-Supply a \link[tibble]{tibble} (or data frame) for \code{params} in the form of
-(random example):\tabular{lrlrr}{
-   \strong{sim_name} \tab \strong{random_seed} \tab \strong{pftpar.1.name} \tab \strong{param.k_temp} \tab \strong{firewood} \cr
-   scen1 \tab 42 \tab first_tree \tab NA \tab TRUE \cr
-   scen2 \tab 404 \tab NA \tab 0.03 \tab FALSE \cr
-}
+Supply a \link[tibble]{tibble} for \code{params}, in which each row represents
+a configuration (config) for a LPJmL run. \cr
+Here a config is referred to as the precompiled \code{"lpjml.js"} file (or if you
+name it differently, use the \code{js_filename} argument) which links to all other
+mandatory \code{"js"} files. The precompilation is done internally by
+\code{write_config}.\cr
+\code{write_config} uses the column names of \code{param} as keys for the config
+json using a object-oriented like syntax, e.g. \code{"k_temp"} from \code{"param.js"}
+can be accessed with \code{"param.k_temp"} as the column name. \cr
+For each run and thus each row, this value has to be specified in the
+following. If the original value should instead be used, insert \code{NA}.\cr
+Each run can be identified via the \code{"sim_name"}, which has to be provided in
+the first column. \cr\if{html}{\out{<div class="R">}}\preformatted{my_params1 <- tibble(
+  sim_name = c("scenario1", "scenario2"),
+  random_seed = c(42, 404),
+  pftpar.1.name = c("first_tree", NA),
+  param.k_temp = c(NA, 0.03),
+  new_phenology = c(TRUE, FALSE)
+)
 
+my_params1
+# A tibble: 2 x 5
+#   sim_name random_seed pftpar.1.name param.k_temp new_phenology
+#   <chr>          <dbl> <chr>                <dbl> <lgl>
+# 1 scenario1         42 first_tree           NA    TRUE
+# 2 scenario2        404 NA                    0.03 FALSE
+}\if{html}{\out{</div>}}
 
-To set a macro (e.g. FROM_RESTART or CHECKPOINT) provide it as a flag in
-in bash: "-DFROM_RESTART" "-DCHECKPOINT"\tabular{lrl}{
-   \strong{sim_name} \tab \strong{random_seed} \tab \strong{-DFROM_RESTART} \cr
-   scen1_spinup \tab 42 \tab FALSE \cr
-   scen1_transient \tab 404 \tab TRUE \cr
-}
+To set a macro (e.g. "FROM_RESTART" or "CHECKPOINT") provide it as you would
+do it beeing a flag in shell: \code{"-DFROM_RESTART"} \code{"-DCHECKPOINT"}. \cr
+Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
+raise an error, as starting an object definition with \code{"-"} is not allowed in
+\emph{R}.\if{html}{\out{<div class="R">}}\preformatted{my_params2 <- tibble(
+  sim_name = c("scen1_spinup", "scen1_transient"),
+  random_seed = c(42, 404),
+  `-DFROM_RESTART` = c(TRUE, FALSE),
+)
 
+my_params2
+# A tibble: 2 x 3
+#   sim_name        random_seed `-DFROM_RESTART`
+#   <chr>                 <int> <lgl>
+# 1 scen1_spinup             42 TRUE
+# 2 scen1_transient         404 FALSE
+}\if{html}{\out{</div>}}
 
-Another option would be to set two pseudo parameters to link runs with each
-other. The macro "-DFROM_RESTART" is not (!) required here, but is
-automatically set. Also a complex order is possible, e.g. nested or > 2.\tabular{lrlr}{
-   \strong{sim_name} \tab \strong{random_seed} \tab \strong{order} \tab \strong{dependeny} \cr
-   scen1_spinup \tab 1 \tab 1 \tab NA \cr
-   scen1_transient \tab 404 \tab 2 \tab scen1_spinup \cr
-}
+A better approach, at least for setting spin-up and transient runs, would be
+to set two available run parameters (\code{"order"}, \code{"dependency"}) that link
+runs with each other. \cr
+The macro "-DFROM_RESTART" is not (!) required here and is
+instead automatically set internally for precompiling. In addition the
+restart paths for each config are set accordingly. \cr
+\code{"order"} is used to set the order for the execution or a type of run level,
+spin-up runs would be \code{order=1}, i.e. historic runs would be \code{order=2} and a
+future run would be \code{order=3}. Multiple runs can be performed at each
+order/level, e.g. spin-up or transient runs for different scenarios. \cr
+\code{"dependency"} determines which run to be used to restart from and also if
+the run is submitted to slurm, for which run to wait until it can be started.
+In the example above \code{"scen1_spinup"} would be a dependency of run
+\code{"scen1_transient"}. \cr
+This way, all conceivable scenario ensembles can be simulated in a quasi
+arbitrarily nested and complicated manner.\if{html}{\out{<div class="R">}}\preformatted{# with dependent runs
+my_params3 <- tibble(
+ sim_name = c("scen1_spinup", "scen1_transient"),
+ random_seed = c(42, 404),
+ order = c(FALSE, TRUE),
+ dependency = c(NA, "scen1_spinup")
+)
+my_params3
+# A tibble: 2 x 4
+#   sim_name        random_seed order dependency
+#   <chr>                 <int> <lgl> <chr>
+# 1 scen1_spinup             42 FALSE NA
+# 2 scen1_transient         404 TRUE  scen1_spinup
+}\if{html}{\out{</div>}}
 
-\subsection{Important}{
+Another feature is to define slurm options for each run (row) separately.
+E.g. you may want to allocate more time for the spin-up run but less for the
+transient to get a better position in the slurm queue. This can be achieved
+by supplying this option as parameter to \code{param}. \cr
+4 options are availble, namely \code{sclass} \code{ntask}, \code{wtime}, \code{blocking}. \cr
+If specified in \code{param} they overwrite the corresponding function arguments
+in \link[lpjmlKit]{submit_lpjml}.\if{html}{\out{<div class="R">}}\preformatted{my_params4 <- tibble(
+ sim_name = c("scen1_spinup", "scen1_transient"),
+ random_seed = c(42, 404),
+ order = c(FALSE, TRUE),
+ dependency = c(NA, "scen1_spinup"),
+ wtime = c("8:00:00", "2:00:00")
+)
+
+my_params4
+# A tibble: 2 x 5
+#   sim_name        random_seed order dependency   wtime
+#   <chr>                 <int> <lgl> <chr>        <chr>
+# 1 scen1_spinup             42 FALSE NA           8:00:00
+# 2 scen1_transient         404 TRUE  scen1_spinup 2:00:00
+}\if{html}{\out{</div>}}
+\subsection{in short}{
 \itemize{
-\item a \strong{sim_name} has to be provided
-\item macros as well as the pseudo parameters ("order", "dependency") are
+\item \code{write_config} creates subdirectories within the \code{output_path} directory
+\itemize{
+\item \code{"./configurations"} to store the config files
+\item \code{"./output"} to store the output within subdirectories for each
+\code{"sim_name"}
+\item \code{"./restart"} to store the restart files within subdirectories for each
+\code{sim_name}
+}
+\item use the "." syntax (e.g. \code{"pftpar.1.name"}) to create column names and thus
+keys for accessing the config json values
+\item the column \code{"sim_name"} is mandatory (used as identifier)
+\item run parameters (\code{"order"}, \code{"dependency"}) are
 optional but lay the basis for subsequent runs using
 \link[lpjmlKit]{submit_lpjml}
-\item use R booleans/logical constants, namely \code{TRUE} and \code{FALSE}
-\item make sure to set value types correctly, e.g. you may want to use
-\code{as.integer()} for integer value columns
-\item use a \strong{\link[tibble]{tibble}} over \code{data.frame}, it does not convert
-and shows the type of each column, further advantages
-\href{https://tibble.tidyverse.org/}{here}
+\item specify slurm options in \code{param} if you want to differentiate between the
+runs
+\item if \code{NA} is specified as cell value the original value is used
+\item use \emph{R} booleans/logical constants, namely \code{TRUE} and \code{FALSE}
+\item make sure to set value types correctly
 }
 }
 }
 \examples{
 \dontrun{
 library(tibble)
+library(lpjmlKit)
 
-# basic
-my_params <- tibble(
- sim_name = c("scen1", "scen2"),
- random_seed = as.integer(c(12, )),
- pftpar.1.name = c("first_tree", NA),
- param.k_temp = c(NA, 0.03),
- firewood = c(TRUE, FALSE)
+model_path <- "./LPJmL_internal"
+output_path <-"./my_runs"
+
+
+# basic usage
+my_params1 <- tibble(
+  sim_name = c("scen1", "scen2"),
+  random_seed = c(12, 404),
+  pftpar.1.name = c("first_tree", NA),
+  param.k_temp = c(NA, 0.03),
+  new_phenology = c(TRUE, FALSE)
 )
 
-config_names <- write_config(params = my_params)
-config_names
-#   sim_name  random_seed  pftpar.1.name  param.k_temp  `firewood`
-#   <chr>           <int>  <chr>                 <dbl>  <lgl>     
-# 1 scen1              42  first_tree               NA  TRUE      
-# 2 scen2             404  NA                     0.03  FALSE     
+config_details1 <- write_config(
+  params = my_params1,
+  model_path = model_path,
+  output_path = output_path
+)
 
-# defining macros
+config_details1
+# A tibble: 2 x 1
+#   sim_name
+#   <chr>
+# 1 scen1
+# 2 scen2
+
+
+# usage with macro
 my_params2 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
- random_seed = as.integer(c(42, 666)),
+ random_seed = c(42, 404),
  `-DFROM_RESTART` = c(FALSE, TRUE)
 )
 
-config_names2 <- write_config(params = my_params)
-config_names2
-#   sim_name        random_seed `-DFROM_RESTART`
-#   <chr>                 <int> <lgl>           
-# 1 scen1_spinup             42 FALSE           
-# 2 scen1_transient         666 TRUE            
+config_details2 <- write_config(
+  params = my_params2,
+  model_path = model_path,
+  output_path = output_path
+)
 
-# with dependent runs
+config_details2
+# A tibble: 2 x 1
+#   sim_name
+#   <chr>
+# 1 scen1_spinup
+# 2 scen1_transient
+
+
+# usage with dependency
 my_params3 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
- random_seed = as.integer(c(42, 666)),
- order = c(FALSE, TRUE),
+ random_seed = c(42, 404),
+ order = c(1, 2),
  dependency = c(NA, "scen1_spinup")
 )
-#' config_names3 <- write_config(params = my_params)
 
-config_names3
-#   sim_name        random_seed order dependency  
-#   <chr>                 <int> <lgl> <chr>       
-# 1 scen1_spinup             42 FALSE NA          
-# 2 scen1_transient         666 TRUE  scen1_spinup
+config_details3 <- write_config(
+  params = my_params3,
+  model_path = model_path,
+  output_path = output_path
+)
+
+config_details3
+# A tibble: 2 x 3
+#   sim_name        order dependency
+#   <chr>           <dbl> <chr>
+# 1 scen1_spinup        1 NA
+# 2 scen1_transient     2 scen1_spinup
+
+
+my_params4 <- tibble(
+ sim_name = c("scen1_spinup", "scen1_transient"),
+ random_seed = c(42, 404),
+ order = c(1, 2),
+ dependency = c(NA, "scen1_spinup"),
+ wtime = c("8:00:00", "2:00:00")
+)
+
+config_details4 <- write_config(
+  params = my_params4,
+  model_path = model_path,
+  output_path = output_path
+)
+
+config_details4
+# A tibble: 2 x 4
+#   sim_name        order dependency   wtime
+#   <chr>           <dbl> <chr>        <chr>
+# 1 scen1_spinup        1 NA           8:00:00
+# 2 scen1_transient     2 scen1_spinup 2:00:00
 
 }
 }
