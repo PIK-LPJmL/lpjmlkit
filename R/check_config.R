@@ -26,7 +26,22 @@ check_config <- function(x,
                          return_output = FALSE) {
 
   if (is.null(output_path)) output_path <- model_path
+
+  # check if x is character (vector) if so convert to tibble for the following
+  if ("character" %in% class(x)) {
+    x <- tibble::tibble(sim_name = sapply(
+      x,
+      function(x) {
+        strsplit(
+          strsplit(rev(strsplit(x, "/")[[1]])[1], "config_")[[1]][2],
+          ".json"
+        )[[1]]
+      }
+    ))
+  }
+
   config_files <- paste0("config_", x$sim_name, ".json")
+
   if (length(config_files) > 1) {
       files <- paste0(output_path,
                       "/configurations/",

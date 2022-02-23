@@ -67,7 +67,7 @@ library(help = "lpjmlKit")
   - `read_header` *read the header of LPJmL files*
   - `get_headersize` *to get the size of a file header*
   - `get_datatype` *get information on the data type used in different LPJmL files*
-- If you want to use the [LPJmL Runner](./vignettes/lpjml-runner.md):
+- If you want to use the [LPJmL Runner](./vignettes/lpjml-runner.pdf):
   - `write_config` *write* `"\*_config.json"` *file(s) based on a parameters tibble and a (precompiled) lpjml.js. `read_config` later or `view_config`*
   - `make_lpjml` *compile LPJmL* and `check_lpjml`
   - `run_lpjml`, `submit_lpjml` *run or submit LPJmL (to Slurm) with \*_config.json*

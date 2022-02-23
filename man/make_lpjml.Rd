@@ -17,7 +17,7 @@ Defaults to TRUE}
 Defaults to FALSE}
 }
 \value{
-see \code{pretty_print}
+a list with process status, see \link[processx]{run}
 }
 \description{
 Compiles LPJmL and create executables by internally executing make all.

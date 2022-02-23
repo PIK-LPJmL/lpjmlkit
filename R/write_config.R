@@ -104,7 +104,7 @@
 #' instead automatically set internally for precompiling. In addition the
 #' restart paths for each config are set accordingly. \cr
 #' `"order"` is used to set the order for the execution or a type of run level,
-#' spin-up runs would be `order=1`, i.e. historic runs would be `order=2` and a
+#' spin-up runs are always `order=1`, i.e. historic runs would be `order=2` and a
 #' future run would be `order=3`. Multiple runs can be performed at each
 #' order/level, e.g. spin-up or transient runs for different scenarios. \cr
 #' `"dependency"` determines which run to be used to restart from and also if
@@ -354,8 +354,8 @@ write_config <- function(params,
           # error with hint to use the debug argument
           stop(paste0(e,
                       " - Please use argument debug=TRUE for traceback ",
-                      "functionality",
-                      call. = FALSE))
+                      "functionality"),
+               call. = FALSE)
         } else {
           # hint to use the debug argument
           stop("This is not a common error, please use argument debug=TRUE")
@@ -485,13 +485,14 @@ write_single_config <- function(params,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
                          dir_create = !test_it) %>%
+    # set restart details (year, filename soon)
+    set_restart() %>%
     # params/keys insert from params data frame
     #   columns as keys and rows as values (values, vectors possible)
     mutate_config_param(params = params,
                         exclude_macros = macro_name,
                         commit_hash = commit_hash,
-                        slurm_args = slurm_args) %>%
-    set_restart_year()
+                        slurm_args = slurm_args)
 
   if (!test_it) {
     # write config json file, use sim_name for naming
@@ -581,6 +582,12 @@ mutate_config_output <- function(x,
     x["output"] <- list(c())
     if (!("grid" %in% output_list) && !("cdf" %in% output_format)) {
       output_list <- append(output_list, "grid", after = 0)
+      output_timestep <- append(output_timestep, NA, after = 0)
+      length_output_timestep <- ifelse(length(output_timestep) == 2,
+                                      1,
+                                      length(output_timestep))
+    } else {
+      length_output_timestep <- length(output_timestep)
     }
     # iterate over all defined outputs
     for (id_ov in seq_len(length(output_list))) {
@@ -602,27 +609,28 @@ mutate_config_output <- function(x,
         # output_timestep could be supplied as single character string
         #   prescribing a timestep for all outputs and a character vector with
         #   the length of output_list to assign an individual timestep for each
-        if (length(output_timestep) == 1 &&
+        if (length_output_timestep == 1 &&
             !(output_list[id_ov] %in% c("grid", "globalflux"))) {
           new_output[["file"]][["timestep"]] <- ifelse(
-            output_timestep %in% c("daily",
-                                   "monthly",
-                                   "annual"),
-            output_timestep,
+            stats::na.omit(output_timestep)[1] %in% c("daily",
+                                                      "monthly",
+                                                      "annual"),
+            stats::na.omit(output_timestep)[1],
             stop(paste0("No valid output_timestep. Please choose from ",
                         "\"daily\", \"monthly\" or \"annual\" in form of",
                         " a single character string."))
           )
-        } else if (length(output_timestep) == length(output_list) &&
+        } else if (length_output_timestep == length(output_list) &&
             !(output_list[id_ov] %in% c("grid", "globalflux"))) {
           new_output[["file"]][["timestep"]] <- ifelse(
-            length(output_timestep[id_ov]) == length(output_list),
+            output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
             output_timestep[id_ov],
             stop(paste0("No valid output_timestep. Please choose of \"daily\"",
                         " \"monthly\" or \"annual\" in form of a single ",
                         "character string."))
           )
-        } else if (!(length(output_timestep) %in% c(1, length(output_list)))) {
+        } else if (
+          !(length_output_timestep %in% c(1, length(output_list)))) {
           stop(paste0("output_timestep does not have a valid length. Please ",
                       "supply either a single character string or a vector ",
                       "matching the length of output_list."))
@@ -751,7 +759,7 @@ mutate_config_param <- function(x,
   return(x)
 }
 
-set_restart_year <- function(x) {
+set_restart <- function(x) {
   x[["restart_year"]] <- x[["lastyear"]]
   return(x)
 }

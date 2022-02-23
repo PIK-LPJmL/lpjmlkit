@@ -11,7 +11,7 @@
 #' @param make_clean logical - if TRUE execute make clean first.
 #' Defaults to FALSE
 #'
-#' @return see `pretty_print`
+#' @return a list with process status, see \link[processx]{run}
 #'
 #' @export
 make_lpjml <- function(model_path = ".", make_fast = TRUE, make_clean = FALSE) {
