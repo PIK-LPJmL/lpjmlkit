@@ -114,7 +114,7 @@ The macro "-DFROM_RESTART" is not (!) required here and is
 instead automatically set internally for precompiling. In addition the
 restart paths for each config are set accordingly. \cr
 \code{"order"} is used to set the order for the execution or a type of run level,
-spin-up runs would be \code{order=1}, i.e. historic runs would be \code{order=2} and a
+spin-up runs are always \code{order=1}, i.e. historic runs would be \code{order=2} and a
 future run would be \code{order=3}. Multiple runs can be performed at each
 order/level, e.g. spin-up or transient runs for different scenarios. \cr
 \code{"dependency"} determines which run to be used to restart from and also if
