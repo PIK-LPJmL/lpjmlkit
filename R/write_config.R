@@ -485,8 +485,6 @@ write_single_config <- function(params,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
                          dir_create = !test_it) %>%
-    # set restart details (year, filename soon)
-    set_restart() %>%
     # params/keys insert from params data frame
     #   columns as keys and rows as values (values, vectors possible)
     mutate_config_param(params = params,
@@ -756,11 +754,6 @@ mutate_config_param <- function(x,
       }
     }
   }
-  return(x)
-}
-
-set_restart <- function(x) {
-  x[["restart_year"]] <- x[["lastyear"]]
   return(x)
 }
 
