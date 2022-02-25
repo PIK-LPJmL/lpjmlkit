@@ -485,14 +485,14 @@ write_single_config <- function(params,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
                          dir_create = !test_it) %>%
-    # set restart details (year, filename soon)
-    set_restart() %>%
     # params/keys insert from params data frame
     #   columns as keys and rows as values (values, vectors possible)
     mutate_config_param(params = params,
                         exclude_macros = macro_name,
                         commit_hash = commit_hash,
-                        slurm_args = slurm_args)
+                        slurm_args = slurm_args) %>%
+    # set restart details (year, filename soon)
+    set_restart()
 
   if (!test_it) {
     # write config json file, use sim_name for naming

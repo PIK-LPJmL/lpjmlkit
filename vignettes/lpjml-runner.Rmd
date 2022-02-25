@@ -149,7 +149,7 @@ params_1 <- tibble(
   const_deposition = c(FALSE, FALSE, TRUE),
   # run parameter: order defines the execution order
   #   (spinup is always 1 -> no -DFROM_RESTART),
-  #   could be followed by a historic (order=2) and a future run (order=2)
+  #   could be followed by a historic (order=2) and a future run (order=3)
   #   can be extended as far as required (order=n)
   order = c(1, 2, 2),
   # run parameter: dependency sets the restart paths to the corresponding
