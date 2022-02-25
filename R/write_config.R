@@ -490,9 +490,7 @@ write_single_config <- function(params,
     mutate_config_param(params = params,
                         exclude_macros = macro_name,
                         commit_hash = commit_hash,
-                        slurm_args = slurm_args) %>%
-    # set restart details (year, filename soon)
-    set_restart()
+                        slurm_args = slurm_args)
 
   if (!test_it) {
     # write config json file, use sim_name for naming
@@ -756,11 +754,6 @@ mutate_config_param <- function(x,
       }
     }
   }
-  return(x)
-}
-
-set_restart <- function(x) {
-  x[["restart_year"]] <- x[["lastyear"]]
   return(x)
 }
 
