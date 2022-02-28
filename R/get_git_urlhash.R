@@ -17,10 +17,10 @@ get_git_urlhash <- function(path, include_url=TRUE, raise_error=TRUE) {
     # concat URL and hash if required (github has slightly different routing)
     "url=${orig_url%%$git*}/tree/${hash}; else ",
     "url=${orig_url%%$git*}/-/tree/${hash}; fi;",
-    ifelse(include_url, "echo ${url};", "echo ${hash};")
+    ifelse(include_url, "echo ${url//de:/de/};", "echo ${hash};")
   )
   # system call
-  out <- processx::run(command = "sh",
+  out <- processx::run(command = "bash",
                        args = c("-c", inner_commands),
                        wd = path,
                        cleanup_tree = TRUE)
