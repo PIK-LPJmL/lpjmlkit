@@ -36,4 +36,3 @@ get_git_urlhash <- function(path, include_url=TRUE, raise_error=TRUE) {
     }
   }
 }
-get_git_urlhash("/p/projects/open/Fabian/LPJbox/lpjKit/lpjmlkit")
