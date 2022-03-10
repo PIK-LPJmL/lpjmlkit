@@ -94,7 +94,6 @@ read_output <- function(
 # Function to read LPJmL raw files
 read_raw <- function(
   fname      = "",
-  offset     = 0,
   header,           # a header object in the format return by `write_header()`
   start_year = NULL,
   end_year   = NULL
@@ -110,6 +109,8 @@ read_raw <- function(
 
   start_year <- ifelse(is.null(start_year), firstyear, start_year)
   end_year   <- ifelse(is.null(end_year),   firstyear + nyear - 1, end_year)
+
+  vector_offset <- (start_year - firstyear) * ncell * nbands * datatype$size
 
   if ("nstep" %in% names(header$header)) {
     nstep <- get_header_item(header, "nstep")
@@ -127,7 +128,7 @@ read_raw <- function(
 
   # Read binary file
   file_connection <-  file(fname, "rb")
-  seek(con = file_connection, where = offset)
+  seek(con = file_connection, where = vector_offset)
   file_data <- readBin(file_connection, n = nvalue, what = datatype$type,
                        size = datatype$size, signed = datatype$signed) * scalar
   close.connection(file_connection)
