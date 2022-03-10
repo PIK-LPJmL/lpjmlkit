@@ -54,14 +54,24 @@ read_output <- function(
   scalar       = NULL,
   cellsize_lat = NULL,
   datatype     = NULL,
-  endian       = NULL
+  endian       = NULL,
+  verbose      = FALSE
 ) {
+
+  cat(paste("\nReading:", "\n----------------------------\n", fname))
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
 
   if (file_type == "raw") {
 
-  # read_raw()
+    # Create a dummy header with info passed as arguments
+    dummy_header <- create_header(
+      name = "LPJDUMMY", version, order, firstyear, nyear, firstcell, ncell,
+      nbands, cellsize_lon, scalar, cellsize_lat, datatype, endian, verbose
+      )
+
+    # Read raw file
+    file_data <- read_raw(fname, header = dummy_header)
 
   } else if (file_type == "clm") {
 
@@ -77,13 +87,14 @@ read_output <- function(
     # Assign dimnames [cellnr, time, nbands]
   }
 
+  return(file_data)
 }
 
 
 # Function to read LPJmL raw files
 read_raw <- function(
-  fname    = "",
-  offset   = 0,
+  fname      = "",
+  offset     = 0,
   header,           # a header object in the format return by `write_header()`
   start_year = NULL,
   end_year   = NULL
@@ -95,6 +106,7 @@ read_raw <- function(
   nbands    <- get_header_item(header, "nbands")
   firstyear <- get_header_item(header, "firstyear")
   nyear     <- get_header_item(header, "nyear")
+  scalar    <- get_header_item(header, "scalar")
 
   start_year <- ifelse(is.null(start_year), firstyear, start_year)
   end_year   <- ifelse(is.null(end_year),   firstyear + nyear - 1, end_year)
@@ -117,7 +129,7 @@ read_raw <- function(
   file_connection <-  file(fname, "rb")
   seek(con = file_connection, where = offset)
   file_data <- readBin(file_connection, n = nvalue, what = datatype$type,
-                       size = datatype$size, signed = datatype$signed)
+                       size = datatype$size, signed = datatype$signed) * scalar
   close.connection(file_connection)
 
   return(file_data)
