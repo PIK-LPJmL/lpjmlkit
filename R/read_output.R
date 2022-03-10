@@ -14,7 +14,8 @@
 #' NULL to determine automatically from the metafile.
 #' @param nstep A integer value defining the time step of the output file.
 #' Valid values are 1 (yearly), 12 (monthly), 365 (daily).
-#' @param subset_list A list defining the dimensions to be subset
+#' @param subset_list A list defining the dimensions and their values
+#' to be subset
 #' @param version Integer indicating CLM-file header version,
 #' between 1, 2, 3 or 4.
 #' @param order Order of data items (see LPJmL code for supported values;
@@ -42,7 +43,7 @@ read_output <- function(
   file_type    = "meta",
   band_names   = NULL,
   nstep        = NULL,
-  subset_list  = NULL,
+  subset_list  = list(),
   version      = NULL,
   order        = NULL,
   firstyear    = NULL,
@@ -62,6 +63,20 @@ read_output <- function(
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
 
+  # Complete list for subsetting data, if info not provided as arguments
+  if (! "cells" %in% names(subset_list)) {
+    subset_list[["cells"]] <- seq_len(ncell)                     # all cells
+  }
+  if (! "years" %in% names(subset_list)) {
+    subset_list[["years"]] <- seq(firstyear, length.out = nyear) # all years
+  }
+  if (! "bands" %in% names(subset_list) & !is.null(band_names)) {
+    subset_list[["bands"]] <- seq_len(bands)                     # all bands
+  }
+  # Get year range of data to read
+  start_year <- min(as.numeric(subset_list$years))
+  end_year   <- max(as.numeric(subset_list$years))
+
   if (file_type == "raw") {
 
     # Create a dummy header with info passed as arguments
@@ -72,7 +87,7 @@ read_output <- function(
     )
 
     # Read raw file
-    file_data <- read_raw(fname, header = dummy_header)
+    file_data <- read_raw(fname, header = dummy_header, start_year, end_year)
 
   } else if (file_type == "clm") {
 
@@ -82,6 +97,13 @@ read_output <- function(
 
   # read_meta()
 
+  }
+
+  # Convert to array
+  if ((end_year - start_year + 1) == 1) {
+    dim(file_data) <- c(ncell, nbands)
+  } else {
+    dim(file_data) <- c(ncell, nbands, end_year - start_year + 1)
   }
 
   if (!is.null(band_names)) {
