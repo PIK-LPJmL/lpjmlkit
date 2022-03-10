@@ -22,6 +22,6 @@
 #' }
 #' @export
 read_meta <- function(filename) {
-    meta_list <- jsonlite::read_json(path = filename, simplify = FALSE)
+    meta_list <- jsonlite::read_json(path = filename, simplify = TRUE)
   return(meta_list)
 }
