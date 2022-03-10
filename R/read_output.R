@@ -84,16 +84,20 @@ read_output <- function(
 read_raw <- function(
   fname    = "",
   offset   = 0,
-  start_year,
-  end_year,
-  header          # a header object in the format return by `write_header()`
+  header,           # a header object in the format return by `write_header()`
+  start_year = NULL,
+  end_year   = NULL
 ) {
 
   # Get information from header
-  datatype <- get_datatype(header)
-  ncell    <- get_header_item(header, "ncell")
-  nbands   <- get_header_item(header, "nbands")
-  nyear    <- get_header_item(header, "nyear")
+  datatype  <- get_datatype(header)
+  ncell     <- get_header_item(header, "ncell")
+  nbands    <- get_header_item(header, "nbands")
+  firstyear <- get_header_item(header, "firstyear")
+  nyear     <- get_header_item(header, "nyear")
+
+  start_year <- ifelse(is.null(start_year), firstyear, start_year)
+  end_year   <- ifelse(is.null(end_year),   firstyear + nyear - 1, end_year)
 
   if ("nstep" %in% names(header$header)) {
     nstep <- get_header_item(header, "nstep")
@@ -103,11 +107,11 @@ read_raw <- function(
 
   # Check file size
   cat(paste("\nFile size (", file.size(fname), ") as expected = ",
-            file.size(fname) / ncell / nbands / nstep / datatype$size == nyear,
+            file.size(fname) / ncell / nbands / nstep / nyear == datatype$size,
             "\n"))
 
   # Calculate nr. of values to read
-  nvalue <- ncell * nbands * nstep * (end_year - start_year +1)
+  nvalue <- ncell * nbands * nstep * (end_year - start_year + 1)
 
   # Read binary file
   file_connection <-  file(fname, "rb")
