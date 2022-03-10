@@ -84,18 +84,37 @@ read_output <- function(
 read_raw <- function(
   fname    = "",
   offset   = 0,
+  start_year,
+  end_year,
   header          # a header object in the format return by `write_header()`
 ) {
 
+  # Get information from header
   datatype <- get_datatype(header)
-  nvalue <- get_header_item(header, "ncell") * get_header_item(header, "nbands")
+  ncell    <- get_header_item(header, "ncell")
+  nbands   <- get_header_item(header, "nbands")
+  nyear    <- get_header_item(header, "nyear")
+
   if ("nstep" %in% names(header$header)) {
-    nvalue <- nvalue * get_header_item(header, "nstep")
+    nstep <- get_header_item(header, "nstep")
+  } else {
+    nstep <- 1
   }
 
+  # Check file size
+  cat(paste("\nFile size (", file.size(fname), ") as expected = ",
+            file.size(fname) / ncell / nbands / nstep / datatype$size == nyear,
+            "\n"))
+
+  # Calculate nr. of values to read
+  nvalue <- ncell * nbands * nstep * (end_year - start_year +1)
+
+  # Read binary file
   file_connection <-  file(fname, "rb")
   seek(con = file_connection, where = offset)
-  file_data <- readBin(file_connection, what = datatype$type,
+  file_data <- readBin(file_connection, n = nvalue, what = datatype$type,
                        size = datatype$size, signed = datatype$signed)
-}
+  close.connection(file_connection)
 
+  return(file_data)
+}
