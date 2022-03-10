@@ -17,6 +17,7 @@ create_header(
   scalar = 1,
   cellsize_lat = cellsize_lon,
   datatype = 3,
+  nstep = 1,
   endian = .Platform$endian,
   verbose = TRUE
 )
@@ -42,12 +43,15 @@ default: 1).}
 \item{cellsize_lon}{Longitude cellsize in deg (default: 0.5).}
 
 \item{scalar}{Conversion factor applied to data when it is read by LPJmL
-(default: 0.01).}
+(default: 1.0).}
 
 \item{cellsize_lat}{Latitude cellsize in deg (default: same as cellsize_lon).}
 
 \item{datatype}{LPJmL data type in file (see LPJmL code for valid data type
-codes; default: 1).}
+codes; default: 3).}
+
+\item{nstep}{Number of time steps per year, added in header version 4 to
+separate time bands from content bands (default: 1).}
 
 \item{endian}{Endianness to use for file (either "big" or "little", by
 default uses platform-specific endianness \code{.Platform$endian}).}
@@ -62,7 +66,7 @@ The function returns a list with 3 components:
 \item name: The header name, e.g. "LPJGRID".
 \item header: Vector of header values ('version', 'order', 'firstyear',
 'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-'cellsize_lat', 'datatype').
+'cellsize_lat', 'datatype', 'nstep').
 \item endian: Endian used to write binary data, either "little" or "big".
 }
 }
@@ -110,6 +114,7 @@ header <- create_header(
   scalar = 0.01,
   cellsize_lat = 0.5,
   datatype = 1,
+  nstep = 1,
   endian = .Platform$endian,
   verbose = TRUE
 )

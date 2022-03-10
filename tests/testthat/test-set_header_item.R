@@ -12,7 +12,8 @@ h1 <- list(
     cellsize_lon = 0.5,
     scalar = 1,
     cellsize_lat = 0.25,
-    datatype = 3
+    datatype = 3,
+    nstep = 1
   ),
   endian = .Platform$endian
 )
@@ -93,6 +94,12 @@ test_that("set header item", {
   expect_named(h2, c("name", "header", "endian"))
   # Test updated value
   expect_equal(h2$header["datatype"], 4, ignore_attr = TRUE)
+  # Set nstep
+  h2 <- set_header_item(h1, nstep = 12)
+  expect_type(h2, "list")
+  expect_named(h2, c("name", "header", "endian"))
+  # Test updated value
+  expect_equal(h2$header["nstep"], 12, ignore_attr = TRUE)
   # Set endian
   h2 <- set_header_item(h1, endian = "big")
   expect_type(h2, "list")

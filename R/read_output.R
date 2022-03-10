@@ -67,8 +67,9 @@ read_output <- function(
     # Create a dummy header with info passed as arguments
     dummy_header <- create_header(
       name = "LPJDUMMY", version, order, firstyear, nyear, firstcell, ncell,
-      nbands, cellsize_lon, scalar, cellsize_lat, datatype, endian, verbose
-      )
+      nbands, cellsize_lon, scalar, cellsize_lat, datatype, nstep, endian,
+      verbose
+    )
 
     # Read raw file
     file_data <- read_raw(fname, header = dummy_header)

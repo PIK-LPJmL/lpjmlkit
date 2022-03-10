@@ -13,10 +13,12 @@
 #' @param nbands Number of bands per year of data (default: 2).
 #' @param cellsize_lon Longitude cellsize in deg (default: 0.5).
 #' @param scalar Conversion factor applied to data when it is read by LPJmL
-#'   (default: 0.01).
+#'   (default: 1.0).
 #' @param cellsize_lat Latitude cellsize in deg (default: same as cellsize_lon).
 #' @param datatype LPJmL data type in file (see LPJmL code for valid data type
-#'   codes; default: 1).
+#'   codes; default: 3).
+#' @param nstep Number of time steps per year, added in header version 4 to
+#'   separate time bands from content bands (default: 1).
 #' @param endian Endianness to use for file (either "big" or "little", by
 #'   default uses platform-specific endianness `.Platform$endian`).
 #' @param verbose If TRUE (the default), function provides some feedback on
@@ -27,7 +29,7 @@
 #' * name: The header name, e.g. "LPJGRID".
 #' * header: Vector of header values ('version', 'order', 'firstyear',
 #'     'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-#'     'cellsize_lat', 'datatype').
+#'     'cellsize_lat', 'datatype', 'nstep').
 #' * endian: Endian used to write binary data, either "little" or "big".
 #'
 #' @examples
@@ -44,6 +46,7 @@
 #'   scalar = 0.01,
 #'   cellsize_lat = 0.5,
 #'   datatype = 1,
+#'   nstep = 1,
 #'   endian = .Platform$endian,
 #'   verbose = TRUE
 #' )
@@ -92,6 +95,7 @@ create_header <- function(name = "LPJGRID",
                           scalar = 1,
                           cellsize_lat = cellsize_lon,
                           datatype = 3,
+                          nstep = 1,
                           endian = .Platform$endian,
                           verbose = TRUE
                          ) {
@@ -177,6 +181,47 @@ create_header <- function(name = "LPJGRID",
       } else {
         stop("datatype must be integer of length 1.")
       }
+      # Check that valid values have been provided for additional parameters in
+      # header version 4
+      if (version >= 4) {
+        if (is.numeric(nstep) && length(nstep) == 1 &&
+          nstep == as.integer(nstep)
+        ) {
+          header[["header"]] <- c(
+            header[["header"]],
+            nstep = as.integer(nstep)
+          )
+        } else {
+          stop("nstep must be an integer of length 1")
+        }
+      } else {
+        # Add defaults
+        warntext <- "Type 3 header:"
+        if (missing(nstep) || !is.numeric(nstep) || length(nstep) != 1 ||
+          nstep != as.integer(nstep)
+        ) {
+          header[["header"]] <- c(
+            header[["header"]],
+            nstep = 1
+          )
+          warntext <- paste(
+            warntext,
+            "Setting default value 1 for nstep."
+          )
+        } else {
+          header[["header"]] <- c(
+            header[["header"]],
+            nstep = as.integer(nstep)
+          )
+          if (nstep != 1) {
+            warntext <- paste0(
+              warntext,
+              " Setting non-default nstep", nstep,
+              ". This information is not kept when saving header to file."
+            )
+          }
+        }
+      }
     } else {
       # Add defaults
       warntext <- "Type 2 header:"
@@ -191,7 +236,7 @@ create_header <- function(name = "LPJGRID",
           warntext,
           "Setting default value",
           as.double(header[["header"]]["cellsize_lon"]),
-                          "for cellsize_lat."
+          "for cellsize_lat."
         )
       } else {
         header[["header"]] <- c(
@@ -238,6 +283,30 @@ create_header <- function(name = "LPJGRID",
           )
         } else {
           warntext <- paste(warntext, "Setting default value 1 for datatype.")
+        }
+      }
+      if (missing(nstep) || !is.numeric(nstep) || length(nstep) != 1 ||
+        nstep != as.integer(nstep)
+      ) {
+        header[["header"]] <- c(
+          header[["header"]],
+          nstep = 1
+        )
+        warntext <- paste(
+          warntext,
+          "Setting default value 1 for nstep."
+        )
+      } else {
+        header[["header"]] <- c(
+          header[["header"]],
+          nstep = as.integer(nstep)
+        )
+        if (nstep != 1) {
+          warntext <- paste0(
+            warntext,
+            " Setting non-default nstep", nstep,
+            ". This information is not kept when saving header to file."
+          )
         }
       }
       if (warntext != "Type 2 header:" && verbose)
@@ -346,6 +415,30 @@ create_header <- function(name = "LPJGRID",
         )
       } else {
         warntext <- paste(warntext, "Setting default value 1 for datatype.")
+      }
+    }
+    if (missing(nstep) || !is.numeric(nstep) || length(nstep) != 1 ||
+      nstep != as.integer(nstep)
+    ) {
+      header[["header"]] <- c(
+        header[["header"]],
+        nstep = 1
+      )
+      warntext <- paste(
+        warntext,
+        "Setting default value 1 for nstep."
+      )
+    } else {
+      header[["header"]] <- c(
+        header[["header"]],
+        nstep = as.integer(nstep)
+      )
+      if (nstep != 1) {
+        warntext <- paste0(
+          warntext,
+          " Setting non-default nstep", nstep,
+          ". This information is not kept when saving header to file."
+        )
       }
     }
     if (warntext != "Type 1 header:" && verbose)

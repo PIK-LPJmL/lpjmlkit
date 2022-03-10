@@ -6,9 +6,9 @@
 #'
 #' @param header LPJmL file header as returned by `read_header()` or
 #'   `create_header()`.
-#' @param ... Header items to set. Can be one or several of 'name', 'version', 'order', 'firstyear',
-#'   'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-#'   'cellsize_lat', 'datatype", "endian".
+#' @param ... Header items to set. Can be one or several of 'name', 'version',
+#'   'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
+#'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'endian'.
 #'
 #' @return Header 'header' where items included in parameters have been changed.
 #' @seealso
@@ -42,13 +42,14 @@ set_header_item <- function(header, ...) {
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
   # Expect header$header to have 11 values (some of which may be defaults)
-  if (length(header$header) != 11) {
+  if (length(header$header) != 12) {
     stop("Header has invalid structure. Invalid header$header")
   }
   # Valid items that can be set in header
   valid_items <- c(
     "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
-    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "endian"
+    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
+    "endian"
   )
   # Check that all items are present in header or header$header
   if (any(!setdiff(valid_items, names(header)) %in% names(header$header))) {
@@ -162,6 +163,11 @@ set_header_item <- function(header, ...) {
       is.null(args[["datatype"]]),
       header$header["datatype"],
       args[["datatype"]]
+    ),
+    nstep = ifelse(
+      is.null(args[["nstep"]]),
+      header$header["nstep"],
+      args[["nstep"]]
     ),
     endian = ifelse(is.null(args[["endian"]]), header$endian, args[["endian"]]),
     verbose = verbose

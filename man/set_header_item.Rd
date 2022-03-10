@@ -10,9 +10,9 @@ set_header_item(header, ...)
 \item{header}{LPJmL file header as returned by \code{read_header()} or
 \code{create_header()}.}
 
-\item{...}{Header items to set. Can be one or several of 'name', 'version', 'order', 'firstyear',
-'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-'cellsize_lat', 'datatype", "endian".}
+\item{...}{Header items to set. Can be one or several of 'name', 'version',
+'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
+'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'endian'.}
 }
 \value{
 Header 'header' where items included in parameters have been changed.

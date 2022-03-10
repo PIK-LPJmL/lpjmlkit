@@ -17,11 +17,19 @@ test_that("get_headersize returns correct header size", {
     file.size("../testdata/header_v2.clm")
   )
   # Version 3 header
-  # Version 3 headers have all parameters so no warning should be given.
-  h3 <- read_header("../testdata/header_v3.clm")
+  # Version 3 headers return a warning on read about default parameters so
+  # suppress warning.
+  h3 <- suppressWarnings(read_header("../testdata/header_v3.clm"))
   expect_identical(
     get_headersize(h3),
     file.size("../testdata/header_v3.clm")
+  )
+  # Version 4 header
+  # Version 4 headers have all parameters so no warning should be given.
+  h4 <- read_header("../testdata/header_v4.clm")
+  expect_identical(
+    get_headersize(h4),
+    file.size("../testdata/header_v4.clm")
   )
 })
 

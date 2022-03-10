@@ -12,8 +12,8 @@
 #' * name: Header name, e.g. "LPJGRID"; describes the type of data in file.
 #' * header: Vector of header values ('version', 'order', 'firstyear',
 #'     'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-#'     'cellsize_lat', 'datatype') describing the file structure. If header
-#'     version is <3, partially filled with default values.
+#'     'cellsize_lat', 'datatype', 'nstep') describing the file structure. If
+#'     header version is <4, partially filled with default values.
 #' * endian: Endianness of file ("little" or "big").
 #'
 #' @examples
@@ -88,7 +88,7 @@ read_header <- function(filename, force_version = NULL) {
     )
     names(headerdata) <- c(names(headerdata[1:6]), "cellsize_lon", "scalar")
   }
-  if (version == 3) {
+  if (version >= 3) {
     # Header version 3 added two more parameters on top of parameters added
     # in version 2
     headerdata <- c(
@@ -106,6 +106,14 @@ read_header <- function(filename, force_version = NULL) {
       "cellsize_lat",
       "datatype"
     )
+  }
+  if (version == 4) {
+    # Header version 4 added new parameter on top of parameters added in
+    # version 3
+    headerdata <- c(
+      headerdata,
+      nstep = readBin(zz, integer(), size = 4, n = 1, endian = endian)
+    )
   } else {
     # Add default values for parameters not included in header version 1
     if (length(headerdata) == 6) {
@@ -114,12 +122,13 @@ read_header <- function(filename, force_version = NULL) {
         cellsize_lon = 0.5,
         scalar = 1,
         cellsize_lat = 0.5,
-        datatype = 1
+        datatype = 1,
+        nstep = 1
       )
       warning(
         paste(
-          "Type 1 header. Adding default values for cellsize, scalar",
-          "and datatype which may not be correct in all cases"
+          "Type 1 header. Adding default values for cellsize, scalar,",
+          "datatype and nstep which may not be correct in all cases"
         )
       )
     }
@@ -128,11 +137,21 @@ read_header <- function(filename, force_version = NULL) {
       headerdata <- c(
         headerdata,
         cellsize_lat = as.double(headerdata["cellsize_lon"]),
-        datatype = 1
+        datatype = 1,
+        nstep = 1
       )
       warning(
         paste(
-          "Type 2 header. Adding default value for datatype which",
+          "Type 2 header. Adding default value for datatype and nstep which",
+          "may not be correct in all cases"
+        )
+      )
+    }
+    if (length(headerdata) == 10) {
+      headerdata <- c(headerdata, nstep = 1)
+      warning(
+        paste(
+          "Type 3 header. Adding default value for nstep which",
           "may not be correct in all cases"
         )
       )
