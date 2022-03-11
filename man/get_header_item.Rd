@@ -10,7 +10,7 @@ get_header_item(header, item)
 \item{header}{LPJmL file header as returned by \code{read_header()} or
 \code{create_header()}.}
 
-\item{item}{Header information item to retrieve. One of \code{c("name", "version", "order", "firstyear", "nyear", "firstcell", "ncell", "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep", "endian")}.}
+\item{item}{Header information item to retrieve. One of \code{c("name", "version", "order", "firstyear", "nyear", "firstcell", "ncell", "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep", "timestep", "endian")}.}
 }
 \value{
 Requested header item. Character string in case of "name" and

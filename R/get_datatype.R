@@ -4,7 +4,9 @@
 #'   based on the 'datatype' attribute included in the file header.
 #'
 #' @param header Header list object as returned by read_header() or
-#'   create_header().
+#'   create_header(). Alternatively, can be a single integer just giving the
+#'   data type code or a single character string giving one of the LPJmL type
+#'   names c("byte", "short", "int", "float", "double").
 #'
 #' @return The function returns a list object with three components:
 #' * type: R data type; can be used with 'what' parameter of `readBin()`.
@@ -43,6 +45,31 @@
 get_datatype <- function(header) {
   if (is.list(header) && !is.null(header$header)) {
     header <- header$header
+  }
+  # Also support data type string used in LPJmL meta files.
+  if (is.character(header) && length(header) == 1) {
+    header <- c(
+      datatype = switch(
+        header,
+        byte = 0,
+        short = 1,
+        int = 2,
+        float = 3,
+        double = 4,
+        stop(paste("Invalid datatype string", sQuote(header)))
+      )
+    )
+  }
+  # Also support single numeric value instead of full header
+  # Possible header items besides datatype
+  header_items <- c(
+    "version", "order", "firstyear", "nyear", "firstcell", "ncell", "nbands",
+    "cellsize_lon", "scalar", "cellsize_lat", "nstep", "timestep"
+  )
+  if (is.numeric(header) && length(header) == 1 &&
+    (is.null(names(header)) || !names(header) %in% header_items)
+  ) {
+    names(header) <- "datatype"
   }
   if (!is.finite(as.integer(header["datatype"]))) {
     stop("Header does not contain datatype field")

@@ -19,8 +19,8 @@ The function returns a list with 3 components:
 \item name: Header name, e.g. "LPJGRID"; describes the type of data in file.
 \item header: Vector of header values ('version', 'order', 'firstyear',
 'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-'cellsize_lat', 'datatype', 'nstep') describing the file structure. If
-header version is <4, partially filled with default values.
+'cellsize_lat', 'datatype', 'nstep', 'timestep') describing the file
+structure. If header version is <4, partially filled with default values.
 \item endian: Endianness of file ("little" or "big").
 }
 }

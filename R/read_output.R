@@ -43,6 +43,7 @@ read_output <- function(
   file_type    = "meta",
   band_names   = NULL,
   nstep        = NULL,
+  timestep     = NULL,
   subset_list  = list(),
   version      = NULL,
   order        = NULL,
@@ -71,7 +72,7 @@ read_output <- function(
     subset_list[["years"]] <- seq(firstyear, length.out = nyear) # all years
   }
   if (! "bands" %in% names(subset_list) & !is.null(band_names)) {
-    subset_list[["bands"]] <- seq_len(bands)                     # all bands
+    subset_list[["bands"]] <- seq_len(nbands)                     # all bands
   }
   # Get year range of data to read
   start_year <- min(as.numeric(subset_list$years))
@@ -82,8 +83,8 @@ read_output <- function(
     # Create a dummy header with info passed as arguments
     dummy_header <- create_header(
       name = "LPJDUMMY", version, order, firstyear, nyear, firstcell, ncell,
-      nbands, cellsize_lon, scalar, cellsize_lat, datatype, nstep, endian,
-      verbose
+      nbands, cellsize_lon, scalar, cellsize_lat, datatype, nstep, timestep,
+      endian, verbose
     )
 
     # Read raw file
@@ -117,7 +118,7 @@ read_output <- function(
 # Function to read LPJmL raw files
 read_raw <- function(
   fname      = "",
-  header,           # a header object in the format return by `write_header()`
+  header,           # a header object in the format return by `read_header()`
   start_year = NULL,
   end_year   = NULL
 ) {
@@ -129,17 +130,14 @@ read_raw <- function(
   firstyear <- get_header_item(header, "firstyear")
   nyear     <- get_header_item(header, "nyear")
   scalar    <- get_header_item(header, "scalar")
+  nstep     <- get_header_item(header, "nstep")
+  timestep  <- max(get_header_item(header, "timestep"), 1)
 
   start_year <- ifelse(is.null(start_year), firstyear, start_year)
   end_year   <- ifelse(is.null(end_year),   firstyear + nyear - 1, end_year)
 
-  vector_offset <- (start_year - firstyear) * ncell * nbands * datatype$size
-
-  if ("nstep" %in% names(header$header)) {
-    nstep <- get_header_item(header, "nstep")
-  } else {
-    nstep <- 1
-  }
+  vector_offset <- (start_year - firstyear) %/% timestep * ncell * nbands *
+    nstep * datatype$size
 
   # Check file size
   cat(paste("\nFile size (", file.size(fname), ") as expected = ",
@@ -147,7 +145,7 @@ read_raw <- function(
             "\n"))
 
   # Calculate nr. of values to read
-  nvalue <- ncell * nbands * nstep * (end_year - start_year + 1)
+  nvalue <- ncell * nbands * nstep * (end_year - start_year + 1) %/% timestep
 
   # Read binary file
   file_connection <-  file(fname, "rb")

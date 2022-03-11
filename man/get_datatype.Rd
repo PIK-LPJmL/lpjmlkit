@@ -8,7 +8,9 @@ get_datatype(header)
 }
 \arguments{
 \item{header}{Header list object as returned by read_header() or
-create_header().}
+create_header(). Alternatively, can be a single integer just giving the
+data type code or a single character string giving one of the LPJmL type
+names c("byte", "short", "int", "float", "double").}
 }
 \value{
 The function returns a list object with three components:

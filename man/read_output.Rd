@@ -9,7 +9,8 @@ read_output(
   file_type = "meta",
   band_names = NULL,
   nstep = NULL,
-  subset_list = NULL,
+  timestep = NULL,
+  subset_list = list(),
   version = NULL,
   order = NULL,
   firstyear = NULL,
@@ -40,7 +41,8 @@ NULL to determine automatically from the metafile.}
 \item{nstep}{A integer value defining the time step of the output file.
 Valid values are 1 (yearly), 12 (monthly), 365 (daily).}
 
-\item{subset_list}{A list defining the dimensions to be subset}
+\item{subset_list}{A list defining the dimensions and their values
+to be subset}
 
 \item{version}{Integer indicating CLM-file header version,
 between 1, 2, 3 or 4.}

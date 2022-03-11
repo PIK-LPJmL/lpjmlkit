@@ -13,7 +13,8 @@ h1 <- list(
     scalar = 1,
     cellsize_lat = 0.25,
     datatype = 3,
-    nstep = 1
+    nstep = 1,
+    timestep = 10
   ),
   endian = .Platform$endian
 )

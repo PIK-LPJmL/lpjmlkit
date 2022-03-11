@@ -18,6 +18,7 @@ create_header(
   cellsize_lat = cellsize_lon,
   datatype = 3,
   nstep = 1,
+  timestep = 1,
   endian = .Platform$endian,
   verbose = TRUE
 )
@@ -53,6 +54,9 @@ codes; default: 3).}
 \item{nstep}{Number of time steps per year, added in header version 4 to
 separate time bands from content bands (default: 1).}
 
+\item{timestep}{If larger than 1, outputs are every over timestep years and
+only written once every timestep years (default: 1).}
+
 \item{endian}{Endianness to use for file (either "big" or "little", by
 default uses platform-specific endianness \code{.Platform$endian}).}
 
@@ -83,8 +87,9 @@ describing the type of input data. See LPJmL code for valid header names.
 The version number determines the amount of header information included in
 the file. All versions save the header name and header attributes 'version',
 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', and 'nbands'. Header
-versions 2 and 3 add header attributes 'cellsize_lon' and 'scalar'. Header
-version 3 adds header attributes 'cellsize_lat' and 'datatype'.
+versions 2, 3 and 4 add header attributes 'cellsize_lon' and 'scalar'. Header
+versions 3 and 4 add header attributes 'cellsize_lat' and 'datatype'. Header
+version 4 adds attributes 'nstep' and 'timestep'.
 
 Valid values for 'order' are 1, 2, 3, and 4. The default for LPJmL input
 files is 1. The default for LPJmL output files is 4, except for grid output
@@ -115,6 +120,7 @@ header <- create_header(
   cellsize_lat = 0.5,
   datatype = 1,
   nstep = 1,
+  timestep = 1,
   endian = .Platform$endian,
   verbose = TRUE
 )

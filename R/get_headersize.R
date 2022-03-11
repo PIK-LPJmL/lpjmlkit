@@ -35,5 +35,5 @@ get_headersize <- function(header) {
     stop("Invalid header version. Expecting value between 1 and 4.")
   }
   return(nchar(header$name) +
-    switch(as.integer(header$header["version"]), 7, 9, 11, 12) * 4)
+    switch(as.integer(header$header["version"]), 7, 9, 11, 13) * 4)
 }

@@ -8,7 +8,8 @@
 #'   `create_header()`.
 #' @param ... Header items to set. Can be one or several of 'name', 'version',
 #'   'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
-#'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'endian'.
+#'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
+#'   'endian'.
 #'
 #' @return Header 'header' where items included in parameters have been changed.
 #' @seealso
@@ -41,15 +42,15 @@ set_header_item <- function(header, ...) {
   if (any(sapply(header[c("name", "endian")], length) != 1)) {
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
-  # Expect header$header to have 11 values (some of which may be defaults)
-  if (length(header$header) != 12) {
+  # Expect header$header to have 13 values (some of which may be defaults)
+  if (length(header$header) != 13) {
     stop("Header has invalid structure. Invalid header$header")
   }
   # Valid items that can be set in header
   valid_items <- c(
     "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
     "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
-    "endian"
+    "timestep", "endian"
   )
   # Check that all items are present in header or header$header
   if (any(!setdiff(valid_items, names(header)) %in% names(header$header))) {
@@ -168,6 +169,11 @@ set_header_item <- function(header, ...) {
       is.null(args[["nstep"]]),
       header$header["nstep"],
       args[["nstep"]]
+    ),
+    timestep = ifelse(
+      is.null(args[["timestep"]]),
+      header$header["timestep"],
+      args[["timestep"]]
     ),
     endian = ifelse(is.null(args[["endian"]]), header$endian, args[["endian"]]),
     verbose = verbose

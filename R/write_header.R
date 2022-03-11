@@ -85,8 +85,17 @@ write_header <- function(filename, header, overwrite = FALSE) {
     }
   }
   if (header$header["version"] > 3) {
-    if (anyNA(header$header["nstep"])) {
-      stop("Header values must not be set to NA. Please check: 'nstep'")
+    if (anyNA(header$header[c("nstep", "timestep")])) {
+      stop(
+        paste0(
+          "Header values must not be set to NA. Please check: ",
+          toString(
+            sQuote(
+              names(which(is.na(header$header[c("nstep", "timestep")])))
+            )
+          )
+        )
+      )
     }
   }
   # if output file exists already
@@ -127,7 +136,7 @@ write_header <- function(filename, header, overwrite = FALSE) {
   }
   if (header$header["version"] > 3) {
     writeBin(
-      as.integer(header$header["nstep"]), zz,
+      as.integer(header$header[c("nstep", "timestep")]), zz,
       size = 4, endian = header$endian
     )
   }
