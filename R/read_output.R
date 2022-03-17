@@ -64,41 +64,89 @@ read_output <- function(
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
 
-  # Complete list for subsetting data, if info not provided as arguments
-  if (! "cells" %in% names(subset_list)) {
-    subset_list[["cells"]] <- seq_len(ncell)                     # all cells
-  }
-  if (! "years" %in% names(subset_list)) {
-    subset_list[["years"]] <- seq(firstyear, length.out = nyear) # all years
-  }
-  if (! "bands" %in% names(subset_list) & !is.null(band_names)) {
-    subset_list[["bands"]] <- seq_len(nbands)                     # all bands
-  }
-  # Get year range of data to read
-  start_year <- min(as.numeric(subset_list$years))
-  end_year   <- max(as.numeric(subset_list$years))
-
+  # Read raw file type (binary file without a header)
   if (file_type == "raw") {
 
-    # Create a dummy header with info passed as arguments
-    dummy_header <- create_header(
-      name = "LPJDUMMY", version, order, firstyear, nyear, firstcell, ncell,
-      nbands, cellsize_lon, scalar, cellsize_lat, datatype, nstep, timestep,
-      endian, verbose
+    if (is.null(version)) {
+      verbose <- FALSE
+    } else if (version < 4) {
+      verbose <- TRUE
+    } else {
+      verbose <- FALSE
+    }
+
+    # Create a dummy header with the info passed as arguments
+    file_header <- create_header(
+      name         = "LPJDUMMY",
+      version      = ifelse(is.null(version), 4, version),
+      order        = ifelse(is.null(order), 4, order),
+      firstyear    = ifelse(is.null(firstyear), 1901, firstyear),
+      nyear        = ifelse(is.null(nyear), 1, nyear),
+      firstcell    = ifelse(is.null(firstcell), 0, firstcell),
+      ncell        = ifelse(is.null(ncell), 67420, ncell),
+      nbands       = ifelse(is.null(nbands), 1, nbands),
+      cellsize_lon = ifelse(is.null(cellsize_lon), 0.5, cellsize_lon),
+      scalar       = ifelse(is.null(scalar), 1, scalar),
+      cellsize_lat = ifelse(is.null(cellsize_lat), 0.5, cellsize_lat),
+      datatype     = ifelse(is.null(datatype), 3, datatype),
+      nstep        = ifelse(is.null(nstep), 1, nstep),
+      timestep     = ifelse(is.null(timestep), 1, timestep),
+      endian       = ifelse(is.null(endian), .Platform$endian, endian),
+      verbose      = verbose
     )
 
-    # Read raw file
-    file_data <- read_raw(fname, header = dummy_header, start_year, end_year)
+    # Check file size
+    expected_filesize <- get_header_item(file_header, "ncell") *
+      get_header_item(file_header, "nbands") *
+      get_header_item(file_header, "nstep") *
+      get_header_item(file_header, "nyear") *
+      get_datatype(file_header)$size
 
+  # Read clm file type (binary file with a LPJmL header)
   } else if (file_type == "clm") {
 
-  # read_clm()
+  # read file_header
 
+  # Read meta file type (binary file with associated meta-data json file)
   } else if (file_type == "meta") {
 
-  # read_meta()
+  # Get fname from meta file
+
+  # crate file_header using info from meta file
 
   }
+
+    # All years in the file
+    years <- seq(from       = get_header_item(file_header, "firstyear"),
+                 by         = get_header_item(file_header, "timestep"),
+                 length.out = get_header_item(file_header, "nyear"))
+
+    # Years subset
+    if (! "years" %in% names(subset_list)) {
+      subset_list[["years"]] <- years       # if not provided, read all years
+    } else {
+      if (!all(subset_list[["years"]] %in% years)) {
+        stop("Not all selected years are in file!")
+      }
+    }
+
+    # Open binary file connection
+    file_connection <- file(fname, "rb")
+
+    # Loop over subset years
+    for (yy in subset_list[["years"]]) {
+
+      # Compute offset
+      # ...
+
+      # Read data from binary file
+      file_data <- read_raw(file_connection,
+        data_offset = data_offset,
+        nvalue,
+        datatype = get_datatype(file_header),
+        endian = get_header_item(file_header, "endian")
+      )
+    }
 
   # Convert to array
   if ((end_year - start_year + 1) == 1) {
@@ -107,8 +155,9 @@ read_output <- function(
     dim(file_data) <- c(ncell, nbands, end_year - start_year + 1)
   }
 
+  # Assign dimnames [cellnr, time, nbands]
   if (!is.null(band_names)) {
-    # Assign dimnames [cellnr, time, nbands]
+
   }
 
   return(file_data)
@@ -117,42 +166,15 @@ read_output <- function(
 
 # Function to read LPJmL raw files
 read_raw <- function(
-  fname      = "",
-  header,           # a header object in the format return by `read_header()`
-  start_year = NULL,
-  end_year   = NULL
+  file_connection,
+  data_offset,
+  n_values,
+  datatype,
+  endian
 ) {
-
-  # Get information from header
-  datatype  <- get_datatype(header)
-  ncell     <- get_header_item(header, "ncell")
-  nbands    <- get_header_item(header, "nbands")
-  firstyear <- get_header_item(header, "firstyear")
-  nyear     <- get_header_item(header, "nyear")
-  scalar    <- get_header_item(header, "scalar")
-  nstep     <- get_header_item(header, "nstep")
-  timestep  <- max(get_header_item(header, "timestep"), 1)
-
-  start_year <- ifelse(is.null(start_year), firstyear, start_year)
-  end_year   <- ifelse(is.null(end_year),   firstyear + nyear - 1, end_year)
-
-  vector_offset <- (start_year - firstyear) %/% timestep * ncell * nbands *
-    nstep * datatype$size
-
-  # Check file size
-  cat(paste("\nFile size (", file.size(fname), ") as expected = ",
-            file.size(fname) / ncell / nbands / nstep / nyear == datatype$size,
-            "\n"))
-
-  # Calculate nr. of values to read
-  nvalue <- ncell * nbands * nstep * (end_year - start_year + 1) %/% timestep
-
-  # Read binary file
-  file_connection <-  file(fname, "rb")
-  seek(con = file_connection, where = vector_offset)
-  file_data <- readBin(file_connection, n = nvalue, what = datatype$type,
-                       size = datatype$size, signed = datatype$signed) * scalar
-  close.connection(file_connection)
-
+  seek(con = file_connection, where = data_offset)
+  file_data <- readBin(file_connection, n = n_values, what = datatype$type,
+                        size = datatype$size, signed = datatype$signed,
+                        endian = endian)
   return(file_data)
 }
