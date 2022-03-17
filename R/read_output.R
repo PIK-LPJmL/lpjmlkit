@@ -67,6 +67,7 @@ read_output <- function(
   # Read raw file type (binary file without a header)
   if (file_type == "raw") {
 
+    # Create a dummy header with the info passed as arguments
     if (is.null(version)) {
       verbose <- FALSE
     } else if (version < 4) {
@@ -75,7 +76,6 @@ read_output <- function(
       verbose <- FALSE
     }
 
-    # Create a dummy header with the info passed as arguments
     file_header <- create_header(
       name         = "LPJDUMMY",
       version      = ifelse(is.null(version), 4, version),
@@ -101,6 +101,10 @@ read_output <- function(
       get_header_item(file_header, "nstep") *
       get_header_item(file_header, "nyear") *
       get_datatype(file_header)$size
+
+    if (file.size(fname) != expected_filesize) {
+      stop(paste("Unexpected file size of (", file.size(fname), ") of", fname))
+    }
 
   # Read clm file type (binary file with a LPJmL header)
   } else if (file_type == "clm") {
