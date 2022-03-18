@@ -1,29 +1,18 @@
-#' Read a LPJmL meta file
+#' LPJmL meta output class
 #'
-#' Reads a meta JSON file.
+#' Handles metafile data for output data
 #'
-#' @param filename character string representing path
-#' (if differs from current working directory) and filename
+#' @param meta_list list (not nested) with meta data
 #'
-#' @return (nested) list object
+#' @return LpjmlMetaOutput object
 #'
 #' @examples
 #' \dontrun{
-#'  meta <- read_meta(filename = "mpft_npp.bin.json")
-#'
-#'  meta[[sim_name]]
-#'  # [1] "LPJmL Run"
-#'
-#'  meta[[firstcell]]
-#'  # [1] 27410
-#'
-#'  meta[[pft]][[1]]
-#'  # [1] "tropical broadleaved evergreen tree"
 #' }
 #' @export
-
-LpjmlMeta <- R6::R6Class(
-  classname = "LpjmlMeta",
+# https://adv-r.hadley.nz/r6.html#r6-classes, also why CamelCase is used ...
+LpjmlMetaOutput <- R6::R6Class(
+  classname = "LpjmlMetaOutput",
   lock_objects = FALSE,
   private = list(
     fields_set = c()
@@ -52,11 +41,13 @@ LpjmlMeta <- R6::R6Class(
     bigendian = FALSE,
     format = NULL,
     filename = NULL,
+
+    # init function
     initialize = function(meta_list) {
       for (idx in seq_along(meta_list)) {
-        if (!names(meta_list[idx]) %in% names(LpjmlMeta$public_fields)) {
+        if (!names(meta_list[idx]) %in% names(LpjmlMetaOutput$public_fields)) {
           warning(paste0(names(meta_list[idx]),
-                         " may not be a valid LpjmlMeta field."))
+                         " may not be a valid LpjmlMetaOutput field."))
         }
         do.call("$<-", list(self,
                             names(meta_list[idx]),
@@ -64,6 +55,8 @@ LpjmlMeta <- R6::R6Class(
       }
       self$fields_set <- names(meta_list)
     },
+
+    # convert to header object
     header = function() {
       create_header(
         name = "LPJ_OUT",
@@ -86,6 +79,8 @@ LpjmlMeta <- R6::R6Class(
         endian = ifelse(self$bigendian, "big", "little"),
         verbose = TRUE
       )
+
+    # return fields set as list
     }, list = function() {
         all_list <- as.list(self) %>%
           `[`(self$fields_set)

@@ -23,6 +23,6 @@
 #' @export
 read_meta <- function(filename) {
     meta_object <- jsonlite::read_json(path = filename, simplify = TRUE) %>%
-      LpjmlMeta$new()
+      LpjmlMetaOutput$new()
   return(meta_object)
 }
