@@ -164,8 +164,19 @@ create_header <- function(name = "LPJGRID",
       }
       if (length(datatype) == 1) {
         if (!is.null(
-          get_datatype(c(header[["header"]], datatype = datatype))
+          get_datatype(c(datatype = datatype))
         )) {
+          if (is.character(datatype)) {
+            datatype <- switch(
+              datatype,
+              byte = 0,
+              short = 1,
+              int = 2,
+              float = 3,
+              double = 4,
+              stop(paste("Invalid datatype string", sQuote(header)))
+            )
+          }
           header[["header"]] <- c(
             header[["header"]],
             datatype = as.integer(datatype)
