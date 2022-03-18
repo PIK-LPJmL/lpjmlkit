@@ -5,7 +5,7 @@
 #' @param filename character string representing path
 #' (if differs from current working directory) and filename
 #'
-#' @return (nested) list object
+#' @return LpjmlMetaData object
 #'
 #' @examples
 #' \dontrun{
@@ -23,6 +23,6 @@
 #' @export
 read_meta <- function(filename) {
     meta_object <- jsonlite::read_json(path = filename, simplify = TRUE) %>%
-      LpjmlMetaOutput$new()
+      LpjmlMetaData$new()
   return(meta_object)
 }

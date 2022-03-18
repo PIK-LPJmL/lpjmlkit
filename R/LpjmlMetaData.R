@@ -15,7 +15,7 @@ LpjmlMetaData <- R6::R6Class(
   classname = "LpjmlMetaData",
   lock_objects = FALSE,
   private = list(
-    fields_set = c()
+    fields_set = NULL
   ),
   public = list(
     sim_name = NULL,
@@ -61,11 +61,7 @@ LpjmlMetaData <- R6::R6Class(
       create_header(
         name = "LPJ_OUT",
         version = 4,
-        order = switch(self$order,
-                       cellyear = 1,
-                       yearcell = 2,
-                       cellindex = 3,
-                       cellseq = 4),
+        order = self$order,
         firstyear = self$firstyear,
         nyear = self$nyear,
         ncell = self$ncell,
