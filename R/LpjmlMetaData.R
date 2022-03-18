@@ -4,15 +4,15 @@
 #'
 #' @param meta_list list (not nested) with meta data
 #'
-#' @return LpjmlMetaOutput object
+#' @return LpjmlMetaData object
 #'
 #' @examples
 #' \dontrun{
 #' }
 #' @export
 # https://adv-r.hadley.nz/r6.html#r6-classes, also why CamelCase is used ...
-LpjmlMetaOutput <- R6::R6Class(
-  classname = "LpjmlMetaOutput",
+LpjmlMetaData <- R6::R6Class(
+  classname = "LpjmlMetaData",
   lock_objects = FALSE,
   private = list(
     fields_set = c()
@@ -45,9 +45,9 @@ LpjmlMetaOutput <- R6::R6Class(
     # init function
     initialize = function(meta_list) {
       for (idx in seq_along(meta_list)) {
-        if (!names(meta_list[idx]) %in% names(LpjmlMetaOutput$public_fields)) {
+        if (!names(meta_list[idx]) %in% names(LpjmlMetaData$public_fields)) {
           warning(paste0(names(meta_list[idx]),
-                         " may not be a valid LpjmlMetaOutput field."))
+                         " may not be a valid LpjmlMetaData field."))
         }
         do.call("$<-", list(self,
                             names(meta_list[idx]),
@@ -79,12 +79,13 @@ LpjmlMetaOutput <- R6::R6Class(
         endian = ifelse(self$bigendian, "big", "little"),
         verbose = TRUE
       )
+    },
 
     # return fields set as list
-    }, list = function() {
-        all_list <- as.list(self) %>%
-          `[`(self$fields_set)
-        return(all_list)
+    list = function() {
+      all_list <- as.list(self) %>%
+        `[`(self$fields_set)
+      return(all_list)
     }
   )
 )
