@@ -39,11 +39,14 @@ LpjmlData <- R6::R6Class(
     dim = function() {
       dim(self$array)
     },
+    fields = function() {
+      append(super$fields(), names(LpjmlData$public_fields))
+    },
     print = function() {
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
-      meta_fields <- unlist(as.list(self)[self$meta_fields_set])
-      if (!is.null(self$meta_fields_set)) {
+      meta_fields <- unlist(as.list(self)[self$.__meta_fields_set__])
+      if (!is.null(self$.__meta_fields_set__)) {
         cat("Meta Data:", "\n")
         cat(
           paste0("  ",
@@ -90,3 +93,8 @@ LpjmlData <- R6::R6Class(
 `[.LpjmlData`    <- function(obj, ...) obj$`[`(...)
 # `[<-.LpjmlData`  <- function(obj, ...) obj$`[<-`(...)
 length.LpjmlData <- function(obj, ...) obj$length(...)
+
+
+meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/aconv_loss_evap.bin.json")
+data_array <- array(1, dim=c(cells=67420,months=12,bands=12), dimnames=list(cells=1:67420,months=1:12,years=2001:2012))
+oo = LpjmlData$new(data_array, meta_data)
