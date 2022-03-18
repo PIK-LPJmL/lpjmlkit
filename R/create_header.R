@@ -118,6 +118,28 @@ create_header <- function(name = "LPJGRID",
         "is probably invalid for use in LPJmL."
       )
     )
+  # Support for name strings for order and datatype
+  if (length(order) == 1 && is.character(order)) {
+    order <- switch(
+      order,
+      cellyear = 1,
+      yearcell = 2,
+      cellindex = 3,
+      cellseq = 4,
+      stop(paste("Invalid order string", sQuote(order)))
+    )
+  }
+  if (length(datatype) == 1 && is.character(datatype)) {
+    datatype <- switch(
+      datatype,
+      byte = 0,
+      short = 1,
+      int = 2,
+      float = 3,
+      double = 4,
+      stop(paste("Invalid datatype string", sQuote(datatype)))
+    )
+  }
   header[["header"]] <- numeric(0)
   # Check that valid values have been provided for all parameters included
   # in header version 1
@@ -166,17 +188,6 @@ create_header <- function(name = "LPJGRID",
         if (!is.null(
           get_datatype(c(datatype = datatype))
         )) {
-          if (is.character(datatype)) {
-            datatype <- switch(
-              datatype,
-              byte = 0,
-              short = 1,
-              int = 2,
-              float = 3,
-              double = 4,
-              stop(paste("Invalid datatype string", sQuote(header)))
-            )
-          }
           header[["header"]] <- c(
             header[["header"]],
             datatype = as.integer(datatype)
@@ -310,7 +321,7 @@ create_header <- function(name = "LPJGRID",
         }
       }
       if (missing(datatype) || length(datatype) != 1 || is.null(
-        get_datatype(c(header[["header"]], datatype = datatype))
+        get_datatype(c(datatype = datatype))
       )) {
         header[["header"]] <- c(
           header[["header"]],
@@ -466,7 +477,7 @@ create_header <- function(name = "LPJGRID",
       }
     }
     if (missing(datatype) || length(datatype) != 1 || is.null(
-      get_datatype(c(header[["header"]], datatype = datatype))
+      get_datatype(c(datatype = datatype))
     )) {
       header[["header"]] <- c(
         header[["header"]],
