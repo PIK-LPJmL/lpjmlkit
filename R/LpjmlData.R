@@ -95,6 +95,6 @@ LpjmlData <- R6::R6Class(
 length.LpjmlData <- function(obj, ...) obj$length(...)
 
 
-meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/aconv_loss_evap.bin.json")
-data_array <- array(1, dim=c(cells=67420,months=12,bands=12), dimnames=list(cells=1:67420,months=1:12,years=2001:2012))
-oo = LpjmlData$new(data_array, meta_data)
+# meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/aconv_loss_evap.bin.json")
+# data_array <- array(1, dim=c(cells=67420,months=12,bands=12), dimnames=list(cells=1:67420,months=1:12,years=2001:2012))
+# oo = lpjmlKit:::LpjmlData$new(data_array, meta_data)
