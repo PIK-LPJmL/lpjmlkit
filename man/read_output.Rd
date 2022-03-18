@@ -22,8 +22,7 @@ read_output(
   scalar = NULL,
   cellsize_lat = NULL,
   datatype = NULL,
-  endian = NULL,
-  verbose = FALSE
+  endian = NULL
 )
 }
 \arguments{

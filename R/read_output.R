@@ -56,16 +56,15 @@ read_output <- function(
   scalar       = NULL,
   cellsize_lat = NULL,
   datatype     = NULL,
-  endian       = NULL,
-  verbose      = FALSE
+  endian       = NULL
 ) {
 
   cat(paste("\nReading:", "\n----------------------------\n", fname))
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
 
-  # Read raw file type (binary file without a header)
   if (file_type == "raw") {
+    # Read raw file type (binary file without a header)
 
     # Create a dummy header with the info passed as arguments
     if (is.null(version)) {
@@ -94,74 +93,308 @@ read_output <- function(
       endian       = ifelse(is.null(endian), .Platform$endian, endian),
       verbose      = verbose
     )
+    
+    # Offset at the start of the file before values begin
+    start_offset <- 0
 
-    # Check file size
-    expected_filesize <- get_header_item(file_header, "ncell") *
+  } else if (file_type == "clm") {
+    # Read clm file type (binary file with a LPJmL header)
+
+    # Read file_header
+    file_header <- read_header(fname)
+    
+    # Update header with the info passed as arguments (especially for version 1
+    # and 2 header values may need to be overwritten)
+    if (get_header_item(file_header, "version") > 3 && is.null(version)) {
+      verbose <- FALSE
+    } else if (!is.null(version) && version > 3) {
+      verbose <- FALSE
+    } else {
+      verbose <- TRUE
+    }
+
+    file_header <- create_header(
+      name         = get_header_item(file_header, "name"),
+      version      = ifelse(
+        is.null(version),
+        get_header_item(file_header, "version"),
+        version
+      ),
+      order        = ifelse(
+        is.null(order),
+        get_header_item(file_header, "order"),
+        order
+      ),
+      firstyear    = ifelse(
+        is.null(firstyear),
+        get_header_item(file_header, "firstyear"),
+        firstyear
+      ),
+      nyear        = ifelse(
+        is.null(nyear),
+        get_header_item(file_header, "nyear"),
+        nyear
+      ),
+      firstcell    = ifelse(
+        is.null(firstcell),
+        get_header_item(file_header, "firstcell"),
+        firstcell
+      ),
+      ncell        = ifelse(
+        is.null(ncell),
+        get_header_item(file_header, "ncell"),
+        ncell
+      ),
+      nbands       = ifelse(
+        is.null(nbands),
+        get_header_item(file_header, "nbands"),
+        nbands
+      ),
+      cellsize_lon = ifelse(
+        is.null(cellsize_lon),
+        get_header_item(file_header, "cellsize_lon"),
+        cellsize_lon
+      ),
+      scalar       = ifelse(
+        is.null(scalar),
+        get_header_item(file_header, "scalar"),
+        scalar
+      ),
+      cellsize_lat = ifelse(
+        is.null(cellsize_lat),
+        get_header_item(file_header, "cellsize_lat"),
+        cellsize_lat
+      ),
+      datatype     = ifelse(
+        is.null(datatype),
+        get_header_item(file_header, "datatype"),
+        datatype
+      ),
+      nstep        = ifelse(
+        is.null(nstep),
+        get_header_item(file_header, "nstep"),
+        nstep
+      ),
+      timestep     = ifelse(
+        is.null(timestep),
+        get_header_item(file_header, "timestep"),
+        timestep
+      ),
+      endian       = ifelse(
+        is.null(endian),
+        get_header_item(file_header, "endian"),
+        endian
+      ),
+      verbose      = verbose
+    )
+    
+    # Offset at the start of the file before values begin
+    start_offset <- get_headersize(file_header)
+
+
+  } else if (file_type == "meta") {
+    # Read meta file type (binary file with associated meta-data json file)
+
+    # Read meta data
+    meta_data <- read_meta(fname)
+    
+    # Derive header from meta data
+    file_header <- meta_data$header()
+    
+    # Update header with the info passed as arguments (especially for version 1
+    # and 2 header values may need to be overwritten)
+    if (get_header_item(file_header, "version") > 3 && is.null(version)) {
+      verbose <- FALSE
+    } else if (!is.null(version) && version > 3) {
+      verbose <- FALSE
+    } else {
+      verbose <- TRUE
+    }
+
+    file_header <- create_header(
+      name         = get_header_item(file_header, "name"),
+      version      = ifelse(
+        is.null(version),
+        get_header_item(file_header, "version"),
+        version
+      ),
+      order        = ifelse(
+        is.null(order),
+        get_header_item(file_header, "order"),
+        order
+      ),
+      firstyear    = ifelse(
+        is.null(firstyear),
+        get_header_item(file_header, "firstyear"),
+        firstyear
+      ),
+      nyear        = ifelse(
+        is.null(nyear),
+        get_header_item(file_header, "nyear"),
+        nyear
+      ),
+      firstcell    = ifelse(
+        is.null(firstcell),
+        get_header_item(file_header, "firstcell"),
+        firstcell
+      ),
+      ncell        = ifelse(
+        is.null(ncell),
+        get_header_item(file_header, "ncell"),
+        ncell
+      ),
+      nbands       = ifelse(
+        is.null(nbands),
+        get_header_item(file_header, "nbands"),
+        nbands
+      ),
+      cellsize_lon = ifelse(
+        is.null(cellsize_lon),
+        get_header_item(file_header, "cellsize_lon"),
+        cellsize_lon
+      ),
+      scalar       = ifelse(
+        is.null(scalar),
+        get_header_item(file_header, "scalar"),
+        scalar
+      ),
+      cellsize_lat = ifelse(
+        is.null(cellsize_lat),
+        get_header_item(file_header, "cellsize_lat"),
+        cellsize_lat
+      ),
+      datatype     = ifelse(
+        is.null(datatype),
+        get_header_item(file_header, "datatype"),
+        datatype
+      ),
+      nstep        = ifelse(
+        is.null(nstep),
+        get_header_item(file_header, "nstep"),
+        nstep
+      ),
+      timestep     = ifelse(
+        is.null(timestep),
+        get_header_item(file_header, "timestep"),
+        timestep
+      ),
+      endian       = ifelse(
+        is.null(endian),
+        get_header_item(file_header, "endian"),
+        endian
+      ),
+      verbose      = verbose
+    )
+
+    # Offset at the start of the file before values begin
+    # Confirm if JSON reflects if it is actually for a CLM file. Otherwise, need
+    # to devise a test.
+    start_offset <- 0
+
+    # Get fname from meta file
+    fname <- read_meta$filename
+  }
+
+  # Check file size
+  expected_filesize <- get_header_item(file_header, "ncell") *
+    get_header_item(file_header, "nbands") *
+    get_header_item(file_header, "nstep") *
+    get_header_item(file_header, "nyear") *
+    get_datatype(file_header)$size + start_offset
+  
+  if (file.size(fname) != expected_filesize) {
+    stop(
+      paste0(
+        "Unexpected file size (", file.size(fname), ") of ", fname,
+        "\nExpected size: ", expected_filesize,
+        "\nPlease check ",
+        ifelse(file_type == "meta", "meta file", "header"),
+        " attributes."
+      )
+    )
+  }
+  
+  # Check if nbands might actually be nstep
+  if (get_header_item(file_header, "nbands") %in% c(12, 365) &&
+    get_header_item(file_header, "nstep") == 1
+  ) {
+    print(
+      paste0(
+        "File has nbands=", nbands, " and nstep=1. ",
+        "If this is a ",
+        ifelse(get_header_item(file_header, "nbands") == 12, "monthly", "daily"),
+        " file please specify nstep and nbands parameters in function call."
+      )
+    )
+  }
+  
+  # All years in the file
+  years <- seq(
+    from       = get_header_item(file_header, "firstyear"),
+    by         = get_header_item(file_header, "timestep"),
+    length.out = get_header_item(file_header, "nyear")
+  )
+  
+  # Years subset
+  if (! "years" %in% names(subset_list)) {
+    subset_list[["years"]] <- years       # if not provided, read all years
+  } else {
+    if (!all(subset_list[["years"]] %in% years)) {
+      stop("Not all selected years are in file!")
+    }
+  }
+  
+  # Open binary file connection
+  file_connection <- file(fname, "rb")
+  
+  # Loop over subset years
+  for (yy in subset_list[["years"]]) {
+    
+    # Compute offset
+    data_offset <- (yy - get_header_item(file_header, "firstyear")) / 
+      get_header_item(file_header, "timestep") *
+      get_header_item(file_header, "ncell") *
       get_header_item(file_header, "nbands") *
       get_header_item(file_header, "nstep") *
-      get_header_item(file_header, "nyear") *
-      get_datatype(file_header)$size
+      get_datatype(file_header)$size + start_offset
+    
+    # Number of values to read for one year
+    n_values <- get_header_item(file_header, "ncell") *
+      get_header_item(file_header, "nbands") *
+      get_header_item(file_header, "nstep")
 
-    if (file.size(fname) != expected_filesize) {
-      stop(paste("Unexpected file size of (", file.size(fname), ") of", fname))
-    }
-
-  # Read clm file type (binary file with a LPJmL header)
-  } else if (file_type == "clm") {
-
-  # read file_header
-
-  # Read meta file type (binary file with associated meta-data json file)
-  } else if (file_type == "meta") {
-
-  # Get fname from meta file
-
-  # crate file_header using info from meta file
-
+    
+    # Read data from binary file
+    file_data <- read_raw(
+      file_connection,
+      data_offset = data_offset,
+      n_values = n_values,
+      datatype = get_datatype(file_header),
+      endian = get_header_item(file_header, "endian")
+    )
   }
-
-    # All years in the file
-    years <- seq(from       = get_header_item(file_header, "firstyear"),
-                 by         = get_header_item(file_header, "timestep"),
-                 length.out = get_header_item(file_header, "nyear"))
-
-    # Years subset
-    if (! "years" %in% names(subset_list)) {
-      subset_list[["years"]] <- years       # if not provided, read all years
-    } else {
-      if (!all(subset_list[["years"]] %in% years)) {
-        stop("Not all selected years are in file!")
-      }
-    }
-
-    # Open binary file connection
-    file_connection <- file(fname, "rb")
-
-    # Loop over subset years
-    for (yy in subset_list[["years"]]) {
-
-      # Compute offset
-      # ...
-
-      # Read data from binary file
-      file_data <- read_raw(file_connection,
-        data_offset = data_offset,
-        nvalue,
-        datatype = get_datatype(file_header),
-        endian = get_header_item(file_header, "endian")
-      )
-    }
-
+  
   # Convert to array
-  if ((end_year - start_year + 1) == 1) {
-    dim(file_data) <- c(ncell, nbands)
-  } else {
-    dim(file_data) <- c(ncell, nbands, end_year - start_year + 1)
-  }
+  # Confirm order of nbands and nstep for "cellyear"
+  dim(file_data) <- switch(
+    get_header_item(file_header, "order"),
+    c(nbands = get_header_item(file_header, "nbands"),
+      ncell = get_header_item(file_header, "ncell")
+    ),
+    stop("Order yearcell not supported"),
+    stop("Order cellindex not supported"),
+    c(ncell = get_header_item(file_header, "ncell"),
+      nbands = get_header_item(file_header, "nbands"),
+      nstep = get_header_item(file_header, "nstep")
+    )
+  )
 
   # Assign dimnames [cellnr, time, nbands]
   if (!is.null(band_names)) {
-
+    if (length(band_names) != get_header_item(file_header, "nbands")) {
+      stop("Provided band_names attribute has wrong length")
+    }
+    # ...
   }
 
   return(file_data)
@@ -177,8 +410,13 @@ read_raw <- function(
   endian
 ) {
   seek(con = file_connection, where = data_offset)
-  file_data <- readBin(file_connection, n = n_values, what = datatype$type,
-                        size = datatype$size, signed = datatype$signed,
-                        endian = endian)
+  file_data <- readBin(
+    file_connection,
+    n = n_values,
+    what = datatype$type,
+    size = datatype$size,
+    signed = datatype$signed,
+    endian = endian
+  )
   return(file_data)
 }

@@ -11,7 +11,7 @@ read_meta(filename)
 (if differs from current working directory) and filename}
 }
 \value{
-(nested) list object
+LpjmlMetaData object
 }
 \description{
 Reads a meta JSON file.
