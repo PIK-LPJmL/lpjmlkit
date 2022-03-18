@@ -15,7 +15,7 @@ LpjmlMetaData <- R6::R6Class(
   classname = "LpjmlMetaData",
   lock_objects = FALSE,
   private = list(
-    fields_set = NULL
+    meta_fields_set = NULL
   ),
   public = list(
     sim_name = NULL,
@@ -53,7 +53,7 @@ LpjmlMetaData <- R6::R6Class(
                             names(meta_list[idx]),
                             meta_list[[idx]]))
       }
-      self$fields_set <- names(meta_list)
+      self$meta_fields_set <- names(meta_list)
     },
 
     # convert to header object
@@ -80,8 +80,24 @@ LpjmlMetaData <- R6::R6Class(
     # return fields set as list
     list = function() {
       all_list <- as.list(self) %>%
-        `[`(self$fields_set)
+        `[`(self$meta_fields_set)
       return(all_list)
+    },
+    print = function() {
+      blue_col <- "\u001b[34m"
+      unset_col <- "\u001b[0m"
+      meta_fields <- unlist(as.list(self)[self$meta_fields_set])
+      cat("Meta Data:", "\n")
+      cat(
+        paste0("  ",
+               blue_col,
+               names(meta_fields),
+               unset_col,
+               " ",
+               meta_fields,
+               collapse = "\n")
+      )
+      cat("\n")
     }
   )
 )

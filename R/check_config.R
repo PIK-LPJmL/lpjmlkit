@@ -28,7 +28,7 @@ check_config <- function(x,
   if (is.null(output_path)) output_path <- model_path
 
   # check if x is character (vector) if so convert to tibble for the following
-  if ("character" %in% class(x)) {
+  if (is(x, "character")) {
     x <- tibble::tibble(sim_name = sapply(
       x,
       function(x) {

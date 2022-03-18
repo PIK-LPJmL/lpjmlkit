@@ -157,7 +157,7 @@ run_lpjml <- function(x,
   if (is.null(output_path)) output_path <- model_path
 
   # case if character vector with file names is supplied instead of tibble
-  if ("character" %in% class(x)) {
+  if (is(x, "character")) {
     x <- tibble::tibble(sim_name = sapply(
       x,
       function(x) {
