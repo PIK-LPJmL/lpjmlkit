@@ -89,10 +89,8 @@ LpjmlMetaData <- R6::R6Class(
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
       meta_fields <- unlist(as.list(self)[self$.__meta_fields_set__])
-      cat("Meta Data:", "\n")
       cat(
-        paste0("  ",
-               blue_col,
+        paste0(blue_col,
                names(meta_fields),
                unset_col,
                " ",
