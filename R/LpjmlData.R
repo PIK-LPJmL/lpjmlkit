@@ -88,7 +88,5 @@ LpjmlData <- R6::R6Class(
 # set up method dispatch
 #   https://stackoverflow.com/questions/50842251/define-a-bracket-operator-on-an-r6-class
 `[.LpjmlData`    <- function(obj, ...) obj$`[`(...)
-`[<-.LpjmlData`  <- function(obj, ...) obj$`[<-`(...)
+# `[<-.LpjmlData`  <- function(obj, ...) obj$`[<-`(...)
 length.LpjmlData <- function(obj, ...) obj$length(...)
-
-
