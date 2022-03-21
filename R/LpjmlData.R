@@ -28,14 +28,13 @@ LpjmlData <- R6::R6Class(
       }
       self$data <- data_array
     },
-    array = function(subset_list = NULL) {
+    as_array = function(subset_list = NULL) {
       self$data %>% {
           ifelse(is.null(subset_list), ., asub(., subset_list))
         } %>%
       return()
     },
-    tibble = function(subset_list = NULL, value_name = "value") {
-      self$meta_data$.__update_subset__()
+    as_tibble = function(subset_list = NULL, value_name = "value") {
       self$data %>% {
           ifelse(is.null(subset_list), ., asub(., subset_list))
         } %>%
@@ -43,14 +42,14 @@ LpjmlData <- R6::R6Class(
         as_tibble() %>%
         return()
     },
-    raster = function(grid_file, as_layers = "bands", subset_list = NULL) {
-
+    as_raster = function(grid_file, as_layers = "bands", subset_list = NULL) {
+      stop("TO BE IMPLEMENTED SOON")
     },
-    brick = function(grid_file, as_layers = "bands", subset_list = NULL) {
-
+    as_brick = function(grid_file, as_layers = "bands", subset_list = NULL) {
+      stop("TO BE IMPLEMENTED SOON")
     },
-    rast = function(grid_file, as_layers = "bands", subset_list = NULL) {
-
+    as_rast = function(grid_file, as_layers = "bands", subset_list = NULL) {
+      stop("TO BE IMPLEMENTED SOON")
     },
     length = function() {
       return(length(self$data))
