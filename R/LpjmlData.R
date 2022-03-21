@@ -29,17 +29,15 @@ LpjmlData <- R6::R6Class(
       self$data <- data_array
     },
     as_array = function(subset_list = NULL) {
-      self$data %>% {
-          ifelse(is.null(subset_list), ., asub(., subset_list))
-        } %>%
-      return()
+      self$data %>%
+        subset_array(subset_list) %>%
+        return()
     },
     as_tibble = function(subset_list = NULL, value_name = "value") {
-      self$data %>% {
-          ifelse(is.null(subset_list), ., asub(., subset_list))
-        } %>%
+      self$data %>%
+        subset_array(subset_list) %>%
         reshape2::melt(value.name = value_name) %>%
-        as_tibble() %>%
+        tibble::as_tibble() %>%
         return()
     },
     as_raster = function(grid_file, as_layers = "bands", subset_list = NULL) {
@@ -60,13 +58,14 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
-    summary = function(dimension="bands") {
-      if (dimension %in% names(dimnames(self$data))) {
-        self$data %>%
+    summary = function(dimension="bands", subset_list = NULL) {
+      data <- subset_array(self$data, subset_list)
+      if (dimension %in% names(dimnames(data))) {
+        data %>%
           apply(dimension, c) %>%
           summary()
       } else {
-        mat_sum <- summary(matrix(self$data))
+        mat_sum <- summary(matrix(data))
         space_len <- ifelse(nchar(self$meta_data$variable) > 8,
                             0,
                             4 - sqrt(nchar(self$meta_data$variable)))
