@@ -72,7 +72,8 @@ LpjmlMetaData <- R6::R6Class(
                USE.NAMES = FALSE)
       to_char1 <- self$fields_set %>%
         sapply(function(x) {
-          if (is.character(do.call("$", list(self, x)))) {
+          check <- do.call("$", list(self, x))
+          if (is.character(check) & length(check) <= 1) {
             return("\"")
           } else {
             return("")

@@ -61,9 +61,13 @@ LpjmlData <- R6::R6Class(
     summary = function(dimension="bands", subset_list = NULL) {
       data <- subset_array(self$data, subset_list)
       if (dimension %in% names(dimnames(data))) {
-        data %>%
-          apply(dimension, c) %>%
-          summary()
+        mat_sum <- data %>%
+          apply(dimension, c)
+        if (dim(mat_sum)[2] > 16) {
+          mat_sum[, seq_len(16)] %>% summary()
+        } else {
+          mat_sum %>% summary()
+        }
       } else {
         mat_sum <- summary(matrix(data))
         space_len <- ifelse(nchar(self$meta_data$variable) > 8,
@@ -77,11 +81,12 @@ LpjmlData <- R6::R6Class(
     print = function() {
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
-      cat(paste0(blue_col, "$meta_data", unset_col, "\n"))
-      self$meta_data$print(spaces = "  ")
+      cat(paste0("\u001b[1m", blue_col, "$meta_data %>%", unset_col, "\n"))
+      self$meta_data$print(spaces = "  .")
+      cat(paste0("\u001b[1m\u001b[37m", "$data", unset_col, "\n"))
       if (is.null(self$meta_data$subset)) {
         dim_names <- self$dimnames()
-        cat(paste0(blue_col, "$data$dimnames()", unset_col, "\n"))
+        cat(paste0(blue_col, "$dimnames()", unset_col, "\n"))
         for (sub in seq_along(dim_names)) {
           to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
           if (length(dim_names[[sub]]) > 30) {
@@ -103,7 +108,7 @@ LpjmlData <- R6::R6Class(
           cat("\n")
         }
       }
-      cat(paste0(blue_col, "$data$summary()", unset_col, "\n"))
+      cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary())
       cat("\n")
     }
@@ -118,6 +123,15 @@ dim.LpjmlData <- function(obj, ...) obj$dim(...)
 dimnames.LpjmlData <- function(obj, ...) obj$dimnames(...)
 summary.LpjmlData <- function(obj, ...) obj$summary(...)
 
-# meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/aconv_loss_evap.bin.json")
-# data_array <- array(1, dim=c(cells=67420,months=12,bands=10), dimnames=list(cells=1:67420,months=1:12, bands=2011:2020))
-# oo = LpjmlData$new(data_array, meta_data)
+# demo example with dummy data
+# meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/cftfrac.bin.json")
+# data_array <- array(1,
+#                     dim = c(cells = meta_data$ncell,
+#                             years = meta_data$nyear,
+#                             bands = meta_data$nbands),
+#                     dimnames = list(cells = seq(meta_data$firstcell,
+#                                                 length.out = meta_data$ncell),
+#                                     years = meta_data$firstyear :
+#                                             meta_data$lastyear,
+#                                     bands = meta_data$band_names))
+# soilc_layer <- LpjmlData$new(data_array, meta_data)
