@@ -470,7 +470,7 @@ write_single_config <- function(params,
     }
   } else {
     macro <- ""
-    macro_name <- ""
+    macro_name <- NULL
   }
   # parse config using the cpp precompiler and thereby evaluate macros
   tmp_json <- parse_config(path = model_path,
