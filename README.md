@@ -4,7 +4,7 @@ _A kit of R-functions to work with inputs, outputs and configuration files of th
 
 ## Overview
 
-This project contains reading, writing, plotting or processing functions that are related to the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. 
+This project contains reading, writing, plotting or processing functions that are related to the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
 It further provides functions to run the LPJmL model, as well as to process model-related data such as In- and Outputs. It comes in the [R package format](https://r-pkgs.org/intro.html).
 
 [[_TOC_]]
@@ -46,7 +46,7 @@ devtools::install("<path_to_lpjmlkit>/lpjmlkit")
 ```bash
 cd <path_to_lpjmlkit>
 R CMD build lpjmlKit
-R CMD INSTALL lpjmlKit_<version_nr>.tar.gz
+R CMD INSTALL [-l /path/Rlib/] lpjmlKit_<version_nr>.tar.gz
 ```
 [Go to Top](#)
 
@@ -57,9 +57,10 @@ After the installation, you can use `lpjmlKit` as any other R package.
 ```R
 # Load lpjmlKit
 library(lpjmlKit)
-```
-To get an overview of all functions included you can use:
-```R
+# Optional, specify the library paths
+library(lpjmlKit, lib.loc = "/path/Rlib")
+
+# To get an overview of all functions included you can use:
 library(help = "lpjmlKit")
 ```
 
@@ -70,8 +71,7 @@ library(help = "lpjmlKit")
 - If you want to use the [LPJmL Runner](./vignettes/lpjml-runner.pdf):
   - `write_config` *write* `"\*_config.json"` *file(s) based on a parameters tibble and a (precompiled) lpjml.js. `read_config` later or `view_config`*
   - `make_lpjml` *compile LPJmL* and `check_lpjml`
-  - `run_lpjml`, `submit_lpjml` *run or submit LPJmL (to Slurm) with \*_config.json*
-
+  - `run_lpjml`, `submit_lpjml` *run or submit LPJmL (to Slurm) with \*_config.json* (Note: you need to `module load lpjml`)
 
 [Go to Top](#)
 
@@ -102,7 +102,7 @@ The `lpjmlKit` repository include the following branches:
 **How to add a new function**
 
 Note: To be done for every new development that should go to master.
- 
+
 1. Create `your_temporary_branch` branch from `master`
 1. Manually copy the functions you want to clean from the `development` to `your_temporary_branch` branch, or write a new function from scratch
 1. Clean the function and coding style (`lintr::lint("R/my_function.R")`)
