@@ -201,17 +201,26 @@ read_output <- function(
     # Derive header from meta data
     file_header <- meta_data$as_header()
 
-    # Update header with the info passed as arguments (especially for version 1
-    # and 2 header values may need to be overwritten)
-    if (get_header_item(file_header, "version") > 3 && is.null(version)) {
-      verbose <- FALSE
-    } else if (!is.null(version) && version > 3) {
-      verbose <- FALSE
-    } else {
-      verbose <- TRUE
+    # Check if user has tried overwriting any header attributes which we do not
+    # allow for meta files.
+    check_att <- c("nstep", "timestep", "version", "order", "firstyear",
+                   "nyear", "firstcell", "ncell", "nbands", "cellsize_lon",
+                   "scalar", "cellsize_lat", "datatype", "endian")
+    not_allowed <- character(0)
+    for (att in check_att) {
+      if (!is.null(get(att)))
+        not_allowed <- c(not_allowed, att)
     }
-
-    # To Do: catch to check if any unnecessary arguments are passed and return a warning
+    if (length(not_allowed) > 0) {
+      warning(
+        paste0(
+          "You cannot overwrite any of the following parameters for file_type ",
+          sQuote(file_type),
+          ": ",
+          toString(sQuote(not_allowed))
+        )
+      )
+    }
 
     # Offset at the start of the file before values begin
     # Confirm if JSON reflects if it is actually for a CLM file. Otherwise, need
