@@ -266,20 +266,31 @@ read_output <- function(
     length.out = get_header_item(file_header, "nyear")
   )
 
-  # Years subset
-  if (! "years" %in% names(subset_list)) {
-    subset_list[["years"]] <- years       # if not provided, read all years
-  } else {
-    if (!all(subset_list[["years"]] %in% years)) {
-      stop("Not all selected years are in file!")
-    }
-  }
+  # To Do: write a function check_subset(subset_list, header, band_names) to check if subset_list is valid
+
+  # # Years subset
+  # if (! "year" %in% names(subset_list)) {
+  #   # if not provided, read all years
+  #   read_years <- years
+  # } else {
+  #   if (!all(subset_list[["year"]] %in% years)) {
+  #     stop("Not all selected years are in file!")
+  #   }
+  #   read_years <- subset_list[["year"]]
+  # }
+
+  # # Check band names
+  # if (!is.null(band_names)) {
+  #   if (length(band_names) != get_header_item(file_header, "nbands")) {
+  #     stop("Provided band_names attribute has wrong length")
+  #   }
+  # }
 
   # Open binary file connection
   file_connection <- file(file_name, "rb")
 
   # Loop over subset years
-  for (yy in subset_list[["years"]]) {
+  for (yy in read_years) {
 
     # Compute offset
     data_offset <- (yy - get_header_item(file_header, "firstyear")) /
@@ -303,30 +314,28 @@ read_output <- function(
       datatype = get_datatype(file_header),
       endian = get_header_item(file_header, "endian")
     )
+
+    # Convert to array
+    # Confirm order of nbands and nstep for "cellyear"
+    dim(file_data) <- switch(
+      get_header_item(file_header, "order"),
+      c(band = get_header_item(file_header, "nbands"),
+        time = get_header_item(file_header, "nstep"),
+        cell = get_header_item(file_header, "ncell")
+      ),
+      stop("Order yearcell not supported"),
+      stop("Order cellindex not supported"),
+      c(cell = get_header_item(file_header, "ncell"),
+        band = get_header_item(file_header, "nbands"),
+        time = get_header_item(file_header, "nstep")
+      )
+    )
   }
 
-  # Convert to array
-  # Confirm order of nbands and nstep for "cellyear"
-  dim(file_data) <- switch(
-    get_header_item(file_header, "order"),
-    c(nbands = get_header_item(file_header, "nbands"),
-      ncell = get_header_item(file_header, "ncell")
-    ),
-    stop("Order yearcell not supported"),
-    stop("Order cellindex not supported"),
-    c(ncell = get_header_item(file_header, "ncell"),
-      nbands = get_header_item(file_header, "nbands"),
-      nstep = get_header_item(file_header, "nstep")
-    )
-  )
+
 
   # Assign dimnames [cellnr, time, nbands]
-  if (!is.null(band_names)) {
-    if (length(band_names) != get_header_item(file_header, "nbands")) {
-      stop("Provided band_names attribute has wrong length")
-    }
-    # ...
-  }
+
 
   return(file_data)
 }
