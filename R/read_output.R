@@ -223,7 +223,7 @@ read_output <- function(
     }
 
     # Get file_name from meta file
-    file_name <- read_meta$filename
+    file_name <- meta_data$filename
   }
 
   # Check file size
@@ -245,28 +245,7 @@ read_output <- function(
     )
   }
 
-  # Check if nbands might actually be nstep
-  if (get_header_item(file_header, "nbands") %in% c(12, 365) &&
-    get_header_item(file_header, "nstep") == 1
-  ) {
-    print(
-      paste0(
-        "File has nbands=", nbands, " and nstep=1. ",
-        "If this is a ",
-        ifelse(get_header_item(file_header, "nbands") == 12, "monthly", "daily"),
-        " file please specify nstep and nbands parameters in function call."
-      )
-    )
-  }
-
-  # All years in the file
-  years <- seq(
-    from       = get_header_item(file_header, "firstyear"),
-    by         = get_header_item(file_header, "timestep"),
-    length.out = get_header_item(file_header, "nyear")
-  )
-
-  # To Do: write a function check_subset(subset_list, header, band_names) to check if subset_list is valid
+  check_subset(subset_list, file_header, band_names)
 
   # # Years subset
   # if (! "year" %in% names(subset_list)) {
@@ -286,11 +265,23 @@ read_output <- function(
   #   }
   # }
 
+  if ("year" %in% names(subset_list)) {
+    years <- subset_list[["year"]]
+  } else {
+    # All years in the file
+    years <- seq(
+      from       = get_header_item(file_header, "firstyear"),
+      by         = get_header_item(file_header, "timestep"),
+      length.out = get_header_item(file_header, "nyear")
+    )
+  }
+
+
   # Open binary file connection
   file_connection <- file(file_name, "rb")
 
   # Loop over subset years
-  for (yy in read_years) {
+  for (yy in years) {
 
     # Compute offset
     data_offset <- (yy - get_header_item(file_header, "firstyear")) /
@@ -359,4 +350,41 @@ read_raw <- function(
     endian = endian
   )
   return(file_data)
+}
+
+
+check_subset <- function(subset_list, header, band_names) {
+    if (!is.null(subset_list[["year"]])) {
+      years <- seq(
+        from       = get_header_item(header, "firstyear"),
+        by         = get_header_item(header, "timestep"),
+        length.out = get_header_item(header, "nyear")
+      )
+      if (is.character(subset_list[["year"]])) {
+        if (!all(subset_list[["year"]] %in% as.character(years))) {
+          stop("subset_list[[\"year\"]] does not match years in file.")
+        }
+      } else {
+        if (max(subset_list[["year"]]) > length(years)) {
+          stop("Index of subset_list[[\"year\"]] is out of range.")
+        }
+      }
+    }
+    if (!is.null(subset_list[["month"]])) {
+    }
+    if (!is.null(subset_list[["day"]])) {
+    }
+    if (!is.null(subset_list[["cell"]])) {
+    }
+    if (!is.null(subset_list[["band"]])) {
+    }
+    if (
+      any(!names(subset_list) %in% c("cell", "year", "month", "day", "band"))
+    ) {
+      warning(paste0("\"", names(subset_list)[
+        which(
+          !names(subset_list) %in% c("cell", "year", "month", "day", "band")
+        )
+      ], "\" is not a valid subset name and will be ignored."))
+    }
 }
