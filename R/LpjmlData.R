@@ -124,7 +124,7 @@ dimnames.LpjmlData <- function(obj, ...) obj$dimnames(...)
 summary.LpjmlData <- function(obj, ...) obj$summary(...)
 
 # demo example with dummy data
-# meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/cftfrac.bin.json")
+# meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/soilc_layer.bin.json")
 # data_array <- array(1,
 #                     dim = c(cells = meta_data$ncell,
 #                             years = meta_data$nyear,

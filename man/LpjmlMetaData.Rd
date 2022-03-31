@@ -17,9 +17,9 @@ Handles metafile data for output data
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LpjmlMetaData$new()}}
-\item \href{#method-header}{\code{LpjmlMetaData$header()}}
-\item \href{#method-fields}{\code{LpjmlMetaData$fields()}}
-\item \href{#method-list}{\code{LpjmlMetaData$list()}}
+\item \href{#method-update_subset}{\code{LpjmlMetaData$update_subset()}}
+\item \href{#method-as_header}{\code{LpjmlMetaData$as_header()}}
+\item \href{#method-as_list}{\code{LpjmlMetaData$as_list()}}
 \item \href{#method-print}{\code{LpjmlMetaData$print()}}
 \item \href{#method-clone}{\code{LpjmlMetaData$clone()}}
 }
@@ -41,29 +41,29 @@ Handles metafile data for output data
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-header"></a>}}
-\if{latex}{\out{\hypertarget{method-header}{}}}
-\subsection{Method \code{header()}}{
+\if{html}{\out{<a id="method-update_subset"></a>}}
+\if{latex}{\out{\hypertarget{method-update_subset}{}}}
+\subsection{Method \code{update_subset()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$header()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$update_subset(subset_list)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fields"></a>}}
-\if{latex}{\out{\hypertarget{method-fields}{}}}
-\subsection{Method \code{fields()}}{
+\if{html}{\out{<a id="method-as_header"></a>}}
+\if{latex}{\out{\hypertarget{method-as_header}{}}}
+\subsection{Method \code{as_header()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$fields()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$as_header()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-list"></a>}}
-\if{latex}{\out{\hypertarget{method-list}{}}}
-\subsection{Method \code{list()}}{
+\if{html}{\out{<a id="method-as_list"></a>}}
+\if{latex}{\out{\hypertarget{method-as_list}{}}}
+\subsection{Method \code{as_list()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$list()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$as_list()}\if{html}{\out{</div>}}
 }
 
 }
@@ -72,7 +72,7 @@ Handles metafile data for output data
 \if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$print()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$print(spaces = "")}\if{html}{\out{</div>}}
 }
 
 }

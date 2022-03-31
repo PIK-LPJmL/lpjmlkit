@@ -13,28 +13,22 @@ Handles LPJmL output and input data
 \dontrun{
 }
 }
-\section{Super class}{
-\code{\link[lpjmlKit:LpjmlMetaData]{lpjmlKit::LpjmlMetaData}} -> \code{LpjmlData}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LpjmlData$new()}}
-\item \href{#method-[}{\code{LpjmlData$[()}}
+\item \href{#method-as_array}{\code{LpjmlData$as_array()}}
+\item \href{#method-as_tibble}{\code{LpjmlData$as_tibble()}}
+\item \href{#method-as_raster}{\code{LpjmlData$as_raster()}}
+\item \href{#method-as_brick}{\code{LpjmlData$as_brick()}}
+\item \href{#method-as_rast}{\code{LpjmlData$as_rast()}}
 \item \href{#method-length}{\code{LpjmlData$length()}}
 \item \href{#method-dim}{\code{LpjmlData$dim()}}
-\item \href{#method-fields}{\code{LpjmlData$fields()}}
+\item \href{#method-dimnames}{\code{LpjmlData$dimnames()}}
+\item \href{#method-summary}{\code{LpjmlData$summary()}}
 \item \href{#method-print}{\code{LpjmlData$print()}}
 \item \href{#method-clone}{\code{LpjmlData$clone()}}
 }
-}
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="lpjmlKit" data-topic="LpjmlMetaData" data-id="header">}\href{../../lpjmlKit/html/LpjmlMetaData.html#method-header}{\code{lpjmlKit::LpjmlMetaData$header()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="lpjmlKit" data-topic="LpjmlMetaData" data-id="list">}\href{../../lpjmlKit/html/LpjmlMetaData.html#method-list}{\code{lpjmlKit::LpjmlMetaData$list()}}\out{</span>}
-}
-\out{</details>}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
@@ -55,11 +49,47 @@ Handles LPJmL output and input data
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-["></a>}}
-\if{latex}{\out{\hypertarget{method-[}{}}}
-\subsection{Method \code{[()}}{
+\if{html}{\out{<a id="method-as_array"></a>}}
+\if{latex}{\out{\hypertarget{method-as_array}{}}}
+\subsection{Method \code{as_array()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$[(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_array(subset_list = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-as_tibble"></a>}}
+\if{latex}{\out{\hypertarget{method-as_tibble}{}}}
+\subsection{Method \code{as_tibble()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_tibble(subset_list = NULL, value_name = "value")}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-as_raster"></a>}}
+\if{latex}{\out{\hypertarget{method-as_raster}{}}}
+\subsection{Method \code{as_raster()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_raster(grid_file, as_layers = "bands", subset_list = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-as_brick"></a>}}
+\if{latex}{\out{\hypertarget{method-as_brick}{}}}
+\subsection{Method \code{as_brick()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_brick(grid_file, as_layers = "bands", subset_list = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-as_rast"></a>}}
+\if{latex}{\out{\hypertarget{method-as_rast}{}}}
+\subsection{Method \code{as_rast()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_rast(grid_file, as_layers = "bands", subset_list = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -82,11 +112,20 @@ Handles LPJmL output and input data
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fields"></a>}}
-\if{latex}{\out{\hypertarget{method-fields}{}}}
-\subsection{Method \code{fields()}}{
+\if{html}{\out{<a id="method-dimnames"></a>}}
+\if{latex}{\out{\hypertarget{method-dimnames}{}}}
+\subsection{Method \code{dimnames()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$fields()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$dimnames()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-summary}{}}}
+\subsection{Method \code{summary()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$summary(dimension = "bands", subset_list = NULL)}\if{html}{\out{</div>}}
 }
 
 }
