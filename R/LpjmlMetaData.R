@@ -224,12 +224,12 @@ LpjmlMetaData <- R6::R6Class(
     .filename = NULL,
     .subset = NULL,
     .fields_set = NULL,
-    .dimension_map = list(cells = "cells",
-                         time = c("years", "months", "days"),
-                         years = "time",
-                         months = "time",
-                         days = "time",
-                         bands = "bands")
+    .dimension_map = list(cells = "cell",
+                         time = c("year", "month", "day"),
+                         year = "time",
+                         month = "time",
+                         day = "time",
+                         band = "band")
   )
 )
 

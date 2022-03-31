@@ -40,13 +40,13 @@ LpjmlData <- R6::R6Class(
         tibble::as_tibble() %>%
         return()
     },
-    as_raster = function(grid_file, as_layers = "bands", subset_list = NULL) {
+    as_raster = function(grid_file, as_layers = "band", subset_list = NULL) {
       stop("TO BE IMPLEMENTED SOON")
     },
-    as_brick = function(grid_file, as_layers = "bands", subset_list = NULL) {
+    as_brick = function(grid_file, as_layers = "band", subset_list = NULL) {
       stop("TO BE IMPLEMENTED SOON")
     },
-    as_rast = function(grid_file, as_layers = "bands", subset_list = NULL) {
+    as_rast = function(grid_file, as_layers = "band", subset_list = NULL) {
       stop("TO BE IMPLEMENTED SOON")
     },
     length = function() {
@@ -58,7 +58,7 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
-    summary = function(dimension="bands", subset_list = NULL) {
+    summary = function(dimension="band", subset_list = NULL) {
       data <- subset_array(self$data, subset_list)
       if (dimension %in% names(dimnames(data))) {
         mat_sum <- data %>%
@@ -126,12 +126,12 @@ summary.LpjmlData <- function(obj, ...) obj$summary(...)
 # demo example with dummy data
 # meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/soilc_layer.bin.json")
 # data_array <- array(1,
-#                     dim = c(cells = meta_data$ncell,
-#                             years = meta_data$nyear,
-#                             bands = meta_data$nbands),
-#                     dimnames = list(cells = seq(meta_data$firstcell,
+#                     dim = c(cell = meta_data$ncell,
+#                             year = meta_data$nyear,
+#                             band = meta_data$nband),
+#                     dimnames = list(cell = seq(meta_data$firstcell,
 #                                                 length.out = meta_data$ncell),
-#                                     years = meta_data$firstyear :
+#                                     year = meta_data$firstyear :
 #                                             meta_data$lastyear,
-#                                     bands = meta_data$band_names))
+#                                     band = meta_data$band_names))
 # soilc_layer <- LpjmlData$new(data_array, meta_data)
