@@ -71,15 +71,19 @@ subarray_argument <- function(x, subset_list) {
   match_x <- which(names(dimnames(x)) %in% names(subset_list))
   match_subset <- na.omit(match(names(dimnames(x)), names(subset_list)))
   subset_list <- mapply(
-    function(x, y) {
+    function(x, y, dim_name) {
       if (is.character(x)) {
         return(which(y %in% x))
       } else {
+        if (dim_name == "year") {
+          return(which(y %in% as.character(x)))
+        }
         return(x)
       }
     },
     subset_list[match_subset],
     dimnames(x)[match_x],
+    names(dimnames(x))[match_x],
     SIMPLIFY = FALSE
   )
   argument <- rep(list(bquote()), length(dim(x)))

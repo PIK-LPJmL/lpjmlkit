@@ -360,19 +360,21 @@ check_subset <- function(subset_list, header, band_names) {
         by         = get_header_item(header, "timestep"),
         length.out = get_header_item(header, "nyear")
       )
-      if (is.character(subset_list[["year"]])) {
-        if (!all(subset_list[["year"]] %in% as.character(years))) {
-          stop("subset_list[[\"year\"]] does not match years in file.")
-        }
-      } else {
-        if (max(subset_list[["year"]]) > length(years)) {
-          stop("Index of subset_list[[\"year\"]] is out of range.")
-        }
+      if (!all(subset_list[["year"]] %in% as.character(years))) {
+        stop("subset_list[[\"year\"]] does not match years in file.")
       }
     }
     if (!is.null(subset_list[["month"]])) {
+      warning(paste0(
+        "Using \"month\" as subset is currently not supported in this context ",
+        "and thus will be ignored."
+      ))
     }
     if (!is.null(subset_list[["day"]])) {
+      warning(paste0(
+        "Using \"day\" as subset is currently not supported in this context ",
+        "and thus will be ignored."
+      ))
     }
     if (!is.null(subset_list[["cell"]])) {
     }
