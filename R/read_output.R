@@ -62,6 +62,9 @@ read_output <- function(
   cat(paste("\nReading:", "\n----------------------------\n", file_name))
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
+  
+  # Default band order in returned data object
+  default_band_order <- c("cell", "time", "band")
 
   if (file_type == "raw") {
     # Read raw file type (binary file without a header)
@@ -203,9 +206,10 @@ read_output <- function(
 
     # Check if user has tried overwriting any header attributes which we do not
     # allow for meta files.
-    check_att <- c("nstep", "timestep", "version", "order", "firstyear",
-                   "nyear", "firstcell", "ncell", "nbands", "cellsize_lon",
-                   "scalar", "cellsize_lat", "datatype", "endian")
+    check_att <- c("band_names", "nstep", "timestep", "version", "order",
+                   "firstyear", "nyear", "firstcell", "ncell", "nbands",
+                   "cellsize_lon", "scalar", "cellsize_lat", "datatype",
+                   "endian")
     not_allowed <- character(0)
     for (att in check_att) {
       if (!is.null(get(att)))
@@ -231,8 +235,26 @@ read_output <- function(
       start_offset <- meta_data$offset
     }
 
-    # Get file_name from meta file
-    file_name <- meta_data$filename
+    # Use band_names from meta file
+    band_names <- meta_data$band_names
+
+    # Get file_name from meta file.
+    if (basename(meta_data$filename) == meta_data$filename) {
+      # meta_data$filename is in same directory as file_name, can use path from
+      # file_name.
+      file_name <- file.path(dirname(file_name), meta_data$filename)
+    } else {
+      # meta_data$filename is in a different directory than file_name. Need to
+      # parse path.
+      # Save current working directory
+      wd <- getwd()
+      # Set working directory to path of file_name
+      setwd(dirname(file_name))
+      # Relative path can be parsed now.
+      file_name <- normalizePath(meta_data$filename)
+      # Reset working directory
+      setwd(wd)
+    }
   }
 
   # Check file size
@@ -254,26 +276,10 @@ read_output <- function(
     )
   }
 
+  # Check validity of subset_list and band_names
   check_subset(subset_list, file_header, band_names)
 
-  # # Years subset
-  # if (! "year" %in% names(subset_list)) {
-  #   # if not provided, read all years
-  #   read_years <- years
-  # } else {
-  #   if (!all(subset_list[["year"]] %in% years)) {
-  #     stop("Not all selected years are in file!")
-  #   }
-  #   read_years <- subset_list[["year"]]
-  # }
-
-  # # Check band names
-  # if (!is.null(band_names)) {
-  #   if (length(band_names) != get_header_item(file_header, "nbands")) {
-  #     stop("Provided band_names attribute has wrong length")
-  #   }
-  # }
-
+  # Years to read
   if ("year" %in% names(subset_list)) {
     years <- subset_list[["year"]]
   } else {
@@ -306,8 +312,8 @@ read_output <- function(
       get_header_item(file_header, "nstep")
 
 
-    # Read data from binary file
-    file_data <- read_raw(
+    # Read data for one year from binary file
+    year_data <- read_raw(
       file_connection,
       data_offset = data_offset,
       n_values = n_values,
@@ -316,8 +322,9 @@ read_output <- function(
     )
 
     # Convert to array
-    # Confirm order of nbands and nstep for "cellyear"
-    dim(file_data) <- switch(
+    # Note: order of nbands and nstep for "cellyear" (order = 1) is currently
+    # not defined in LPJmL.
+    dim(year_data) <- switch(
       get_header_item(file_header, "order"),
       c(band = get_header_item(file_header, "nbands"),
         time = get_header_item(file_header, "nstep"),
@@ -330,11 +337,58 @@ read_output <- function(
         time = get_header_item(file_header, "nstep")
       )
     )
+    dimnames(year_data) <- switch(
+      get_header_item(file_header, "order"),
+      list(
+        band = ifelse(
+          is.null(band_names),
+          seq(get_header_item(header, "nbands")), # use band index
+          band_names
+        ),
+        time = NULL, # Assign dates later
+        cell = seq(
+          get_header_item(header, "firstcell"),
+          length.out = get_header_item(header, "ncell")
+        )
+      ),
+      stop("Order yearcell not supported"),
+      stop("Order cellindex not supported"),
+      list(
+        cell = seq(
+          get_header_item(header, "firstcell"),
+          length.out = get_header_item(header, "ncell")
+        ),
+        time = NULL, # Assign dates later
+        band = ifelse(
+          is.null(band_names),
+          seq(get_header_item(header, "nbands")), # use band index
+          band_names
+        )
+      )
+    )
+        
+    # Convert to default dimension order
+    year_data <- aperm(year_data, perm = default_band_order)
+    
+    # Apply any subsetting along bands or cells
+    # ...
+    
+    # Concatenate years together
+    if (yy == years[1]) {
+      file_data <- year_data
+    } else {
+      file_data <- abind::abind(
+        file_data,
+        year_data,
+        along = which(default_band_order == "time"),
+        use.dnns = TRUE
+      )
+    }
   }
 
 
 
-  # Assign dimnames [cellnr, time, nbands]
+  # Assign final dimnames [cellnr, time, bands]
 
 
   return(file_data)
@@ -369,9 +423,16 @@ check_subset <- function(subset_list, header, band_names) {
         by         = get_header_item(header, "timestep"),
         length.out = get_header_item(header, "nyear")
       )
-      if (!all(subset_list[["year"]] %in% as.character(years))) {
-        stop("subset_list[[\"year\"]] does not match years in file.")
+      if (!all(subset_list[["year"]] %in% years)) {
+        stop(
+          paste(
+            "Requested year(s)", setdiff(subset_list[["year"]], years),
+            "not covered by file."
+            "\nCheck subset_list[[\"year\"]]."
+          )
+        )
       }
+      rm(years)
     }
     if (!is.null(subset_list[["month"]])) {
       warning(paste0(
@@ -386,16 +447,90 @@ check_subset <- function(subset_list, header, band_names) {
       ))
     }
     if (!is.null(subset_list[["cell"]])) {
+      if (is.character(subset_list[["cell"]])) {
+        cells <- seq(
+          from = get_header_item(header, "firstcell"),
+          length.out = get_header_item(header, "ncell")
+        )
+      } else if (is.numeric(subset_list[["cell"]])) {
+        cells <- seq_len(get_header_item(header, "ncell"))
+      } else {
+        stop(
+          paste(
+            "subset_list[[\"cell\"]] must be numerical index vector or",
+            "vector of cell names."
+          )
+        )
+      }
+      if (!all(subset_list[["cell"]] %in% cells)) {
+        stop(
+          paste(
+            "Requested cell(s)", setdiff(subset_list[["cell"]], cells),
+            "not covered by file."
+            "\nCheck subset_list[[\"cell\"]]."
+          )
+        )
+      }
+      rm(cells)
+    }
+    if (!is.null(band_names) &&
+      length(band_names) != get_header_item(header, "nbands")
+    ) {
+      stop(
+        paste(
+          "Provided", sQuote(band_names), "do not match number of bands in",
+          "file:", length(band_names), "!=", get_header_item(header, "nbands")
+        )
+      )
     }
     if (!is.null(subset_list[["band"]])) {
+      if (is.character(subset_list[["band"]]) && is.null(band_names)) {
+        stop(
+          paste(
+            "File has no associated band_names. Cannot do subset by name.",
+            "\nProvide band indices instead of band names in",
+            "subset_list[[\"cell\"]] or set band_names."
+          )
+        )
+        if (!all(subset_list[["band"]] %in% band_names)) {
+          stop(
+            paste(
+              "Requested band(s)", setdiff(subset_list[["band"]], band_names),
+              "not covered by file."
+              "\nCheck subset_list[[\"cell\"]]."
+            )
+          )
+        }
+      } else if (is.numeric(subset_list[["band"]])) {
+        bands <- seq(get_header_item(header, "nbands"))
+        if (!all(subset_list[["band"]] %in% bands)) {
+          stop(
+            paste(
+              "Requested band(s)", setdiff(subset_list[["band"]], bands),
+              "not covered by file."
+              "\nCheck subset_list[[\"band\"]]."
+            )
+          )
+        }
+        rm(bands)
+      }
     }
     if (
       any(!names(subset_list) %in% c("cell", "year", "month", "day", "band"))
     ) {
-      warning(paste0("\"", names(subset_list)[
-        which(
-          !names(subset_list) %in% c("cell", "year", "month", "day", "band")
+      warning(
+        paste0(
+          "Invalid 'subset_list' name(s)",
+          toString(
+            dQuote(
+              setdiff(
+                names(subset_list),
+                c("cell", "year", "month", "day", "band")
+              )
+            )
+          ),
+          "will be ignored."
         )
-      ], "\" is not a valid subset name and will be ignored."))
+      )
     }
 }
