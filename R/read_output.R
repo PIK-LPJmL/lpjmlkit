@@ -368,10 +368,13 @@ read_output <- function(
     )
         
     # Convert to default dimension order
-    year_data <- aperm(year_data, perm = default_band_order)
+    year_data <- aperm(year_data, perm = default_band_order) %>%
+      subset_array(
+       subset_list[!names(subset_list) %in% c("day", "month", "year")]
+      )
     
     # Apply any subsetting along bands or cells
-    # ...
+    
     
     # Concatenate years together
     if (yy == years[1]) {
@@ -427,7 +430,7 @@ check_subset <- function(subset_list, header, band_names) {
         stop(
           paste(
             "Requested year(s)", setdiff(subset_list[["year"]], years),
-            "not covered by file."
+            "not covered by file.",
             "\nCheck subset_list[[\"year\"]]."
           )
         )
