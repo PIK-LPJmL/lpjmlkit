@@ -62,7 +62,7 @@ read_output <- function(
   cat(paste("\nReading:", "\n----------------------------\n", file_name))
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
-  
+
   # Default band order in returned data object
   default_band_order <- c("cell", "time", "band")
 
@@ -342,7 +342,7 @@ read_output <- function(
       list(
         band = ifelse(
           is.null(band_names),
-          seq(get_header_item(header, "nbands")), # use band index
+          seq_len(get_header_item(header, "nbands")), # use band index
           band_names
         ),
         time = NULL, # Assign dates later
@@ -361,21 +361,19 @@ read_output <- function(
         time = NULL, # Assign dates later
         band = ifelse(
           is.null(band_names),
-          seq(get_header_item(header, "nbands")), # use band index
+          seq_len(get_header_item(header, "nbands")), # use band index
           band_names
         )
       )
     )
-        
+
     # Convert to default dimension order
     year_data <- aperm(year_data, perm = default_band_order) %>%
+      # Apply any subsetting along bands or cells
       subset_array(
        subset_list[!names(subset_list) %in% c("day", "month", "year")]
       )
-    
-    # Apply any subsetting along bands or cells
-    
-    
+
     # Concatenate years together
     if (yy == years[1]) {
       file_data <- year_data
