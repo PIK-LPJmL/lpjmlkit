@@ -388,6 +388,13 @@ read_output <- function(
 
   # Assign final dimnames [cellnr, time, bands]
 
+  # Create names for time dimension:
+  #  - for daily data: YYYY-MM-DD
+  #  - for monthly data: YYYY-MM-LastDayOfMonth
+  #  - for yearls data: YYYY-12-31
+  #  - dates should be as characters, not as.Date to avoid leap years' issues
+  #  - last day of year/month because this is the day when LPJmL writes data annual/montly data out
+
   return(file_data)
   # lpjml_data <- LpjmlData$new(file_data, meta_data, subset_list)
 
