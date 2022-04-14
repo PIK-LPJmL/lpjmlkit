@@ -2,7 +2,7 @@
 #'
 #' Handles metafile data for output data
 #'
-#' @param meta_list list (not nested) with meta data
+#' @param x list (not nested) with meta data
 #'
 #' @return LpjmlMetaData object
 #'
@@ -16,27 +16,77 @@ LpjmlMetaData <- R6::R6Class(
   lock_objects = FALSE,
   public = list(
     # init function
-    initialize = function(meta_list) {
-      for (idx in seq_along(meta_list)) {
-        # if (!names(meta_list[idx]) %in% names(LpjmlMetaData$public_fields)) {
-        #   warning(paste0(names(meta_list[idx]),
-        #                  " may not be a valid LpjmlMetaData field."))
-        # }
-        do.call("$<-", list(private,
-                            paste0(".", names(meta_list[idx])),
-                            meta_list[[idx]]))
+    initialize = function(x, subset_list=list()) {
+      if (all(names(x) %in% c("name", "header", "endian"))) {
+        header_to_meta <- as.list(x$header)[
+          which(!names(x$header) %in% c("version"))
+        ] %>%
+          append(list(
+            "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
+            # "descr" = tolower(x$name),
+            "lastyear" = x$header[["firstyear"]] +
+                         x$header[["timestep"]] *
+                         (x$timestep[["nyear"]] - 1)
+          )) %>%
+        `[[<-`("order",
+               switch(as.character(order),
+                      `1` = "cellyear",
+                      `2` = "yearcell",
+                      `3` = "cellindex",
+                      `4` = "cellseq",
+                      stop(paste("Invalid order string", sQuote(order)))))
+        private$init_list(header_to_meta)
+      } else {
+        private$init_list(x)
       }
-      private$.fields_set <- names(meta_list)
+      if (length(subset_list) > 0) {
+        self$update_subset(subset_list)
+      }
     },
     # update supplied subset_list in self.subset
     update_subset = function(subset_list) {
-      # evtly TODO: if subset_list integer -> index of previus subset_list
-      # TODO: convert from time to years/months/days and vice versa
-      private$.subset[
-        names(subset_list) %in% names(self$dimension_map)
-      ] <- subset_list[
-        names(subset_list) %in% names(self$dimension_map)
-      ]
+      # update cell fields - distinguish between character -> LPJmL C index
+      #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
+      if (!is.null(subset_list$cell)) {
+        if (is.character(subset_list$cell)) {
+          private$.firstcell <- min(as.integer(subset_list$cell))
+        } else {
+          private$.firstcell <- min(as.integer(subset_list$cell - 1))
+        }
+        private$.ncell <- length(subset_list$cell)
+        private$.subset <- TRUE
+      }
+      # for years using indices is forbidded because they cannot be properly
+      #   distinguished from years
+      if (!is.null(subset_list$year)) {
+        private$.firstyear <- min(as.integer(subset_list$year))
+        private$.lastyear <- max(as.integer(subset_list$year))
+        private$.nyear <- length(subset_list$year)
+        private$.subset <- TRUE
+      }
+      # band can be subsetted via indices or band_names - the latter is updated
+      if (!is.null(subset_list$band)) {
+        if (is.character(subset_list$band)) {
+          if (subset_list$band %in% private$.band_names) {
+            warning(paste0(
+              "Not all subset_list bands are represented in the data.",
+              "Resulting meta data band_names may be incorrect"
+            ))
+          }
+          private$.band_names <- private$.band_names[
+            private$.band_names %in% subset_list$band
+          ]
+        } else {
+          private$.band_names <- private$.band_names[subset_list$band]
+        }
+        private$.subset <- TRUE
+      }
+      # if (!is.null(subset_list$day)) {
+      # }
+      # if (!is.null(subset_list$month)) {
+      # }
+      # if (!is.null(subset_list$time)) {
+      # }
     },
     # convert to header object
     as_header = function() {
@@ -93,28 +143,12 @@ LpjmlMetaData <- R6::R6Class(
                collapse = "\n")
       )
       cat("\n")
-      if (!is.null(private$.subset)) {
-        cat(paste0(spaces, blue_col, "$subset", unset_col, "\n"))
-        for (sub in seq_along(private$.subset)) {
-          to_char2 <- ifelse(is.character(private$.subset[[sub]]), "\"", "")
-          if (length(private$.subset[[sub]]) > 30) {
-            abbr_subset <- paste0(c(paste0(to_char2,
-                                           private$.subset[[sub]][1:4],
-                                           to_char2),
-                                    "...",
-                                    paste0(to_char2,
-                                           tail(private$.subset[[sub]], n = 1),
-                                           to_char2)))
-          } else {
-            abbr_subset <- paste0(to_char2, private$.subset[[sub]], to_char2)
-          }
-          cat(spaces,
-              blue_col,
-              paste0("$", names(private$.subset[sub])),
-              unset_col,
-              abbr_subset)
-          cat("\n")
-        }
+      if (!private$.subset) {
+        cat(
+          paste0(
+            spaces, blue_col, "$subset", unset_col, " ", private$.subset, "\n"
+          )
+        )
       }
     }
   ),
@@ -199,6 +233,21 @@ LpjmlMetaData <- R6::R6Class(
     }
   ),
   private = list(
+    init_list = function(x) {
+      for (idx in seq_along(x)) {
+        # if (!names(x[idx]) %in% names(LpjmlMetaData$public_fields)) {
+        #   warning(paste0(names(x[idx]),
+        #                  " may not be a valid LpjmlMetaData field."))
+        # }
+        if (names(x[idx]) == "band_names") {
+          x[[idx]] <- as.character(x[[idx]])
+        }
+        do.call("$<-", list(private,
+                            paste0(".", names(x[idx])),
+                            x[[idx]]))
+        private$.fields_set <- names(x)
+      }
+    },
     .sim_name = NULL,
     .source = NULL,
     .history = NULL,
@@ -222,7 +271,7 @@ LpjmlMetaData <- R6::R6Class(
     .bigendian = FALSE,
     .format = NULL,
     .filename = NULL,
-    .subset = NULL,
+    .subset = FALSE,
     .fields_set = NULL,
     .dimension_map = list(cells = "cell",
                          time = c("year", "month", "day"),

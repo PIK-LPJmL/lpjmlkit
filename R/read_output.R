@@ -206,16 +206,15 @@ read_output <- function(
 
     # Check if user has tried overwriting any header attributes which we do not
     # allow for meta files.
-    check_att <- c("band_names", "nstep", "timestep", "version", "order",
-                   "firstyear", "nyear", "firstcell", "ncell", "nbands",
-                   "cellsize_lon", "scalar", "cellsize_lat", "datatype",
-                   "endian")
-    not_allowed <- character(0)
-    for (att in check_att) {
-      if (!is.null(get(att)))
-        not_allowed <- c(not_allowed, att)
-    }
-    if (length(not_allowed) > 0) {
+    header_args <- as.list(match.call()) %>%
+      # get all arguments except file_name, ...
+      .[!names(.) %in% c("file_name", "file_type", "subset_list")] %>%
+      # exclude the function call itself (workaround)
+      `[`(names(.) > 0) %>%
+      # return the names of the arguments (not the values)
+      names()
+
+    if (length(header_args) > 0) {
       warning(
         paste0(
           "You cannot overwrite any of the following parameters for file_type ",
@@ -371,7 +370,7 @@ read_output <- function(
     year_data <- aperm(year_data, perm = default_band_order) %>%
       # Apply any subsetting along bands or cells
       subset_array(
-       subset_list[!names(subset_list) %in% c("day", "month", "year")]
+       subset_list[!names(subset_list) %in% c("day", "month", "year", "time")]
       )
 
     # Concatenate years together
@@ -387,12 +386,12 @@ read_output <- function(
     }
   }
 
-
-
   # Assign final dimnames [cellnr, time, bands]
 
-
   return(file_data)
+  # lpjml_data <- LpjmlData$new(file_data, meta_data, subset_list)
+
+  # return(lpjml_data)
 }
 
 
@@ -467,7 +466,7 @@ check_subset <- function(subset_list, header, band_names) {
         stop(
           paste(
             "Requested cell(s)", setdiff(subset_list[["cell"]], cells),
-            "not covered by file."
+            "not covered by file.",
             "\nCheck subset_list[[\"cell\"]]."
           )
         )
@@ -497,7 +496,7 @@ check_subset <- function(subset_list, header, band_names) {
           stop(
             paste(
               "Requested band(s)", setdiff(subset_list[["band"]], band_names),
-              "not covered by file."
+              "not covered by file.",
               "\nCheck subset_list[[\"cell\"]]."
             )
           )
@@ -508,7 +507,7 @@ check_subset <- function(subset_list, header, band_names) {
           stop(
             paste(
               "Requested band(s)", setdiff(subset_list[["band"]], bands),
-              "not covered by file."
+              "not covered by file.",
               "\nCheck subset_list[[\"band\"]]."
             )
           )

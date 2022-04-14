@@ -20,7 +20,7 @@ LpjmlData <- R6::R6Class(
     meta_data = NULL,
     data = NULL,
     # init function
-    initialize = function(data_array, meta_data = NULL) {
+    initialize = function(data_array, meta_data = NULL, subset_list) {
       if (is(meta_data, "LpjmlMetaData") | is(meta_data, "NULL")) {
         self$meta_data <- meta_data
       } else {
