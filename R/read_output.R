@@ -18,8 +18,8 @@
 #' to be subset
 #' @param version Integer indicating CLM-file header version,
 #' between 1, 2, 3 or 4.
-#' @param order Order of data items (see LPJmL code for supported values;
-#' default: 1).
+#' @param order Order of data items (see LPJmL code for supported values,
+#' i.e. header.h: CELLYEAR 1, YEARCELL 2, CELLINDEX 3, CELLSEQ 4) default: 1).
 #' @param firstyear First year of data in the file.
 #' @param nyear Number of years of data included in the file.
 #' @param firstcell Index of first data item.
@@ -306,9 +306,11 @@ read_output <- function(
       get_datatype(file_header)$size + start_offset
 
     # Number of values to read for one year
-    n_values <- get_header_item(file_header, "ncell") *
+    n_values <- unname(
+      get_header_item(file_header, "ncell") *
       get_header_item(file_header, "nbands") *
       get_header_item(file_header, "nstep")
+    )
 
 
     # Read data for one year from binary file
@@ -325,44 +327,42 @@ read_output <- function(
     # not defined in LPJmL.
     dim(year_data) <- switch(
       get_header_item(file_header, "order"),
-      c(band = get_header_item(file_header, "nbands"),
+      c(band = get_header_item(file_header, "nbands"), # order 1
         time = get_header_item(file_header, "nstep"),
         cell = get_header_item(file_header, "ncell")
       ),
-      stop("Order yearcell not supported"),
-      stop("Order cellindex not supported"),
-      c(cell = get_header_item(file_header, "ncell"),
+      stop("Order yearcell not supported"),            # order 2
+      stop("Order cellindex not supported"),           # order 3
+      c(cell = get_header_item(file_header, "ncell"),  # order 4
         band = get_header_item(file_header, "nbands"),
         time = get_header_item(file_header, "nstep")
       )
     )
+
+    # Assign dimension names to array
+    if (is.null(band_names)) {  # use band index
+      band_names <- seq_len(get_header_item(file_header, "nbands"))
+    }
+
     dimnames(year_data) <- switch(
       get_header_item(file_header, "order"),
-      list(
-        band = ifelse(
-          is.null(band_names),
-          seq_len(get_header_item(header, "nbands")), # use band index
-          band_names
-        ),
+      list(                                                 # order 1
+        band = band_names,
         time = NULL, # Assign dates later
         cell = seq(
-          get_header_item(header, "firstcell"),
-          length.out = get_header_item(header, "ncell")
+          get_header_item(file_header, "firstcell"),
+          length.out = get_header_item(file_header, "ncell")
         )
       ),
-      stop("Order yearcell not supported"),
-      stop("Order cellindex not supported"),
-      list(
+      stop("Order yearcell not supported"),                 # order 2
+      stop("Order cellindex not supported"),                # order 3
+      list(                                                 # order 4
         cell = seq(
-          get_header_item(header, "firstcell"),
-          length.out = get_header_item(header, "ncell")
+          get_header_item(file_header, "firstcell"),
+          length.out = get_header_item(file_header, "ncell")
         ),
-        time = NULL, # Assign dates later
-        band = ifelse(
-          is.null(band_names),
-          seq_len(get_header_item(header, "nbands")), # use band index
-          band_names
-        )
+        band = band_names,
+        time = NULL # Assign dates later
       )
     )
 
