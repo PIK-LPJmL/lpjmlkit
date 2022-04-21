@@ -18,8 +18,12 @@
 #' to be subset
 #' @param version Integer indicating CLM-file header version,
 #' between 1, 2, 3 or 4.
-#' @param order Order of data items (see LPJmL code for supported values,
-#' i.e. header.h: CELLYEAR 1, YEARCELL 2, CELLINDEX 3, CELLSEQ 4) default: 1).
+#' @param order Order of data items in output file ( default: 1).
+#' See LPJmL code for supported values, i.e. header.h: CELLYEAR 1, YEARCELL 2,
+#' CELLINDEX 3, CELLSEQ 4.
+#' In other words, this refers to how the data are sorted along the vector in
+#' the output file, e.g.
+#' CELLYEAR = [year1][cell1,cell2,...,cellN][...][yearN][cell1,cell2,...,cellN].
 #' @param firstyear First year of data in the file.
 #' @param nyear Number of years of data included in the file.
 #' @param firstcell Index of first data item.
@@ -66,8 +70,10 @@ read_output <- function(
   # Default band order in returned data object
   default_band_order <- c("cell", "time", "band")
 
+  # ------------------------------------ #
+  # Get infos about the type and structure of the file
   if (file_type == "raw") {
-    # Read raw file type (binary file without a header)
+    # raw file type (binary file without a header)
 
     # Create a dummy header with the info passed as arguments
     if (is.null(version)) {
@@ -101,7 +107,7 @@ read_output <- function(
     start_offset <- 0
 
   } else if (file_type == "clm") {
-    # Read clm file type (binary file with a LPJmL header)
+    # clm file type (binary file with a LPJmL header)
 
     # Read file_header
     file_header <- read_header(file_name)
@@ -196,7 +202,7 @@ read_output <- function(
 
 
   } else if (file_type == "meta") {
-    # Read meta file type (binary file with associated meta-data json file)
+    # meta file type (binary file with associated meta-data json file)
 
     # Read meta data
     meta_data <- read_meta(file_name)
@@ -256,6 +262,7 @@ read_output <- function(
     }
   }
 
+  # ------------------------------------ #
   # Check file size
   expected_filesize <- get_header_item(file_header, "ncell") *
     get_header_item(file_header, "nbands") *
@@ -275,6 +282,7 @@ read_output <- function(
     )
   }
 
+  # ------------------------------------ #
   # Check validity of subset_list and band_names
   check_subset(subset_list, file_header, band_names)
 
@@ -290,6 +298,8 @@ read_output <- function(
     )
   }
 
+  # ------------------------------------ #
+  # Read data from binary file
 
   # Open binary file connection
   file_connection <- file(file_name, "rb")
@@ -367,11 +377,11 @@ read_output <- function(
     )
 
     # Convert to default dimension order
-    year_data <- aperm(year_data, perm = default_band_order) %>%
-      # Apply any subsetting along bands or cells
-      subset_array(
-       subset_list[!names(subset_list) %in% c("day", "month", "year", "time")]
-      )
+    year_data <- aperm(year_data, perm = default_band_order) #%>%
+      # # Apply any subsetting along bands or cells
+      # subset_array(
+      #  subset_list[!names(subset_list) %in% c("day", "month", "year", "time")]
+      # )
 
     # Concatenate years together
     if (yy == years[1]) {
@@ -385,21 +395,48 @@ read_output <- function(
       )
     }
   }
+  # Close binary file connection
+  close(file_connection)
 
+  # ------------------------------------ #
+  # Create time dimension names:
+  #  - dates as characters, not as.Date, to avoid issue with leap years
+  #  - for annual/monthly outputs, report last day of year/month, as this is
+  #    the day when LPJmL writes data annual/montly data out
+  ndays_in_month <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  dd <- sprintf("%02d", unlist(lapply(ndays_in_month, FUN = seq_len)))
+  mm <- sprintf("%02d", 1:12)
+
+  # daily data: YYYY-MM-DD
+  d_mmdd     <- paste(rep(mm, times = ndays_in_month), dd, sep = "-")
+  d_yyyymmdd <- paste(rep(years, each = 365),
+                      rep(d_mmdd, times = length(years)), sep = "-")
+  # monthly data: YYYY-MM-LastDayOfMonth
+  m_mmdd     <- paste(mm, ndays_in_month, sep = "-")
+  m_yyyymmdd  <- paste(rep(years, each = 12),
+                      rep(m_mmdd, times = length(years)), sep = "-")
+  # for yearly data: YYYY-12-31
+  y_yyyymmdd <- paste(years, 12, 31, sep = "-")
+
+  time_dimnames <- switch(
+    as.character(get_header_item(file_header, "nstep")),
+    "365" = d_yyyymmdd,
+    "12"  = m_yyyymmdd,
+    "1"   = y_yyyymmdd
+  )
+
+  # ------------------------------------ #
   # Assign final dimnames [cellnr, time, bands]
-
-  # Create names for time dimension:
-  #  - for daily data: YYYY-MM-DD
-  #  - for monthly data: YYYY-MM-LastDayOfMonth
-  #  - for yearls data: YYYY-12-31
-  #  - dates should be as characters, not as.Date to avoid leap years' issues
-  #  - last day of year/month because this is the day when LPJmL writes data annual/montly data out
+  dimnames(file_data)[["time"]] <- time_dimnames
 
   return(file_data)
   # lpjml_data <- LpjmlData$new(file_data, meta_data, subset_list)
 
   # return(lpjml_data)
 }
+
+
+
 
 
 # Function to read LPJmL raw files
@@ -421,6 +458,9 @@ read_raw <- function(
   )
   return(file_data)
 }
+
+
+
 
 
 check_subset <- function(subset_list, header, band_names) {
