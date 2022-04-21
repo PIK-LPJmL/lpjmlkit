@@ -377,11 +377,11 @@ read_output <- function(
     )
 
     # Convert to default dimension order
-    year_data <- aperm(year_data, perm = default_band_order) #%>%
-      # # Apply any subsetting along bands or cells
-      # subset_array(
-      #  subset_list[!names(subset_list) %in% c("day", "month", "year", "time")]
-      # )
+    year_data <- aperm(year_data, perm = default_band_order) %>%
+      # Apply any subsetting along bands or cells
+      subset_array(
+       subset_list[!names(subset_list) %in% c("day", "month", "year", "time")]
+      )
 
     # Concatenate years together
     if (yy == years[1]) {
