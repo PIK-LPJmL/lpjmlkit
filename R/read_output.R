@@ -18,12 +18,10 @@
 #' to be subset
 #' @param version Integer indicating CLM-file header version,
 #' between 1, 2, 3 or 4.
-#' @param order Order of data items in output file ( default: 1).
-#' See LPJmL code for supported values, i.e. header.h: CELLYEAR 1, YEARCELL 2,
-#' CELLINDEX 3, CELLSEQ 4.
-#' In other words, this refers to how the data are sorted along the vector in
-#' the output file, e.g.
-#' CELLYEAR = [year1][cell1,cell2,...,cellN][...][yearN][cell1,cell2,...,cellN].
+#' @param order Order of data items in file (default in input file: 1;
+#' in output file: 4). In other words, this refers to how the data are sorted
+#' along the vector in the output file. See LPJmL code for supported values,
+#' i.e. header.h: CELLYEAR 1, YEARCELL 2, CELLINDEX 3, CELLSEQ 4.
 #' @param firstyear First year of data in the file.
 #' @param nyear Number of years of data included in the file.
 #' @param firstcell Index of first data item.
@@ -43,7 +41,7 @@
 #' @export
 
 read_output <- function(
-  file_name        = "file_name.bin",
+  file_name    = "file_name.bin",
   file_type    = "meta",
   band_names   = NULL,
   nstep        = NULL,
@@ -264,11 +262,13 @@ read_output <- function(
 
   # ------------------------------------ #
   # Check file size
-  expected_filesize <- get_header_item(file_header, "ncell") *
+  expected_filesize <- unname(
+    get_header_item(file_header, "ncell") *
     get_header_item(file_header, "nbands") *
     get_header_item(file_header, "nstep") *
     get_header_item(file_header, "nyear") *
     get_datatype(file_header)$size + start_offset
+  )
 
   if (file.size(file_name) != expected_filesize) {
     stop(
@@ -400,30 +400,7 @@ read_output <- function(
 
   # ------------------------------------ #
   # Create time dimension names:
-  #  - dates as characters, not as.Date, to avoid issue with leap years
-  #  - for annual/monthly outputs, report last day of year/month, as this is
-  #    the day when LPJmL writes data annual/montly data out
-  ndays_in_month <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  dd <- sprintf("%02d", unlist(lapply(ndays_in_month, FUN = seq_len)))
-  mm <- sprintf("%02d", 1:12)
-
-  # daily data: YYYY-MM-DD
-  d_mmdd     <- paste(rep(mm, times = ndays_in_month), dd, sep = "-")
-  d_yyyymmdd <- paste(rep(years, each = 365),
-                      rep(d_mmdd, times = length(years)), sep = "-")
-  # monthly data: YYYY-MM-LastDayOfMonth
-  m_mmdd     <- paste(mm, ndays_in_month, sep = "-")
-  m_yyyymmdd  <- paste(rep(years, each = 12),
-                      rep(m_mmdd, times = length(years)), sep = "-")
-  # for yearly data: YYYY-12-31
-  y_yyyymmdd <- paste(years, 12, 31, sep = "-")
-
-  time_dimnames <- switch(
-    as.character(get_header_item(file_header, "nstep")),
-    "365" = d_yyyymmdd,
-    "12"  = m_yyyymmdd,
-    "1"   = y_yyyymmdd
-  )
+  time_dimnames <- create_time_names(nstep = nstep, years = years)
 
   # ------------------------------------ #
   # Assign final dimnames [cellnr, time, bands]
