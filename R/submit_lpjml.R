@@ -350,8 +350,22 @@ submit_run <- function(sim_name,
                            output_path,
                            "/configurations/",
                            config_file)
-  submit_status <- processx::run(command = "sh",
-                                 args = c("-c", inner_command),
-                                 cleanup_tree = TRUE)
+  tryCatch({
+    # get LPJROOT variable and set according to model_path
+    pre_lpjroot <- Sys.getenv("LPJROOT")
+    Sys.setenv(LPJROOT = model_path)
+    # run lpjsubmit
+    submit_status <- processx::run(command = "sh",
+                                   args = c("-c", inner_command),
+                                   cleanup_tree = TRUE)
+  }, finally = {
+    if (pre_lpjroot == "") {
+      # "" meaning it was not defined before thus unset
+      Sys.unsetenv("LPJROOT")
+    } else {
+      # set back to its original value
+      Sys.setenv(LPJROOT = pre_lpjroot)
+    }
+  })
   return(submit_status)
 }
