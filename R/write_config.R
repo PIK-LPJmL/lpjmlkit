@@ -636,15 +636,20 @@ mutate_config_output <- function(x,
                       "matching the length of output_list."))
         }
         # adjust correct units to avoid correction factors in LPJmL
+        unit_replace <- outputvar_units[
+          which(output_list[id_ov] == outputvar_names)
+        ]
         new_output[["file"]][["unit"]] <- gsub(
-          "/yr$|/month$|/day$",
-          outputvar_units[which(output_list[id_ov] %in% outputvar_names)],
+          "yr$|month$|day$",
           switch(
-            output_format,
+            ifelse(length(output_timestep) > 1,
+                   output_timestep[id_ov],
+                   output_timestep),
             annual = "yr",
             monthly = "month",
             daily = "day"
-          )
+          ),
+          unit_replace
         )
         # create file name with correct path, corresponding outputvar name and
         #   file ending based on the output_format
