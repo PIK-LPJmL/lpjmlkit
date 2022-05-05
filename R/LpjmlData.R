@@ -128,7 +128,7 @@ summary.LpjmlData <- function(obj, ...) obj$summary(...)
 # data_array <- array(1,
 #                     dim = c(cell = meta_data$ncell,
 #                             year = meta_data$nyear,
-#                             band = meta_data$nband),
+#                             band = meta_data$nbands),
 #                     dimnames = list(cell = seq(meta_data$firstcell,
 #                                                 length.out = meta_data$ncell),
 #                                     year = meta_data$firstyear :

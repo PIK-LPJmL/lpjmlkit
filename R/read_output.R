@@ -410,10 +410,17 @@ read_output <- function(
   # Assign final dimnames [cellnr, time, bands]
   dimnames(file_data)$time <- time_dimnames
 
-  return(file_data)
-  # lpjml_data <- LpjmlData$new(file_data, meta_data, subset_list)
+  # update meta_data with subset_list or convert header to meta_data
+  if (file_type == "meta") {
+    meta_data$update_subset(subset_list)
+  } else {
+    meta_data <- LpjmlMetaData$new(file_header, subset_list)
+  }
 
-  # return(lpjml_data)
+  # create LpjmlData object and bring together data and meta_data
+  lpjml_data <- LpjmlData$new(file_data, meta_data)
+
+  return(lpjml_data)
 }
 
 
