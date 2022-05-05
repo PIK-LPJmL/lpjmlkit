@@ -380,7 +380,8 @@ read_output <- function(
     year_data <- aperm(year_data, perm = default_band_order) %>%
       # Apply any subsetting along bands or cells
       subset_array(
-       subset_list[!names(subset_list) %in% c("day", "month", "year", "time")]
+        subset_list[!names(subset_list) %in% c("day", "month", "year", "time")],
+        drop = FALSE
       )
 
     # Concatenate years together
@@ -400,11 +401,14 @@ read_output <- function(
 
   # ------------------------------------ #
   # Create time dimension names:
-  time_dimnames <- create_time_names(nstep = nstep, years = years)
+  time_dimnames <- create_time_names(
+    nstep = get_header_item(file_header, "nstep"),
+    years = years
+  )
 
   # ------------------------------------ #
   # Assign final dimnames [cellnr, time, bands]
-  dimnames(file_data)[["time"]] <- time_dimnames
+  dimnames(file_data)$time <- time_dimnames
 
   return(file_data)
   # lpjml_data <- LpjmlData$new(file_data, meta_data, subset_list)
