@@ -640,14 +640,14 @@ mutate_config_output <- function(x,
           which(output_list[id_ov] == outputvar_names)
         ]
         new_output[["file"]][["unit"]] <- gsub(
-          "yr$|month$|day$",
+          "/yr$|/month$|/day$",
           switch(
             ifelse(length(output_timestep) > 1,
                    output_timestep[id_ov],
                    output_timestep),
-            annual = "yr",
-            monthly = "month",
-            daily = "day"
+            annual = "/yr",
+            monthly = "/month",
+            daily = "/day"
           ),
           unit_replace
         )
