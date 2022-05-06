@@ -42,7 +42,8 @@ create_time_names <- function(
     as.character(nstep),
     "365" = d_yyyymmdd,
     "12"  = m_yyyymmdd,
-    "1"   = y_yyyymmdd
+    "1"   = y_yyyymmdd,
+    stop(paste0("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365"))
   )
 
   return(time_dimnames)
@@ -60,7 +61,7 @@ doy_to_date <- function(doy  = NULL,
 ) {
     if (length(doy) != length(year)) stop("doy and year have different length")
 
-    date <- strptime(paste(year, doy), format="%Y %j")
+    date <- strptime(paste(year, doy), format = "%Y %j")
     return(date)
 }
 

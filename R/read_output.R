@@ -415,6 +415,7 @@ read_output <- function(
     meta_data$update_subset(subset_list)
   } else {
     meta_data <- LpjmlMetaData$new(file_header, subset_list)
+    # TODO: include band_names, etc in meta_data that is not included in file_header
   }
 
   # create LpjmlData object and bring together data and meta_data

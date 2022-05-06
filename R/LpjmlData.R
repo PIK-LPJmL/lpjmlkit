@@ -34,6 +34,7 @@ LpjmlData <- R6::R6Class(
         return()
     },
     as_tibble = function(subset_list = NULL, value_name = "value") {
+      # TODO: convert integers of dimnames to character
       self$data %>%
         subset_array(subset_list) %>%
         reshape2::melt(value.name = value_name) %>%
@@ -108,6 +109,7 @@ LpjmlData <- R6::R6Class(
           cat("\n")
         }
       }
+      # TODO: add note that summary is not grid area weighted
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary())
       cat("\n")
