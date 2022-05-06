@@ -350,9 +350,10 @@ submit_run <- function(sim_name,
                            output_path,
                            "/configurations/",
                            config_file)
+  # get LPJROOT variable and set according to model_path
+  pre_lpjroot <- Sys.getenv("LPJROOT")
+  # tryCatch to be able to set it back to its original value in case sth fails
   tryCatch({
-    # get LPJROOT variable and set according to model_path
-    pre_lpjroot <- Sys.getenv("LPJROOT")
     Sys.setenv(LPJROOT = model_path)
     # run lpjsubmit
     submit_status <- processx::run(command = "sh",
