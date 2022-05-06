@@ -576,6 +576,8 @@ mutate_config_output <- function(x,
   } else {
     # get list of outputvar names
     outputvar_names <- unlist(lapply(x[["outputvar"]], function(x)x$name))
+    outputvar_units <- unlist(lapply(x[["outputvar"]], function(x)x$unit))
+
     # empty output and include grid if not done
     x["output"] <- list(c())
     if (!("grid" %in% output_list) && !("cdf" %in% output_format)) {
@@ -633,7 +635,22 @@ mutate_config_output <- function(x,
                       "supply either a single character string or a vector ",
                       "matching the length of output_list."))
         }
-
+        # adjust correct units to avoid correction factors in LPJmL
+        unit_replace <- outputvar_units[
+          which(output_list[id_ov] == outputvar_names)
+        ]
+        new_output[["file"]][["unit"]] <- gsub(
+          "/yr$|/month$|/day$",
+          switch(
+            ifelse(length(output_timestep) > 1,
+                   output_timestep[id_ov],
+                   output_timestep),
+            annual = "/yr",
+            monthly = "/month",
+            daily = "/day"
+          ),
+          unit_replace
+        )
         # create file name with correct path, corresponding outputvar name and
         #   file ending based on the output_format
         new_output[["file"]][["name"]] <- paste0(
