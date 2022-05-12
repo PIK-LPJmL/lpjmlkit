@@ -28,7 +28,7 @@ test_param <- tibble(
     order            = c(1, 2),
     startgrid        = 10000,
     endgrid          = 10002,
-    #nspinup          = c(10000, 390),
+    nspinup          = c(1000, 390),
     river_routing    = FALSE,
     `-DDAILY_OUTPUT` = c(FALSE, TRUE),
     firstyear           = 1901,
@@ -46,7 +46,7 @@ outputs_df <- data.frame(rbind(
 
 # ------------------------------------ #
 # Write Config Files ----
-config_details <- write_config(
+config_details1 <- write_config(
   params               = test_param,
   model_path           = lpjdir,
   js_filename          = "lpjml.js",
@@ -57,10 +57,27 @@ config_details <- write_config(
   debug                = TRUE
   )
 
+config_details2 <- write_config(
+  params               = test_param,
+  model_path           = lpjdir,
+  js_filename          = "lpjml.js",
+  output_path          = outdir,
+  output_format        = "clm",
+  output_list          = outputs_df$output,
+  output_list_timestep = outputs_df$timestep,
+  debug                = TRUE
+  )
+
 # ------------------------------------ #
 # Run the model
 run_details <- run_lpjml(
-  x           = test_param,
+  x           = config_details1,
+  model_path  = lpjdir,
+  output_path = outdir
+)
+
+run_details <- run_lpjml(
+  x           = config_details2,
   model_path  = lpjdir,
   output_path = outdir
 )
@@ -68,8 +85,8 @@ run_details <- run_lpjml(
 # ------------------------------------ #
 # Copy Files to lpjmlKit test
 
-outputs <- paste0(rep(outputs_df$output, each = 2),
-                 c(".bin", ".bin.json")
+outputs <- paste0(rep(outputs_df$output, each = 3),
+                 c(".bin", ".bin.json", ".clm")
                  )
 
 if (all(file.exists(paste0(outdir, "output/test_transient/", outputs)))) {
