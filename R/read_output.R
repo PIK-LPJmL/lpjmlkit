@@ -202,6 +202,9 @@ read_output <- function(
   } else if (file_type == "meta") {
     # meta file type (binary file with associated meta-data json file)
 
+  if (length(grep(".json", file_name)) < 1) {
+    stop("If file_type = meta, file_name extension must be .json!")
+  }
     # Read meta data
     meta_data <- read_meta(file_name)
 
