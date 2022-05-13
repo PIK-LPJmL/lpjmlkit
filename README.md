@@ -84,6 +84,7 @@ If you want to contribute to further develop `lpjmlKit`, by modifying or adding 
 ```R
 # For generating automated documentation
 library(roxygen2)
+# For building and installing the package
 library(devtools)
 # For testing the functions and catching errors
 library(testthat)
@@ -108,7 +109,7 @@ Note: To be done for every new development that should go to master.
 1. Clean the function and coding style (`lintr::lint("R/my_function.R")`)
 1. Add documentation and examples. In Rstudio: `Code -> Insert roxygen skeleton` or by `Ctrl + Alt + Shift + R`
 1. Add tests in the `tests/testthat` folder. Small sample data can be added in `tests/testdata`, if needed
-1. Test if the new functions compile well with the rest of the package
+1. Test if the new functions compile well with the rest of the package. Make use of the functionalities provided by [`devtools`](https://rawgit.com/rstudio/cheatsheets/main/package-development.pdf).
 1. If you are ready to merge your changes to the `master`, see below how to make a merge request
 
 **How to Create a Merge Request to the `master`**

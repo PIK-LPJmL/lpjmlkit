@@ -73,7 +73,7 @@ can be accessed with \code{"param.k_temp"} as the column name. \cr
 For each run and thus each row, this value has to be specified in the
 following. If the original value should instead be used, insert \code{NA}.\cr
 Each run can be identified via the \code{"sim_name"}, which has to be provided in
-the first column. \cr\if{html}{\out{<div class="R">}}\preformatted{my_params1 <- tibble(
+the first column. \cr\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params1 <- tibble(
   sim_name = c("scenario1", "scenario2"),
   random_seed = c(42, 404),
   pftpar.1.name = c("first_tree", NA),
@@ -93,7 +93,7 @@ To set a macro (e.g. "FROM_RESTART" or "CHECKPOINT") provide it as you would
 do it beeing a flag in shell: \code{"-DFROM_RESTART"} \code{"-DCHECKPOINT"}. \cr
 Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
 raise an error, as starting an object definition with \code{"-"} is not allowed in
-\emph{R}.\if{html}{\out{<div class="R">}}\preformatted{my_params2 <- tibble(
+\emph{R}.\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params2 <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = c(42, 404),
   `-DFROM_RESTART` = c(TRUE, FALSE),
@@ -122,7 +122,7 @@ the run is submitted to slurm, for which run to wait until it can be started.
 In the example above \code{"scen1_spinup"} would be a dependency of run
 \code{"scen1_transient"}. \cr
 This way, all conceivable scenario ensembles can be simulated in a quasi
-arbitrarily nested and complicated manner.\if{html}{\out{<div class="R">}}\preformatted{# with dependent runs
+arbitrarily nested and complicated manner.\if{html}{\out{<div class="sourceCode R">}}\preformatted{# with dependent runs
 my_params3 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
@@ -143,7 +143,7 @@ transient to get a better position in the slurm queue. This can be achieved
 by supplying this option as parameter to \code{param}. \cr
 4 options are availble, namely \code{sclass} \code{ntask}, \code{wtime}, \code{blocking}. \cr
 If specified in \code{param} they overwrite the corresponding function arguments
-in \link[lpjmlKit]{submit_lpjml}.\if{html}{\out{<div class="R">}}\preformatted{my_params4 <- tibble(
+in \link[lpjmlKit]{submit_lpjml}.\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params4 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
  order = c(FALSE, TRUE),

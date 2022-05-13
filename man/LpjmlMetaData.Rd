@@ -29,13 +29,13 @@ Handles metafile data for output data
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$new(meta_list)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$new(x, subset_list = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{meta_list}}{list (not nested) with meta data}
+\item{\code{x}}{list (not nested) with meta data}
 }
 \if{html}{\out{</div>}}
 }

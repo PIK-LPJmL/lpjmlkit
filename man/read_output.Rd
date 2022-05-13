@@ -5,7 +5,7 @@
 \title{Read LPJmL output file}
 \usage{
 read_output(
-  fname = "file_name.bin",
+  file_name = "file_name.bin",
   file_type = "meta",
   band_names = NULL,
   nstep = NULL,
@@ -26,8 +26,8 @@ read_output(
 )
 }
 \arguments{
-\item{fname}{A string value giving the output-file name to read, including
-its path and extension.}
+\item{file_name}{A string value giving the output-file name to read, including
+its path and extension. If file_type == "meta", file_name should be a json file.}
 
 \item{file_type}{A string value giving the output-file type. Valid options:
 \code{raw}, a binary file without header;
@@ -46,8 +46,10 @@ to be subset}
 \item{version}{Integer indicating CLM-file header version,
 between 1, 2, 3 or 4.}
 
-\item{order}{Order of data items (see LPJmL code for supported values;
-default: 1).}
+\item{order}{Order of data items in file (default in input file: 1;
+in output file: 4). In other words, this refers to how the data are sorted
+along the vector in the output file. See LPJmL code for supported values,
+i.e. header.h: CELLYEAR 1, YEARCELL 2, CELLINDEX 3, CELLSEQ 4.}
 
 \item{firstyear}{First year of data in the file.}
 
