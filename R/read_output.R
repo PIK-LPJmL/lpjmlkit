@@ -61,7 +61,7 @@ read_output <- function(
   endian       = NULL
 ) {
 
-  cat(paste("\nReading:", "\n----------------------------\n", file_name))
+  cat(paste("\nReading:", "\n----------------------------\n", file_name, "\n"))
 
   file_type <- match.arg(file_type, c("raw", "clm", "meta"))
 
