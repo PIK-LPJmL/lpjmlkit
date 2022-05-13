@@ -67,7 +67,7 @@ LpjmlMetaData <- R6::R6Class(
       # band can be subsetted via indices or band_names - the latter is updated
       if (!is.null(subset_list$band)) {
         if (is.character(subset_list$band)) {
-          if (subset_list$band %in% private$.band_names) {
+          if (!subset_list$band %in% private$.band_names) {
             warning(paste0(
               "Not all subset_list bands are represented in the data.",
               "Resulting meta data band_names may be incorrect"

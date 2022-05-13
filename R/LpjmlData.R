@@ -59,12 +59,12 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
-    summary = function(dimension="band", subset_list = NULL) {
+    summary = function(dimension="band", subset_list = NULL, limit = FALSE) {
       data <- subset_array(self$data, subset_list)
       if (dimension %in% names(dimnames(data))) {
         mat_sum <- data %>%
           apply(dimension, c)
-        if (dim(mat_sum)[2] > 16) {
+        if (dim(mat_sum)[2] > 16 && limit) {
           mat_sum[, seq_len(16)] %>% summary()
         } else {
           mat_sum %>% summary()
@@ -110,8 +110,9 @@ LpjmlData <- R6::R6Class(
         }
       }
       # TODO: add note that summary is not grid area weighted
+      # TODO: if nbands > 16: cat("\Not printing all bands summary.\n")
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
-      print(self$summary())
+      print(self$summary(limit = TRUE))
       cat("\n")
     }
   )
