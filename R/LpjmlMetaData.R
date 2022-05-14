@@ -69,8 +69,9 @@ LpjmlMetaData <- R6::R6Class(
         if (is.character(subset_list$band)) {
           if (!subset_list$band %in% private$.band_names) {
             warning(paste0(
-              "Not all subset_list bands are represented in the data.",
-              "Resulting meta data band_names may be incorrect"
+              "Not all subset_list bands are represented in the original data:",
+              "\n- band_names provided to subset_list may be incorrect, or",
+              "\n- new names have been provided by the user to band_names."
             ))
           }
           private$.band_names <- private$.band_names[

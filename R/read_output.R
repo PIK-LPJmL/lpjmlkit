@@ -215,7 +215,8 @@ read_output <- function(
     # allow for meta files.
     header_args <- as.list(match.call()) %>%
       # get all arguments except file_name, ...
-      .[!names(.) %in% c("file_name", "file_type", "subset_list")] %>%
+      .[!names(.) %in% c("file_name", "file_type",
+                         "subset_list", "band_names")] %>%
       # exclude the function call itself (workaround)
       `[`(names(.) > 0) %>%
       # return the names of the arguments (not the values)
@@ -227,7 +228,7 @@ read_output <- function(
           "You cannot overwrite any of the following parameters for file_type ",
           sQuote(file_type),
           ": ",
-          toString(sQuote(not_allowed))
+          toString(sQuote(header_args))
         )
       )
     }
@@ -242,7 +243,11 @@ read_output <- function(
     }
 
     # Use band_names from meta file
-    band_names <- meta_data$band_names
+    if (is.null(band_names)) {
+      band_names <- meta_data$band_names
+    } else {
+      cat("\nReplacing band_names with user-defined ones..\n")
+    }
 
     # Get file_name from meta file.
     if (basename(meta_data$filename) == meta_data$filename) {
