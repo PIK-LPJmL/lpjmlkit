@@ -56,7 +56,7 @@ reshape_LpjmlData <- function(
     ), ndigits_lon)
     lats <- round(c(
       seq(from = lat_range[1], to = lat_range[2], by = meta_grid$cellsize_lat),
-        lon_range[2]
+        lat_range[2]
     ), ndigits_lat)
 
     # ------------------------------------ #
