@@ -575,8 +575,3 @@ check_subset <- function(subset_list, header, band_names) {
       )
     }
 }
-
-read_grid <- function(...) {
-  pre_grid <- read_output(...)
-  
-}
