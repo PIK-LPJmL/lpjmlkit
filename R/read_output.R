@@ -457,9 +457,6 @@ read_raw <- function(
 }
 
 
-
-
-
 check_subset <- function(subset_list, header, band_names) {
     if (!is.null(subset_list[["year"]])) {
       years <- seq(
@@ -577,4 +574,9 @@ check_subset <- function(subset_list, header, band_names) {
         )
       )
     }
+}
+
+read_grid <- function(...) {
+  pre_grid <- read_output(...)
+  
 }

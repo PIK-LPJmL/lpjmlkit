@@ -91,23 +91,50 @@ LpjmlMetaData <- R6::R6Class(
     },
     # convert to header object
     as_header = function() {
-      create_header(
-        name = "LPJ_OUT",
-        version = 4,
-        order = self$order,
-        firstyear = self$firstyear,
-        nyear = self$nyear,
-        ncell = self$ncell,
-        nbands = self$nbands,
-        cellsize_lon = self$cellsize_lon,
-        cellsize_lat = self$cellsize_lat,
-        scalar =  self$scalar,
-        datatype = self$datatype,
-        nstep = self$nstep,
-        timestep = self$timestep,
-        endian = ifelse(self$bigendian, "big", "little"),
-        verbose = TRUE
+      invisible(
+        capture.output(
+          header <- create_header(
+            name = "LPJ_OUT",
+            version = 4,
+            order = self$order,
+            firstyear = self$firstyear,
+            nyear = self$nyear,
+            ncell = self$ncell,
+            nbands = self$nbands,
+            cellsize_lon = self$cellsize_lon,
+            cellsize_lat = self$cellsize_lat,
+            scalar =  self$scalar,
+            datatype = self$datatype,
+            nstep = self$nstep,
+            timestep = self$timestep,
+            endian = ifelse(self$bigendian, "big", "little"),
+            verbose = TRUE
+          )
+        )
       )
+      return(header)
+    },
+    ._init_grid = function() {
+      if (private$.variable != "grid") {
+        stop(paste("Only valid for variable", sQuote("grid"), "."))
+      }
+      # set all time fields to NULL
+      private$.nyear <- NULL
+      private$.firstyear <- NULL
+      private$.lastyear <- NULL
+      private$.nstep <- NULL
+      private$.timestep <- NULL
+      private$.scalar <- NULL
+      # update fields_set
+      private$.fields_set <- private$.fields_set[
+        -match(c("nyear",
+                 "firstyear",
+                 "lastyear",
+                 "nstep",
+                 "timestep",
+                 "scalar"),
+               private$.fields_set)
+      ]
     },
     # return fields set as list
     as_list = function() {
@@ -115,13 +142,27 @@ LpjmlMetaData <- R6::R6Class(
         sapply(function(x) do.call("$", list(self, x)), simplify = FALSE) %>%
         return()
     },
-    print = function(spaces = "") {
+    check = function() {
+      print_fields <- self$fields_set
+      meta_fields <- print_fields %>%
+        sapply(function(x) do.call("$", list(self, x)),
+               USE.NAMES = FALSE) %>%
+      return(meta_fields)
+    },
+    print = function(all = TRUE, spaces = "") {
+      if (!all) {
+        print_fields <- self$fields_set %>%
+          `[`(-match(private$exclude_print(), .))
+      } else {
+        print_fields <- self$fields_set
+      }
+      # colorize self print
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
-      meta_fields <- self$fields_set %>%
+      meta_fields <- print_fields %>%
         sapply(function(x) do.call("$", list(self, x)),
                USE.NAMES = FALSE)
-      to_char1 <- self$fields_set %>%
+      to_char1 <- print_fields %>%
         sapply(function(x) {
           check <- do.call("$", list(self, x))
           if (is.character(check) & length(check) <= 1) {
@@ -135,22 +176,47 @@ LpjmlMetaData <- R6::R6Class(
         paste0(spaces,
                blue_col,
                "$",
-               self$fields_set,
+               print_fields,
                unset_col,
                " ",
                to_char1,
-               meta_fields,
+               lapply(meta_fields, function(x) {
+                 if (length(x) > 1) {
+                   # print vectors as output not as c(...)
+                   if (length(x) > 6 && is.character(x)) {
+                     # shorten character vectors
+                     x <- c(x[1:4], "...", tail(x, n = 1))
+                   }
+                   if (is.character(x)) {
+                     # quotes only around each element not around vector
+                     return(noquote(paste(dQuote(x), collapse = " ")))
+                   } else {
+                     # no quotes for numeric vectors
+                     return(noquote(paste(x, collapse = " ")))
+                   }
+                 } else {
+                   return(x)
+                 }
+               }),
                to_char1,
                collapse = "\n")
       )
       cat("\n")
-      if (!private$.subset) {
-        cat(
-          paste0(
-            spaces, blue_col, "$subset", unset_col, " ", private$.subset, "\n"
-          )
+      cat(
+        paste0(
+          spaces,
+          # color red if subset
+          blue_col,
+          "$subset",
+          unset_col,
+          " ",
+          # color red if subset
+          ifelse(private$.subset, "\u001b[31m", ""),
+          private$.subset,
+          ifelse(private$.subset, unset_col, ""),
+          "\n"
         )
-      }
+      )
     }
   ),
   active = list(
@@ -166,23 +232,11 @@ LpjmlMetaData <- R6::R6Class(
     variable = function() {
       return(private$.variable)
     },
-    firstcell = function() {
-      return(private$.firstcell)
+    descr = function() {
+      return(private$.descr)
     },
-    ncell = function() {
-      return(private$.ncell)
-    },
-    cellsize_lon = function() {
-      return(private$.cellsize_lon)
-    },
-    cellsize_lat = function() {
-      return(private$.cellsize_lat)
-    },
-    nstep = function() {
-      return(private$.nstep)
-    },
-    timestep = function() {
-      return(private$.timestep)
+    unit = function() {
+      return(private$.unit)
     },
     nbands = function() {
       return(private$.nbands)
@@ -190,11 +244,8 @@ LpjmlMetaData <- R6::R6Class(
     band_names = function() {
       return(private$.band_names)
     },
-    descr = function() {
-      return(private$.descr)
-    },
-    unit = function() {
-      return(private$.unit)
+    nyear = function() {
+      return(private$.nyear)
     },
     firstyear = function() {
       return(private$.firstyear)
@@ -202,8 +253,23 @@ LpjmlMetaData <- R6::R6Class(
     lastyear = function() {
       return(private$.lastyear)
     },
-    nyear = function() {
-      return(private$.nyear)
+    nstep = function() {
+      return(private$.nstep)
+    },
+    timestep = function() {
+      return(private$.timestep)
+    },
+    ncell = function() {
+      return(private$.ncell)
+    },
+    firstcell = function() {
+      return(private$.firstcell)
+    },
+    cellsize_lon = function() {
+      return(private$.cellsize_lon)
+    },
+    cellsize_lat = function() {
+      return(private$.cellsize_lat)
     },
     datatype = function() {
       return(private$.datatype)
@@ -235,37 +301,64 @@ LpjmlMetaData <- R6::R6Class(
   ),
   private = list(
     init_list = function(x) {
-      for (idx in seq_along(x)) {
+      for (name_id in private$.name_order) {
         # if (!names(x[idx]) %in% names(LpjmlMetaData$public_fields)) {
         #   warning(paste0(names(x[idx]),
         #                  " may not be a valid LpjmlMetaData field."))
         # }
-        if (names(x[idx]) == "band_names") {
-          x[[idx]] <- as.character(x[[idx]])
+        if (!name_id %in% names(x)) {
+          next
+        }
+        if (name_id == "band_names") {
+          x[[name_id]] <- as.character(x[[name_id]])
         }
         do.call("$<-", list(private,
-                            paste0(".", names(x[idx])),
-                            x[[idx]]))
-        private$.fields_set <- names(x)
+                            paste0(".", names(x[name_id])),
+                            x[[name_id]]))
+        private$.fields_set <- append(private$.fields_set, name_id)
       }
+    },
+    exclude_print = function() {
+      # exclude entries from self print (for LpjmlData class)
+      to_exclude <- c(
+        "datatype",
+        "format",
+        "bigendian",
+        "order",
+        "history",
+        "source",
+        "filename"
+      ) %>%
+      # only append scalar if != 1
+      append(
+        ifelse(
+          !is.null(private$.scalar),
+          ifelse(private$.scalar == 1, "scalar", NA),
+          NA
+        )
+      ) %>%
+      # workaround to deal with NAs (NULL not possible in ifelse)
+      na.omit() %>%
+      as.vector() %>%
+      return()
     },
     .sim_name = NULL,
     .source = NULL,
     .history = NULL,
     .variable = NULL,
-    .firstcell = NULL,
-    .ncell = NULL,
-    .cellsize_lon = NULL,
-    .cellsize_lat = NULL,
-    .nstep = NULL,
-    .timestep = NULL,
-    .nbands = NULL,
-    .band_names = NULL,
     .descr = NULL,
     .unit = NULL,
+    .nbands = NULL,
+    .band_names = NULL,
+    .nyear = NULL,
     .firstyear = NULL,
     .lastyear = NULL,
-    .nyear = NULL,
+    .nstep = NULL,
+    .timestep = NULL,
+    .ncell = NULL,
+    .firstcell = NULL,
+    .cellsize_lon = NULL,
+    .cellsize_lat = NULL,
     .datatype = NULL,
     .scalar = NULL,
     .order = NULL,
@@ -274,6 +367,29 @@ LpjmlMetaData <- R6::R6Class(
     .filename = NULL,
     .subset = FALSE,
     .fields_set = NULL,
+    .name_order = c("sim_name",
+                    "source",
+                    "history",
+                    "variable",
+                    "descr",
+                    "unit",
+                    "nbands",
+                    "band_names",
+                    "nyear",
+                    "firstyear",
+                    "lastyear",
+                    "nstep",
+                    "timestep",
+                    "ncell",
+                    "firstcell",
+                    "cellsize_lon",
+                    "cellsize_lat",
+                    "datatype",
+                    "scalar",
+                    "order",
+                    "bigendian",
+                    "format",
+                    "filename"),
     .dimension_map = list(cells = "cell",
                          time = c("year", "month", "day"),
                          year = "time",

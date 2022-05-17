@@ -27,6 +27,9 @@ LpjmlData <- R6::R6Class(
         stop("Provide a LpjmlMetaData object for meta_data.")
       }
       self$data <- data_array
+      if (self$meta_data$variable == "grid") {
+        private$init_grid()
+      }
     },
     as_array = function(subset_list = NULL) {
       self$data %>%
@@ -39,6 +42,7 @@ LpjmlData <- R6::R6Class(
         subset_array(subset_list) %>%
         reshape2::melt(value.name = value_name) %>%
         tibble::as_tibble() %>%
+        dplyr::mutate(across(names(dimnames(self$data)), as.factor)) %>%
         return()
     },
     as_raster = function(grid_file, as_layers = "band", subset_list = NULL) {
@@ -59,15 +63,31 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
-    summary = function(dimension="band", subset_list = NULL, limit = FALSE) {
+    summary = function(dimension="band", subset_list = NULL, cutoff = FALSE) {
       data <- subset_array(self$data, subset_list)
       if (dimension %in% names(dimnames(data))) {
         mat_sum <- data %>%
           apply(dimension, c)
-        if (dim(mat_sum)[2] > 16 && limit) {
-          mat_sum[, seq_len(16)] %>% summary()
+        if (dim(mat_sum)[2] > 16 && cutoff) {
+          cat(paste0(
+            "\u001b[31;3m",
+            "Note: not printing all ",
+            dimension,
+            "s summary.",
+            unset_col,
+            "\n")
+          )
+          mat_sum[, seq_len(16)] %>%
+            summary()
         } else {
-          mat_sum %>% summary()
+          if (self$meta_data$variable == "grid") {
+            mat_sum %>%
+                summary() %>%
+                `[`(c(1, 6), )
+          } else {
+            mat_sum %>%
+              summary()
+          }
         }
       } else {
         mat_sum <- summary(matrix(data))
@@ -83,37 +103,51 @@ LpjmlData <- R6::R6Class(
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
       cat(paste0("\u001b[1m", blue_col, "$meta_data %>%", unset_col, "\n"))
-      self$meta_data$print(spaces = "  .")
+      self$meta_data$print(all = FALSE, spaces = "  .")
       cat(paste0("\u001b[1m\u001b[37m", "$data", unset_col, "\n"))
-      if (is.null(self$meta_data$subset)) {
-        dim_names <- self$dimnames()
-        cat(paste0(blue_col, "$dimnames()", unset_col, "\n"))
-        for (sub in seq_along(dim_names)) {
-          to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
-          if (length(dim_names[[sub]]) > 30) {
-            abbr_dim_names <- paste0(c(paste0(to_char2,
-                                              dim_names[[sub]][1:4],
-                                              to_char2),
-                                    "...",
-                                    paste0(to_char2,
-                                           tail(dim_names[[sub]], n = 1),
-                                           to_char2)))
-          } else {
-            abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
-          }
-          cat("",
-              blue_col,
-              paste0("$", names(dim_names[sub])),
-              unset_col,
-              abbr_dim_names)
-          cat("\n")
+      dim_names <- self$dimnames()
+      cat(paste0(blue_col, "$dimnames()", unset_col, "\n"))
+      for (sub in seq_along(dim_names)) {
+        to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
+        if (length(dim_names[[sub]]) > 6) {
+          abbr_dim_names <- paste0(c(paste0(to_char2,
+                                            dim_names[[sub]][1:4],
+                                            to_char2),
+                                   "...",
+                                   paste0(to_char2,
+                                          tail(dim_names[[sub]], n = 1),
+                                          to_char2)))
+        } else {
+          abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
         }
+        cat("",
+            blue_col,
+            paste0("$", names(dim_names[sub])),
+            unset_col,
+            abbr_dim_names)
+        cat("\n")
       }
-      # TODO: add note that summary is not grid area weighted
-      # TODO: if nbands > 16: cat("\Not printing all bands summary.\n")
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
-      print(self$summary(limit = TRUE))
-      cat("\n")
+      print(self$summary(cutoff = TRUE))
+      if (self$meta_data$variable != "grid") {
+        cat(paste0("\u001b[31;3m",
+                   "Note: summary is not weighted by grid area.",
+                   unset_col,
+                   "\n")
+        )
+      } else {
+        cat("\n")
+      }
+    }
+  ),
+  private = list(
+    init_grid = function() {
+      # update grid data
+      self$data <- self$data * self$meta_data$scalar
+      dimnames(self$data)$band <- c("lon", "lat")
+      # update grid meta data
+      self$data <- drop(self$data)
+      self$meta_data$._init_grid()
     }
   )
 )
