@@ -69,7 +69,7 @@ replace_array <- function(x, subset_list, y) {
 subarray_argument <- function(x, subset_list) {
   # first a suitable empty list
   match_x <- which(names(dimnames(x)) %in% names(subset_list))
-  match_subset <- na.omit(match(names(dimnames(x)), names(subset_list)))
+  match_subset <- stats::na.omit(match(names(dimnames(x)), names(subset_list)))
   subset_list <- mapply(
     function(x, y, dim_name) {
       if (is.character(x)) {

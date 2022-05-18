@@ -70,11 +70,11 @@ LpjmlData <- R6::R6Class(
           apply(dimension, c)
         if (dim(mat_sum)[2] > 16 && cutoff) {
           cat(paste0(
-            "\u001b[31;3m",
+            "\u001b[33;3m",
             "Note: not printing all ",
             dimension,
-            "s summary.",
-            unset_col,
+            "s summary, use $summary() or summary() to get all.",
+            "\u001b[0m",
             "\n")
           )
           mat_sum[, seq_len(16)] %>%
@@ -104,6 +104,10 @@ LpjmlData <- R6::R6Class(
       unset_col <- "\u001b[0m"
       cat(paste0("\u001b[1m", blue_col, "$meta_data %>%", unset_col, "\n"))
       self$meta_data$print(all = FALSE, spaces = "  .")
+      cat(paste0("\u001b[33;3m",
+                 "Note: not printing all meta data, use $meta_data to get all.",
+                 unset_col,
+                 "\n"))
       cat(paste0("\u001b[1m\u001b[37m", "$data", unset_col, "\n"))
       dim_names <- self$dimnames()
       cat(paste0(blue_col, "$dimnames()", unset_col, "\n"))
@@ -130,7 +134,7 @@ LpjmlData <- R6::R6Class(
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
       if (self$meta_data$variable != "grid") {
-        cat(paste0("\u001b[31;3m",
+        cat(paste0("\u001b[33;3m",
                    "Note: summary is not weighted by grid area.",
                    unset_col,
                    "\n")

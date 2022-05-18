@@ -152,7 +152,7 @@ LpjmlMetaData <- R6::R6Class(
     print = function(all = TRUE, spaces = "") {
       if (!all) {
         print_fields <- self$fields_set %>%
-          `[`(-match(private$exclude_print(), .))
+          `[`(-stats::na.omit(match(private$exclude_print(), .)))
       } else {
         print_fields <- self$fields_set
       }
@@ -321,6 +321,10 @@ LpjmlMetaData <- R6::R6Class(
     exclude_print = function() {
       # exclude entries from self print (for LpjmlData class)
       to_exclude <- c(
+        "band_names",
+        "firstyear",
+        "lastyear",
+        "firstcell",
         "datatype",
         "format",
         "bigendian",
@@ -338,7 +342,7 @@ LpjmlMetaData <- R6::R6Class(
         )
       ) %>%
       # workaround to deal with NAs (NULL not possible in ifelse)
-      na.omit() %>%
+      stats::na.omit() %>%
       as.vector() %>%
       return()
     },
