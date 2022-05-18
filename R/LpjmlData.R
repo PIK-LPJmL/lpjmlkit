@@ -166,7 +166,10 @@ LpjmlData <- R6::R6Class(
                    "\n")
         )
       } else {
-        cat("\n")
+        cat(paste0("\u001b[33;3m",
+                   "Note: only min & max printed as equivalent to spatial extent.", #nolint
+                   unset_col,
+                   "\n"))
       }
     }
   ),
