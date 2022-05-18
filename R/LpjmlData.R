@@ -143,7 +143,7 @@ LpjmlData <- R6::R6Class(
                  unset_col,
                  "\n"))
       dim_names <- self$dimnames()
-      cat(paste0(blue_col, "  $dimnames() %>%", unset_col, "\n"))
+      cat(paste0(blue_col, "  dimnames() %>%", unset_col, "\n"))
       for (sub in seq_along(dim_names)) {
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
         if (length(dim_names[[sub]]) > 6) {
@@ -164,7 +164,7 @@ LpjmlData <- R6::R6Class(
             abbr_dim_names)
         cat("\n")
       }
-      cat(paste0(blue_col, "  $summary()", unset_col, "\n"))
+      cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
       if (self$meta_data$variable != "grid") {
         cat(paste0("\u001b[33;3m",
