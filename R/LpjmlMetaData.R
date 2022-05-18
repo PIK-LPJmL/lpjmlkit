@@ -16,7 +16,10 @@ LpjmlMetaData <- R6::R6Class(
   lock_objects = FALSE,
   public = list(
     # init function
-    initialize = function(x, subset_list=list()) {
+    initialize = function(x,
+                          subset_list = list(),
+                          additional_data = list(),
+                          data_dir = NULL) {
       if (all(names(x) %in% c("name", "header", "endian"))) {
         header_to_meta <- as.list(x$header)[
           which(!names(x$header) %in% c("version"))
@@ -35,12 +38,15 @@ LpjmlMetaData <- R6::R6Class(
                       `3` = "cellindex",
                       `4` = "cellseq",
                       stop(paste("Invalid order string", sQuote(order)))))
-        private$init_list(header_to_meta)
+        private$init_list(header_to_meta, additional_data)
       } else {
         private$init_list(x)
       }
       if (length(subset_list) > 0) {
         self$update_subset(subset_list)
+      }
+      if (!is.null(data_dir)) {
+        private$.data_dir <- data_dir
       }
     },
     # update supplied subset_list in self.subset
@@ -295,19 +301,26 @@ LpjmlMetaData <- R6::R6Class(
     fields_set = function() {
       return(private$.fields_set)
     },
+    data_dir = function() {
+      return(private$.data_dir)
+    },
     dimension_map = function() {
       return(private$.dimension_map)
     }
   ),
   private = list(
-    init_list = function(x) {
+    init_list = function(x, additional_data = list()) {
       for (name_id in private$.name_order) {
         # if (!names(x[idx]) %in% names(LpjmlMetaData$public_fields)) {
         #   warning(paste0(names(x[idx]),
         #                  " may not be a valid LpjmlMetaData field."))
         # }
         if (!name_id %in% names(x)) {
-          next
+          if (name_id %in% names(additional_data)) {
+            x[[name_id]] <- additional_data[[name_id]]
+          } else {
+            next
+          }
         }
         if (name_id == "band_names") {
           x[[name_id]] <- as.character(x[[name_id]])
@@ -371,6 +384,7 @@ LpjmlMetaData <- R6::R6Class(
     .filename = NULL,
     .subset = FALSE,
     .fields_set = NULL,
+    .data_dir = NULL,
     .name_order = c("sim_name",
                     "source",
                     "history",

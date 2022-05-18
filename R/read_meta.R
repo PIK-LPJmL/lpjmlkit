@@ -22,7 +22,8 @@
 #' }
 #' @export
 read_meta <- function(filename) {
+    pathname <- dirname(filename)
     meta_object <- jsonlite::read_json(path = filename, simplify = TRUE) %>%
-      LpjmlMetaData$new()
+      LpjmlMetaData$new(data_dir = pathname)
   return(meta_object)
 }

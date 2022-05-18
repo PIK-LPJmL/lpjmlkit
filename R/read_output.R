@@ -202,9 +202,9 @@ read_output <- function(
   } else if (file_type == "meta") {
     # meta file type (binary file with associated meta-data json file)
 
-  if (length(grep(".json", file_name)) < 1) {
-    stop("If file_type = meta, file_name extension must be .json!")
-  }
+    if (length(grep(".json", file_name)) < 1) {
+      stop("If file_type = meta, file_name extension must be .json!")
+    }
     # Read meta data
     meta_data <- read_meta(file_name)
 
@@ -422,12 +422,14 @@ read_output <- function(
   if (file_type == "meta") {
     meta_data$update_subset(subset_list)
   } else {
-    meta_data <- LpjmlMetaData$new(file_header, subset_list)
+    meta_data <- LpjmlMetaData$new(x = file_header,
+                                   subset_list = subset_list)
     # TODO: include band_names, etc in meta_data that is not included in file_header
   }
 
   # create LpjmlData object and bring together data and meta_data
-  lpjml_data <- LpjmlData$new(file_data, meta_data)
+  lpjml_data <- LpjmlData$new(data_array = file_data,
+                              meta_data = meta_data)
 
   return(lpjml_data)
 }

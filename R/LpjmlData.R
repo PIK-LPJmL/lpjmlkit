@@ -63,6 +63,15 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
+    add_grid = function(...) {
+      grid_file <- list.files(dirname(file_name), pattern = "grid.bin.json")
+      if (length(grid_file) == 1) {
+        filename <- paste(self$meta_data$data_dir, grid_file, sep = "/")
+        self$grid <- read_output(file_name = filename)
+      } else {
+        self$grid <- read_output(file_name = filename, ...)
+      }
+    },
     summary = function(dimension="band", subset_list = NULL, cutoff = FALSE) {
       data <- subset_array(self$data, subset_list)
       if (dimension %in% names(dimnames(data))) {
@@ -108,9 +117,22 @@ LpjmlData <- R6::R6Class(
                  "Note: not printing all meta data, use $meta_data to get all.",
                  unset_col,
                  "\n"))
-      cat(paste0("\u001b[1m\u001b[37m", "$data", unset_col, "\n"))
+      if (!is.null(self$grid)) {
+        cat(paste0("\u001b[1m\u001b[31m",
+                   "$grid",
+                   unset_col,
+                   "\u001b[31m",
+                   " ...",
+                   unset_col,
+                   "\n"))
+      }
+      cat(paste0("\u001b[1m",
+                 blue_col,
+                 "$data %>%",
+                 unset_col,
+                 "\n"))
       dim_names <- self$dimnames()
-      cat(paste0(blue_col, "$dimnames()", unset_col, "\n"))
+      cat(paste0(blue_col, "  $dimnames() %>%", unset_col, "\n"))
       for (sub in seq_along(dim_names)) {
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
         if (length(dim_names[[sub]]) > 6) {
@@ -124,14 +146,14 @@ LpjmlData <- R6::R6Class(
         } else {
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
         }
-        cat("",
+        cat("  ",
             blue_col,
-            paste0("$", names(dim_names[sub])),
+            paste0(".$", names(dim_names[sub])),
             unset_col,
             abbr_dim_names)
         cat("\n")
       }
-      cat(paste0(blue_col, "$summary()", unset_col, "\n"))
+      cat(paste0(blue_col, "  $summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
       if (self$meta_data$variable != "grid") {
         cat(paste0("\u001b[33;3m",
