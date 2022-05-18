@@ -45,6 +45,7 @@ LpjmlMetaData <- R6::R6Class(
       if (length(subset_list) > 0) {
         self$update_subset(subset_list)
       }
+      # add data_dir for lazy loading of (e.g.) grid later
       if (!is.null(data_dir)) {
         private$.data_dir <- data_dir
       }

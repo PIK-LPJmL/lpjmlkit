@@ -22,6 +22,7 @@
 #' }
 #' @export
 read_meta <- function(filename) {
+    # get and provide data path for lazy data purposes (e.g. load grid later)
     pathname <- dirname(filename)
     meta_object <- jsonlite::read_json(path = filename, simplify = TRUE) %>%
       LpjmlMetaData$new(data_dir = pathname)

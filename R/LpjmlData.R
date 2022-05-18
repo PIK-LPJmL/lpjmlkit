@@ -64,11 +64,15 @@ LpjmlData <- R6::R6Class(
       dimnames(self$data)
     },
     add_grid = function(...) {
+      # check if meta file for grid is located in output location
       grid_file <- list.files(dirname(file_name), pattern = "grid.bin.json")
       if (length(grid_file) == 1) {
+        # if so get concatenate existing file and data_dir to read grid
         filename <- paste(self$meta_data$data_dir, grid_file, sep = "/")
         self$grid <- read_output(file_name = filename)
       } else {
+        # all arguments have to be provided manually via read_output args
+        #   ellipsis (...) does that
         self$grid <- read_output(file_name = filename, ...)
       }
     },
