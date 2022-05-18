@@ -69,7 +69,14 @@ LpjmlData <- R6::R6Class(
       if (length(grid_file) == 1) {
         # if so get concatenate existing file and data_dir to read grid
         filename <- paste(self$meta_data$data_dir, grid_file, sep = "/")
-        self$grid <- read_output(file_name = filename)
+        # add support for cell subsets - this is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now
+        if (self$meta_data$subset) {
+          self$grid <- read_output(
+            file_name = filename,
+            subset_list = list(cell = self$dimnames()$cell)
+          )
+        }
       } else {
         # all arguments have to be provided manually via read_output args
         #   ellipsis (...) does that
