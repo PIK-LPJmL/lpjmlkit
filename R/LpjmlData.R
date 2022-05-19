@@ -180,11 +180,11 @@ LpjmlData <- R6::R6Class(
       dimnames(self$data)
     },
     subset = function(subset_list) {
-      self$data <- subset_array(self$data, subset_list)
+      self$data <- subset_array(self$data, subset_list, drop = FALSE)
       self$meta_data$update_subset(subset_list)
       if (!is.null(self$grid)) {
-        self$data <- subset_array(self$data, subset_list["cell"])
-        self$meta_data$update_subset(subset_list["cell"])
+        self$grid$data <- subset_array(self$data, subset_list["cell"])
+        self$grid$meta_data$update_subset(subset_list["cell"])
       }
     },
     add_grid = function(...) {
@@ -250,6 +250,7 @@ LpjmlData <- R6::R6Class(
         }
         self$meta_data$convert_time_format("disaggregated")
       } else {
+        # TODO: unfortunatly this does not work with subsets :-(
         time_dimnames <- list(
           time = create_time_names(nstep = dat$meta_data$nstep,
                                    years = dat$dimnames()["year"])
