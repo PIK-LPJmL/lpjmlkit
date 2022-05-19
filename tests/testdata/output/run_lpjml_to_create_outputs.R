@@ -10,7 +10,7 @@ rm(list = ls(all = T))
 
 library(lpjmlKit)
 library(tibble)
-library(magrittr)
+#library(magrittr)
 
 
 # ------------------------------------ #
@@ -41,7 +41,8 @@ outputs_df <- data.frame(rbind(
                          cbind(output = "d_lai",   timestep = "daily"),
                          cbind(output = "transp",  timestep = "monthly"),
                          cbind(output = "npp",     timestep = "annual"),
-                         cbind(output = "pft_npp", timestep = "annual")
+                         cbind(output = "pft_npp", timestep = "annual"),
+                         cbind(output = "grid",    timestep = "annual")
                          ))
 
 # ------------------------------------ #
@@ -84,10 +85,11 @@ run_details <- run_lpjml(
 
 # ------------------------------------ #
 # Copy Files to lpjmlKit test
-
-outputs <- paste0(rep(outputs_df$output, each = 3),
-                 c(".bin", ".bin.json", ".clm")
-                 )
+outputs <- c(
+  paste0(outputs_df$output, ".bin.json"),
+  paste0(outputs_df$output, ".bin"),
+  paste0("pft_npp", ".clm")
+  )
 
 if (all(file.exists(paste0(outdir, "output/test_transient/", outputs)))) {
     cat("\nOK! All outputs exist.")
