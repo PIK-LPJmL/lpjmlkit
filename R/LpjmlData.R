@@ -31,11 +31,6 @@ LpjmlData <- R6::R6Class(
         private$init_grid()
       }
     },
-    as_array = function(subset_list = NULL, drop = TRUE) {
-      self$data %>%
-        subset_array(subset_list, drop) %>%
-        return()
-    },
     as_tibble = function(subset_list = NULL, value_name = "value") {
       # TODO: convert integers of dimnames to character
       self$data %>%
@@ -44,6 +39,58 @@ LpjmlData <- R6::R6Class(
         tibble::as_tibble() %>%
         dplyr::mutate(across(names(dimnames(self$data)), as.factor)) %>%
         return()
+    },
+    as_array = function(subset_list = NULL, drop = TRUE) {
+      # support of lazy loading of grid for meta files else add explicitly
+      if (is.null(self$grid)) {
+        self$add_grid()
+      }
+      # lon/lat information
+      lon_range <- range(self$grid$data[, "lon"])
+      lat_range <- range(self$grid$data[, "lat"])
+      # number of decimals in lon/lat resolution
+      ndigits_lon <- nchar(
+        unlist(strsplit(
+          x = as.character(self$meta_data$cellsize_lon), split="[.]"))[2]
+      )
+      ndigits_lat <- nchar(
+        unlist(strsplit(
+          x = as.character(self$meta_data$cellsize_lat), split="[.]"))[2]
+      )
+      # Sequence of lons & lats (X, Y dims of array), rounded to ndigits
+      lons <- round(c(
+        seq(from = lon_range[1], to = lon_range[2],
+            by = self$meta_data$cellsize_lon),
+        lon_range[2]
+      ), ndigits_lon)
+      lats <- round(c(
+        seq(from = lat_range[1], to = lat_range[2],
+            by = self$meta_data$cellsize_lat),
+          lat_range[2]
+      ), ndigits_lat)
+
+      # Initialize array_out with dimensions [lon, lat, time, band]
+      nlon      <- length(lons)
+      nlat      <- length(lats)
+      ntime     <- self$meta_data$nyear * self$meta_data$nstep
+      nband     <- length(dimnames(self$data)[["band"]])
+      dims_ls   <- list(lon  = as.character(lons),
+                        lat  = as.character(lats),
+                        time = dimnames(self)$time,
+                        band = dimnames(self$data)[["band"]])
+      array_out <- array(
+        NA, dim = c(nlon, nlat, ntime, nband), dimnames = dims_ls
+        )
+
+      # Loop through grid rows
+      for (i in seq_len(nrow(self$grid$data))) {
+        # Get index of lon and lat on the output array
+        ilon <- which.min(abs(lons - self$grid$data[i, "lon"]))
+        ilat <- which.min(abs(lats - self$grid$data[i, "lat"]))
+        # Extract values from data_lpjml array & store values in array_out
+        array_out[ilon, ilat, , ] <- self$data[i, , ]
+      }
+        return(array_out)
     },
     as_raster = function(subset_list = NULL, fix_extent = NULL) {
       # support of lazy loading of grid for meta files else add explicitly
