@@ -46,6 +46,9 @@ LpjmlData <- R6::R6Class(
         return()
     },
     as_raster = function(subset_list = NULL, fix_extent = NULL) {
+      if (self$meta_data$variable == "grid") {
+        stop(paste("not legit for variable", self$meta_data$variable))
+      }
       # support of lazy loading of grid for meta files else add explicitly
       if (is.null(self$grid)) {
         self$add_grid()
@@ -138,6 +141,9 @@ LpjmlData <- R6::R6Class(
       }
     },
     add_grid = function(...) {
+      if (self$meta_data$variable == "grid") {
+        stop(paste("not legit for variable", self$meta_data$variable))
+      }
       # check if meta file for grid is located in output location
       grid_file <- list.files(self$meta_data$data_dir,
                               pattern = "grid.bin.json")
@@ -165,6 +171,55 @@ LpjmlData <- R6::R6Class(
                      "has to be called explicitly with args as read_output."))
         }
       }
+    },
+    convert_time = function() {
+      if (self$meta_data$variable == "grid") {
+        stop(paste("not legit for variable", self$meta_data$variable))
+      }
+      # convert between aggregated time = "year-month-day" & disaggregated time
+      #   format with year, month, day
+      if (self$meta_data$time_format == "aggregated") {
+        # possible ndays of months
+        ndays_in_month <- c(31, 30, 28)
+        # split time string "year-month-day" into year, month, day int vector
+        time_split <- strsplit(self$dimnames()$time, "-") %>%
+          lapply(as.integer)
+
+        # create corresponding dimnames for disaggregated array by unique entry
+        time_dimnames <- matrix(unlist(time_split),
+                            nrow = length(time_split),
+                            byrow = TRUE,
+                            dimnames = list(seq_along(time_split),
+                                            c("year", "month", "day"))) %>%
+          apply(2, unique)
+
+        # assume no daily data - remove day dimension
+        if (all(time_dimnames$day %in% ndays_in_month)) {
+          time_dimnames$day <- NULL
+        }
+        # assume no monthly data - remove month dimension
+        if (length(time_dimnames$month) == 1 && is.null(time_dimnames$day)) {
+          time_dimnames$month <- NULL
+        }
+        self$meta_data$convert_time_format("disaggregated")
+      } else {
+        time_dimnames <- list(
+          time = create_time_names(nstep = dat$meta_data$nstep,
+                                   years = dat$dimnames()["year"])
+        )
+        self$meta_data$convert_time_format("aggregated")
+      }
+
+      # create new data array based on disaggregated time dimension
+      time_dims <- lapply(time_dimnames, length)
+      self$data <- array(
+        self$data,
+        dim = c(dim(self$data)["cell"], time_dims, dim(self$data)["band"]),
+        dimnames = do.call(list,
+                           args = c(dimnames(self$data)["cell"],
+                                    time_dimnames,
+                                    dimnames(self$data)["band"]))
+      )
     },
     summary = function(dimension="band", subset_list = NULL, cutoff = FALSE) {
       data <- subset_array(self$data, subset_list)
@@ -282,16 +337,3 @@ length.LpjmlData <- function(obj, ...) obj$length(...)
 dim.LpjmlData <- function(obj, ...) obj$dim(...)
 dimnames.LpjmlData <- function(obj, ...) obj$dimnames(...)
 summary.LpjmlData <- function(obj, ...) obj$summary(...)
-
-# demo example with dummy data
-# meta_data = read_meta("/p/projects/open/Jannes/lpjml/testing/meta/runs/output/lu/soilc_layer.bin.json")
-# data_array <- array(1,
-#                     dim = c(cell = meta_data$ncell,
-#                             year = meta_data$nyear,
-#                             band = meta_data$nbands),
-#                     dimnames = list(cell = seq(meta_data$firstcell,
-#                                                 length.out = meta_data$ncell),
-#                                     year = meta_data$firstyear :
-#                                             meta_data$lastyear,
-#                                     band = meta_data$band_names))
-# soilc_layer <- LpjmlData$new(data_array, meta_data)

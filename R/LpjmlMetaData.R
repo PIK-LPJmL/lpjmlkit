@@ -156,6 +156,9 @@ LpjmlMetaData <- R6::R6Class(
                USE.NAMES = FALSE) %>%
       return(meta_fields)
     },
+    convert_time_format = function(time_format) {
+      private$.time_format <- time_format
+    },
     print = function(all = TRUE, spaces = "") {
       if (!all) {
         print_fields <- self$fields_set %>%
@@ -305,6 +308,9 @@ LpjmlMetaData <- R6::R6Class(
     data_dir = function() {
       return(private$.data_dir)
     },
+    time_format = function() {
+      return(private$.time_format)
+    },
     dimension_map = function() {
       return(private$.dimension_map)
     }
@@ -386,6 +392,7 @@ LpjmlMetaData <- R6::R6Class(
     .subset = FALSE,
     .fields_set = NULL,
     .data_dir = NULL,
+    .time_format = "aggregated",
     .name_order = c("sim_name",
                     "source",
                     "history",
