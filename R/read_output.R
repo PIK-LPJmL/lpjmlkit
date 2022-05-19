@@ -345,15 +345,15 @@ read_output <- function(
     # not defined in LPJmL.
     dim(year_data) <- switch(
       get_header_item(file_header, "order"),
-      c(band = get_header_item(file_header, "nbands"), # order 1
-        time = get_header_item(file_header, "nstep"),
-        cell = get_header_item(file_header, "ncell")
+      c(band = unname(get_header_item(file_header, "nbands")), # order 1
+        time = unname(get_header_item(file_header, "nstep")),
+        cell = unname(get_header_item(file_header, "ncell"))
       ),
       stop("Order yearcell not supported"),            # order 2
       stop("Order cellindex not supported"),           # order 3
-      c(cell = get_header_item(file_header, "ncell"),  # order 4
-        band = get_header_item(file_header, "nbands"),
-        time = get_header_item(file_header, "nstep")
+      c(cell = unname(get_header_item(file_header, "ncell")),  # order 4
+        band = unname(get_header_item(file_header, "nbands")),
+        time = unname(get_header_item(file_header, "nstep"))
       )
     )
 
@@ -407,6 +407,11 @@ read_output <- function(
   # Close binary file connection
   close(file_connection)
 
+  dim_names <- dimnames(file_data)
+  # workaround to reset dim names correctly after abind removes them
+  names(dim(file_data)) <- names(dim(year_data))
+  dimnames(file_data) <- dim_names
+
   # ------------------------------------ #
   # Create time dimension names:
   time_dimnames <- create_time_names(
@@ -427,7 +432,6 @@ read_output <- function(
                                    data_dir = dirname(file_name))
     # TODO: include band_names, etc in meta_data that is not included in file_header
   }
-
   # create LpjmlData object and bring together data and meta_data
   lpjml_data <- LpjmlData$new(data_array = file_data,
                               meta_data = meta_data)

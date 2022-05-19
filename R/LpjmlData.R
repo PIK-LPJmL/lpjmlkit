@@ -20,7 +20,7 @@ LpjmlData <- R6::R6Class(
     meta_data = NULL,
     data = NULL,
     # init function
-    initialize = function(data_array, meta_data = NULL, subset_list) {
+    initialize = function(data_array, meta_data = NULL) {
       if (is(meta_data, "LpjmlMetaData") | is(meta_data, "NULL")) {
         self$meta_data <- meta_data
       } else {
@@ -31,9 +31,9 @@ LpjmlData <- R6::R6Class(
         private$init_grid()
       }
     },
-    as_array = function(subset_list = NULL) {
+    as_array = function(subset_list = NULL, drop = TRUE) {
       self$data %>%
-        subset_array(subset_list) %>%
+        subset_array(subset_list, drop) %>%
         return()
     },
     as_tibble = function(subset_list = NULL, value_name = "value") {
@@ -45,11 +45,77 @@ LpjmlData <- R6::R6Class(
         dplyr::mutate(across(names(dimnames(self$data)), as.factor)) %>%
         return()
     },
-    as_raster = function(grid_file, as_layers = "band", subset_list = NULL) {
-      stop("TO BE IMPLEMENTED SOON")
-    },
-    as_brick = function(grid_file, as_layers = "band", subset_list = NULL) {
-      stop("TO BE IMPLEMENTED SOON")
+    as_raster = function(subset_list = NULL, fix_extent = NULL) {
+      # support of lazy loading of grid for meta files else add explicitly
+      if (is.null(self$grid)) {
+        self$add_grid()
+      }
+      # workflow adjusted for subsetted grid (via cell)
+      grid_subset <- subset_array(self$grid$data,
+                                  subset_list["cell"],
+                                  drop = FALSE)
+      if (is.null(fix_extent)) {
+        # calculate grid extent from range to span raster
+        grid_extent <- apply(
+            grid_subset,
+            "band",
+            range
+          ) + matrix(
+            # coordinates represent the centre of cell, for the extent borders
+            #   are required, thus subtract/add half of resolution
+            c(-self$meta_data$cellsize_lon / 2,
+              self$meta_data$cellsize_lon / 2,
+              -self$meta_data$cellsize_lat / 2,
+              self$meta_data$cellsize_lat / 2),
+            nrow = 2,
+            ncol = 2
+          )
+      } else {
+        grid_extent <- matrix(
+          fix_extent,
+          nrow = 2,
+          ncol = 2
+        )
+      }
+      tmp_raster <- raster::raster(
+        res = c(self$meta_data$cellsize_lon, self$meta_data$cellsize_lat),
+        xmn = grid_extent[1, 1],
+        xmx = grid_extent[2, 1],
+        ymn = grid_extent[1, 2],
+        ymx = grid_extent[2, 2],
+        crs = "EPSG:4326"
+        )
+      data_subset <- self$data %>%
+        subset_array(subset_list, drop = FALSE)
+      # get dimensions larger 1 to check if raster or brick required
+      #   (or too many dimensions > 1 which are not compatible with raster)
+      multi_dims <- names(which(dim(data_subset) > 1))
+      if (length(multi_dims) > 2) {
+        stop(
+          paste("Too many dimensions with length > 1.",
+                "Reduce to max. two dimensions via $subset.")
+        )
+      } else if (length(multi_dims) == 2) {
+        # get dimension with length > 1 which is not cell to use for
+        #   layer naming
+        multi_layer <- multi_dims[which(multi_dims != "cell")]
+        tmp_raster <- raster::brick(tmp_raster,
+                                    nl = dim(data_subset)[multi_layer])
+        names(tmp_raster) <- dimnames(data_subset)[[multi_layer]]
+      } else if (length(multi_dims) == 1) {
+        # for single rasters use variable as layer name
+        names(tmp_raster) <- self$meta_data$variable
+      }
+      # add values of raster cells by corresponding coordinates (lon, lat)
+      tmp_raster[
+        raster::cellFromXY(
+          tmp_raster,
+          cbind(subset_array(grid_subset, list(band = "lon")),
+                subset_array(grid_subset, list(band = "lat")))
+        )
+      ] <- data_subset
+
+      return(tmp_raster)
     },
     as_rast = function(grid_file, as_layers = "band", subset_list = NULL) {
       stop("TO BE IMPLEMENTED SOON")
@@ -63,9 +129,18 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
+    subset = function(subset_list) {
+      self$data <- subset_array(self$data, subset_list)
+      self$meta_data$update_subset(subset_list)
+      if (!is.null(self$grid)) {
+        self$data <- subset_array(self$data, subset_list["cell"])
+        self$meta_data$update_subset(subset_list["cell"])
+      }
+    },
     add_grid = function(...) {
       # check if meta file for grid is located in output location
-      grid_file <- list.files(dirname(file_name), pattern = "grid.bin.json")
+      grid_file <- list.files(self$meta_data$data_dir,
+                              pattern = "grid.bin.json")
       if (length(grid_file) == 1) {
         # if so get concatenate existing file and data_dir to read grid
         filename <- paste(self$meta_data$data_dir, grid_file, sep = "/")
@@ -76,11 +151,19 @@ LpjmlData <- R6::R6Class(
             file_name = filename,
             subset_list = list(cell = self$dimnames()$cell)
           )
+        } else {
+          self$grid <- read_output(file_name = filename)
         }
       } else {
         # all arguments have to be provided manually via read_output args
         #   ellipsis (...) does that
-        self$grid <- read_output(file_name = filename, ...)
+        # check if arguments are provided
+        if (length(as.list(match.call())) > 1) {
+          self$grid <- read_output(...)
+        } else {
+          stop(paste("If no meta file is available $add_grid",
+                     "has to be called explicitly with args as read_output."))
+        }
       }
     },
     summary = function(dimension="band", subset_list = NULL, cutoff = FALSE) {
