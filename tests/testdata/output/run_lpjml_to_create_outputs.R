@@ -103,3 +103,4 @@ file.copy(from = paste0(outdir,      "output/test_transient/", outputs),
           copy.mode = TRUE)
 
 cat("\n--- Done! ---")
+cat("\nNow, remember to manually change the paths in the .bin.json files")

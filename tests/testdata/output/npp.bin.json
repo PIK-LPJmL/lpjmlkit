@@ -1,7 +1,7 @@
 {
   "sim_name" : "test_transient",
   "source" : "LPJmL C Version 5.3.001",
-  "history" : "/home/minoli/LPJmL_GitLab/nitrogen_cotton_tillage_newoutput//bin/lpjml /home/minoli/git_lpjmlKit/lpjml_outputs//configurations/config_test_transient.json",
+  "history" : "/path/to/lpjml/bin/lpjml /path/to/config/config.json",
   "variable" : "npp",
   "firstcell" : 10000,
   "ncell" : 3,
