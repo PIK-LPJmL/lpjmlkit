@@ -43,7 +43,7 @@ LpjmlMetaData <- R6::R6Class(
         private$init_list(x)
       }
       if (length(subset_list) > 0) {
-        self$update_subset(subset_list)
+        self$._update_subset(subset_list)
       }
       # add data_dir for lazy loading of (e.g.) grid later
       if (!is.null(data_dir)) {
@@ -51,7 +51,7 @@ LpjmlMetaData <- R6::R6Class(
       }
     },
     # update supplied subset_list in self.subset
-    update_subset = function(subset_list) {
+    ._update_subset = function(subset_list, time_dimnames = NULL) {
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
       if (!is.null(subset_list$cell)) {
@@ -65,6 +65,9 @@ LpjmlMetaData <- R6::R6Class(
       }
       # for years using indices is forbidded because they cannot be properly
       #   distinguished from years
+      if (!is.null(subset_list$time) && !is.null(time_dimnames)) {
+        subset_list$year <- split_time_names(time_dimnames)$year
+      }
       if (!is.null(subset_list$year)) {
         private$.firstyear <- min(as.integer(subset_list$year))
         private$.lastyear <- max(as.integer(subset_list$year))
@@ -93,8 +96,7 @@ LpjmlMetaData <- R6::R6Class(
       # }
       # if (!is.null(subset_list$month)) {
       # }
-      # if (!is.null(subset_list$time)) {
-      # }
+
     },
     # convert to header object
     as_header = function() {
@@ -156,8 +158,8 @@ LpjmlMetaData <- R6::R6Class(
                USE.NAMES = FALSE) %>%
       return(meta_fields)
     },
-    convert_time_format = function(time_format) {
-      private$.time_format <- time_format
+    ._convert_dimtime_format = function(dimtime_format) {
+      private$.dimtime_format <- dimtime_format
     },
     print = function(all = TRUE, spaces = "") {
       if (!all) {
@@ -308,8 +310,8 @@ LpjmlMetaData <- R6::R6Class(
     data_dir = function() {
       return(private$.data_dir)
     },
-    time_format = function() {
-      return(private$.time_format)
+    dimtime_format = function() {
+      return(private$.dimtime_format)
     },
     dimension_map = function() {
       return(private$.dimension_map)
@@ -392,7 +394,7 @@ LpjmlMetaData <- R6::R6Class(
     .subset = FALSE,
     .fields_set = NULL,
     .data_dir = NULL,
-    .time_format = "aggregated",
+    .dimtime_format = "time",
     .name_order = c("sim_name",
                     "source",
                     "history",

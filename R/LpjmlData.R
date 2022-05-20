@@ -32,7 +32,6 @@ LpjmlData <- R6::R6Class(
       }
     },
     as_tibble = function(subset_list = NULL, value_name = "value") {
-      # TODO: convert integers of dimnames to character
       self$data %>%
         subset_array(subset_list) %>%
         reshape2::melt(value.name = value_name) %>%
@@ -181,10 +180,15 @@ LpjmlData <- R6::R6Class(
     },
     subset = function(subset_list) {
       self$data <- subset_array(self$data, subset_list, drop = FALSE)
-      self$meta_data$update_subset(subset_list)
+      if ("time" %in% names(subset_list) &&
+          self$meta_data$dimtime_format == "time") {
+        self$meta_data$._update_subset(subset_list, self$dimnames()$time)
+      } else {
+        self$meta_data$._update_subset(subset_list)
+      }
       if (!is.null(self$grid)) {
         self$grid$data <- subset_array(self$data, subset_list["cell"])
-        self$grid$meta_data$update_subset(subset_list["cell"])
+        self$grid$meta_data$._update_subset(subset_list["cell"])
       }
     },
     add_grid = function(...) {
@@ -219,26 +223,20 @@ LpjmlData <- R6::R6Class(
         }
       }
     },
-    convert_time = function() {
+    convert_time = function(dim_format = "time", #year_month_day
+                            return_array = FALSE,
+                            use_array = NULL) {
+      # TODO: make return_array and use_array work
       if (self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # convert between aggregated time = "year-month-day" & disaggregated time
       #   format with year, month, day
-      if (self$meta_data$time_format == "aggregated") {
+      if (self$meta_data$dimtime_format == "time") {
         # possible ndays of months
         ndays_in_month <- c(31, 30, 28)
         # split time string "year-month-day" into year, month, day int vector
-        time_split <- strsplit(self$dimnames()$time, "-") %>%
-          lapply(as.integer)
-
-        # create corresponding dimnames for disaggregated array by unique entry
-        time_dimnames <- matrix(unlist(time_split),
-                            nrow = length(time_split),
-                            byrow = TRUE,
-                            dimnames = list(seq_along(time_split),
-                                            c("year", "month", "day"))) %>%
-          apply(2, unique)
+        time_dimnames <- split_time_names(self$dimnames()$time)
 
         # assume no daily data - remove day dimension
         if (all(time_dimnames$day %in% ndays_in_month)) {
@@ -248,7 +246,7 @@ LpjmlData <- R6::R6Class(
         if (length(time_dimnames$month) == 1 && is.null(time_dimnames$day)) {
           time_dimnames$month <- NULL
         }
-        self$meta_data$convert_time_format("disaggregated")
+        self$meta_data$._convert_dimtime_format("year_month_day")
       } else {
         pre_dimnames <- self$dimnames() %>%
           lapply(as.integer)
@@ -258,7 +256,7 @@ LpjmlData <- R6::R6Class(
                                    months = pre_dimnames$month,
                                    days = pre_dimnames$day)
         )
-        self$meta_data$convert_time_format("aggregated")
+        self$meta_data$._convert_dimtime_format("time")
       }
 
       # create new data array based on disaggregated time dimension

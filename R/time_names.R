@@ -23,12 +23,14 @@ create_time_names <- function(
 
   # Number of days per month
   ndays_in_month <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31) %>%
+    # subset months if defined
     {
       if (is.null(months)) . else .[months]
     }
 
   # Days and months in two-digits format (e.g. "01")
   dd <- unlist(lapply(ndays_in_month, FUN = seq_len)) %>%
+    # subset days if defined
     {
       if (!is.null(days)) .[which(. %in% days)] else .
     } %>%
@@ -36,10 +38,11 @@ create_time_names <- function(
   mm <- {if (is.null(months)) seq_len(12) else months} %>% #nolint
     sprintf("%02d", .)
 
+  # daily data: YYYY-MM-DD
   if (nstep == 365) {
-    # daily data: YYYY-MM-DD
     d_mmdd <- paste(
       rep(x = mm, times = {
+        # cases of months or days being subsetted or not
         if (is.null(days)) { #nolint
           ndays_in_month
         } else if (!is.null(days) && is.null(months)) {
@@ -52,23 +55,41 @@ create_time_names <- function(
     )
     time_dimnames <- paste(rep(years, each = length(dd)),
                         rep(d_mmdd, times = length(years)), sep = "-")
+
+  # monthly data: YYYY-MM-LastDayOfMonth
   } else if (nstep == 12) {
-    # monthly data: YYYY-MM-LastDayOfMonth
     m_mmdd <- paste(mm, ndays_in_month, sep = "-")
     time_dimnames  <- paste(
       rep(years, each = length(ndays_in_month)),
       rep(m_mmdd, times = length(years)),
       sep = "-"
     )
+
+  # yearly data: YYYY-12-31
   } else if (nstep == 1) {
-    # yearly data: YYYY-12-31
     time_dimnames <- paste(years, 12, 31, sep = "-")
+
+  # currently no support for other (special) nstep cases
   } else {
     stop(paste0("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365"))
   }
   return(time_dimnames)
 }
 
+split_time_names <- function(time_names) {
+  # split time string "year-month-day" into year, month, day int vector
+  time_split <- strsplit(time_names, "-") %>%
+    lapply(as.integer)
+
+  # create corresponding dimnames for disaggregated array by unique entry
+  matrix(unlist(time_split),
+         nrow = length(time_split),
+         byrow = TRUE,
+         dimnames = list(seq_along(time_split),
+                         c("year", "month", "day"))) %>%
+    apply(2, unique) %>%
+  return()
+}
 
 
 
