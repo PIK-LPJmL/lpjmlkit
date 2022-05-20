@@ -39,57 +39,60 @@ LpjmlData <- R6::R6Class(
         dplyr::mutate(across(names(dimnames(self$data)), as.factor)) %>%
         return()
     },
-    as_array = function(subset_list = NULL, drop = TRUE) {
-      # support of lazy loading of grid for meta files else add explicitly
-      if (is.null(self$grid)) {
-        self$add_grid()
-      }
-      # lon/lat information
-      lon_range <- range(self$grid$data[, "lon"])
-      lat_range <- range(self$grid$data[, "lat"])
-      # number of decimals in lon/lat resolution
-      ndigits_lon <- nchar(
-        unlist(strsplit(
-          x = as.character(self$meta_data$cellsize_lon), split="[.]"))[2]
-      )
-      ndigits_lat <- nchar(
-        unlist(strsplit(
-          x = as.character(self$meta_data$cellsize_lat), split="[.]"))[2]
-      )
-      # Sequence of lons & lats (X, Y dims of array), rounded to ndigits
-      lons <- round(c(
-        seq(from = lon_range[1], to = lon_range[2],
-            by = self$meta_data$cellsize_lon),
-        lon_range[2]
-      ), ndigits_lon)
-      lats <- round(c(
-        seq(from = lat_range[1], to = lat_range[2],
-            by = self$meta_data$cellsize_lat),
-          lat_range[2]
-      ), ndigits_lat)
+    as_array = function(subset_list = NULL,
+                        spatial_format = NULL,
+                        time_format = NULL) {
+      x <- self$clone(deep = TRUE)
 
-      # Initialize array_out with dimensions [lon, lat, time, band]
-      nlon      <- length(lons)
-      nlat      <- length(lats)
-      ntime     <- self$meta_data$nyear * self$meta_data$nstep
-      nband     <- length(dimnames(self$data)[["band"]])
-      dims_ls   <- list(lon  = as.character(lons),
-                        lat  = as.character(lats),
-                        time = dimnames(self)$time,
-                        band = dimnames(self$data)[["band"]])
-      array_out <- array(
-        NA, dim = c(nlon, nlat, ntime, nband), dimnames = dims_ls
-        )
+      if (!is.null(spatial_format)) {
+        lon_lat <- c("lon", "lat")
 
-      # Loop through grid rows
-      for (i in seq_len(nrow(self$grid$data))) {
-        # Get index of lon and lat on the output array
-        ilon <- which.min(abs(lons - self$grid$data[i, "lon"]))
-        ilat <- which.min(abs(lats - self$grid$data[i, "lat"]))
-        # Extract values from data_lpjml array & store values in array_out
-        array_out[ilon, ilat, , ] <- self$data[i, , ]
+        # cell subset before dims are converted to lat, lon
+        if ("cell" %in% names(subset_list) &&
+            self$meta_data$dimspatial_format == "cell") {
+          x$subset(subset_list["cell"])
+          subset_list["cell"] <- NULL
+
+        # lat, lon subset before dims are converted to cell
+        } else if (any(lon_lat %in% names(subset_list)) &&
+                   self$meta_data$dimtime_format == "lon_lat") {
+          name_idx <- as.vector(
+            na.omit(match(lon_lat, names(subset_list)))
+          )
+          x$subset(subset_list[name_idx])
+          subset_list[name_idx] <- NULL
+
+        # coords (pair of lon, lat) subset before dims are converted to cell
+        } else if ("coords" %in% names(subset_list) &&
+            self$meta_data$dimspatial_format == "lon_lat") {
+          stop("TODO: TO BE IMPLEMENTED SOON")
+        }
+        x <- convert_spatial(x, spatial_format)
       }
-        return(array_out)
+
+      if (!is.null(time_format)) {
+        year_month_day <- c("year", "month", "day")
+        # time subset before dims are converted to year, month, day
+        if ("time" %in% names(subset_list) &&
+            self$meta_data$dimtime_format == "time") {
+          x$subset(subset_list["time"])
+          subset_list["time"] <- NULL
+        # year, month, day subset before dims are converted to time
+        } else if (any(year_month_day %in% names(subset_list)) &&
+                   self$meta_data$dimtime_format == "year_month_day") {
+          name_idx <- as.vector(
+            na.omit(match(year_month_day, names(subset_list)))
+          )
+          x$subset(subset_list[name_idx])
+          subset_list[name_idx] <- NULL
+        }
+        x <- convert_time(x, time_format)
+      }
+
+      # do rest of subsetting
+      x$subset(subset_list)
+
+      return(x)
     },
     as_raster = function(subset_list = NULL, fix_extent = NULL) {
       if (self$meta_data$variable == "grid") {
@@ -179,6 +182,13 @@ LpjmlData <- R6::R6Class(
       dimnames(self$data)
     },
     subset = function(subset_list) {
+      # if ("coords" %in% names(subset_list) &&
+      #     self$meta_data$dimspatial_format == "coords") {
+      #   if (is.matrix(subset_list["lon_lat"])) {
+      #     for (irow in seq_len(subset_list["coords"])) {
+      #       self$data[irow[1], irow[2], , ]
+      #     }
+      #   }
       self$data <- subset_array(self$data, subset_list, drop = FALSE)
       if ("time" %in% names(subset_list) &&
           self$meta_data$dimtime_format == "time") {
@@ -190,6 +200,7 @@ LpjmlData <- R6::R6Class(
         self$grid$data <- subset_array(self$data, subset_list["cell"])
         self$grid$meta_data$._update_subset(subset_list["cell"])
       }
+      return(invisible(self))
     },
     add_grid = function(...) {
       if (self$meta_data$variable == "grid") {
@@ -222,17 +233,72 @@ LpjmlData <- R6::R6Class(
                      "has to be called explicitly with args as read_output."))
         }
       }
+      return(invisible(self))
     },
-    convert_time = function(dim_format = "time", #year_month_day
-                            return_array = FALSE,
-                            use_array = NULL) {
-      # TODO: make return_array and use_array work
+    # dim_format = c("lon_lat", "cell")
+    convert_spatial = function(dim_format = "lon_lat") {
+      # support of lazy loading of grid for meta files else add explicitly
+      if (is.null(self$grid)) {
+        self$add_grid()
+      }
+      # lon/lat information
+      lon_range <- range(self$grid$data[, "lon"])
+      lat_range <- range(self$grid$data[, "lat"])
+      # number of decimals in lon/lat resolution
+      ndigits_lon <- nchar(
+        unlist(strsplit(
+          x = as.character(self$meta_data$cellsize_lon), split="[.]"))[2]
+      )
+      ndigits_lat <- nchar(
+        unlist(strsplit(
+          x = as.character(self$meta_data$cellsize_lat), split="[.]"))[2]
+      )
+      # Sequence of lons & lats (X, Y dims of array), rounded to ndigits
+      lons <- round(c(
+        seq(from = lon_range[1], to = lon_range[2],
+            by = self$meta_data$cellsize_lon),
+        lon_range[2]
+      ), ndigits_lon)
+      lats <- round(c(
+        seq(from = lat_range[1], to = lat_range[2],
+            by = self$meta_data$cellsize_lat),
+          lat_range[2]
+      ), ndigits_lat)
+
+      # Initialize array_out with dimensions [lon, lat, time, band]
+      nlon      <- length(lons)
+      nlat      <- length(lats)
+      ntime     <- self$meta_data$nyear * self$meta_data$nstep
+      nband     <- length(dimnames(self$data)[["band"]])
+      dims_ls   <- list(lon  = as.character(lons),
+                        lat  = as.character(lats),
+                        time = dimnames(self)$time,
+                        band = dimnames(self$data)[["band"]])
+      array_out <- array(
+        NA, dim = c(nlon, nlat, ntime, nband), dimnames = dims_ls
+        )
+
+      # Loop through grid rows
+      for (i in seq_len(nrow(self$grid$data))) {
+        # Get index of lon and lat on the output array
+        ilon <- which.min(abs(lons - self$grid$data[i, "lon"]))
+        ilat <- which.min(abs(lats - self$grid$data[i, "lat"]))
+        # Extract values from data_lpjml array & store values in array_out
+        array_out[ilon, ilat, , ] <- self$data[i, , ]
+      }
+        return(array_out)
+    },
+    # dim_format = c("year_month_day", "time")
+    convert_time = function(dim_format = "year_month_day") {
       if (self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
+
       # convert between aggregated time = "year-month-day" & disaggregated time
       #   format with year, month, day
-      if (self$meta_data$dimtime_format == "time") {
+      # convert from "time" to "year_month_day"
+      if (self$meta_data$dimtime_format == "time" &&
+          dim_format == "year_month_day") {
         # possible ndays of months
         ndays_in_month <- c(31, 30, 28)
         # split time string "year-month-day" into year, month, day int vector
@@ -247,7 +313,10 @@ LpjmlData <- R6::R6Class(
           time_dimnames$month <- NULL
         }
         self$meta_data$._convert_dimtime_format("year_month_day")
-      } else {
+
+      # convert from "year_month_day" to "time"
+      } else if (self$meta_data$dimtime_format == "year_month_day" &&
+                 dim_format == "time") {
         pre_dimnames <- self$dimnames() %>%
           lapply(as.integer)
         time_dimnames <- list(
@@ -257,6 +326,9 @@ LpjmlData <- R6::R6Class(
                                    days = pre_dimnames$day)
         )
         self$meta_data$._convert_dimtime_format("time")
+      # else return without execution
+      } else {
+        return(invisible(self))
       }
 
       # create new data array based on disaggregated time dimension
@@ -269,6 +341,7 @@ LpjmlData <- R6::R6Class(
                                     time_dimnames,
                                     dimnames(self$data)["band"]))
       )
+      return(invisible(self))
     },
     summary = function(dimension="band", subset_list = NULL, cutoff = FALSE) {
       data <- subset_array(self$data, subset_list)
@@ -375,31 +448,56 @@ LpjmlData <- R6::R6Class(
       # update grid meta data
       self$data <- drop(self$data)
       self$meta_data$._init_grid()
+      return(invisible(self))
     }
   )
 )
 
 # set up method dispatch
 #   https://stackoverflow.com/questions/50842251/define-a-bracket-operator-on-an-r6-class
-`[.LpjmlData`    <- function(obj, ...) obj$`[`(...)
-length.LpjmlData <- function(obj, ...) obj$length(...)
-dim.LpjmlData <- function(obj, ...) obj$dim(...)
-dimnames.LpjmlData <- function(obj, ...) obj$dimnames(...)
-summary.LpjmlData <- function(obj, ...) obj$summary(...)
 
+# overwrite S3 methods
+length.LpjmlData <- function(x, ...) x$length(...)
+dim.LpjmlData <- function(x, ...) x$dim(...)
+dimnames.LpjmlData <- function(x, ...) x$dimnames(...)
+summary.LpjmlData <- function(x, ...) x$summary(...)
+subset.LpjmlData <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$subset(...)
+  return(y)
+}
 
+# add additional (important) functions for method dispatch with deep copying
+#   x, execute function on copied object and return ("traditional way")
+add_grid <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$add_grid(...)
+  return(y)
+}
 
-# rough idea for $as_array and $convert_time and $convert_spatial
+convert_time <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$convert_time(...)
+  return(y)
+}
 
-#  dat$as_array(subset=list(band=1), spatial_format="lonlat", time_format="yearmonthday")
-# 
-#  as_array = function(subset, spatial_format, time_format)
-#    x <- NULL
-#    if (!is.null(time_forat)) {
-#      x <- self$convert_time(x, export = TRUE)
-#    }
-# 
-#    if (!is.null(spatial_format)) {
-#      x <- self$convert_spatial(x, export = TRUE)
-#    }
-#  }
+convert_spatial <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$convert_spatial(...)
+  return(y)
+}
+
+as_raster <- function(x, ...) {
+  y <- x$as_raster(...)
+  return(y)
+}
+
+as_tibble <- function(x, ...) {
+  y <- x$as_tibble(...)
+  return(y)
+}
+
+as_array <- function(x, ...) {
+  y <- x$as_array(...)
+  return(y)
+}

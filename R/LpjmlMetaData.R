@@ -136,13 +136,13 @@ LpjmlMetaData <- R6::R6Class(
       private$.scalar <- NULL
       # update fields_set
       private$.fields_set <- private$.fields_set[
-        -match(c("nyear",
-                 "firstyear",
-                 "lastyear",
-                 "nstep",
-                 "timestep",
-                 "scalar"),
-               private$.fields_set)
+        -na.omit(match(c("nyear",
+                         "firstyear",
+                         "lastyear",
+                         "nstep",
+                         "timestep",
+                         "scalar"),
+                       private$.fields_set))
       ]
     },
     # return fields set as list
