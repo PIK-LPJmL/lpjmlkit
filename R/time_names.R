@@ -16,36 +16,56 @@
 
 create_time_names <- function(
   nstep = 365,
-  years = 2000
+  years = 2000,
+  months = NULL,
+  days = NULL
 ) {
 
   # Number of days per month
-  ndays_in_month <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  ndays_in_month <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31) %>%
+    {
+      if (is.null(months)) . else .[months]
+    }
 
   # Days and months in two-digits format (e.g. "01")
-  dd <- sprintf("%02d", unlist(lapply(ndays_in_month, FUN = seq_len)))
-  mm <- sprintf("%02d", seq_len(12))
+  dd <- unlist(lapply(ndays_in_month, FUN = seq_len)) %>%
+    {
+      if (!is.null(days)) .[which(. %in% days)] else .
+    } %>%
+    sprintf("%02d", .)
+  mm <- {if (is.null(months)) seq_len(12) else months} %>% #nolint
+    sprintf("%02d", .)
 
-  # daily data: YYYY-MM-DD
-  d_mmdd     <- paste(rep(mm, times = ndays_in_month), dd, sep = "-")
-  d_yyyymmdd <- paste(rep(years, each = 365),
-                      rep(d_mmdd, times = length(years)), sep = "-")
-  # monthly data: YYYY-MM-LastDayOfMonth
-  m_mmdd     <- paste(mm, ndays_in_month, sep = "-")
-  m_yyyymmdd  <- paste(rep(years, each = 12),
-                      rep(m_mmdd, times = length(years)), sep = "-")
-  # yearly data: YYYY-12-31
-  y_yyyymmdd <- paste(years, 12, 31, sep = "-")
-
-  # Select time vector according to nstep
-  time_dimnames <- switch(
-    as.character(nstep),
-    "365" = d_yyyymmdd,
-    "12"  = m_yyyymmdd,
-    "1"   = y_yyyymmdd,
+  if (nstep == 365) {
+    # daily data: YYYY-MM-DD
+    d_mmdd <- paste(
+      rep(x = mm, times = {
+        if (is.null(days)) { #nolint
+          ndays_in_month
+        } else if (!is.null(days) && is.null(months)) {
+          rep(length(days), 12)
+        } else {
+          rep(length(days), length(months))
+        }
+      }
+      ), dd, sep = "-"
+    )
+    time_dimnames <- paste(rep(years, each = length(dd)),
+                        rep(d_mmdd, times = length(years)), sep = "-")
+  } else if (nstep == 12) {
+    # monthly data: YYYY-MM-LastDayOfMonth
+    m_mmdd <- paste(mm, ndays_in_month, sep = "-")
+    time_dimnames  <- paste(
+      rep(years, each = length(ndays_in_month)),
+      rep(m_mmdd, times = length(years)),
+      sep = "-"
+    )
+  } else if (nstep == 1) {
+    # yearly data: YYYY-12-31
+    time_dimnames <- paste(years, 12, 31, sep = "-")
+  } else {
     stop(paste0("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365"))
-  )
-
+  }
   return(time_dimnames)
 }
 

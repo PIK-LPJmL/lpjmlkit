@@ -250,10 +250,13 @@ LpjmlData <- R6::R6Class(
         }
         self$meta_data$convert_time_format("disaggregated")
       } else {
-        # TODO: unfortunatly this does not work with subsets :-(
+        pre_dimnames <- self$dimnames() %>%
+          lapply(as.integer)
         time_dimnames <- list(
-          time = create_time_names(nstep = dat$meta_data$nstep,
-                                   years = dat$dimnames()["year"])
+          time = create_time_names(nstep = self$meta_data$nstep,
+                                   years = pre_dimnames$year,
+                                   months = pre_dimnames$month,
+                                   days = pre_dimnames$day)
         )
         self$meta_data$convert_time_format("aggregated")
       }
@@ -385,3 +388,20 @@ length.LpjmlData <- function(obj, ...) obj$length(...)
 dim.LpjmlData <- function(obj, ...) obj$dim(...)
 dimnames.LpjmlData <- function(obj, ...) obj$dimnames(...)
 summary.LpjmlData <- function(obj, ...) obj$summary(...)
+
+
+
+# rough idea for $as_array and $convert_time and $convert_spatial
+
+#  dat$as_array(subset=list(band=1), spatial_format="lonlat", time_format="yearmonthday")
+# 
+#  as_array = function(subset, spatial_format, time_format)
+#    x <- NULL
+#    if (!is.null(time_forat)) {
+#      x <- self$convert_time(x, export = TRUE)
+#    }
+# 
+#    if (!is.null(spatial_format)) {
+#      x <- self$convert_spatial(x, export = TRUE)
+#    }
+#  }
