@@ -19,7 +19,10 @@ Handles metafile data for output data
 \item \href{#method-new}{\code{LpjmlMetaData$new()}}
 \item \href{#method-update_subset}{\code{LpjmlMetaData$update_subset()}}
 \item \href{#method-as_header}{\code{LpjmlMetaData$as_header()}}
+\item \href{#method-._init_grid}{\code{LpjmlMetaData$._init_grid()}}
 \item \href{#method-as_list}{\code{LpjmlMetaData$as_list()}}
+\item \href{#method-check}{\code{LpjmlMetaData$check()}}
+\item \href{#method-convert_time_format}{\code{LpjmlMetaData$convert_time_format()}}
 \item \href{#method-print}{\code{LpjmlMetaData$print()}}
 \item \href{#method-clone}{\code{LpjmlMetaData$clone()}}
 }
@@ -29,7 +32,12 @@ Handles metafile data for output data
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$new(x, subset_list = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$new(
+  x,
+  subset_list = list(),
+  additional_data = list(),
+  data_dir = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -59,6 +67,15 @@ Handles metafile data for output data
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-._init_grid"></a>}}
+\if{latex}{\out{\hypertarget{method-._init_grid}{}}}
+\subsection{Method \code{._init_grid()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$._init_grid()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-as_list"></a>}}
 \if{latex}{\out{\hypertarget{method-as_list}{}}}
 \subsection{Method \code{as_list()}}{
@@ -68,11 +85,29 @@ Handles metafile data for output data
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-check"></a>}}
+\if{latex}{\out{\hypertarget{method-check}{}}}
+\subsection{Method \code{check()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$check()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-convert_time_format"></a>}}
+\if{latex}{\out{\hypertarget{method-convert_time_format}{}}}
+\subsection{Method \code{convert_time_format()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$convert_time_format(time_format)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
 \if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$print(spaces = "")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$print(all = TRUE, spaces = "")}\if{html}{\out{</div>}}
 }
 
 }
