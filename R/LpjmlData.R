@@ -40,59 +40,26 @@ LpjmlData <- R6::R6Class(
         return()
     },
     as_array = function(subset_list = NULL,
+                        # spatial_format = c("cell", "lon_lat")
                         spatial_format = NULL,
+                        # time_format = c("time", "year_month_day")
                         time_format = NULL) {
+      # initiate clone to be returned on which following methods are executed
       x <- self$clone(deep = TRUE)
 
+      # convert spatial dimension format
       if (!is.null(spatial_format)) {
-        lon_lat <- c("lon", "lat")
-
-        # cell subset before dims are converted to lat, lon
-        if ("cell" %in% names(subset_list) &&
-            self$meta_data$dimspatial_format == "cell") {
-          x$subset(subset_list["cell"])
-          subset_list["cell"] <- NULL
-
-        # lat, lon subset before dims are converted to cell
-        } else if (any(lon_lat %in% names(subset_list)) &&
-                   self$meta_data$dimtime_format == "lon_lat") {
-          name_idx <- as.vector(
-            na.omit(match(lon_lat, names(subset_list)))
-          )
-          x$subset(subset_list[name_idx])
-          subset_list[name_idx] <- NULL
-
-        # coords (pair of lon, lat) subset before dims are converted to cell
-        } else if ("coords" %in% names(subset_list) &&
-            self$meta_data$dimspatial_format == "lon_lat") {
-          stop("TODO: TO BE IMPLEMENTED SOON")
-        }
         x <- convert_spatial(x, spatial_format)
       }
 
+      # convert time dimension format
       if (!is.null(time_format)) {
-        year_month_day <- c("year", "month", "day")
-        # time subset before dims are converted to year, month, day
-        if ("time" %in% names(subset_list) &&
-            self$meta_data$dimtime_format == "time") {
-          x$subset(subset_list["time"])
-          subset_list["time"] <- NULL
-        # year, month, day subset before dims are converted to time
-        } else if (any(year_month_day %in% names(subset_list)) &&
-                   self$meta_data$dimtime_format == "year_month_day") {
-          name_idx <- as.vector(
-            na.omit(match(year_month_day, names(subset_list)))
-          )
-          x$subset(subset_list[name_idx])
-          subset_list[name_idx] <- NULL
-        }
         x <- convert_time(x, time_format)
       }
-
-      # do rest of subsetting
+      # apply subset
       x$subset(subset_list)
 
-      return(x)
+      return(x$data)
     },
     as_raster = function(subset_list = NULL, fix_extent = NULL) {
       if (self$meta_data$variable == "grid") {
@@ -181,6 +148,8 @@ LpjmlData <- R6::R6Class(
     dimnames = function() {
       dimnames(self$data)
     },
+
+    # INSERT ROXYGEN SKELETON: SUBSET METHOD
     subset = function(subset_list) {
       # if ("coords" %in% names(subset_list) &&
       #     self$meta_data$dimspatial_format == "coords") {
@@ -189,10 +158,89 @@ LpjmlData <- R6::R6Class(
       #       self$data[irow[1], irow[2], , ]
       #     }
       #   }
-      self$data <- subset_array(self$data, subset_list, drop = FALSE)
+      # init reduced subset list to avoid later double or wrong subsetting
+      reduced_subset_list <- subset_list
+
+      # spatial subsseting
+      lon_lat <- c("lon", "lat")
+      dimspatial_format <- self$meta_data$dimspatial_format
+
+      # cell subset before dims are converted to lat, lon
+      if ("cell" %in% names(subset_list) &&
+          !any(lon_lat %in% names(subset_list)) &&
+          self$meta_data$dimspatial_format != "cell") {
+        self$convert_spatial("cell")
+        self$data <- subset_array(self$data,
+                                  subset_list["cell"],
+                                  drop = FALSE)
+        reduced_subset_list["cell"] <- NULL
+        self$convert_spatial(dimspatial_format)
+
+      # lat, lon subset before dims are converted to cell
+      } else if (any(lon_lat %in% names(subset_list)) &&
+                 !("cell" %in% names(subset_list)) &&
+                 self$meta_data$dimtime_format != "lon_lat") {
+        self$convert_time("lon_lat")
+        name_idx <- as.vector(
+          na.omit(match(lon_lat, names(subset_list)))
+        )
+        self$data <- subset_array(self$data,
+                                  subset_list[name_idx],
+                                  drop = FALSE)
+        reduced_subset_list[name_idx] <- NULL
+        self$convert_spatial(dimspatial_format)
+
+      } else if (any(lon_lat %in% names(subset_list)) &&
+                 "cell" %in% names(subset_list)) {
+        stop(paste("Combinations of subset dimension \"cell\" with dimensions",
+                  toString(dQuote(lon_lat)),
+                  "are not allowed."))
+      }
+
+      # time subsseting
+      year_month_day <- c("year", "month", "day")
+      dimtime_format <- self$meta_data$dimtime_format
+
+      # for time if dimtime_format is not time convert_time format
+      if ("time" %in% names(subset_list) &&
+          !any(year_month_day %in% names(subset_list)) &&
+          self$meta_data$dimtime_format != "time") {
+        self$convert_time("time")
+        self$data <- subset_array(self$data,
+                                  subset_list["time"],
+                                  drop = FALSE)
+        reduced_subset_list["time"] <- NULL
+        self$convert_time(dimtime_format)
+
+      # for year, month, day if dimtime_format is not year, month, day
+      #   convert_time format
+      } else if (any(year_month_day %in% names(subset_list)) &&
+                 !("time" %in% names(subset_list)) &&
+                 dat$meta_data$dimtime_format != "year_month_day") {
+        self$convert_time("year_month_day")
+        name_idx <- as.vector(
+          na.omit(match(year_month_day, names(subset_list)))
+        )
+        self$data <- subset_array(self$data,
+                                  subset_list[name_idx],
+                                  drop = FALSE)
+        reduced_subset_list[name_idx] <- NULL
+        self$convert_time(dimtime_format)
+
+
+      } else if (any(year_month_day %in% names(subset_list)) &&
+                 "time" %in% names(subset_list)) {
+        stop(paste("Combinations of subset dimension \"time\" with dimensions",
+                  toString(dQuote(year_month_day)),
+                  "are not allowed."))
+      }
+
+      # rest of subsetting (with reduced subset_list that has not been subset)
+      self$data <- subset_array(self$data, reduced_subset_list, drop = FALSE)
+
       if ("time" %in% names(subset_list) &&
           self$meta_data$dimtime_format == "time") {
-        self$meta_data$._update_subset(subset_list, self$dimnames()$time)
+        self$meta_data$._update_subset(subset_list, self$dimnames()[["time"]])
       } else {
         self$meta_data$._update_subset(subset_list)
       }
@@ -202,6 +250,8 @@ LpjmlData <- R6::R6Class(
       }
       return(invisible(self))
     },
+
+    # INSERT ROXYGEN SKELETON: ADD GRID METHOD
     add_grid = function(...) {
       if (self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
@@ -217,7 +267,7 @@ LpjmlData <- R6::R6Class(
         if (self$meta_data$subset) {
           self$grid <- read_output(
             file_name = filename,
-            subset_list = list(cell = self$dimnames()$cell)
+            subset_list = list(cell = self$dimnames()[["cell"]])
           )
         } else {
           self$grid <- read_output(file_name = filename)
@@ -235,8 +285,8 @@ LpjmlData <- R6::R6Class(
       }
       return(invisible(self))
     },
-    # dim_format = c("lon_lat", "cell")
-    convert_spatial = function(dim_format = "lon_lat") {
+
+    convert_spatial2 = function() {
       # support of lazy loading of grid for meta files else add explicitly
       if (is.null(self$grid)) {
         self$add_grid()
@@ -247,11 +297,11 @@ LpjmlData <- R6::R6Class(
       # number of decimals in lon/lat resolution
       ndigits_lon <- nchar(
         unlist(strsplit(
-          x = as.character(self$meta_data$cellsize_lon), split="[.]"))[2]
+          x = as.character(self$meta_data$cellsize_lon), split = "[.]"))[2]
       )
       ndigits_lat <- nchar(
         unlist(strsplit(
-          x = as.character(self$meta_data$cellsize_lat), split="[.]"))[2]
+          x = as.character(self$meta_data$cellsize_lat), split = "[.]"))[2]
       )
       # Sequence of lons & lats (X, Y dims of array), rounded to ndigits
       lons <- round(c(
@@ -272,7 +322,7 @@ LpjmlData <- R6::R6Class(
       nband     <- length(dimnames(self$data)[["band"]])
       dims_ls   <- list(lon  = as.character(lons),
                         lat  = as.character(lats),
-                        time = dimnames(self)$time,
+                        time = dimnames(self)[["time"]],
                         band = dimnames(self$data)[["band"]])
       array_out <- array(
         NA, dim = c(nlon, nlat, ntime, nband), dimnames = dims_ls
@@ -288,10 +338,110 @@ LpjmlData <- R6::R6Class(
       }
         return(array_out)
     },
+
+    # INSERT ROXYGEN SKELETON: CONVERT SPATIAL METHOD
+    # dim_format = c("lon_lat", "cell")
+    convert_spatial = function(dim_format = NULL) {
+      # support of lazy loading of grid for meta files else add explicitly
+      if (is.null(self$grid)) {
+        self$add_grid()
+      }
+      if (is.null(dim_format)) {
+        if (self$meta_data$dimspatial_format == "cell") {
+          dim_format <- "lon_lat"
+        } else {
+          dim_format <- "cell"
+        }
+      }
+
+      if ((self$meta_data$dimtime_format == "lon_lat" &&
+                 dim_format == "lon_lat") ||
+                 (self$meta_data$dimtime_format == "cell" &&
+                 dim_format == "cell") ||
+                 !dim_format %in% c("cell", "lon_lat")) {
+        return(invisible(self))
+      }
+
+      # calculate grid extent from range to span raster
+      grid_extent <- apply(
+          self$grid$data,
+          "band",
+          range
+      )
+      spatial_dimnames <- mapply(seq,
+                                 rev(grid_extent[1, ]),
+                                 rev(grid_extent[2, ]),
+                                 by = c(self$meta_data$cellsize_lat,
+                                        self$meta_data$cellsize_lon))
+      # init array data
+      pre_data <- array(NA,
+                        dim = lapply(spatial_dimnames, length),
+                        dimnames = spatial_dimnames)
+      ilon <- match(self$grid$data[, 1],
+                   as.numeric(dimnames(pre_data)[["lon"]]))
+      ilat <- match(self$grid$data[, 2],
+                   as.numeric(dimnames(pre_data)[["lat"]]))
+      pre_data[cbind(ilat, ilon)] <- 1
+
+      # create new data array based on disaggregated time dimension
+      other_dimnames <- dimnames(self$data) %>%
+        `[<-`(c("cell", "lon", "lat"), NULL)
+      other_dims <- dim(self$data) %>%
+        `[`(names(other_dimnames))
+      spatial_dims <- lapply(spatial_dimnames, length)
+
+      data_array <- array(
+        pre_data,
+        dim = c(spatial_dims, other_dims),
+        dimnames = do.call(list,
+                           args = c(spatial_dimnames,
+                                    other_dimnames))
+      )
+
+      if (self$meta_data$dimspatial_format == "lon_lat" &&
+          dim_format == "cell") {
+        mask_array <- data_array
+        # create new data array based on disaggregated time dimension
+        other_dimnames <- dimnames(self$data) %>%
+          `[<-`(c("lon", "lat"), NULL)
+        other_dims <- dim(self$data) %>%
+          `[`(names(other_dimnames))
+        spatial_dims <- lapply(dimnames(self$grid)["cell"], length)
+
+        data_array <- array(
+          pre_data,
+          dim = c(spatial_dims, other_dims),
+          dimnames = do.call(list,
+                             args = c(dimnames(self$grid)["cell"],
+                                      other_dimnames))
+        )
+        data_array[] <- self$data[which(mask_array == 1)]
+        # set corresponding meta_data entry
+        self$meta_data$._convert_dimspatial_format("cell")
+
+      } else {
+        data_array[which(data_array == 1)] <- self$data
+        # set corresponding meta_data entry
+        self$meta_data$._convert_dimspatial_format("lon_lat")
+      }
+      # overwrite internal data with same data but new dimensions
+      self$data <- data_array
+
+      return(invisible(self))
+    },
+
+    # INSERT ROXYGEN SKELETON: CONVERT TIME METHOD
     # dim_format = c("year_month_day", "time")
-    convert_time = function(dim_format = "year_month_day") {
+    convert_time = function(dim_format = NULL) {
       if (self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
+      }
+      if (is.null(dim_format)) {
+        if (self$meta_data$dimtime_format == "time") {
+          dim_format <- "year_month_day"
+        } else {
+          dim_format <- "time"
+        }
       }
 
       # convert between aggregated time = "year-month-day" & disaggregated time
@@ -302,15 +452,16 @@ LpjmlData <- R6::R6Class(
         # possible ndays of months
         ndays_in_month <- c(31, 30, 28)
         # split time string "year-month-day" into year, month, day int vector
-        time_dimnames <- split_time_names(self$dimnames()$time)
+        time_dimnames <- split_time_names(self$dimnames()[["time"]])
 
         # assume no daily data - remove day dimension
-        if (all(time_dimnames$day %in% ndays_in_month)) {
-          time_dimnames$day <- NULL
+        if (all(time_dimnames[["day"]] %in% ndays_in_month)) {
+          time_dimnames[["day"]] <- NULL
         }
         # assume no monthly data - remove month dimension
-        if (length(time_dimnames$month) == 1 && is.null(time_dimnames$day)) {
-          time_dimnames$month <- NULL
+        if (length(time_dimnames$month) == 1 &&
+            is.null(time_dimnames[["day"]])) {
+          time_dimnames[["month"]] <- NULL
         }
         self$meta_data$._convert_dimtime_format("year_month_day")
 
@@ -444,7 +595,7 @@ LpjmlData <- R6::R6Class(
     init_grid = function() {
       # update grid data
       self$data <- self$data * self$meta_data$scalar
-      dimnames(self$data)$band <- c("lon", "lat")
+      dimnames(self$data)[["band"]] <- c("lon", "lat")
       # update grid meta data
       self$data <- drop(self$data)
       self$meta_data$._init_grid()

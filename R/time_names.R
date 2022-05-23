@@ -88,6 +88,7 @@ split_time_names <- function(time_names) {
          dimnames = list(seq_along(time_split),
                          c("year", "month", "day"))) %>%
     apply(2, unique) %>%
+    as.list() %>%
   return()
 }
 
