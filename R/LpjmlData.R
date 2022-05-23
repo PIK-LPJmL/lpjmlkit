@@ -342,6 +342,9 @@ LpjmlData <- R6::R6Class(
     # INSERT ROXYGEN SKELETON: CONVERT SPATIAL METHOD
     # dim_format = c("lon_lat", "cell")
     convert_spatial = function(dim_format = NULL) {
+      if (self$meta_data$variable == "grid") {
+        stop(paste("not legit for variable", self$meta_data$variable))
+      }
       # support of lazy loading of grid for meta files else add explicitly
       if (is.null(self$grid)) {
         self$add_grid()
@@ -385,7 +388,7 @@ LpjmlData <- R6::R6Class(
 
       # create new data array based on disaggregated time dimension
       other_dimnames <- dimnames(self$data) %>%
-        `[<-`(c("cell", "lon", "lat"), NULL)
+        `[<-`(unlist(strsplit(self$meta_data$dimspatial_format, "_")), NULL)
       other_dims <- dim(self$data) %>%
         `[`(names(other_dimnames))
       spatial_dims <- lapply(spatial_dimnames, length)
@@ -403,7 +406,7 @@ LpjmlData <- R6::R6Class(
         mask_array <- data_array
         # create new data array based on disaggregated time dimension
         other_dimnames <- dimnames(self$data) %>%
-          `[<-`(c("lon", "lat"), NULL)
+          `[<-`(unlist(strsplit(self$meta_data$dimspatial_format, "_")), NULL)
         other_dims <- dim(self$data) %>%
           `[`(names(other_dimnames))
         spatial_dims <- lapply(dimnames(self$grid)["cell"], length)
@@ -482,13 +485,16 @@ LpjmlData <- R6::R6Class(
         return(invisible(self))
       }
 
+      spatial_dims <- unlist(strsplit(self$meta_data$dimspatial_format, "_"))
       # create new data array based on disaggregated time dimension
       time_dims <- lapply(time_dimnames, length)
       self$data <- array(
         self$data,
-        dim = c(dim(self$data)["cell"], time_dims, dim(self$data)["band"]),
+        dim = c(dim(self$data)[spatial_dims],
+                time_dims,
+                dim(self$data)["band"]),
         dimnames = do.call(list,
-                           args = c(dimnames(self$data)["cell"],
+                           args = c(dimnames(self$data)[spatial_dims],
                                     time_dimnames,
                                     dimnames(self$data)["band"]))
       )
