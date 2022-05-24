@@ -91,3 +91,36 @@ subarray_argument <- function(x, subset_list) {
   argument[match_x] <- subset_list
  return(argument)
 }
+
+
+subset_array_pair <- function(x,
+                              subset_pair = NULL) {
+  pair_dims <- names(subset_pair)
+
+  idim1 <- match(subset_pair[[1]],
+                 as.numeric(dimnames(x)[[pair_dims[1]]]))
+  idim2 <- match(subset_pair[[2]],
+               as.numeric(dimnames(x)[[pair_dims[2]]]))
+
+  pre_mask <- array(NA,
+                    dim = dim(x)[pair_dims],
+                    dimnames = dimnames(x)[pair_dims])
+  idims <- cbind(idim1, idim2) %>%
+    `colnames<-`(pair_dims)
+  pre_mask[idims] <- 1
+
+  subset_mask <- array(pre_mask, dim(x), dimnames = dimnames(x))
+
+  other_dimnames <- dimnames(x)[which(names(dimnames(x)) != pair_dims)]
+  other_dims <- lapply(other_dimnames, length)
+  mask_dims <- lapply(subset_pair, length)
+  y <- array(NA,
+             dim = c(mask_dims, other_dims),
+             dimnames = do.call(list,
+                             args = c(subset_pair,
+                                      other_dimnames)))
+
+  y[] <- x[!is.na(subset_mask)]
+
+  return(y)
+}

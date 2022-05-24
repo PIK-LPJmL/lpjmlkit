@@ -173,6 +173,7 @@ LpjmlData <- R6::R6Class(
         self$data <- subset_array(self$data,
                                   subset_list["cell"],
                                   drop = FALSE)
+        # update reduced_subset_list to avoid later double or wrong subsetting
         reduced_subset_list["cell"] <- NULL
         self$convert_spatial(dimspatial_format)
 
@@ -187,6 +188,10 @@ LpjmlData <- R6::R6Class(
         self$data <- subset_array(self$data,
                                   subset_list[name_idx],
                                   drop = FALSE)
+        # subset grid & update corresponding meta data
+        self$grid$data <- subset_array(self$data, subset_list[name_idx])
+        self$grid$meta_data$._update_subset(subset_list[name_idx])
+        # update reduced_subset_list to avoid later double or wrong subsetting
         reduced_subset_list[name_idx] <- NULL
         self$convert_spatial(dimspatial_format)
 
@@ -244,14 +249,9 @@ LpjmlData <- R6::R6Class(
       } else {
         self$meta_data$._update_subset(subset_list)
       }
-      if (!is.null(self$grid)) {
-        if (!is.null(subset_list[["cell"]])) {
-          self$grid$data <- subset_array(self$data, subset_list["cell"])
-          self$grid$meta_data$._update_subset(subset_list["cell"])
-        } else if (!is.null(subset_list[["lon"]]) &&
-                   !is.null(subset_list[["lat"]])) {
-          print("TODO")
-        }
+      if (!is.null(self$grid) && !is.null(subset_list[["cell"]])) {
+        self$grid$data <- subset_array(self$data, subset_list["cell"])
+        self$grid$meta_data$._update_subset(subset_list["cell"])
       }
       return(invisible(self))
     },
@@ -344,11 +344,83 @@ LpjmlData <- R6::R6Class(
         return(array_out)
     },
 
+    convert_grid = function(dim_format = NULL) {
+      if (self$meta_data$variable != "grid") {
+        stop(paste("not legit for variable", self$meta_data$variable))
+      }
+      # convenience function - if null automatically switch to other dim_format
+      if (is.null(dim_format)) {
+        if (self$meta_data$dimspatial_format == "cell") {
+          dim_format <- "lon_lat"
+        } else {
+          dim_format <- "cell"
+        }
+      }
+
+      # convert between single cell dimension and lon, lat dimensions
+      if (self$meta_data$dimspatial_format == "cell" &&
+          dim_format == "lon_lat") {
+        # calculate grid extent from range to span raster
+        grid_extent <- apply(
+            self$data,
+            "band",
+            range
+        )
+        # calculate dimnames for full 2 dimensional grid
+        spatial_dimnames <- mapply(seq,
+                                   rev(grid_extent[1, ]),
+                                   rev(grid_extent[2, ]),
+                                   by = c(self$meta_data$cellsize_lat,
+                                          self$meta_data$cellsize_lon))
+        # init grid array
+        grid_array <- array(NA,
+                          dim = lapply(spatial_dimnames, length),
+                          dimnames = spatial_dimnames)
+        # get indices of lat and lon dimnames
+        ilon <- match(self$data[, 1],
+                     as.numeric(dimnames(grid_array)[["lon"]]))
+        ilat <- match(self$data[, 2],
+                     as.numeric(dimnames(grid_array)[["lat"]]))
+        # replace cell of of lon and lat by cell index
+        grid_array[cbind(ilat, ilon)] <- as.integer(
+          dimnames(self$data)[["cell"]]
+        )
+        self$data <- grid_array
+        self$meta_data$._convert_dimspatial_format("lon_lat")
+
+      # convert between lon, lat dimensions and single cell dimension
+      } else if (self$meta_data$dimspatial_format == "lon_lat" &&
+          dim_format == "cell") {
+        # get indices of actual cells
+        grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
+        grid_dimnames <- lapply(dimnames(self$data), as.numeric)
+        # select actual cells latitude and longitude and set cells as dimnames
+        self$data <- array(
+          cbind(
+            lon = grid_dimnames[["lon"]][
+              grid_indices[, which(names(dim(self$data)) == "lon")]
+            ],
+            lat = grid_dimnames[["lat"]][
+              grid_indices[, which(names(dim(self$data)) == "lat")]
+            ]
+          ),
+          dim = c(cell = length(self$data[grid_indices]),
+                  band = 2),
+          dimnames = list(cell = self$data[grid_indices],
+                          band = c("lon", "lat"))
+        )
+        self$meta_data$._convert_dimspatial_format("cell")
+      }
+
+      return(invisible(self))
+    },
+
     # INSERT ROXYGEN SKELETON: CONVERT SPATIAL METHOD
     # dim_format = c("lon_lat", "cell")
     convert_spatial = function(dim_format = NULL) {
       if (self$meta_data$variable == "grid") {
-        stop(paste("not legit for variable", self$meta_data$variable))
+        self$convert_grid(dim_format = dim_format)
+        return(invisible(self))
       }
       # support of lazy loading of grid for meta files else add explicitly
       if (is.null(self$grid)) {
@@ -371,42 +443,17 @@ LpjmlData <- R6::R6Class(
       # convert between single cell dimension and lon, lat dimensions
       if (self$meta_data$dimspatial_format == "cell" &&
           dim_format == "lon_lat") {
-        # calculate grid extent from range to span raster
-        grid_extent <- apply(
-            self$grid$data,
-            "band",
-            range
-        )
-        spatial_dimnames <- mapply(seq,
-                                   rev(grid_extent[1, ]),
-                                   rev(grid_extent[2, ]),
-                                   by = c(self$meta_data$cellsize_lat,
-                                          self$meta_data$cellsize_lon))
-        # init array data
-        grid_array <- array(NA,
-                          dim = lapply(spatial_dimnames, length),
-                          dimnames = spatial_dimnames)
-        ilon <- match(self$grid$data[, 1],
-                     as.numeric(dimnames(grid_array)[["lon"]]))
-        ilat <- match(self$grid$data[, 2],
-                     as.numeric(dimnames(grid_array)[["lat"]]))
-        grid_array[cbind(ilat, ilon)] <- as.integer(
-          dimnames(self$grid)[["cell"]]
-        )
-
-        spatial_dims <- lapply(spatial_dimnames, length)
+        self$grid$convert_grid(dim_format = dim_format)
         data_array <- array(
-          grid_array,
-          dim = c(spatial_dims, other_dims),
+          self$grid$data,
+          dim = c(dim(self$grid$data), other_dims),
           dimnames = do.call(list,
-                             args = c(spatial_dimnames,
+                             args = c(dimnames(self$grid$data),
                                       other_dimnames))
         )
-        self$grid$data <- grid_array
         data_array[!is.na(data_array)] <- self$data
         # set corresponding meta_data entry
         self$meta_data$._convert_dimspatial_format("lon_lat")
-        self$grid$meta_data$._convert_dimspatial_format("lon_lat")
 
       # convert between lon, lat dimensions and single cell dimension
       } else if (self$meta_data$dimspatial_format == "lon_lat" &&
@@ -414,34 +461,12 @@ LpjmlData <- R6::R6Class(
         mask_array <- array(self$grid$data,
                             dim = dim(self$data),
                             dimnames = dimnames(self$data))
-        # create new data array based on disaggregated time dimension
-        other_dimnames <- dimnames(self$data) %>%
-          `[<-`(unlist(strsplit(self$meta_data$dimspatial_format, "_")), NULL)
-        other_dims <- dim(self$data) %>%
-          `[`(names(other_dimnames))
-
-        grid_indices <- which(!is.na(self$grid$data), arr.ind = TRUE)
-        grid_dimnames <- lapply(dimnames(self$grid$data), as.numeric)
-        self$grid$data <- matrix(
-          cbind(
-            lon = grid_dimnames[["lon"]][
-              grid_indices[, which(names(dim(self$grid$data)) == "lon")]
-            ],
-            lat = grid_dimnames[["lat"]][
-              grid_indices[, which(names(dim(self$grid$data)) == "lat")]
-            ]
-          ),
-          ncol = 2,
-          dimnames = list(cell = self$grid$data[grid_indices],
-                          band = c("lon", "lat"))
-        )
-        spatial_dims <- lapply(dimnames(self$grid)["cell"], length)
-
+        self$grid$convert_grid(dim_format = dim_format)
         data_array <- array(
           NA,
-          dim = c(spatial_dims, other_dims),
+          dim = c(dim(self$grid$data)["cell"], other_dims),
           dimnames = do.call(list,
-                             args = c(dimnames(self$grid)["cell"],
+                             args = c(dimnames(self$grid$data)["cell"],
                                       other_dimnames))
         )
         data_array[] <- self$data[!is.na(mask_array)]
@@ -631,7 +656,7 @@ LpjmlData <- R6::R6Class(
         cat(paste0("\u001b[33;3m",
                    ifelse(self$meta_data$dimspatial_format == "cell",
                           "Note: only min & max printed as equivalent to spatial extent.", #nolint
-                          "Note: Inverted grid (cell as value)! Only min & max printed for sequence of cells."), #nolint
+                          "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), #nolint
                    unset_col,
                    "\n"))
       }
