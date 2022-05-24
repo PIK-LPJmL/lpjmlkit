@@ -406,6 +406,7 @@ LpjmlData <- R6::R6Class(
         data_array[!is.na(data_array)] <- self$data
         # set corresponding meta_data entry
         self$meta_data$._convert_dimspatial_format("lon_lat")
+        self$grid$meta_data$._convert_dimspatial_format("lon_lat")
 
       # convert between lon, lat dimensions and single cell dimension
       } else if (self$meta_data$dimspatial_format == "lon_lat" &&
@@ -446,6 +447,9 @@ LpjmlData <- R6::R6Class(
         data_array[] <- self$data[!is.na(mask_array)]
         # set corresponding meta_data entry
         self$meta_data$._convert_dimspatial_format("cell")
+        if (!is.null(self$grid)) {
+          self$grid$meta_data$._convert_dimspatial_format("cell")
+        }
 
       } else {
         return(invisible(self))
@@ -625,7 +629,9 @@ LpjmlData <- R6::R6Class(
         )
       } else {
         cat(paste0("\u001b[33;3m",
-                   "Note: only min & max printed as equivalent to spatial extent.", #nolint
+                   ifelse(self$meta_data$dimspatial_format == "cell",
+                          "Note: only min & max printed as equivalent to spatial extent.", #nolint
+                          "Note: Inverted grid (cell as value)! Only min & max printed for sequence of cells."), #nolint
                    unset_col,
                    "\n"))
       }
