@@ -62,6 +62,7 @@ LpjmlMetaData <- R6::R6Class(
         }
         private$.ncell <- length(subset_list$cell)
         private$.subset <- TRUE
+        private$.subset_spatial <- TRUE
       }
       # for years using indices is forbidded because they cannot be properly
       #   distinguished from years
@@ -226,9 +227,9 @@ LpjmlMetaData <- R6::R6Class(
           unset_col,
           " ",
           # color red if subset
-          ifelse(private$.subset, "\u001b[31m", ""),
-          private$.subset,
-          ifelse(private$.subset, unset_col, ""),
+          ifelse(self$subset, "\u001b[31m", ""),
+          self$subset,
+          ifelse(self$subset, unset_col, ""),
           "\n"
         )
       )
@@ -305,7 +306,14 @@ LpjmlMetaData <- R6::R6Class(
       return(private$.filename)
     },
     subset = function() {
-      return(private$.subset)
+      if (self$variable == "grid") {
+        return(private$.subset_spatial)
+      } else {
+        return(private$.subset)
+      }
+    },
+    subset_spatial = function() {
+      return(private$.subset_spatial)
     },
     fields_set = function() {
       return(private$.fields_set)
@@ -398,6 +406,7 @@ LpjmlMetaData <- R6::R6Class(
     .format = NULL,
     .filename = NULL,
     .subset = FALSE,
+    .subset_spatial = FALSE,
     .fields_set = NULL,
     .data_dir = NULL,
     .dimtime_format = "time",

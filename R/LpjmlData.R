@@ -245,8 +245,13 @@ LpjmlData <- R6::R6Class(
         self$meta_data$._update_subset(subset_list)
       }
       if (!is.null(self$grid)) {
-        self$grid$data <- subset_array(self$data, subset_list["cell"])
-        self$grid$meta_data$._update_subset(subset_list["cell"])
+        if (!is.null(subset_list[["cell"]])) {
+          self$grid$data <- subset_array(self$data, subset_list["cell"])
+          self$grid$meta_data$._update_subset(subset_list["cell"])
+        } else if (!is.null(subset_list[["lon"]]) &&
+                   !is.null(subset_list[["lat"]])) {
+          print("TODO")
+        }
       }
       return(invisible(self))
     },
@@ -264,7 +269,7 @@ LpjmlData <- R6::R6Class(
         filename <- paste(self$meta_data$data_dir, grid_file, sep = "/")
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
-        if (self$meta_data$subset) {
+        if (self$meta_data$subset_spatial) {
           self$grid <- read_output(
             file_name = filename,
             subset_list = list(cell = self$dimnames()[["cell"]])
@@ -357,75 +362,93 @@ LpjmlData <- R6::R6Class(
         }
       }
 
-      if ((self$meta_data$dimtime_format == "lon_lat" &&
-                 dim_format == "lon_lat") ||
-                 (self$meta_data$dimtime_format == "cell" &&
-                 dim_format == "cell") ||
-                 !dim_format %in% c("cell", "lon_lat")) {
-        return(invisible(self))
-      }
-
-      # calculate grid extent from range to span raster
-      grid_extent <- apply(
-          self$grid$data,
-          "band",
-          range
-      )
-      spatial_dimnames <- mapply(seq,
-                                 rev(grid_extent[1, ]),
-                                 rev(grid_extent[2, ]),
-                                 by = c(self$meta_data$cellsize_lat,
-                                        self$meta_data$cellsize_lon))
-      # init array data
-      pre_data <- array(NA,
-                        dim = lapply(spatial_dimnames, length),
-                        dimnames = spatial_dimnames)
-      ilon <- match(self$grid$data[, 1],
-                   as.numeric(dimnames(pre_data)[["lon"]]))
-      ilat <- match(self$grid$data[, 2],
-                   as.numeric(dimnames(pre_data)[["lat"]]))
-      pre_data[cbind(ilat, ilon)] <- 1
-
       # create new data array based on disaggregated time dimension
       other_dimnames <- dimnames(self$data) %>%
         `[<-`(unlist(strsplit(self$meta_data$dimspatial_format, "_")), NULL)
       other_dims <- dim(self$data) %>%
         `[`(names(other_dimnames))
-      spatial_dims <- lapply(spatial_dimnames, length)
 
-      data_array <- array(
-        pre_data,
-        dim = c(spatial_dims, other_dims),
-        dimnames = do.call(list,
-                           args = c(spatial_dimnames,
-                                    other_dimnames))
-      )
+      # convert between single cell dimension and lon, lat dimensions
+      if (self$meta_data$dimspatial_format == "cell" &&
+          dim_format == "lon_lat") {
+        # calculate grid extent from range to span raster
+        grid_extent <- apply(
+            self$grid$data,
+            "band",
+            range
+        )
+        spatial_dimnames <- mapply(seq,
+                                   rev(grid_extent[1, ]),
+                                   rev(grid_extent[2, ]),
+                                   by = c(self$meta_data$cellsize_lat,
+                                          self$meta_data$cellsize_lon))
+        # init array data
+        grid_array <- array(NA,
+                          dim = lapply(spatial_dimnames, length),
+                          dimnames = spatial_dimnames)
+        ilon <- match(self$grid$data[, 1],
+                     as.numeric(dimnames(grid_array)[["lon"]]))
+        ilat <- match(self$grid$data[, 2],
+                     as.numeric(dimnames(grid_array)[["lat"]]))
+        grid_array[cbind(ilat, ilon)] <- as.integer(
+          dimnames(self$grid)[["cell"]]
+        )
 
-      if (self$meta_data$dimspatial_format == "lon_lat" &&
+        spatial_dims <- lapply(spatial_dimnames, length)
+        data_array <- array(
+          grid_array,
+          dim = c(spatial_dims, other_dims),
+          dimnames = do.call(list,
+                             args = c(spatial_dimnames,
+                                      other_dimnames))
+        )
+        self$grid$data <- grid_array
+        data_array[!is.na(data_array)] <- self$data
+        # set corresponding meta_data entry
+        self$meta_data$._convert_dimspatial_format("lon_lat")
+
+      # convert between lon, lat dimensions and single cell dimension
+      } else if (self$meta_data$dimspatial_format == "lon_lat" &&
           dim_format == "cell") {
-        mask_array <- data_array
+        mask_array <- array(self$grid$data,
+                            dim = dim(self$data),
+                            dimnames = dimnames(self$data))
         # create new data array based on disaggregated time dimension
         other_dimnames <- dimnames(self$data) %>%
           `[<-`(unlist(strsplit(self$meta_data$dimspatial_format, "_")), NULL)
         other_dims <- dim(self$data) %>%
           `[`(names(other_dimnames))
+
+        grid_indices <- which(!is.na(self$grid$data), arr.ind = TRUE)
+        grid_dimnames <- lapply(dimnames(self$grid$data), as.numeric)
+        self$grid$data <- matrix(
+          cbind(
+            lon = grid_dimnames[["lon"]][
+              grid_indices[, which(names(dim(self$grid$data)) == "lon")]
+            ],
+            lat = grid_dimnames[["lat"]][
+              grid_indices[, which(names(dim(self$grid$data)) == "lat")]
+            ]
+          ),
+          ncol = 2,
+          dimnames = list(cell = self$grid$data[grid_indices],
+                          band = c("lon", "lat"))
+        )
         spatial_dims <- lapply(dimnames(self$grid)["cell"], length)
 
         data_array <- array(
-          pre_data,
+          NA,
           dim = c(spatial_dims, other_dims),
           dimnames = do.call(list,
                              args = c(dimnames(self$grid)["cell"],
                                       other_dimnames))
         )
-        data_array[] <- self$data[which(mask_array == 1)]
+        data_array[] <- self$data[!is.na(mask_array)]
         # set corresponding meta_data entry
         self$meta_data$._convert_dimspatial_format("cell")
 
       } else {
-        data_array[which(data_array == 1)] <- self$data
-        # set corresponding meta_data entry
-        self$meta_data$._convert_dimspatial_format("lon_lat")
+        return(invisible(self))
       }
       # overwrite internal data with same data but new dimensions
       self$data <- data_array
@@ -500,7 +523,10 @@ LpjmlData <- R6::R6Class(
       )
       return(invisible(self))
     },
-    summary = function(dimension="band", subset_list = NULL, cutoff = FALSE) {
+    summary = function(dimension="band",
+                       subset_list = NULL,
+                       cutoff = FALSE,
+                       ...) {
       data <- subset_array(self$data, subset_list)
       if (dimension %in% names(dimnames(data))) {
         mat_sum <- data %>%
@@ -515,25 +541,33 @@ LpjmlData <- R6::R6Class(
             "\n")
           )
           mat_sum[, seq_len(16)] %>%
-            summary()
+            summary(...)
         } else {
           if (self$meta_data$variable == "grid") {
+
             mat_sum %>%
-                summary() %>%
+                summary(...) %>%
                 `[`(c(1, 6), )
           } else {
             mat_sum %>%
-              summary()
+              summary(...)
           }
         }
       } else {
-        mat_sum <- summary(matrix(data))
-        space_len <- ifelse(nchar(self$meta_data$variable) > 8,
+        mat_sum <- summary(matrix(data), ...)
+        if (self$meta_data$variable == "grid") {
+          var_name <- "cell"
+          mat_sum <- mat_sum[c(1, 6), ]
+        } else {
+            var_name <- self$meta_data$variable
+        }
+        space_len <- ifelse(nchar(var_name) > 8,
                             0,
-                            4 - sqrt(nchar(self$meta_data$variable)))
-        paste0(c(rep(" ", space_len), self$meta_data$variable, "\n")) %>%
-          append(paste0(mat_sum, "\n")) %>%
-          cat()
+                            4 - sqrt(nchar(var_name)))
+        paste0(c(rep(" ", space_len), var_name, "\n")) %>%
+          append(paste0(mat_sum, collapse = "\n ")) %>%
+        cat()
+        return(bquote())
       }
     },
     print = function() {
