@@ -94,18 +94,26 @@ subarray_argument <- function(x, subset_list) {
 
 
 subset_array_pair <- function(x,
-                              subset_pair = NULL) {
-  pair_names <- names(subset_pair)
-  # if integer (no decimal places) use directly as indices
-  if (all(sapply(subset_pair, is.integer))) {
-    idim1 <- x[[1]]
-    idim2 <- x[[2]]
-  # get indices for provided dimension names
-  } else {
-    idim1 <- match(subset_pair[[1]],
-                   as.numeric(dimnames(x)[[pair_names[1]]]))
-    idim2 <- match(subset_pair[[2]],
-                 as.numeric(dimnames(x)[[pair_names[2]]]))
+                              pair = NULL) {
+  pair_names <- names(pair)
+
+  # look up/match vector of dimnames of x (for performance in loop)
+  idim1_table <- as.numeric(dimnames(x)[[pair_names[1]]])
+  # match first dim of pair against dimnames of x
+  idim1 <- match(as.numeric(pair[[1]]),
+                 idim1_table)
+  # for NAs (non matches) find nearest dimname values
+  #   - the more the longer the iteration
+  for (isna in which(is.na(idim1))) {
+    idim1[isna] <- which.min(abs(idim1_table - as.numeric(pair[[1]])[isna]))
+  }
+
+  # same for second dim of pair ...
+  idim2_table <- as.numeric(dimnames(x)[[pair_names[2]]])
+  idim2 <- match(as.numeric(pair[[2]]),
+                 idim2_table)
+  for (isna in which(is.na(idim2))) {
+    idim2[isna] <- which.min(abs(idim2_table - as.numeric(pair[[2]])[isna]))
   }
 
   # index vectors to 2 column matrix for pair subsetting
@@ -119,18 +127,20 @@ subset_array_pair <- function(x,
     `[<-`(idims, 1) %>%
     array(dim(x), dimnames = dimnames(x))
 
-  # get dim & dimnames of dimensions not matching subset_pair
+  # get dim & dimnames of dimensions not matching pair
   other_dimnames <- dimnames(x)[which(names(dimnames(x)) != pair_names)]
   # dim() workaround
   other_dims <- lapply(other_dimnames, length)
-  mask_dims <- lapply(subset_pair, length)
+  mask_dims <- lapply(pair, length)
   y <- array(NA,
              dim = c(mask_dims, other_dims),
              dimnames = do.call(list,
-                             args = c(subset_pair,
+                             args = c(pair,
                                       other_dimnames)))
 
   y[] <- x[!is.na(subset_mask)]
 
   return(y)
 }
+
+# pair=tibble(lat=c(-55.75,-55.25,-54.5), lon=c(-179.75, -179.25, -178.9))

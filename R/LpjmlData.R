@@ -70,13 +70,11 @@ LpjmlData <- R6::R6Class(
         self$add_grid()
       }
       # workflow adjusted for subsetted grid (via cell)
-      grid_subset <- subset_array(self$grid$data,
-                                  subset_list["cell"],
-                                  drop = FALSE)
+      data_subset <- subset(self, subset_list)
       if (is.null(fix_extent)) {
         # calculate grid extent from range to span raster
         grid_extent <- apply(
-            grid_subset,
+            data_subset$grid$data,
             "band",
             range
           ) + matrix(
@@ -104,11 +102,9 @@ LpjmlData <- R6::R6Class(
         ymx = grid_extent[2, 2],
         crs = "EPSG:4326"
         )
-      data_subset <- self$data %>%
-        subset_array(subset_list, drop = FALSE)
       # get dimensions larger 1 to check if raster or brick required
       #   (or too many dimensions > 1 which are not compatible with raster)
-      multi_dims <- names(which(dim(data_subset) > 1))
+      multi_dims <- names(which(dim(data_subset$data) > 1))
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
@@ -119,8 +115,8 @@ LpjmlData <- R6::R6Class(
         #   layer naming
         multi_layer <- multi_dims[which(multi_dims != "cell")]
         tmp_raster <- raster::brick(tmp_raster,
-                                    nl = dim(data_subset)[multi_layer])
-        names(tmp_raster) <- dimnames(data_subset)[[multi_layer]]
+                                    nl = dim(data_subset$data)[multi_layer])
+        names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
       } else if (length(multi_dims) == 1) {
         # for single rasters use variable as layer name
         names(tmp_raster) <- self$meta_data$variable
@@ -129,10 +125,10 @@ LpjmlData <- R6::R6Class(
       tmp_raster[
         raster::cellFromXY(
           tmp_raster,
-          cbind(subset_array(grid_subset, list(band = "lon")),
-                subset_array(grid_subset, list(band = "lat")))
+          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- data_subset
+      ] <- data_subset$data
 
       return(tmp_raster)
     },
@@ -221,7 +217,7 @@ LpjmlData <- R6::R6Class(
       #   convert_time format
       } else if (any(year_month_day %in% names(subset_list)) &&
                  !("time" %in% names(subset_list)) &&
-                 dat$meta_data$dimtime_format != "year_month_day") {
+                 self$meta_data$dimtime_format != "year_month_day") {
         self$convert_time("year_month_day")
         name_idx <- as.vector(
           na.omit(match(year_month_day, names(subset_list)))
