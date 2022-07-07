@@ -108,6 +108,7 @@ LpjmlMetaData <- R6::R6Class(
             version = 4,
             order = self$order,
             firstyear = self$firstyear,
+            firstcell = self$firstcell,
             nyear = self$nyear,
             ncell = self$ncell,
             nbands = self$nbands,
