@@ -26,27 +26,55 @@ cd <path_to_lpjmlkit>
 git pull origin master
 ```
 
-**Windows users only:**
+**Windows users only**
 - If you do not have `Rtools` yet, you will need to install it: download Rtools from here https://cran.rstudio.com/bin/windows/Rtools/ (e.g. `rtools40v2-x86_64.exe`)
 
-**Build & Install in Rstudio (any OS)**
+either  
+**modules on the cluster**  
+- for installation:  
+    `module purge` (to be sure that lpjml is not loaded)  
+    `module load piam` (allows you to load many standard packages)  
+- for functions requiring LPJmL functionality (write_config/check_config/submit_lpjml/...):  
+    `module load piam` (allows you to load many standard packages)  
+    `module load lpjml` (loads all the dependencies required for compiling/running lpjml)  
 
-- Open .RProj file with RStudio
-- Build -> More -> Build source package (for Linux)
-- Build -> More -> Build binary package (for Windows)
-- This creates a compressed file (e.g. `.tar.gz` or `.zip`) in the package folder.
-- Use the [`devtools`](https://rawgit.com/rstudio/cheatsheets/master/package-development.pdf) library to install lpjmlkit.
+or  
+**local equivalant to module loading**  
+make sure you have these R-packages installed:  
+- devtools (for installing the package from source)
+- roxygen2 (for updating vignettes)  
+- testthat (for testing the functions and catching errors)  
+- lintr (for complying with the coding style standards)  
 
+usually not required:  
+**Create package files for independent installation**  
+- Open .RProj file with RStudio  
+- Build -> More -> Build source package  
+- This creates a compressed file (e.g. `.tar.gz`) in the package folder.  
+
+installation option 1:
+**Install from source in R (any OS)**  
+- Use the [`devtools`](https://rawgit.com/rstudio/cheatsheets/master/package-development.pdf) library to install lpjmlkit:
 ```R
-devtools::install("<path_to_lpjmlkit>/lpjmlkit")
+devtools::install("<path_to_lpjmlkit>")
 ```
 
-**Build & Install from the Command Line (Linux)**
+or option 2:
+**Install from source in RStudio (any OS)**  
+- Open .RProj file with RStudio  
+- Build -> Install (the package and restart R)
+
+or option 3:
+**Install from package file in R (or RStudio)**  
+- `install.packages(<path_to_package_file>, repos = NULL, type="source")`
+
+or option 4:
+**Build & Install from the Command Line (Linux)**  
 
 ```bash
 cd <path_to_lpjmlkit>
-R CMD build lpjmlKit
-R CMD INSTALL lpjmlKit_<version_nr>.tar.gz
+R CMD build lpjmlkit
+R CMD INSTALL lpjmlkit_<version_nr>.tar.gz
 ```
 [Go to Top](#)
 
@@ -103,7 +131,7 @@ The `lpjmlKit` repository include the following branches:
 
 Note: To be done for every new development that should go to master.
  
-1. Create `your_temporary_branch` branch from `master`
+1. Create `your_temporary_branch` branch from `master` (`git checkout -b your_temporary_branch` and `git push origin your_temporary_branch`)
 1. Manually copy the functions you want to clean from the `development` to `your_temporary_branch` branch, or write a new function from scratch
 1. Clean the function and coding style (`lintr::lint("R/my_function.R")`)
 1. Add documentation and examples. In Rstudio: `Code -> Insert roxygen skeleton` or by `Ctrl + Alt + Shift + R`
@@ -115,6 +143,7 @@ Note: To be done for every new development that should go to master.
 
 1. Increase version number in `DESCRIPTION` file (follow `MajorVersionNumber.MinorVersionNumber.PatchNumber`)
 1. Run roxygen2 and update the descriptions `roxygen2::roxygenise()` or `CTRL + Shift + D`
+1. Commit and push your changes
 1. Make a merge request
 1. Apply the 4-eyes principles
 1. Delete `your_temporary_branch` branch
