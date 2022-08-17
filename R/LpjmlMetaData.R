@@ -29,10 +29,10 @@ LpjmlMetaData <- R6::R6Class(
             # "descr" = tolower(x$name),
             "lastyear" = x$header[["firstyear"]] +
                          x$header[["timestep"]] *
-                         (x$timestep[["nyear"]] - 1)
+                         (x$header[["nyear"]] - 1)
           )) %>%
         `[[<-`("order",
-               switch(as.character(order),
+               switch(as.character(.$order),
                       `1` = "cellyear",
                       `2` = "yearcell",
                       `3` = "cellindex",
