@@ -423,6 +423,10 @@ read_output <- function(
   }
   # Close binary file connection
   close(file_connection)
+  
+  # Convert from read_band_order to default_band_order
+  if (!identical(read_band_order, default_band_order))
+    file_data <- aperm(file_data, perm = default_band_order)
 
   # ------------------------------------ #
   # Create time dimension names:
