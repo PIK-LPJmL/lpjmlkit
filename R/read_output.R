@@ -397,7 +397,6 @@ read_output <- function(
 
     # Concatenate years together
     if (yy == years[1]) {
-      file_data <- year_data
       # Allocate full array for all years
       file_data <- array(
         dim = dim(year_data) * ifelse(
