@@ -312,6 +312,9 @@ read_output <- function(
   # Open binary file connection
   file_connection <- file(file_name, "rb")
 
+  # Dimension order during reading. Note: Must be 3 dimensions in total, with
+  # "time" being last dimension for code below to work.
+  read_band_order <- c("cell", "band", "time")
   # Loop over subset years
   for (yy in years) {
 
@@ -385,7 +388,7 @@ read_output <- function(
     )
 
     # Convert to default dimension order
-    year_data <- aperm(year_data, perm = default_band_order) %>%
+    year_data <- aperm(year_data, perm = read_band_order) %>%
       # Apply any subsetting along bands or cells
       subset_array(
         subset_list[!names(subset_list) %in% c("day", "month", "year", "time")],
@@ -395,22 +398,31 @@ read_output <- function(
     # Concatenate years together
     if (yy == years[1]) {
       file_data <- year_data
-    } else {
-      file_data <- abind::abind(
-        file_data,
-        year_data,
-        along = which(default_band_order == "time"),
-        use.dnns = TRUE
+      # Allocate full array for all years
+      file_data <- array(
+        dim = dim(year_data) * ifelse(
+          names(dimnames(year_data)) == "time",
+          length(years),
+          1
+        )
       )
+      names(dim(file_data)) <- names(dim(year_data))
+      # Setting dimnames like this will only work if dimnames of time dimension
+      # are set to NULL above. Otherwise, length will be wrong for time
+      # dimension.
+      dimnames(file_data) <- dimnames(year_data)
+      # Assign year_data to time indices of first year in full array
+      time_index <- seq_len(dim(year_data)[3])
+      file_data[, , time_index] <- year_data
+    } else {
+      # Increment time index
+      time_index <- time_index + dim(year_data)[3]
+      # Assign year_data to time indices of current year in full array
+      file_data[, , time_index] <- year_data
     }
   }
   # Close binary file connection
   close(file_connection)
-
-  dim_names <- dimnames(file_data)
-  # workaround to reset dim names correctly after abind removes them
-  names(dim(file_data)) <- names(dim(year_data))
-  dimnames(file_data) <- dim_names
 
   # ------------------------------------ #
   # Create time dimension names:
