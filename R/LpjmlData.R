@@ -27,8 +27,10 @@ LpjmlData <- R6::R6Class(
         stop("Provide a LpjmlMetaData object for meta_data.")
       }
       self$data <- data_array
-      if (self$meta_data$variable == "grid") {
-        private$init_grid()
+      if (!is.null(self$meta_data$variable)) {
+        if (self$meta_data$variable == "grid") {
+          private$init_grid()
+        }
       }
     },
     as_tibble = function(subset_list = NULL, value_name = "value") {
