@@ -257,6 +257,11 @@ create_header <- function(name = "LPJGRID",
               " Setting non-default nstep ", nstep,
               ". This information is not kept when saving header to file."
             )
+          } else {
+            warntext <- paste(
+              warntext,
+              "Setting default value 1 for nstep."
+            )
           }
         }
         if (missing(timestep) || length(timestep) != 1 ||
@@ -280,6 +285,11 @@ create_header <- function(name = "LPJGRID",
               warntext,
               " Setting non-default timestep ", timestep,
               ". This information is not kept when saving header to file."
+            )
+          } else {
+            warntext <- paste(
+              warntext,
+              "Setting default value 1 for timestep."
             )
           }
         }
@@ -369,6 +379,11 @@ create_header <- function(name = "LPJGRID",
             " Setting non-default nstep ", nstep,
             ". This information is not kept when saving header to file."
           )
+        } else {
+          warntext <- paste(
+            warntext,
+            "Setting default value 1 for nstep."
+          )
         }
       }
       if (missing(timestep) || length(timestep) != 1 || !is.numeric(timestep) ||
@@ -392,6 +407,11 @@ create_header <- function(name = "LPJGRID",
             warntext,
             " Setting non-default timestep ", timestep,
             ". This information is not kept when saving header to file."
+          )
+        } else {
+          warntext <- paste(
+            warntext,
+            "Setting default value 1 for timestep."
           )
         }
       }
