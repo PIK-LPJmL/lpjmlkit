@@ -307,6 +307,9 @@ LpjmlMetaData <- R6::R6Class(
     order = function() {
       return(private$.order)
     },
+    offset = function() {
+      return(private$.offset)
+    },
     bigendian = function() {
       return(private$.bigendian)
     },
@@ -428,6 +431,7 @@ LpjmlMetaData <- R6::R6Class(
     .format = NULL,
     .filename = NULL,
     .version = NULL,
+    .offset = NULL,
     .name = NULL,
     .map = NULL,
     .subset = FALSE,
@@ -461,7 +465,8 @@ LpjmlMetaData <- R6::R6Class(
                     "filename",
                     "name",
                     "map",
-                    "version"
+                    "version",
+                    "offset"
                    ),
     .dimension_map = list(cells = "cell",
                          time = c("year", "month", "day"),
