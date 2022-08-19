@@ -78,7 +78,7 @@ LpjmlMetaData <- R6::R6Class(
       # band can be subsetted via indices or band_names - the latter is updated
       if (!is.null(subset_list$band)) {
         if (is.character(subset_list$band)) {
-          if (!subset_list$band %in% private$.band_names) {
+          if (!all(subset_list$band %in% private$.band_names)) {
             warning(paste0(
               "Not all subset_list bands are represented in the original data:",
               "\n- band_names provided to subset_list may be incorrect, or",
@@ -104,9 +104,9 @@ LpjmlMetaData <- R6::R6Class(
       invisible(
         capture.output(
           header <- create_header(
-            name = "LPJ_OUT",
+            name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),
             version = 4,
-            order = self$order,
+            order = ifelse(is.null(self$order), 1, self$order),
             firstyear = self$firstyear,
             firstcell = self$firstcell,
             nyear = self$nyear,
