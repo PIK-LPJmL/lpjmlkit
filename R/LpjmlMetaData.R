@@ -22,14 +22,17 @@ LpjmlMetaData <- R6::R6Class(
                           data_dir = NULL) {
       if (all(names(x) %in% c("name", "header", "endian"))) {
         header_to_meta <- as.list(x$header)[
-          which(!names(x$header) %in% c("version"))
+          # which(!names(x$header) %in% c("version")) 
+          # version required to convert header into LpjmlMetaData and back into
+          # header
         ] %>%
           append(list(
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
             # "descr" = tolower(x$name),
             "lastyear" = x$header[["firstyear"]] +
                          x$header[["timestep"]] *
-                         (x$header[["nyear"]] - 1)
+                         (x$header[["nyear"]] - 1),
+            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
           )) %>%
         `[[<-`("order",
                switch(as.character(.$order),
@@ -37,7 +40,14 @@ LpjmlMetaData <- R6::R6Class(
                       `2` = "yearcell",
                       `3` = "cellindex",
                       `4` = "cellseq",
-                      stop(paste("Invalid order string", sQuote(order)))))
+                      stop(
+                        paste(
+                          "Invalid order value", sQuote(.$order), "in header"
+                        )
+                      )
+                     )
+              )
+        
         private$init_list(header_to_meta, additional_data)
       } else {
         private$init_list(x, additional_data)
@@ -105,7 +115,7 @@ LpjmlMetaData <- R6::R6Class(
         capture.output(
           header <- create_header(
             name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),
-            version = 4,
+            version = ifelse(is.null(private$.version), 4, private$.version),
             order = ifelse(is.null(self$order), 1, self$order),
             firstyear = self$firstyear,
             firstcell = self$firstcell,
@@ -306,8 +316,11 @@ LpjmlMetaData <- R6::R6Class(
     filename = function() {
       return(private$.filename)
     },
+    map = function() {
+      return(private$.map)
+    },
     subset = function() {
-      if (self$variable == "grid") {
+      if (!is.null(self$variable) && self$variable == "grid") {
         return(private$.subset_spatial)
       } else {
         return(private$.subset)
@@ -339,7 +352,7 @@ LpjmlMetaData <- R6::R6Class(
         #   warning(paste0(names(x[idx]),
         #                  " may not be a valid LpjmlMetaData field."))
         # }
-        if (!name_id %in% names(x)) {
+        if (is.null(x[[name_id]])) {
           if (name_id %in% names(additional_data)) {
             x[[name_id]] <- additional_data[[name_id]]
           } else {
@@ -406,6 +419,9 @@ LpjmlMetaData <- R6::R6Class(
     .bigendian = FALSE,
     .format = NULL,
     .filename = NULL,
+    .version = NULL,
+    .name = NULL,
+    .map = NULL,
     .subset = FALSE,
     .subset_spatial = FALSE,
     .fields_set = NULL,
@@ -434,7 +450,11 @@ LpjmlMetaData <- R6::R6Class(
                     "order",
                     "bigendian",
                     "format",
-                    "filename"),
+                    "filename",
+                    "name",
+                    "map",
+                    "version"
+                   ),
     .dimension_map = list(cells = "cell",
                          time = c("year", "month", "day"),
                          year = "time",
