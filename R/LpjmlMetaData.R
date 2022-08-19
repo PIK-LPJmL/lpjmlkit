@@ -117,17 +117,17 @@ LpjmlMetaData <- R6::R6Class(
             name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),
             version = ifelse(is.null(private$.version), 4, private$.version),
             order = ifelse(is.null(self$order), 1, self$order),
-            firstyear = self$firstyear,
+            firstyear = ifelse(is.null(self$firstyear), 1901, self$firstyear),
             firstcell = self$firstcell,
             nyear = self$nyear,
             ncell = self$ncell,
             nbands = self$nbands,
             cellsize_lon = self$cellsize_lon,
             cellsize_lat = self$cellsize_lat,
-            scalar =  self$scalar,
+            scalar =  ifelse(is.null(self$scalar), 1.0, self$scalar),
             datatype = self$datatype,
             nstep = self$nstep,
-            timestep = self$timestep,
+            timestep = ifelse(is.null(self$timestep), 1, self$timestep),
             endian = ifelse(self$bigendian, "big", "little"),
             verbose = TRUE
           )
@@ -319,6 +319,9 @@ LpjmlMetaData <- R6::R6Class(
     map = function() {
       return(private$.map)
     },
+    version = function() {
+      return(private$.version)
+    },
     subset = function() {
       if (!is.null(self$variable) && self$variable == "grid") {
         return(private$.subset_spatial)
@@ -359,13 +362,15 @@ LpjmlMetaData <- R6::R6Class(
             next
           }
         }
-        if (name_id == "band_names") {
-          x[[name_id]] <- as.character(x[[name_id]])
+        if (!name_id %in% private$.fields_set) {
+          if (name_id == "band_names") {
+            x[[name_id]] <- as.character(x[[name_id]])
+          }
+          do.call("$<-", list(private,
+                              paste0(".", names(x[name_id])),
+                              x[[name_id]]))
+          private$.fields_set <- append(private$.fields_set, name_id)
         }
-        do.call("$<-", list(private,
-                            paste0(".", names(x[name_id])),
-                            x[[name_id]]))
-        private$.fields_set <- append(private$.fields_set, name_id)
       }
     },
     exclude_print = function() {
