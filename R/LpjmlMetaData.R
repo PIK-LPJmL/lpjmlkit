@@ -369,7 +369,10 @@ LpjmlMetaData <- R6::R6Class(
           do.call("$<-", list(private,
                               paste0(".", names(x[name_id])),
                               x[[name_id]]))
-          private$.fields_set <- append(private$.fields_set, name_id)
+          # Do not add "name" attribute to field_set as it is only saved
+          # internally for conversion back to header.
+          if (name_id != "name")
+            private$.fields_set <- append(private$.fields_set, name_id)
         }
       }
     },
