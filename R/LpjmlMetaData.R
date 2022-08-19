@@ -40,7 +40,7 @@ LpjmlMetaData <- R6::R6Class(
                       stop(paste("Invalid order string", sQuote(order)))))
         private$init_list(header_to_meta, additional_data)
       } else {
-        private$init_list(x)
+        private$init_list(x, additional_data)
       }
       if (length(subset_list) > 0) {
         self$._update_subset(subset_list)
