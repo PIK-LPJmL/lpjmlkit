@@ -21,11 +21,7 @@ LpjmlMetaData <- R6::R6Class(
                           additional_data = list(),
                           data_dir = NULL) {
       if (all(names(x) %in% c("name", "header", "endian"))) {
-        header_to_meta <- as.list(x$header)[
-          # which(!names(x$header) %in% c("version")) 
-          # version required to convert header into LpjmlMetaData and back into
-          # header
-        ] %>%
+        header_to_meta <- as.list(x$header) %>%
           append(list(
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
             # "descr" = tolower(x$name),
