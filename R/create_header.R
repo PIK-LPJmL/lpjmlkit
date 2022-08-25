@@ -193,14 +193,13 @@ create_header <- function(name = "LPJGRID",
             datatype = as.integer(datatype)
           )
           if (verbose) {
-            print(
-              paste0(
-                "Setting datatype to ",
-                ifelse(get_datatype(header)$signed, "", "unsigned "),
-                typeof(get_datatype(header)$type),
-                " with size ",
-                get_datatype(header)$size, "."
-              )
+            cat(
+              "Setting datatype to ",
+              ifelse(get_datatype(header)$signed, "", "unsigned "),
+              typeof(get_datatype(header)$type),
+              " with size ",
+              get_datatype(header)$size, ".\n",
+              sep = ""
             )
           }
         } else {
@@ -242,10 +241,6 @@ create_header <- function(name = "LPJGRID",
             header[["header"]],
             nstep = 1
           )
-          warntext <- paste(
-            warntext,
-            "Setting default value 1 for nstep."
-          )
         } else {
           header[["header"]] <- c(
             header[["header"]],
@@ -254,13 +249,8 @@ create_header <- function(name = "LPJGRID",
           if (nstep != 1) {
             warntext <- paste0(
               warntext,
-              " Setting non-default nstep ", nstep,
+              "\nSetting non-default nstep ", nstep,
               ". This information is not kept when saving header to file."
-            )
-          } else {
-            warntext <- paste(
-              warntext,
-              "Setting default value 1 for nstep."
             )
           }
         }
@@ -271,10 +261,6 @@ create_header <- function(name = "LPJGRID",
             header[["header"]],
             timestep = 1
           )
-          warntext <- paste(
-            warntext,
-            "Setting default value 1 for timestep."
-          )
         } else {
           header[["header"]] <- c(
             header[["header"]],
@@ -283,13 +269,8 @@ create_header <- function(name = "LPJGRID",
           if (timestep != 1) {
             warntext <- paste0(
               warntext,
-              " Setting non-default timestep ", timestep,
+              "\nSetting non-default timestep ", timestep,
               ". This information is not kept when saving header to file."
-            )
-          } else {
-            warntext <- paste(
-              warntext,
-              "Setting default value 1 for timestep."
             )
           }
         }
@@ -304,12 +285,6 @@ create_header <- function(name = "LPJGRID",
           header[["header"]],
           cellsize_lat = as.double(header[["header"]]["cellsize_lon"])
         )
-        warntext <- paste(
-          warntext,
-          "Setting default value",
-          as.double(header[["header"]]["cellsize_lon"]),
-          "for cellsize_lat."
-        )
       } else {
         header[["header"]] <- c(
           header[["header"]],
@@ -318,15 +293,8 @@ create_header <- function(name = "LPJGRID",
         if (cellsize_lat != header[["header"]]["cellsize_lon"]) {
           warntext <- paste0(
             warntext,
-            " Setting non-default cellsize_lat ", cellsize_lat,
+            "\nSetting non-default cellsize_lat ", cellsize_lat,
             ". This information is not kept when saving header to file."
-          )
-        } else {
-          warntext <- paste(
-            warntext,
-            "Setting default value",
-            as.double(header[["header"]]["cellsize_lat"]),
-            "for cellsize_lat."
           )
         }
       }
@@ -337,7 +305,6 @@ create_header <- function(name = "LPJGRID",
           header[["header"]],
           datatype = 1
         )
-        warntext <- paste(warntext, "Setting default value 1 for datatype.")
       } else {
         header[["header"]] <- c(
           header[["header"]],
@@ -346,15 +313,13 @@ create_header <- function(name = "LPJGRID",
         if (datatype != 1) {
           warntext <- paste0(
             warntext,
-            " Setting datatype to non-default ", as.integer(datatype), " (",
+            "\nSetting datatype to non-default ", as.integer(datatype), " (",
             ifelse(get_datatype(header)$signed, "", "unsigned "),
             typeof(get_datatype(header)$type),
             " with size ",
             get_datatype(header)$size,
             "). This information is not kept when saving header to file."
           )
-        } else {
-          warntext <- paste(warntext, "Setting default value 1 for datatype.")
         }
       }
       if (missing(nstep) || length(nstep) != 1 || !is.numeric(nstep) ||
@@ -364,10 +329,6 @@ create_header <- function(name = "LPJGRID",
           header[["header"]],
           nstep = 1
         )
-        warntext <- paste(
-          warntext,
-          "Setting default value 1 for nstep."
-        )
       } else {
         header[["header"]] <- c(
           header[["header"]],
@@ -376,13 +337,8 @@ create_header <- function(name = "LPJGRID",
         if (nstep != 1) {
           warntext <- paste0(
             warntext,
-            " Setting non-default nstep ", nstep,
+            "\nSetting non-default nstep ", nstep,
             ". This information is not kept when saving header to file."
-          )
-        } else {
-          warntext <- paste(
-            warntext,
-            "Setting default value 1 for nstep."
           )
         }
       }
@@ -393,10 +349,6 @@ create_header <- function(name = "LPJGRID",
           header[["header"]],
           timestep = 1
         )
-        warntext <- paste(
-          warntext,
-          "Setting default value 1 for timestep."
-        )
       } else {
         header[["header"]] <- c(
           header[["header"]],
@@ -405,13 +357,8 @@ create_header <- function(name = "LPJGRID",
         if (timestep != 1) {
           warntext <- paste0(
             warntext,
-            " Setting non-default timestep ", timestep,
+            "\nSetting non-default timestep ", timestep,
             ". This information is not kept when saving header to file."
-          )
-        } else {
-          warntext <- paste(
-            warntext,
-            "Setting default value 1 for timestep."
           )
         }
       }
@@ -428,10 +375,6 @@ create_header <- function(name = "LPJGRID",
         header[["header"]],
         cellsize_lon = 0.5
       )
-      warntext <- paste(
-        warntext,
-        "Setting default value 0.5 for cellsize_lon."
-      )
     } else {
       header[["header"]] <- c(
         header[["header"]],
@@ -440,7 +383,7 @@ create_header <- function(name = "LPJGRID",
       if (cellsize_lon != 0.5) {
         warntext <- paste0(
           warntext,
-          " Setting non-default cellsize_lon ", cellsize_lon,
+          "\nSetting non-default cellsize_lon ", cellsize_lon,
           ". This information is not kept when saving header to file."
         )
       }
@@ -453,7 +396,6 @@ create_header <- function(name = "LPJGRID",
         header[["header"]],
         scalar = 1
       )
-      warntext <- paste(warntext, "Setting default value 1 for scalar.")
     } else {
       header[["header"]] <- c(
         header[["header"]],
@@ -462,7 +404,7 @@ create_header <- function(name = "LPJGRID",
       if (scalar != 1) {
         warntext <- paste0(
           warntext,
-          " Setting non-default scalar ", scalar,
+          "\nSetting non-default scalar ", scalar,
           ". This information is not kept when saving header to file."
         )
       }
@@ -474,10 +416,6 @@ create_header <- function(name = "LPJGRID",
         header[["header"]],
         cellsize_lat = 0.5
       )
-      warntext <- paste(
-        warntext,
-        "Setting default value 0.5 for cellsize_lat."
-      )
     } else {
       header[["header"]] <- c(
         header[["header"]],
@@ -486,13 +424,8 @@ create_header <- function(name = "LPJGRID",
       if (any(cellsize_lat != c(header[["header"]]["cellsize_lon"], 0.5))) {
         warntext <- paste0(
           warntext,
-          " Setting non-default cellsize_lat ", cellsize_lat,
+          "\nSetting non-default cellsize_lat ", cellsize_lat,
           ". This information is not kept when saving header to file."
-        )
-      } else {
-        warntext <- paste(
-          warntext,
-          "Setting default value 0.5 for cellsize_lat."
         )
       }
     }
@@ -503,7 +436,6 @@ create_header <- function(name = "LPJGRID",
         header[["header"]],
         datatype = 1
       )
-      warntext <- paste(warntext, "Setting default value 1 for datatype.")
     } else {
       header[["header"]] <- c(
         header[["header"]],
@@ -512,15 +444,13 @@ create_header <- function(name = "LPJGRID",
       if (datatype != 1) {
         warntext <- paste0(
           warntext,
-          " Setting datatype to non-default ", as.integer(datatype), " (",
+          "\nSetting datatype to non-default ", as.integer(datatype), " (",
           ifelse(get_datatype(header)$signed, "", "unsigned "),
           typeof(get_datatype(header)$type),
           " with size ",
           get_datatype(header)$size,
           "). This information is not kept when saving header to file."
         )
-      } else {
-        warntext <- paste(warntext, "Setting default value 1 for datatype.")
       }
     }
     if (missing(nstep) || length(nstep) != 1 || !is.numeric(nstep) ||
@@ -530,10 +460,6 @@ create_header <- function(name = "LPJGRID",
         header[["header"]],
         nstep = 1
       )
-      warntext <- paste(
-        warntext,
-        "Setting default value 1 for nstep."
-      )
     } else {
       header[["header"]] <- c(
         header[["header"]],
@@ -542,7 +468,7 @@ create_header <- function(name = "LPJGRID",
       if (nstep != 1) {
         warntext <- paste0(
           warntext,
-          " Setting non-default nstep ", nstep,
+          "\nSetting non-default nstep ", nstep,
           ". This information is not kept when saving header to file."
         )
       }
@@ -554,10 +480,6 @@ create_header <- function(name = "LPJGRID",
         header[["header"]],
         timestep = 1
       )
-      warntext <- paste(
-        warntext,
-        "Setting default value 1 for timestep."
-      )
     } else {
       header[["header"]] <- c(
         header[["header"]],
@@ -566,7 +488,7 @@ create_header <- function(name = "LPJGRID",
       if (timestep != 1) {
         warntext <- paste0(
           warntext,
-          " Setting non-default timestep ", timestep,
+          "\nSetting non-default timestep ", timestep,
           ". This information is not kept when saving header to file."
         )
       }

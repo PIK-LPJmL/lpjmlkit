@@ -605,6 +605,8 @@ LpjmlData <- R6::R6Class(
       }
     },
     print = function() {
+      quotes_option <- options(useFancyQuotes = FALSE)
+      on.exit(options(quotes_option))
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
       cat(paste0("\u001b[1m", blue_col, "$meta_data %>%", unset_col, "\n"))

@@ -106,7 +106,7 @@ LpjmlMetaData <- R6::R6Class(
 
     },
     # convert to header object
-    as_header = function() {
+    as_header = function(silent = FALSE) {
       invisible(
         capture.output(
           header <- create_header(
@@ -125,7 +125,7 @@ LpjmlMetaData <- R6::R6Class(
             nstep = self$nstep,
             timestep = ifelse(is.null(self$timestep), 1, self$timestep),
             endian = ifelse(self$bigendian, "big", "little"),
-            verbose = TRUE
+            verbose = !silent
           )
         )
       )
@@ -173,6 +173,8 @@ LpjmlMetaData <- R6::R6Class(
       private$.dimspatial_format <- dimspatial_format
     },
     print = function(all = TRUE, spaces = "") {
+      quotes_option <- options(useFancyQuotes = FALSE)
+      on.exit(options(quotes_option))
       if (!all) {
         print_fields <- self$fields_set %>%
           `[`(-stats::na.omit(match(private$exclude_print(), .)))
