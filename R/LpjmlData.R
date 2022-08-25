@@ -64,7 +64,8 @@ LpjmlData <- R6::R6Class(
       return(x$data)
     },
     as_raster = function(subset_list = NULL, fix_extent = NULL) {
-      if (self$meta_data$variable == "grid") {
+      if (!is.null(self$meta_data$variable) &&
+          self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # support of lazy loading of grid for meta files else add explicitly
@@ -256,7 +257,8 @@ LpjmlData <- R6::R6Class(
 
     # INSERT ROXYGEN SKELETON: ADD GRID METHOD
     add_grid = function(...) {
-      if (self$meta_data$variable == "grid") {
+      if (!is.null(self$meta_data$variable) &&
+          self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # check if meta file for grid is located in output location
@@ -343,7 +345,8 @@ LpjmlData <- R6::R6Class(
     },
 
     convert_grid = function(dim_format = NULL) {
-      if (self$meta_data$variable != "grid") {
+      if (is.null(self$meta_data$variable) ||
+          self$meta_data$variable != "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # convenience function - if null automatically switch to other dim_format
@@ -416,7 +419,8 @@ LpjmlData <- R6::R6Class(
     # INSERT ROXYGEN SKELETON: CONVERT SPATIAL METHOD
     # dim_format = c("lon_lat", "cell")
     convert_spatial = function(dim_format = NULL) {
-      if (self$meta_data$variable == "grid") {
+      if (!is.null(self$meta_data$variable) &&
+          self$meta_data$variable == "grid") {
         self$convert_grid(dim_format = dim_format)
         return(invisible(self))
       }
@@ -486,7 +490,8 @@ LpjmlData <- R6::R6Class(
     # INSERT ROXYGEN SKELETON: CONVERT TIME METHOD
     # dim_format = c("year_month_day", "time")
     convert_time = function(dim_format = NULL) {
-      if (self$meta_data$variable == "grid") {
+      if (!is.null(self$meta_data$variable) &&
+          self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       if (is.null(dim_format)) {
@@ -570,7 +575,8 @@ LpjmlData <- R6::R6Class(
           mat_sum[, seq_len(16)] %>%
             summary(...)
         } else {
-          if (self$meta_data$variable == "grid") {
+          if (!is.null(self$meta_data$variable) &&
+              self$meta_data$variable == "grid") {
 
             mat_sum %>%
                 summary(...) %>%
@@ -582,7 +588,8 @@ LpjmlData <- R6::R6Class(
         }
       } else {
         mat_sum <- summary(matrix(data), ...)
-        if (self$meta_data$variable == "grid") {
+        if (!is.null(self$meta_data$variable) &&
+            self$meta_data$variable == "grid") {
           var_name <- "cell"
           mat_sum <- mat_sum[c(1, 6), ]
         } else {
@@ -644,7 +651,8 @@ LpjmlData <- R6::R6Class(
       }
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
-      if (self$meta_data$variable != "grid") {
+      if (is.null(self$meta_data$variable) ||
+      self$meta_data$variable != "grid") {
         cat(paste0("\u001b[33;3m",
                    "Note: summary is not weighted by grid area.",
                    unset_col,
