@@ -292,7 +292,7 @@ read_output <- function(
 
   # ------------------------------------ #
   # Check validity of subset_list and band_names
-  check_subset(subset_list, file_header, band_names)
+  check_subset_bak(subset_list, file_header, band_names)
 
   # Years to read
   if ("year" %in% names(subset_list)) {
@@ -341,7 +341,7 @@ read_output <- function(
       n_values = n_values,
       datatype = get_datatype(file_header),
       endian = get_header_item(file_header, "endian")
-    )
+    ) * get_header_item(file_header, "scalar")
 
     # Convert to array
     # Note: order of nbands and nstep for "cellyear" (order = 1) is currently
@@ -478,7 +478,7 @@ read_raw <- function(
 }
 
 
-check_subset <- function(subset_list, header, band_names) {
+check_subset_bak <- function(subset_list, header, band_names) {
     if (!is.null(subset_list[["year"]])) {
       years <- seq(
         from       = get_header_item(header, "firstyear"),

@@ -4,7 +4,7 @@
 \alias{create_time_names}
 \title{Create a character vector of dates.}
 \usage{
-create_time_names(nstep = 365, years = 2000)
+create_time_names(nstep = 365, years = 2000, months = NULL, days = NULL)
 }
 \arguments{
 \item{nstep}{An integer value defining the time step of the output file.
