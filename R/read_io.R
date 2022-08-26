@@ -239,8 +239,12 @@ read_io <- function(
   }
 
   # Read data from binary file
-  file_data <- read_io_data(file_name, meta_data)
+  file_data <- read_io_data(file_name, meta_data, subset_list)
 
+  # Update meta_data based on subset_list
+  if (length(subset_list) > 0) {
+    meta_data$._update_subset(subset_list)
+  }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))
     file_data <- aperm(file_data, perm = dim_order)
@@ -318,7 +322,6 @@ read_io_metadata <- function(file_name, file_type, band_names, nstep, timestep,
     }
     # Generate meta_data
     meta_data <- LpjmlMetaData$new(x = file_header,
-                                   subset_list = subset_list,
                                    additional_data = additional_data,
                                    data_dir = dirname(file_name))
 
@@ -451,7 +454,6 @@ read_io_metadata <- function(file_name, file_type, band_names, nstep, timestep,
 
     # Generate meta_data
     meta_data <- LpjmlMetaData$new(x = file_header,
-                                   subset_list = subset_list,
                                    additional_data = additional_data,
                                    data_dir = dirname(file_name))
   } else if (file_type == "meta") {
@@ -560,21 +562,18 @@ read_io_metadata <- function(file_name, file_type, band_names, nstep, timestep,
 
     # Check validity of subset_list and band_names
     check_subset(subset_list, file_header, band_names)
-
-    if (length(subset_list) > 0) {
-      meta_data$._update_subset(subset_list)
-    }
   }
   meta_data
 }
 
 read_io_data <- function(
   file_name,
-  meta_data
+  meta_data,
+  subset_list
 ) {
   # Years to read
-  if ("year" %in% names(meta_data$subset_list)) {
-    years <- meta_data$subset_list[["year"]]
+  if ("year" %in% names(subset_list)) {
+    years <- subset_list[["year"]]
   } else {
     # All years in the file
     years <- seq(
@@ -656,13 +655,13 @@ read_io_data <- function(
 
     # Convert to read_band_order and apply subsetting alsong bands or
     # cells
-    index <- which(!names(meta_data$subset_list) %in%
+    index <- which(!names(subset_list) %in%
       c("day", "month", "year", "time")
     )
     year_data <- aperm(year_data, perm = read_band_order) %>%
       # Apply any subsetting along bands or cells
       subset_array(
-        meta_data$subset_list[index],
+        subset_list[index],
         drop = FALSE
       )
 
