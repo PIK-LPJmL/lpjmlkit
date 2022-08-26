@@ -4,22 +4,28 @@
 \alias{get_datatype}
 \title{Data type and size}
 \usage{
-get_datatype(header)
+get_datatype(header, fail = TRUE)
 }
 \arguments{
 \item{header}{Header list object as returned by read_header() or
 create_header(). Alternatively, can be a single integer just giving the
 data type code or a single character string giving one of the LPJmL type
 names c("byte", "short", "int", "float", "double").}
+
+\item{fail}{Whether function should fail if datatype is invalid. Default: TRUE.
+If set to FALSE, function returns NULL if datatype is invalid.}
 }
 \value{
-The function returns a list object with three components:
+On success, the function returns a list object with three components:
 \itemize{
 \item type: R data type; can be used with 'what' parameter of \code{readBin()}.
 \item size: size of data type; can be used with 'size' parameter of \code{readBin()}.
 \item signed: whether or not the data type is signed; can be used with 'signed'
 parameter of \code{readBin()}.
 }
+
+If \code{fail = FALSE}, the function returns NULL if an invalid datatype is
+provided.
 }
 \description{
 Provide information on the data type used in an LPJmL file

@@ -1,7 +1,7 @@
 Package: lpjmlKit
 Type: Package
 Title: Function kit for handling and processing LPJmL related stuff, such as input, output, plotting, aggregation
-Version: 0.3.2
+Version: 0.3.3
 Author: LPJmL Team at PIK Potsdam
 Maintainer:
     Christoph Mueller <cmueller@pik-potsdam.de>,

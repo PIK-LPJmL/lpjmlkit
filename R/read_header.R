@@ -7,6 +7,9 @@
 #' @param force_version Manually set clm version (default value 'NULL' means
 #'   that version is determined automatically from header; set only if version
 #'   number in file is incorrect).
+#' @param verbose If TRUE (the default), function provides some feedback when
+#'   using default values for missing parameters. If FALSE, only errors are
+#'   reported.
 #'
 #' @return The function returns a list with 3 components:
 #' * name: Header name, e.g. "LPJGRID"; describes the type of data in file.
@@ -27,7 +30,7 @@
 #' * [write_header()] for writing headers to files.
 #'
 #' @export
-read_header <- function(filename, force_version = NULL) {
+read_header <- function(filename, force_version = NULL, verbose = TRUE) {
   if (!file.exists(filename)) {
     stop(paste(filename, "does not exist"))
   }
@@ -67,7 +70,7 @@ read_header <- function(filename, force_version = NULL) {
   }
   # Version usually determined from file header, but can also be forced
   if (!is.null(force_version)) {
-    print(paste("Forcing header version to", force_version))
+    if (verbose) message("Forcing header version to ", force_version)
     version <- force_version
   }
   # Read main header data that is included in all header versions
@@ -130,12 +133,11 @@ read_header <- function(filename, force_version = NULL) {
         nstep = 1,
         timestep = 1
       )
-      warning(
-        paste(
-          "Type 1 header. Adding default values for cellsize, scalar,",
+      if (verbose)
+        warning(
+          "Type 1 header. Adding default values for cellsize, scalar, ",
           "datatype, nstep and timestep which may not be correct in all cases."
         )
-      )
     }
     # Add default values for parameters not included in header version 2
     if (length(headerdata) == 8) {
@@ -146,22 +148,26 @@ read_header <- function(filename, force_version = NULL) {
         nstep = 1,
         timestep = 1
       )
-      warning(
-        paste(
-          "Type 2 header. Adding default values for datatype, nstep and",
+      if (verbose)
+        warning(
+          "Type 2 header. Adding default values for datatype, nstep and ",
           "timestep which may not be correct in all cases."
         )
-      )
     }
     if (length(headerdata) == 10) {
       headerdata <- c(headerdata, nstep = 1, timestep = 1)
-      warning(
-        paste(
-          "Type 3 header. Adding default values for nstep and timestep which",
+      if (verbose)
+        warning(
+          "Type 3 header. Adding default values for nstep and timestep which ",
           "may not be correct in all cases."
-        )
       )
     }
+  }
+  if (verbose && is.null(get_datatype(headerdata, fail = FALSE))) {
+    warning(
+      "Invalid datatype ", sQuote(headerdata["datatype"]),
+      " in header read from ", filename
+    )
   }
   close(zz)
   list(

@@ -31,7 +31,7 @@
 #' * name: The header name, e.g. "LPJGRID".
 #' * header: Vector of header values ('version', 'order', 'firstyear',
 #'     'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-#'     'cellsize_lat', 'datatype', 'nstep').
+#'     'cellsize_lat', 'datatype', 'nstep', 'timestep').
 #' * endian: Endian used to write binary data, either "little" or "big".
 #'
 #' @examples
@@ -56,10 +56,12 @@
 #'
 #' @details
 #' File headers in input files are used by LPJmL to determine the
-#' structure of the file and how to read it.
+#' structure of the file and how to read it. They can also be used to describe
+#' the structure of output files.
 #'
 #' Header names usually start with "LPJ" followed by a word or abbreviation
-#' describing the type of input data. See LPJmL code for valid header names.
+#' describing the type of input/output data. See LPJmL code for valid header
+#' names.
 #'
 #' The version number determines the amount of header information included in
 #' the file. All versions save the header name and header attributes 'version',
@@ -80,7 +82,8 @@
 #' types are: 0 (LPJ_BYTE), 1 (LPJ_SHORT), 2 (LPJ_INT), 3 (LPJ_FLOAT),
 #' 4 (LPJ_DOUBLE).
 #'
-#' Default parameters of the function are valid for grid input files.
+#' Default parameters of the function are valid for grid input files using
+#' LPJ_FLOAT data type.
 #'
 #' @seealso
 #' * [read_header()] for reading headers from LPJmL files.
@@ -186,7 +189,7 @@ create_header <- function(name = "LPJGRID",
       }
       if (length(datatype) == 1) {
         if (!is.null(
-          get_datatype(c(datatype = datatype))
+          get_datatype(c(datatype = datatype), fail = FALSE)
         )) {
           header[["header"]] <- c(
             header[["header"]],
@@ -203,7 +206,7 @@ create_header <- function(name = "LPJGRID",
             )
           }
         } else {
-          stop(paste0("Unknown datatype", datatype, "."))
+          stop("Unknown datatype ", datatype, ".")
         }
       } else {
         stop("datatype must be integer of length 1.")

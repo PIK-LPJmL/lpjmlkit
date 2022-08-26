@@ -7,12 +7,17 @@
 #'   create_header(). Alternatively, can be a single integer just giving the
 #'   data type code or a single character string giving one of the LPJmL type
 #'   names c("byte", "short", "int", "float", "double").
+#' @param fail Whether function should fail if datatype is invalid. Default: TRUE.
+#'   If set to FALSE, function returns NULL if datatype is invalid.
 #'
-#' @return The function returns a list object with three components:
+#' @return On success, the function returns a list object with three components:
 #' * type: R data type; can be used with 'what' parameter of `readBin()`.
 #' * size: size of data type; can be used with 'size' parameter of `readBin()`.
 #' * signed: whether or not the data type is signed; can be used with 'signed'
 #'   parameter of `readBin()`.
+#' 
+#' If `fail = FALSE`, the function returns NULL if an invalid datatype is
+#' provided.
 #'
 #' @examples
 #' \dontrun{
@@ -42,7 +47,7 @@
 #' * [get_headersize()] for determining the size of file headers.
 #'
 #' @export
-get_datatype <- function(header) {
+get_datatype <- function(header, fail = TRUE) {
   if (is.list(header) && !is.null(header$header)) {
     header <- header$header
   }
@@ -56,9 +61,16 @@ get_datatype <- function(header) {
         int = 2,
         float = 3,
         double = 4,
-        stop(paste("Invalid datatype string", sQuote(header)))
+        header
       )
     )
+    if (is.character(header)) {
+      if (fail) {
+        stop(paste("Invalid datatype string", sQuote(header)))
+      } else {
+        return(NULL)
+      }
+    }
   }
   # Also support single numeric value instead of full header
   # Possible header items besides datatype
@@ -76,13 +88,17 @@ get_datatype <- function(header) {
   }
   if (as.integer(header["datatype"]) < 0 ||
     as.integer(header["datatype"]) > 4) {
-    stop(
-      paste(
-        "Invalid datatype",
-        sQuote(as.integer(header["datatype"])),
-        "in header"
+    if (fail) {
+      stop(
+        paste(
+          "Invalid datatype",
+          sQuote(as.integer(header["datatype"])),
+          "in header"
+        )
       )
-    )
+    } else {
+      return(NULL)
+    }
   }
   switch(as.integer(header["datatype"]) + 1,
     list(type = integer(), size = 1, signed = FALSE),

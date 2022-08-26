@@ -4,7 +4,7 @@
 \alias{read_header}
 \title{Read header (any version) from LPJmL file}
 \usage{
-read_header(filename, force_version = NULL)
+read_header(filename, force_version = NULL, verbose = TRUE)
 }
 \arguments{
 \item{filename}{Filename to read header from.}
@@ -12,6 +12,10 @@ read_header(filename, force_version = NULL)
 \item{force_version}{Manually set clm version (default value 'NULL' means
 that version is determined automatically from header; set only if version
 number in file is incorrect).}
+
+\item{verbose}{If TRUE (the default), function provides some feedback when
+using default values for missing parameters. If FALSE, only errors are
+reported.}
 }
 \value{
 The function returns a list with 3 components:
