@@ -673,7 +673,6 @@ LpjmlData <- R6::R6Class(
   private = list(
     init_grid = function() {
       # update grid data
-      self$data <- self$data * self$meta_data$scalar
       dimnames(self$data)[["band"]] <- c("lon", "lat")
       # update grid meta data
       self$data <- drop(self$data)
