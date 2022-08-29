@@ -56,6 +56,9 @@
 #' of variable contained in file. Included in some JSON meta files.
 #' @param unit Optional character string providing unit of data in file.
 #' Included in some JSON meta files.
+#' @param name Optional character string specifying header name. This is usually
+#' read from CLM headers for `file_type = "clm"` but can be specified for the
+#' other `file_type` options.
 #' @param silent If set to TRUE, suppresses most warnings or messages. Use only
 #' after testing that function works as expected with the files it is being used
 #' on. Default: FALSE.
@@ -117,7 +120,6 @@
 #' * "cell" can be used to return data for a subset of cells. Note that integer
 #' indices start counting at 1, whereas character indices start counting at the
 #' "firstcell" parameter (usually 0).
-#' @seealso
 #' @export
 read_io <- function(
   file_name,
@@ -257,6 +259,19 @@ read_io <- function(
   rm(file_data, meta_data)
   return(lpjml_data)
 }
+
+# Define alias read_output and read_input for read_io
+#' @title Read LPJmL input files
+#' @description Alias of `read_io`
+#' @seealso [read_io]
+#' @export
+read_input <- read_io
+
+#' @title Read LPJmL output files
+#' @description Alias of `read_io`
+#' @seealso [read_io]
+#' @export
+read_output <- read_io
 
 # This non-exported function reads the meta information or header from file or
 # creates meta information based on supplied function arguments or default

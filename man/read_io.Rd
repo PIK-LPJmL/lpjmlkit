@@ -106,6 +106,10 @@ of variable contained in file. Included in some JSON meta files.}
 \item{unit}{Optional character string providing unit of data in file.
 Included in some JSON meta files.}
 
+\item{name}{Optional character string specifying header name. This is usually
+read from CLM headers for \code{file_type = "clm"} but can be specified for the
+other \code{file_type} options.}
+
 \item{silent}{If set to TRUE, suppresses most warnings or messages. Use only
 after testing that function works as expected with the files it is being used
 on. Default: FALSE.}
@@ -179,7 +183,4 @@ my_data_wheat <- read_io(
   subset_list = list(band = "wheat", year = seq(1910, 1920))
 )
 }
-}
-\seealso{
-
 }
