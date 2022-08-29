@@ -190,6 +190,8 @@ read_io <- function(
       # parse path.
       # Save current working directory
       wd <- getwd()
+      # Reset working directory if function exits (breaks, fails, etc.)
+      on.exit(setwd(wd))
       # Set working directory to path of file_name
       setwd(dirname(file_name))
       # Relative path can be parsed now.

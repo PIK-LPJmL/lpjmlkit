@@ -58,7 +58,7 @@ LpjmlMetaData <- R6::R6Class(
     },
     # update supplied subset_list in self.subset
     ._update_subset = function(subset_list, time_dimnames = NULL) {
-      is_sequential <- function(x) all(abs(diff(x)) == 1)
+      is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
       if (!is.null(subset_list$cell)) {
@@ -67,7 +67,7 @@ LpjmlMetaData <- R6::R6Class(
             private$.firstcell <- min(as.integer(subset_list$cell))
           } else {
             private$.firstcell <- (private$.firstcell +
-                                   min(as.integer(subset_list$cell - 1)))
+                                   min(subset_list$cell - 1))
           }
         } else {
           private$.firstcell <- NULL
