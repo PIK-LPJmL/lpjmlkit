@@ -29,15 +29,8 @@ detect_type <- function(file_name) {
   )) {
     return("cdf")
   }
-  # Next check for "meta". This should be a json file, so it should start with
-  # "{". Strip any comments or white spaces from beginning of file.
-  suppressWarnings({
-    if (scan(file_name, "char", strip.white = TRUE, nmax = 1, comment.char = "/",
-      quiet = TRUE) == "{") {
-      return("meta")
-    }
-  })
-  # Next, check if file contains only text, e.g. .csv or .dat files. Check
+  # Next, check if file contains only text. This could be JSON or other text
+  # formats such as .csv or .dat files.
   # maximum 1024 bytes.
   if (
     all(
@@ -50,7 +43,15 @@ detect_type <- function(file_name) {
       )
     )
   ) {
-    return("text")
+    # Check if the text file is a JSON file. JSON files normally start with "{".
+    # Remove any white space or comments at the beginning of the file.
+    if (scan(file_name, "char", strip.white = TRUE, nmax = 1, comment.char = "/",
+      quiet = TRUE) == "{") {
+      return("meta")
+    } else {
+      # Generic text type
+      return("text")
+    }
   }
   # Otherwise, assume it is a "raw"
   return("raw")
