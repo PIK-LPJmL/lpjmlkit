@@ -270,22 +270,22 @@ LpjmlData <- R6::R6Class(
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
         if (self$meta_data$subset_spatial) {
-          self$grid <- read_output(
+          self$grid <- read_io(
             file_name = filename,
             subset_list = list(cell = self$dimnames()[["cell"]])
           )
         } else {
-          self$grid <- read_output(file_name = filename)
+          self$grid <- read_io(file_name = filename)
         }
       } else {
-        # all arguments have to be provided manually via read_output args
+        # all arguments have to be provided manually via read_io args
         #   ellipsis (...) does that
         # check if arguments are provided
         if (length(as.list(match.call())) > 1) {
-          self$grid <- read_output(...)
+          self$grid <- read_io(...)
         } else {
           stop(paste("If no meta file is available $add_grid",
-                     "has to be called explicitly with args as read_output."))
+                     "has to be called explicitly with args as read_io."))
         }
       }
       return(invisible(self))
