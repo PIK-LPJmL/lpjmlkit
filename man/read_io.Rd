@@ -2,16 +2,16 @@
 % Please edit documentation in R/read_io.R
 \name{read_io}
 \alias{read_io}
+\alias{read_input}
+\alias{read_output}
 \title{Read LPJmL input and output files}
 \usage{
 read_io(
   file_name,
-  file_type = "meta",
   band_names = NULL,
-  nstep = NULL,
-  timestep = NULL,
   subset_list = list(),
   dim_order = c("cell", "time", "band"),
+  file_type = NULL,
   version = NULL,
   order = NULL,
   firstyear = NULL,
@@ -23,6 +23,8 @@ read_io(
   scalar = NULL,
   cellsize_lat = NULL,
   datatype = NULL,
+  nstep = NULL,
+  timestep = NULL,
   endian = NULL,
   variable = NULL,
   descr = NULL,
@@ -33,28 +35,11 @@ read_io(
 }
 \arguments{
 \item{file_name}{Mandatory character string giving the file name to read,
-including its path and extension. If \code{file_type = "meta"}, \code{file_name}
-must be a json file.}
-
-\item{file_type}{Mandatory character string giving the file type. Valid
-options:
-"raw", a binary file without header;
-"clm", a binary file with header;
-"meta" (default), a raw or clm file complemented by a meta-information json
-file.}
+including its path and extension.}
 
 \item{band_names}{Optional vector of character strings providing the band
-names or NULL. Determined automatically from the metafile in case of
+names or NULL. Determined automatically from the meta file in case of
 \code{file_type = "meta"}.}
-
-\item{nstep}{Integer value defining the number of within-year time steps of
-the file. Valid values are 1 (yearly), 12 (monthly), 365 (daily). Defaults to
-1 if not read from file ("clm" or "meta" file) or provided by user.}
-
-\item{timestep}{Integer value providing the interval in years between years
-represented in file data. Normally 1, but LPJmL also allows averaging annual
-outputs over several years. Defaults to 1 if not read from file
-("clm" or "meta" file) or provided by user.}
 
 \item{subset_list}{Optional list allowing to subset data read from file along
 one or several of its dimensions. See details for more information.}
@@ -62,6 +47,13 @@ one or several of its dimensions. See details for more information.}
 \item{dim_order}{Order of dimensions in returned LpjmlData object. Must be
 a character vector containing all of the following in any order: "cell",
 "band", "time". Select the order most useful to your further data processing.}
+
+\item{file_type}{Optional character string giving the file type. This is
+normally detected automatically but can be prescribed if automatic detection
+is incorrect. Valid options:
+"raw", a binary file without header;
+"clm", a binary file with header;
+"meta", a meta-information JSON file complementing a raw or clm file.}
 
 \item{version}{Integer indicating CLM-file header version, currently supports
 one of 1, 2, 3 or 4.}
@@ -82,16 +74,25 @@ These are  not consecutive in case of \code{timestep > 1}.}
 
 \item{nbands}{Integer providing number of bands per time step of data.}
 
-\item{cellsize_lon}{Numeric value providing longitude cell size in deg.}
+\item{cellsize_lon}{Numeric value providing longitude cell size in degrees.}
 
 \item{scalar}{Numeric value providing conversion factor that needs to be
 applied to raw data when reading it from file to derive final values.}
 
-\item{cellsize_lat}{Numeric value providing latitude cell size in deg.}
+\item{cellsize_lat}{Numeric value providing latitude cell size in degrees.}
 
 \item{datatype}{Integer value or character string describing LPJmL data type
 in file. Supported options: "byte" 0, "short" 1, "int" 2, "float" 3,
 "double" 4.}
+
+\item{nstep}{Integer value defining the number of within-year time steps of
+the file. Valid values are 1 (yearly), 12 (monthly), 365 (daily). Defaults to
+1 if not read from file ("clm" or "meta" file) or provided by user.}
+
+\item{timestep}{Integer value providing the interval in years between years
+represented in file data. Normally 1, but LPJmL also allows averaging annual
+outputs over several years. Defaults to 1 if not read from file
+("clm" or "meta" file) or provided by user.}
 
 \item{endian}{Endianness to use for file (either "big" or "little"). By
 default uses endianness set in file header or meta information or
@@ -105,6 +106,10 @@ of variable contained in file. Included in some JSON meta files.}
 
 \item{unit}{Optional character string providing unit of data in file.
 Included in some JSON meta files.}
+
+\item{name}{Optional character string specifying header name. This is usually
+read from CLM headers for \code{file_type = "clm"} but can be specified for the
+other \code{file_type} options.}
 
 \item{silent}{If set to TRUE, suppresses most warnings or messages. Use only
 after testing that function works as expected with the files it is being used
@@ -120,7 +125,8 @@ or have to be passed on as individual arguments.
 }
 \details{
 The \code{file_type} determines which arguments are mandatory, optional,
-or not allowed. \code{file_name} and \code{file_type} must always be provided.
+or not allowed. \code{file_name} must always be provided. \code{file_type} is usually
+detected automatically. Supply only if detected \code{file_type} is incorrect.
 
 In case of \code{file_type = "meta"}, function arguments not listed as "mandatory"
 will be ignored if they are already set in the JSON file. Only meta
@@ -136,8 +142,9 @@ not be correct for all files.
 
 In case of \code{file_type = "raw"}, files do not contain any information about
 their structure. Users should provide all arguments not listed as "optional".
-Otherwise default values valid for LPJmL standard outputs are used for
-arguments not supplied by the user.
+Otherwise, default values valid for LPJmL standard outputs are used for
+arguments not supplied by the user. For example, the default \code{firstyear} is
+1901, the default for \code{nyear}, \code{nbands}, \code{nstep}, and \code{timestep} is 1.
 
 \code{subset_list} can be a list containing one or several named elements. Allowed
 names are "band", "cell", and "year".
@@ -154,32 +161,49 @@ indices start counting at 1, whereas character indices start counting at the
 }
 \examples{
 \dontrun{
-# Default with meta file. Reads meta information from "my_file.clm.json" and
-# data from binary file linked to in "my_file.clm.json"
-my_data <- read_io("my_file.clm.json")
+# First case: meta file. Reads meta information from "my_file.json" and
+# data from binary file linked in "my_file.json". Normally does not require
+# any additional arguments.
+my_data <- read_io("my_file.json")
 
-# Read data from CLM file. This includes a header describing the file
-# structure
-my_data_clm <- read_io("my_file.clm", file_type = "clm")
-
-# Suppose that "my_file.clm" has two bands containing data for "wheat" and
-# "rice". Assign names to them.
-my_data_clm <- read_io(
-  "my_file.clm",
-  file_type = "clm",
-  band_names = c("wheat", "rice")
+# Suppose that file data has two bands named "wheat" and "rice". `band_names`
+# are included in the JSON meta file. Select only the "wheat" band during
+# reading and discard the "rice" band. Also, read only data for years
+# 1910-1920
+my_data_wheat <- read_io(
+  "my_file.json",
+  subset_list = list(band = "wheat", year = seq(1910, 1920))
 )
 
-# Select only the "wheat" band during reading and discard the "rice" band.
-# Also read only data for years 1910-1920
+# Read data from CLM file. This includes a header describing the file
+# structure.
+my_data_clm <- read_io("my_file.clm")
+
+# Suppose that "my_file.clm" has two bands containing data for "wheat" and
+# "rice". Assign names to them manually since the header does not include a
+# `band_names` attribute.
+my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
+
+# Once `band_names` are set, subsetting by name is possible also for 
+# `file_type = "clm"`.
 my_data_wheat <- read_io(
   "my_file.clm",
-  file_type = "clm",
   band_names = c("wheat", "rice"),
   subset_list = list(band = "wheat", year = seq(1910, 1920))
 )
-}
-}
-\seealso{
 
+# Read data from raw binary file. Information about file structure needs to
+# be supplied. Use default values except for `nyear` (1 by default), and
+# `nbands` (also 1 by default).
+my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
+
+# Supply `band_names` to be able to subset by name.
+my_data_wheat <- read_io(
+  "my_file.bin",
+  band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
+  subset_list = list(band = "wheat", year = seq(1910, 1920))
+  nyear = 100,
+  nbands = 2,
+)
+}
 }
