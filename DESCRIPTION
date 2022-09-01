@@ -24,7 +24,8 @@ Imports:
     jsonlite,
     doParallel,
     foreach,
-    utils
+    utils,
+    abind
 Suggests:
     rmarkdown,
     knitr,
