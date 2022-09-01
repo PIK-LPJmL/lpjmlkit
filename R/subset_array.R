@@ -143,4 +143,11 @@ subset_array_pair <- function(x,
   return(y)
 }
 
+# drop 1 dimensional dimension except those that are selected by name
+drop_omit <- function(x, omit_dim) {
+  dims <- dim(x)
+  dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
+  return(abind::adrop(x, dims_check))
+}
+
 # pair=tibble(lat=c(-55.75,-55.25,-54.5), lon=c(-179.75, -179.25, -178.9))

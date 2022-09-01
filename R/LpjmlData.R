@@ -188,7 +188,8 @@ LpjmlData <- R6::R6Class(
                                   subset_list[name_idx],
                                   drop = FALSE)
         # subset grid & update corresponding meta data
-        self$grid$data <- subset_array(self$data, subset_list[name_idx])
+        self$grid$data <- subset_array(self$data, subset_list[name_idx],
+                                       drop = FALSE)
         self$grid$meta_data$._update_subset(subset_list[name_idx])
         # update reduced_subset_list to avoid later double or wrong subsetting
         reduced_subset_list[name_idx] <- NULL
@@ -249,7 +250,8 @@ LpjmlData <- R6::R6Class(
         self$meta_data$._update_subset(subset_list)
       }
       if (!is.null(self$grid) && !is.null(subset_list[["cell"]])) {
-        self$grid$data <- subset_array(self$data, subset_list["cell"])
+        self$grid$data <- subset_array(self$data, subset_list["cell"],
+                                       drop = FALSE)
         self$grid$meta_data$._update_subset(subset_list["cell"])
       }
       return(invisible(self))
@@ -309,6 +311,7 @@ LpjmlData <- R6::R6Class(
       if (self$meta_data$dimspatial_format == "cell" &&
           dim_format == "lon_lat") {
         # calculate grid extent from range to span raster
+        print(self$data)
         grid_extent <- apply(
             self$data,
             "band",
@@ -507,7 +510,8 @@ LpjmlData <- R6::R6Class(
                        cutoff = FALSE,
                        ...) {
       data <- subset_array(self$data, subset_list)
-      if (dimension %in% names(dimnames(data))) {
+      if (dimension %in% names(dimnames(data)) &&
+          length(which(dim(data) > 1)) > 1) {
         mat_sum <- data %>%
           apply(dimension, c)
         if (dim(mat_sum)[2] > 16 && cutoff) {
@@ -622,7 +626,7 @@ LpjmlData <- R6::R6Class(
       # update grid data
       dimnames(self$data)[["band"]] <- c("lon", "lat")
       # update grid meta data
-      self$data <- drop(self$data)
+      self$data <- drop_omit(self$data, omit = "cell")
       self$meta_data$._init_grid()
       return(invisible(self))
     }
@@ -657,9 +661,9 @@ convert_time <- function(x, ...) {
   return(y)
 }
 
-convert_spatial <- function(x, ...) {
+convert_space <- function(x, ...) {
   y <- x$clone(deep = TRUE)
-  y$convert_spatial(...)
+  y$convert_space(...)
   return(y)
 }
 
