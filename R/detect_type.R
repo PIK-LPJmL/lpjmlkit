@@ -2,7 +2,7 @@
 #' @description This utility function tries to detect automatically if a
 #' provided file is of "clm", "meta", or "raw" file type. NetCDFs and simple
 #' text formats such as `.txt` or `.csv` are also detected.
-#' 
+#'
 #' @param file_name Character string naming the file to check
 #' @return character vector of length 1 giving the file type:
 #' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format)
@@ -12,44 +12,42 @@
 #' * "text" for any type of text-only file, e.g. `.txt` or `.csv`
 #' @export
 detect_type <- function(file_name) {
+  if (!file.exists(file_name)) {
+    stop("File ", file_name, " does not exist.")
+  }
+  # Load at most the first 1024 bytes of the file for checking.
+  file_check <- readBin(file_name, raw(), n = min(file.size(file_name), 1024))
+  on.exit(rm(file_check))
   # First check for "clm". The file header should always start with "LPJ".
   if (all(
-    rawToChar(readBin(file_name, raw(), n = 3), multiple = TRUE) ==
-    c("L", "P", "J")
+    rawToChar(utils::head(file_check, 3), multiple = TRUE) == c("L", "P", "J")
   )) {
     return("clm")
   }
   # Next, check for NetCDF format.
   if (all(
-    rawToChar(readBin(file_name, raw(), n = 3), multiple = TRUE) ==
+    rawToChar(utils::head(file_check, 3), multiple = TRUE) ==
     c("C", "D", "F") # classic NetCDF format
   ) || all(
-    readBin(file_name, raw(), n = 8) ==
+    utils::head(file_check, 8) ==
     c(0x89, 0x48, 0x44, 0x46, 0x0d, 0x0a, 0x1a, 0x0a) # HDF5/NetCDF4 format
   )) {
     return("cdf")
   }
   # Next, check if file contains only text. This could be JSON or other text
   # formats such as .csv or .dat files.
-  # maximum 1024 bytes.
   if (
-    all(
-      grepl(
-        "[[:print:][:space:]]",
-        rawToChar(
-          readBin(file_name, raw(), min(file.size(file_name), 1024)),
-          multiple = TRUE
-        )
-      )
-    )
+    all(grepl("[[:print:][:space:]]", rawToChar(file_check, multiple = TRUE)))
   ) {
     # Check if the text file is a JSON file. JSON files normally start with "{".
-    # Remove any white space or comments at the beginning of the file.
-    if (scan(file_name, "char", strip.white = TRUE, nmax = 1, comment.char = "/",
-      quiet = TRUE) == "{") {
+    # Remove any white space or comments at the beginning of the file. This will
+    # not detect a JSON if file has > 1024 bytes of white space or comments.
+    if (length(a <- scan(text = rawToChar(file_check), what = "char",
+      strip.white = TRUE, nmax = 1, comment.char = "/", quiet = TRUE)) == 1 &&
+      a == "{") {
       return("meta")
     } else {
-      # Generic text type
+      # Generic text type, no further parsing
       return("text")
     }
   }
