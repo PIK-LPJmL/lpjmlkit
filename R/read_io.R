@@ -5,29 +5,21 @@
 #' or have to be passed on as individual arguments.
 #'
 #' @param file_name Mandatory character string giving the file name to read,
-#' including its path and extension. If `file_type = "meta"`, `file_name`
-#' must be a json file.
-#' @param file_type Mandatory character string giving the file type. Valid
-#' options:
-#' "raw", a binary file without header;
-#' "clm", a binary file with header;
-#' "meta" (default), a raw or clm file complemented by a meta-information json
-#' file.
+#' including its path and extension.
 #' @param band_names Optional vector of character strings providing the band
-#' names or NULL. Determined automatically from the metafile in case of
+#' names or NULL. Determined automatically from the meta file in case of
 #' `file_type = "meta"`.
-#' @param nstep Integer value defining the number of within-year time steps of
-#' the file. Valid values are 1 (yearly), 12 (monthly), 365 (daily). Defaults to
-#' 1 if not read from file ("clm" or "meta" file) or provided by user.
-#' @param timestep Integer value providing the interval in years between years
-#' represented in file data. Normally 1, but LPJmL also allows averaging annual
-#' outputs over several years. Defaults to 1 if not read from file
-#' ("clm" or "meta" file) or provided by user.
 #' @param subset_list Optional list allowing to subset data read from file along
 #' one or several of its dimensions. See details for more information.
 #' @param dim_order Order of dimensions in returned LpjmlData object. Must be
 #' a character vector containing all of the following in any order: "cell",
 #' "band", "time". Select the order most useful to your further data processing.
+#' @param file_type Optional character string giving the file type. This is
+#' normally detected automatically but can be prescribed if automatic detection
+#' is incorrect. Valid options:
+#' "raw", a binary file without header;
+#' "clm", a binary file with header;
+#' "meta", a meta-information JSON file complementing a raw or clm file.
 #' @param version Integer indicating CLM-file header version, currently supports
 #' one of 1, 2, 3 or 4.
 #' @param order Integer value or character string describing the order of data
@@ -40,13 +32,20 @@
 #' @param firstcell Integer providing cell index of first data item. 0 by default.
 #' @param ncell Integer providing number of data items per band.
 #' @param nbands Integer providing number of bands per time step of data.
-#' @param cellsize_lon Numeric value providing longitude cell size in deg.
+#' @param cellsize_lon Numeric value providing longitude cell size in degrees.
 #' @param scalar Numeric value providing conversion factor that needs to be
 #' applied to raw data when reading it from file to derive final values.
-#' @param cellsize_lat Numeric value providing latitude cell size in deg.
+#' @param cellsize_lat Numeric value providing latitude cell size in degrees.
 #' @param datatype Integer value or character string describing LPJmL data type
 #' in file. Supported options: "byte" 0, "short" 1, "int" 2, "float" 3,
 #' "double" 4.
+#' @param nstep Integer value defining the number of within-year time steps of
+#' the file. Valid values are 1 (yearly), 12 (monthly), 365 (daily). Defaults to
+#' 1 if not read from file ("clm" or "meta" file) or provided by user.
+#' @param timestep Integer value providing the interval in years between years
+#' represented in file data. Normally 1, but LPJmL also allows averaging annual
+#' outputs over several years. Defaults to 1 if not read from file
+#' ("clm" or "meta" file) or provided by user.
 #' @param endian Endianness to use for file (either "big" or "little"). By
 #' default uses endianness set in file header or meta information or
 #' platform-specific endianness `.Platform$endian` if not set.
@@ -65,33 +64,54 @@
 #' @return Object of class LpjmlData
 #' @examples
 #' \dontrun{
-#' # Default with meta file. Reads meta information from "my_file.clm.json" and
-#' # data from binary file linked to in "my_file.clm.json"
-#' my_data <- read_io("my_file.clm.json")
+#' # First case: meta file. Reads meta information from "my_file.json" and
+#' # data from binary file linked in "my_file.json". Normally does not require
+#' # any additional arguments.
+#' my_data <- read_io("my_file.json")
 #'
-#' # Read data from CLM file. This includes a header describing the file
-#' # structure
-#' my_data_clm <- read_io("my_file.clm", file_type = "clm")
-#'
-#' # Suppose that "my_file.clm" has two bands containing data for "wheat" and
-#' # "rice". Assign names to them.
-#' my_data_clm <- read_io(
-#'   "my_file.clm",
-#'   file_type = "clm",
-#'   band_names = c("wheat", "rice")
+#' # Suppose that file data has two bands named "wheat" and "rice". `band_names`
+#' # are included in the JSON meta file. Select only the "wheat" band during
+#' # reading and discard the "rice" band. Also, read only data for years
+#' # 1910-1920
+#' my_data_wheat <- read_io(
+#'   "my_file.json",
+#'   subset_list = list(band = "wheat", year = seq(1910, 1920))
 #' )
 #'
-#' # Select only the "wheat" band during reading and discard the "rice" band.
-#' # Also read only data for years 1910-1920
+#' # Read data from CLM file. This includes a header describing the file
+#' # structure.
+#' my_data_clm <- read_io("my_file.clm")
+#'
+#' # Suppose that "my_file.clm" has two bands containing data for "wheat" and
+#' # "rice". Assign names to them manually since the header does not include a
+#' # `band_names` attribute.
+#' my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
+#'
+#' # Once `band_names` are set, subsetting by name is possible also for 
+#' # `file_type = "clm"`.
 #' my_data_wheat <- read_io(
 #'   "my_file.clm",
-#'   file_type = "clm",
 #'   band_names = c("wheat", "rice"),
 #'   subset_list = list(band = "wheat", year = seq(1910, 1920))
 #' )
+#'
+#' # Read data from raw binary file. Information about file structure needs to
+#' # be supplied. Use default values except for `nyear` (1 by default), and
+#' # `nbands` (also 1 by default).
+#' my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
+#'
+#' # Supply `band_names` to be able to subset by name.
+#' my_data_wheat <- read_io(
+#'   "my_file.bin",
+#'   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
+#'   subset_list = list(band = "wheat", year = seq(1910, 1920))
+#'   nyear = 100,
+#'   nbands = 2,
+#' )
 #' }
 #' @details The `file_type` determines which arguments are mandatory, optional,
-#' or not allowed. `file_name` and `file_type` must always be provided.
+#' or not allowed. `file_name` must always be provided. `file_type` is usually
+#' detected automatically. Supply only if detected `file_type` is incorrect.
 #'
 #' In case of `file_type = "meta"`, function arguments not listed as "mandatory"
 #' will be ignored if they are already set in the JSON file. Only meta
@@ -107,8 +127,9 @@
 #'
 #' In case of `file_type = "raw"`, files do not contain any information about
 #' their structure. Users should provide all arguments not listed as "optional".
-#' Otherwise default values valid for LPJmL standard outputs are used for
-#' arguments not supplied by the user.
+#' Otherwise, default values valid for LPJmL standard outputs are used for
+#' arguments not supplied by the user. For example, the default `firstyear` is
+#' 1901, the default for `nyear`, `nbands`, `nstep`, and `timestep` is 1.
 #'
 #' `subset_list` can be a list containing one or several named elements. Allowed
 #' names are "band", "cell", and "year".
@@ -120,15 +141,14 @@
 #' * "cell" can be used to return data for a subset of cells. Note that integer
 #' indices start counting at 1, whereas character indices start counting at the
 #' "firstcell" parameter (usually 0).
+#' @aliases read_input read_output
 #' @export
 read_io <- function(
   file_name,
-  file_type    = "meta",
   band_names   = NULL,
-  nstep        = NULL,
-  timestep     = NULL,
   subset_list  = list(),
   dim_order   = c("cell", "time", "band"),
+  file_type    = NULL,
   version      = NULL,
   order        = NULL,
   firstyear    = NULL,
@@ -140,6 +160,8 @@ read_io <- function(
   scalar       = NULL,
   cellsize_lat = NULL,
   datatype     = NULL,
+  nstep        = NULL,
+  timestep     = NULL,
   endian       = NULL,
   variable     = NULL,
   descr        = NULL,
@@ -150,8 +172,17 @@ read_io <- function(
   # Switch off fancy quotes
   quotes_option <- options(useFancyQuotes = FALSE)
   on.exit(options(quotes_option))
+  # Detect file_type if not provided by user
+  if (is.null(file_type)) {
+    file_type <- detect_type(file_name)
+  }
   # Check valid file_type
-  file_type <- match.arg(file_type, c("raw", "clm", "meta"))
+  if (!file_type %in% supported_types) {
+    stop(
+      "file_type ", dQuote(file_type), " is not supported.\n",
+      "This function can read files of type ", toString(dQuote(supported_types))
+    )
+  }
   # Check valid dim_order
   valid_dim_names <- c("cell", "time", "band")
   if (!all(dim_order %in% valid_dim_names)) {
@@ -174,12 +205,12 @@ read_io <- function(
   # Construct meta data from JSON, CLM header, and/or provided function
   # arguments
   meta_data <- read_io_metadata(
-    file_name, file_type, band_names, nstep, timestep, subset_list, version,
-    order, firstyear, nyear, firstcell, ncell, nbands, cellsize_lon, scalar,
-    cellsize_lat, datatype, endian, variable, descr, unit, name, silent
+    file_name, file_type, band_names, subset_list, version, order, firstyear,
+    nyear, firstcell, ncell, nbands, cellsize_lon, scalar, cellsize_lat,
+    datatype, nstep, timestep, endian, variable, descr, unit, name, silent
   )
   # Offset at beginning of binary data file
-  start_offset <- ifelse(is.null(meta_data$offset), 0, meta_data$offset)
+  start_offset <- default(meta_data$offset, 0)
 
   if (file_type == "meta") {
     # Get file_name from meta file.
@@ -260,28 +291,15 @@ read_io <- function(
   return(lpjml_data)
 }
 
-# Define alias read_output and read_input for read_io
-#' @title Read LPJmL input files
-#' @description Alias of `read_io`
-#' @seealso [read_io]
-#' @export
-read_input <- read_io
-
-#' @title Read LPJmL output files
-#' @description Alias of `read_io`
-#' @seealso [read_io]
-#' @export
-read_output <- read_io
-
 # This non-exported function reads the meta information or header from file or
 # creates meta information based on supplied function arguments or default
 # header values.
-read_io_metadata <- function(file_name, file_type, band_names, nstep, timestep,
-                             subset_list, version, order, firstyear, nyear,
-                             firstcell, ncell, nbands, cellsize_lon, scalar,
-                             cellsize_lat, datatype, endian, variable, descr,
+read_io_metadata <- function(file_name, file_type, band_names, subset_list,
+                             version, order, firstyear, nyear, firstcell, ncell,
+                             nbands, cellsize_lon, scalar, cellsize_lat,
+                             datatype, nstep, timestep, endian, variable, descr,
                              unit, name, silent) {
-  file_type <- match.arg(file_type, c("raw", "clm", "meta"))
+  file_type <- match.arg(file_type, supported_types)
   if (file_type == "raw") {
     # Binary file without a header
 
@@ -476,10 +494,6 @@ read_io_metadata <- function(file_name, file_type, band_names, nstep, timestep,
   } else if (file_type == "meta") {
     # Meta file type (binary file with associated meta-data json file)
 
-    # Check file name extension
-    if (length(grep("\\.json$", file_name)) < 1) {
-      stop("File name extension must be \".json\" if file_type == meta!")
-    }
     # Read meta data
     meta_data <- read_meta(file_name)
 
@@ -509,7 +523,7 @@ read_io_metadata <- function(file_name, file_type, band_names, nstep, timestep,
 
     # If user wants band_names, check consistency with nbands
     if (!"nbands" %in% set_args) {
-      nbands <- meta_data$nbands
+      nbands <- default(meta_data$nbands, 1)
     }
     if ("band_names" %in% set_args) {
       if (length(band_names) != nbands) {
@@ -594,9 +608,9 @@ read_io_data <- function(
   } else {
     # All years in the file
     years <- seq(
-      from       = meta_data$firstyear,
-      by         = meta_data$timestep,
-      length.out = meta_data$nyear
+      from       = default(meta_data$firstyear, 1901),
+      by         = default(meta_data$timestep, 1),
+      length.out = default(meta_data$nyear, 1)
     )
   }
 
@@ -609,14 +623,15 @@ read_io_data <- function(
   # Loop over subset years
   for (yy in years) {
     # Compute offset
-    data_offset <- (yy - meta_data$firstyear) / meta_data$timestep *
-      meta_data$ncell * meta_data$nbands * meta_data$nstep *
+    data_offset <- (yy - default(meta_data$firstyear, 1901)) /
+      default(meta_data$timestep, 1) * meta_data$ncell *
+      default(meta_data$nbands, 1) * default(meta_data$nstep, 1) *
       get_datatype(meta_data$datatype)$size +
-      ifelse(is.null(meta_data$offset), 0, meta_data$offset)
+      default(meta_data$offset, 0)
 
     # Number of values to read for one year
     n_values <- unname(
-      meta_data$ncell * meta_data$nbands * meta_data$nstep
+      meta_data$ncell * default(meta_data$nbands, 1) * default(meta_data$nstep, 1)
     )
 
 
@@ -627,44 +642,44 @@ read_io_data <- function(
       n_values = n_values,
       datatype = get_datatype(meta_data$datatype),
       endian = ifelse(meta_data$bigendian, "big", "little")
-    ) * ifelse(is.null(meta_data$scalar), 1, meta_data$scalar)
+    ) * default(meta_data$scalar, 1)
 
     # Convert to array
     # Note: order of nbands and nstep for "cellyear" (order = 1) is currently
     # not defined in LPJmL.
     dim(year_data) <- switch(
-      meta_data$order,
+      default(meta_data$order, "cellyear"),
       cellyear = c(
-        band = unname(meta_data$nbands),
-        time = unname(meta_data$nstep),
+        band = unname(default(meta_data$nbands, 1)),
+        time = unname(default(meta_data$nstep, 1)),
         cell = unname(meta_data$ncell)
       ),
       yearcell = stop("Order yearcell not supported"),
       cellindex = stop("Order cellindex not supported"),
       cellseq = c(
         cell = unname(meta_data$ncell),
-        band = unname(meta_data$nbands),
-        time = unname(meta_data$nstep)
+        band = unname(default(meta_data$nbands, 1)),
+        time = unname(default(meta_data$nstep, 1))
       )
     )
 
     # Assign dimension names to array
     if (is.null(meta_data$band_names)) {
-      band_names <- seq_len(meta_data$nbands)
+      band_names <- seq_len(default(meta_data$nbands, 1))
     } else {
       band_names <- meta_data$band_names
     }
     dimnames(year_data) <- switch(
-      meta_data$order,
+      default(meta_data$order, "cellyear"),
       cellyear  = list(                                                # order 1
         band = band_names,
         time = NULL, # Assign dates later
-        cell = seq(meta_data$firstcell, length.out = meta_data$ncell)
+        cell = seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell)
       ),
       yearcell  = stop("Order yearcell not supported"),                # order 2
       cellindex = stop("Order cellindex not supported"),               # order 3
       cellseq   = list(                                                # order 4
-        cell = seq(meta_data$firstcell, length.out = meta_data$ncell),
+        cell = seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
         band = band_names,
         time = NULL # Assign dates later
       )
@@ -712,7 +727,7 @@ read_io_data <- function(
 
   # Create and assign time dimension names
   time_dimnames <- create_time_names(
-    nstep = meta_data$nstep,
+    nstep = default(meta_data$nstep, 1),
     years = years
   )
   dimnames(file_data)$time <- time_dimnames
@@ -740,6 +755,7 @@ read_raw <- function(
   return(file_data)
 }
 
+# Simple validity check for subset_list and band_names
 check_subset <- function(subset_list, header, band_names) {
   if (!is.null(subset_list[["year"]])) {
     years <- seq(
@@ -869,3 +885,13 @@ check_subset <- function(subset_list, header, band_names) {
     )
   }
 }
+
+# Utility function to replace missing attribute with default value
+default <- function(value, default) {
+  if (is.null(value)) {
+    return(default)
+  } else {
+    return(value)
+  }
+}
+supported_types <- c("raw", "clm", "meta")
