@@ -26,9 +26,8 @@ Handles LPJmL output and input data
 \item \href{#method-dimnames}{\code{LpjmlData$dimnames()}}
 \item \href{#method-subset}{\code{LpjmlData$subset()}}
 \item \href{#method-add_grid}{\code{LpjmlData$add_grid()}}
-\item \href{#method-convert_spatial2}{\code{LpjmlData$convert_spatial2()}}
 \item \href{#method-convert_grid}{\code{LpjmlData$convert_grid()}}
-\item \href{#method-convert_spatial}{\code{LpjmlData$convert_spatial()}}
+\item \href{#method-convert_space}{\code{LpjmlData$convert_space()}}
 \item \href{#method-convert_time}{\code{LpjmlData$convert_time()}}
 \item \href{#method-summary}{\code{LpjmlData$summary()}}
 \item \href{#method-print}{\code{LpjmlData$print()}}
@@ -139,15 +138,6 @@ Handles LPJmL output and input data
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-convert_spatial2"></a>}}
-\if{latex}{\out{\hypertarget{method-convert_spatial2}{}}}
-\subsection{Method \code{convert_spatial2()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_spatial2()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-convert_grid"></a>}}
 \if{latex}{\out{\hypertarget{method-convert_grid}{}}}
 \subsection{Method \code{convert_grid()}}{
@@ -157,11 +147,11 @@ Handles LPJmL output and input data
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-convert_spatial"></a>}}
-\if{latex}{\out{\hypertarget{method-convert_spatial}{}}}
-\subsection{Method \code{convert_spatial()}}{
+\if{html}{\out{<a id="method-convert_space"></a>}}
+\if{latex}{\out{\hypertarget{method-convert_space}{}}}
+\subsection{Method \code{convert_space()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_spatial(dim_format = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_space(dim_format = NULL)}\if{html}{\out{</div>}}
 }
 
 }

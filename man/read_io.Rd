@@ -8,8 +8,8 @@
 \usage{
 read_io(
   file_name,
-  band_names = NULL,
   subset_list = list(),
+  band_names = NULL,
   dim_order = c("cell", "time", "band"),
   file_type = NULL,
   version = NULL,
@@ -37,12 +37,12 @@ read_io(
 \item{file_name}{Mandatory character string giving the file name to read,
 including its path and extension.}
 
+\item{subset_list}{Optional list allowing to subset data read from file along
+one or several of its dimensions. See details for more information.}
+
 \item{band_names}{Optional vector of character strings providing the band
 names or NULL. Determined automatically from the meta file in case of
 \code{file_type = "meta"}.}
-
-\item{subset_list}{Optional list allowing to subset data read from file along
-one or several of its dimensions. See details for more information.}
 
 \item{dim_order}{Order of dimensions in returned LpjmlData object. Must be
 a character vector containing all of the following in any order: "cell",
@@ -184,7 +184,7 @@ my_data_clm <- read_io("my_file.clm")
 # `band_names` attribute.
 my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
 
-# Once `band_names` are set, subsetting by name is possible also for 
+# Once `band_names` are set, subsetting by name is possible also for
 # `file_type = "clm"`.
 my_data_wheat <- read_io(
   "my_file.clm",
