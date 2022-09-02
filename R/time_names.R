@@ -1,19 +1,8 @@
-#' @title Create a character vector of dates.
-#'
-#' @description Create a vector of dates to be used as
-#' e.g. names of a time dimension. Dates are written as.characters, not as.Date,
-#' in order to avoid issues with leap years. By default, for annual/monthly outputs,
-#' it returns the last day of the year/month, as these are the days when LPJmL
-#' writes annual/montly data outputs.
-#' @return A character vector of dates in the format "YYYY-MM-DD".
-#' @param nstep An integer value defining the time step of the output file.
-#' Valid values are 1 (yearly), 12 (monthly), 365 (daily).
-#' @param years An integer vector of (sequential or non-sequential) years.
-#' @examples
-#' @details
-#' @seealso strptime, as.Date, format
-#' @export
-
+# Create a vector of dates to be used as e.g. names of a time dimension. Dates
+# are written as.characters, not as.Date, in order to avoid issues with
+# leap years. By default, for annual/monthly outputs, it returns the last day of
+# the year/month, as these are the days when LPJmL writes annual/montly data
+# outputs.
 create_time_names <- function(
   nstep = 365,
   years = 2000,
@@ -90,36 +79,4 @@ split_time_names <- function(time_names) {
     apply(2, unique) %>%
     as.list() %>%
   return()
-}
-
-
-
-# ------------------------------------ #
-# Other time-related functions
-
-# Convert day-of-the-year (DOY) to date "YYYY-MM-DD"
-doy_to_date <- function(doy  = NULL,
-                        year = NULL
-) {
-    if (length(doy) != length(year)) stop("doy and year have different length")
-
-    date <- strptime(paste(year, doy), format = "%Y %j")
-    return(date)
-}
-
-# Convert date "YYYY-MM-DD" to day-of-the-year (DOY)
-date_to_doy <- function(date = "2010-01-29"
-) {
-    as.integer(format(as.Date(date), "%j"))
-}
-
-# Create sequence of dates and return as character
-seq_dates <- function(start_date = "1980-01-01",
-                      end_date   = "1980-12-31",
-                      step       = "day") {
-    as.character(
-        seq.Date(from = as.Date(start_date),
-        to   = as.Date(end_date),
-        by   = step)
-    )
 }

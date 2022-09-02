@@ -894,4 +894,5 @@ default <- function(value, default) {
     return(value)
   }
 }
+# file_type options supported by read_io
 supported_types <- c("raw", "clm", "meta")

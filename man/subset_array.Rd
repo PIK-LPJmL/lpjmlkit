@@ -32,10 +32,10 @@ Subset an array with supplied dimnames and - if defined - replace it.
 my_array <- array(1,
                   dim=c(cell=67, month=12, band=3),
                   dimnames=list(cell=0:66,
-                                month=1:12
+                                month=1:12,
                                 band=c("band1", "band2", "band3")))
 my_subset <- subset_array(my_array,
-                          subset_list(bands=c("band1", "band3")))
+                          subset_list = list(bands=c("band1", "band3")))
 dimnames(my_subset)[3]
 # $ band
 #   [1] "band1"
@@ -43,6 +43,6 @@ dimnames(my_subset)[3]
 
 # replace subset
 my_replacement <- replace_array(my_subset,
-                                subset_list(bands=c("band1")),
+                                subset_list = list(bands=c("band1")),
                                 0)
 }
