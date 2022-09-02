@@ -147,7 +147,6 @@ LpjmlMetaData <- R6::R6Class(
       private$.lastyear <- NULL
       private$.nstep <- NULL
       private$.timestep <- NULL
-      private$.scalar <- NULL
       # update fields_set
       private$.fields_set <- private$.fields_set[
         -na.omit(match(c("nyear",
