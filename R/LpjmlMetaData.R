@@ -153,8 +153,7 @@ LpjmlMetaData <- R6::R6Class(
                          "firstyear",
                          "lastyear",
                          "nstep",
-                         "timestep",
-                         "scalar"),
+                         "timestep"),
                        private$.fields_set))
       ]
     },
