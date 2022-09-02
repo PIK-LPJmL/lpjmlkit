@@ -87,7 +87,7 @@
 #' # `band_names` attribute.
 #' my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
 #'
-#' # Once `band_names` are set, subsetting by name is possible also for 
+#' # Once `band_names` are set, subsetting by name is possible also for
 #' # `file_type = "clm"`.
 #' my_data_wheat <- read_io(
 #'   "my_file.clm",
@@ -302,301 +302,271 @@ read_io_metadata <- function(file_name, file_type, band_names, subset_list,
                              datatype, nstep, timestep, endian, variable, descr,
                              unit, name, silent) {
   file_type <- match.arg(file_type, supported_types)
-  if (file_type == "raw") {
-    # Binary file without a header
+  do.call(paste("read_io_metadata", file_type, sep = "_"),
+          list(file_name = file_name,
+               file_type = file_type,
+               band_names = band_names,
+               subset_list = subset_list,
+               version = version,
+               order = order,
+               firstyear = firstyear,
+               nyear = nyear,
+               firstcell = firstcell,
+               ncell = ncell,
+               nbands = nbands,
+               cellsize_lon = cellsize_lon,
+               scalar = scalar,
+               cellsize_lat = cellsize_lat,
+               datatype = datatype,
+               nstep = nstep,
+               timestep = timestep,
+               endian = endian,
+               variable = variable,
+               descr = descr,
+               unit = unit,
+               name = name,
+               silent = silent)) %>%
+  return()
+}
 
-    # Create a dummy header with the info passed as arguments
-    verbose <- (!is.null(version) && version < 4)
-    verbose <- verbose && !silent
-    file_header <- create_header(
-      name = ifelse(is.null(name), "LPJDUMMY", as.character(name[1])),
-      version = ifelse(is.null(version), 4, version),
-      # Default: use newest version
-      order = ifelse(is.null(order), 4, order),
-      # Default: order used in most output files
-      firstyear = ifelse(is.null(firstyear), 1901, firstyear),
-      nyear = ifelse(is.null(nyear), 1, nyear),
-      firstcell = ifelse(is.null(firstcell), 0, firstcell),
-      ncell = ifelse(is.null(ncell), 67420, ncell),
-      # Default: number of grid cells in global CRU grid
-      nbands = ifelse(is.null(nbands), 1, nbands),
-      cellsize_lon = ifelse(is.null(cellsize_lon), 0.5, cellsize_lon),
-      # Default: resolution of global CRU grid
-      scalar = ifelse(is.null(scalar), 1, scalar),
-      cellsize_lat = ifelse(
-        is.null(cellsize_lat),
-        # If not provided, default same as cellsize_lon
-        ifelse(
-          is.null(cellsize_lon),
-          0.5,
-          cellsize_lon
-        ),
-        cellsize_lat
-      ),
-      datatype     = ifelse(is.null(datatype), 3, datatype),
-      # Default: float used in most output files
-      nstep        = ifelse(is.null(nstep), 1, nstep),
-      timestep     = ifelse(is.null(timestep), 1, timestep),
-      endian       = ifelse(is.null(endian), .Platform$endian, endian),
-      # Default: endian used by operating system
-      verbose      = verbose
-    )
+# read & assign metadata for binary file without a header
+read_io_metadata_raw <- function(file_name, file_type, band_names, subset_list,
+                                 version, order, firstyear, nyear, firstcell,
+                                 ncell, nbands, cellsize_lon, scalar,
+                                 cellsize_lat, datatype, nstep, timestep,
+                                 endian, variable, descr, unit, name, silent) {
+  # Create a dummy header with the info passed as arguments
+  verbose <- (!is.null(version) && version < 4)
+  verbose <- verbose && !silent
+  file_header <- create_header(
+    name = as.character(default(name, "LPJDUMMY")[1]),
+    version = default(version, 4), # Default: use newest version
+    order = default(order, 4), # Default: order used in most output files
+    firstyear = default(firstyear, 1901),
+    nyear = default(nyear, 1),
+    firstcell = default(firstcell, 0),
+    ncell = default(ncell, 67420), # Default: number of cells in global CRU grid
+    nbands = default(nbands, 1),
+    cellsize_lon = default(cellsize_lon, 0.5),
+    # Default: resolution of global CRU grid
+    scalar = default(scalar, 1),
+    cellsize_lat = default(cellsize_lat, default(cellsize_lon, 0.5)),
+    # If not provided, default to same as cellsize_lon
+    datatype = default(datatype, 3), # Default: float used in most output files
+    nstep = default(nstep, 1),
+    timestep = default(timestep, 1),
+    endian = default(endian, .Platform$endian),
+    # Default: endian used by operating system
+    verbose = verbose
+  )
 
-    # Check validity of subset_list and band_names
-    check_subset(subset_list, file_header, band_names)
+  # Check validity of subset_list and band_names
+  check_subset(subset_list, file_header, band_names, silent)
 
-    # Prepare additional attributes to be added to meta information
-    additional_data <- list(
-      band_names = band_names,
-      variable   = variable,
-      descr      = descr,
-      unit       = unit
-    )
-    additional_data <- additional_data[which(!sapply(additional_data, is.null))]
-    # Use header name is a substitute for variable if variable is not set
-    if (is.null(additional_data[["variable"]])) {
-      additional_data[["variable"]] <- get_header_item(file_header, "name")
-    }
-    # Generate meta_data
-    meta_data <- LpjmlMetaData$new(x = file_header,
-                                   additional_data = additional_data,
-                                   data_dir = dirname(file_name))
-
-  } else if (file_type == "clm") {
-    # Binary file with LPJmL header
-
-    # Read file_header
-    file_header <- read_header(file_name, version, !silent)
-
-    # Update header with the info passed as arguments (especially for version 1
-    # and 2 headers values may need to be overwritten)
-    if (get_header_item(file_header, "version") > 3 && is.null(version)) {
-      verbose <- FALSE
-    } else if (!is.null(version) && version > 3) {
-      verbose <- FALSE
-    } else {
-      verbose <- TRUE
-    }
-    verbose <- verbose && !silent
-
-    # Some existing LPJmL input files use order = 0, which is not a valid order
-    # value (1, 2, 3, 4 or corresponding string options). Reset order = 0 to
-    # order = 1.
-    if (get_header_item(file_header, "order") == 0 && is.null(order)) {
-      if (!silent)
-        warning(
-          "Header in file ", sQuote(file_name),
-          " has invalid order = 0. Setting to 1.\n",
-          "Provide order as function argument if default is incorrect."
-        )
-      file_header <- set_header_item(file_header, order = 1)
-    }
-
-    # Do not allow overwriting name attribute in header because it may change
-    # header length, which needs to be skipped when reading data from file.
-    file_header <- create_header(
-      name = get_header_item(file_header, "name"),
-      version = ifelse(
-        is.null(version),
-        get_header_item(file_header, "version"),
-        version
-      ),
-      order = ifelse(
-        is.null(order),
-        get_header_item(file_header, "order"),
-        order
-      ),
-      firstyear = ifelse(
-        is.null(firstyear),
-        get_header_item(file_header, "firstyear"),
-        firstyear
-      ),
-      nyear = ifelse(
-        is.null(nyear),
-        get_header_item(file_header, "nyear"),
-        nyear
-      ),
-      firstcell = ifelse(
-        is.null(firstcell),
-        get_header_item(file_header, "firstcell"),
-        firstcell
-      ),
-      ncell = ifelse(
-        is.null(ncell),
-        get_header_item(file_header, "ncell"),
-        ncell
-      ),
-      nbands = ifelse(
-        is.null(nbands),
-        get_header_item(file_header, "nbands"),
-        nbands
-      ),
-      cellsize_lon = ifelse(
-        is.null(cellsize_lon),
-        get_header_item(file_header, "cellsize_lon"),
-        cellsize_lon
-      ),
-      scalar = ifelse(
-        is.null(scalar),
-        get_header_item(file_header, "scalar"),
-        scalar
-      ),
-      cellsize_lat = ifelse(
-        is.null(cellsize_lat),
-        get_header_item(file_header, "cellsize_lat"),
-        cellsize_lat
-      ),
-      datatype = ifelse(
-        is.null(datatype),
-        get_header_item(file_header, "datatype"),
-        datatype
-      ),
-      nstep = ifelse(
-        is.null(nstep),
-        get_header_item(file_header, "nstep"),
-        nstep
-      ),
-      timestep = ifelse(
-        is.null(timestep),
-        get_header_item(file_header, "timestep"),
-        timestep
-      ),
-      endian = ifelse(
-        is.null(endian),
-        get_header_item(file_header, "endian"),
-        endian
-      ),
-      verbose = verbose
-    )
-
-    # Check validity of subset_list and band_names
-    check_subset(subset_list, file_header, band_names)
-
-    # Prepare additional attributes to be added to meta information
-    additional_data <- list(band_names, variable, descr, unit)
-    names(additional_data) <- c("band_names", "variable", "descr", "unit")
-    additional_data <- additional_data[which(!sapply(additional_data, is.null))]
-    # Use header name is a substitute for variable if variable is not set. Here,
-    # use name argument if supplied by user.
-    if (is.null(additional_data[["variable"]])) {
-      additional_data[["variable"]] <- ifelse(
-        is.null(name),
-        get_header_item(file_header, "name"),
-        as.character(name[1])
-      )
-    }
-
-    # Offset at the start of the file before values begin
-    additional_data[["offset"]] <- unname(get_headersize(file_header))
-
-    # Generate meta_data
-    meta_data <- LpjmlMetaData$new(x = file_header,
-                                   additional_data = additional_data,
-                                   data_dir = dirname(file_name))
-  } else if (file_type == "meta") {
-    # Meta file type (binary file with associated meta-data json file)
-
-    # Read meta data
-    meta_data <- read_meta(file_name)
-
-    # Check if user has tried overwriting any meta attributes which we do not
-    # allow for meta files.
-    set_args <- setdiff(
-      names(formals()),
-      c("file_name", "file_type", "subset_list")
-    )
-    # Filter arguments that are NULL
-    set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
-
-    # Only disallow arguments that are currently set in metadata.
-    no_set_args <- intersect(
-      set_args,
-      names(which(!sapply(meta_data, is.null)))
-    )
-    if (length(no_set_args) > 0 && !silent) {
-      warning(
-        "You cannot overwrite any of the following parameters for this file: ",
-        toString(sQuote(no_set_args)),
-        call. = FALSE
-      )
-    }
-    # Remove arguments that are not allowed from set_args
-    set_args <- setdiff(set_args, no_set_args)
-
-    # If user wants band_names, check consistency with nbands
-    if (!"nbands" %in% set_args) {
-      nbands <- default(meta_data$nbands, 1)
-    }
-    if ("band_names" %in% set_args) {
-      if (length(band_names) != nbands) {
-        stop(
-          "Provided band_names ",
-          toString(
-            sQuote(
-              if (length(band_names) > 6) {
-                  c(utils::head(band_names, n = 4), "...",
-                    utils::tail(band_names, n = 1))
-              } else {
-                band_names
-              }
-            )
-          ),
-          " do not match number of bands in file: ",
-          length(band_names), "!=", nbands
-        )
-      }
-    }
-
-    if (!"band_names" %in% set_args && is.null(meta_data$band_names) &&
-      !is.null(meta_data$map) && !is.null(nbands)
-    ) {
-      if (length(meta_data$map) == nbands / 2) {
-        # Create band_names from map attribute that is included in meta data.
-        # This assumes that map contains the band names without "rainfed/
-        # irrigated" qualifier.
-        band_names <- paste(
-          rep(c("rainfed", "irrigated"), each = length(meta_data$map)),
-          meta_data$map
-        )
-        set_args <- c(set_args, "band_names")
-        if (!silent)
-          message(
-            "Setting automatically generated band_names based an $map attribute"
-          )
-      }
-      if (length(meta_data$map) == nbands / 4) {
-        # Create band_names from map attribute that is included in meta data.
-        # This assumes that map contains the band names without "rainfed/
-        # irrigation system" qualifier.
-        band_names <- paste(
-          rep(
-            c("rainfed", "surface-irrigated", "sprinkler-irrigated",
-              "drip-irrigated"),
-            each = length(meta_data$map)
-          ),
-          meta_data$map
-        )
-        set_args <- c(set_args, "band_names")
-        if (!silent)
-          message(
-            "Setting automatically generated band_names based an $map attribute"
-          )
-      }
-    }
-    # Prepare additional attributes to be added to metadata
-    additional_data <- sapply(set_args, function(x) get(x), simplify = FALSE)
-
-    # Update meta_data
-    meta_data$initialize(x = meta_data$as_list(),
-                         additional_data = additional_data)
-
-    # Convert meta data into header
-    file_header <- meta_data$as_header(silent)
-
-    # Check validity of subset_list and band_names
-    check_subset(subset_list, file_header, band_names)
+  # Prepare additional attributes to be added to meta information
+  additional_data <- list(band_names = band_names, variable = variable,
+                          descr = descr, unit = unit)
+  additional_data <- additional_data[which(!sapply(additional_data, is.null))]
+  # Use header name is a substitute for variable if variable is not set
+  if (is.null(additional_data[["variable"]])) {
+    additional_data[["variable"]] <- get_header_item(file_header, "name")
   }
-  meta_data
+  # Generate meta_data
+  meta_data <- LpjmlMetaData$new(x = file_header,
+                                 additional_data = additional_data,
+                                 data_dir = dirname(file_name))
+  return(meta_data)
+}
+
+# read & assign metadata for binary file with a header
+read_io_metadata_clm <- function(file_name, file_type, band_names, subset_list,
+                                 version, order, firstyear, nyear, firstcell,
+                                 ncell, nbands, cellsize_lon, scalar,
+                                 cellsize_lat, datatype, nstep, timestep,
+                                 endian, variable, descr, unit, name, silent) {
+  # Read file_header
+  file_header <- read_header(file_name, version, !silent)
+
+  # Update header with the info passed as arguments (especially for version 1
+  # and 2 headers values may need to be overwritten)
+  if (get_header_item(file_header, "version") > 3 && is.null(version)) {
+    verbose <- FALSE
+  } else if (!is.null(version) && version > 3) {
+    verbose <- FALSE
+  } else {
+    verbose <- TRUE
+  }
+  verbose <- verbose && !silent
+
+  # Some existing LPJmL input files use order = 0, which is not a valid order
+  # value (1, 2, 3, 4 or corresponding string options). Reset order = 0 to
+  # order = 1.
+  if (get_header_item(file_header, "order") == 0 && is.null(order)) {
+    if (!silent)
+      warning(
+        "Header in file ", sQuote(file_name),
+        " has invalid order = 0. Setting to 1.\n",
+        "Provide order as function argument if default is incorrect."
+      )
+    file_header <- set_header_item(file_header, order = 1)
+  }
+
+  # Do not allow overwriting name attribute in header because it may change
+  # header length, which needs to be skipped when reading data from file.
+  file_header <- create_header(
+    name = get_header_item(file_header, "name"),
+    version = default(version, get_header_item(file_header, "version")),
+    order = default(order, get_header_item(file_header, "order")),
+    firstyear = default(firstyear, get_header_item(file_header, "firstyear")),
+    nyear = default(nyear, get_header_item(file_header, "nyear")),
+    firstcell = default(firstcell, get_header_item(file_header, "firstcell")),
+    ncell = default(ncell, get_header_item(file_header, "ncell")),
+    nbands = default(nbands, get_header_item(file_header, "nbands")),
+    cellsize_lon = default(cellsize_lon,
+                           get_header_item(file_header, "cellsize_lon")),
+    scalar = default(scalar, get_header_item(file_header, "scalar")),
+    cellsize_lat = default(cellsize_lat,
+                           get_header_item(file_header, "cellsize_lat")),
+    datatype = default(datatype, get_header_item(file_header, "datatype")),
+    nstep = default(nstep, get_header_item(file_header, "nstep")),
+    timestep = default(timestep, get_header_item(file_header, "timestep")),
+    endian = default(endian, get_header_item(file_header, "endian")),
+    verbose = verbose
+  )
+
+  # Check validity of subset_list and band_names
+  check_subset(subset_list, file_header, band_names, silent)
+
+  # Prepare additional attributes to be added to meta information
+  additional_data <- list(band_names = band_names, variable = variable,
+                          descr = descr, unit = unit)
+  additional_data <- additional_data[which(!sapply(additional_data, is.null))]
+  # Use header name is a substitute for variable if variable is not set. Here,
+  # use name argument if supplied by user.
+  if (is.null(additional_data[["variable"]])) {
+    additional_data[["variable"]] <- as.character(
+      default(name, get_header_item(file_header, "name"))[1]
+    )
+  }
+
+  # Offset at the start of the file before values begin
+  additional_data[["offset"]] <- unname(get_headersize(file_header))
+
+  # Generate meta_data
+  meta_data <- LpjmlMetaData$new(x = file_header,
+                                 additional_data = additional_data,
+                                 data_dir = dirname(file_name))
+  return(meta_data)
+}
+
+# read & assign metadata for meta file type (binary file with associated
+# meta-data json file)
+read_io_metadata_meta <- function(file_name, file_type, band_names, subset_list,
+                                  version, order, firstyear, nyear, firstcell,
+                                  ncell, nbands, cellsize_lon, scalar,
+                                  cellsize_lat, datatype, nstep, timestep,
+                                  endian, variable, descr, unit, name, silent) {
+  # Read meta data
+  meta_data <- read_meta(file_name)
+
+  # Check if user has tried overwriting any meta attributes which we do not
+  # allow for meta files.
+  set_args <- setdiff(
+    names(formals()),
+    c("file_name", "file_type", "silent", "subset_list")
+  )
+  # Filter arguments that are NULL
+  set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
+
+  # Only disallow arguments that are currently set in metadata.
+  no_set_args <- intersect(
+    set_args,
+    names(which(!sapply(meta_data, is.null)))
+  )
+  if (length(no_set_args) > 0 && !silent) {
+    warning(
+      "You cannot overwrite any of the following parameters for this file: ",
+      toString(sQuote(no_set_args)),
+      call. = FALSE
+    )
+  }
+  # Remove arguments that are not allowed from set_args
+  set_args <- setdiff(set_args, no_set_args)
+
+  # If user wants band_names, check consistency with nbands
+  if (!"nbands" %in% set_args) {
+    nbands <- default(meta_data$nbands, 1)
+  }
+  if ("band_names" %in% set_args) {
+    if (length(band_names) != nbands) {
+      stop(
+        "Provided band_names ",
+        toString(
+          dQuote(
+            if (length(band_names) > 6) {
+                c(utils::head(band_names, n = 4), "...",
+                  utils::tail(band_names, n = 1))
+            } else {
+              band_names
+            }
+          )
+        ),
+        " do not match number of bands in file: ",
+        length(band_names), "!=", nbands
+      )
+    }
+  }
+
+  if (!"band_names" %in% set_args && is.null(meta_data$band_names) &&
+    !is.null(meta_data$map) && !is.null(nbands)
+  ) {
+    if (length(meta_data$map) == nbands / 2) {
+      # Create band_names from map attribute that is included in meta data.
+      # This assumes that map contains the band names without "rainfed/
+      # irrigated" qualifier.
+      band_names <- paste(
+        rep(c("rainfed", "irrigated"), each = length(meta_data$map)),
+        meta_data$map
+      )
+      set_args <- c(set_args, "band_names")
+      if (!silent)
+        message(
+          "Setting automatically generated band_names based an $map attribute"
+        )
+    }
+    if (length(meta_data$map) == nbands / 4) {
+      # Create band_names from map attribute that is included in meta data.
+      # This assumes that map contains the band names without "rainfed/
+      # irrigation system" qualifier.
+      band_names <- paste(
+        rep(
+          c("rainfed", "surface-irrigated", "sprinkler-irrigated",
+            "drip-irrigated"),
+          each = length(meta_data$map)
+        ),
+        meta_data$map
+      )
+      set_args <- c(set_args, "band_names")
+      if (!silent)
+        message(
+          "Setting automatically generated band_names based an $map attribute"
+        )
+    }
+  }
+  # Prepare additional attributes to be added to metadata
+  additional_data <- sapply(set_args, function(x) get(x), simplify = FALSE)
+
+  # Update meta_data
+  meta_data$initialize(x = meta_data$as_list(),
+                       additional_data = additional_data)
+
+  # Convert meta data into header
+  file_header <- meta_data$as_header(silent)
+
+  # Check validity of subset_list and band_names
+  check_subset(subset_list, file_header, meta_data$band_names, silent)
+
+  return(meta_data)
 }
 
 read_io_data <- function(
@@ -632,10 +602,8 @@ read_io_data <- function(
       default(meta_data$offset, 0)
 
     # Number of values to read for one year
-    n_values <- unname(
-      meta_data$ncell * default(meta_data$nbands, 1) * default(meta_data$nstep, 1)
-    )
-
+    n_values <- meta_data$ncell * default(meta_data$nbands, 1) *
+      default(meta_data$nstep, 1)
 
     # Read data for one year from binary file
     year_data <- read_raw(
@@ -666,11 +634,9 @@ read_io_data <- function(
     )
 
     # Assign dimension names to array
-    if (is.null(meta_data$band_names)) {
-      band_names <- seq_len(default(meta_data$nbands, 1))
-    } else {
-      band_names <- meta_data$band_names
-    }
+    band_names <- default(
+      meta_data$band_names, seq_len(default(meta_data$nbands, 1))
+    )
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
       cellyear  = list(                                                # order 1
@@ -687,8 +653,7 @@ read_io_data <- function(
       )
     )
 
-    # Convert to read_band_order and apply subsetting alsong bands or
-    # cells
+    # Convert to read_band_order and apply subsetting along bands or cells
     index <- which(!names(subset_list) %in%
       c("day", "month", "year", "time")
     )
@@ -738,18 +703,12 @@ read_io_data <- function(
 }
   
 # Function to read LPJmL binary files
-read_raw <- function(
-  file_connection,
-  data_offset,
-  n_values,
-  datatype,
-  endian
-) {
+read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
   seek(con = file_connection, where = data_offset)
   file_data <- readBin(
     file_connection,
-    n = n_values,
     what = datatype$type,
+    n = n_values,
     size = datatype$size,
     signed = datatype$signed,
     endian = endian
@@ -758,11 +717,11 @@ read_raw <- function(
 }
 
 # Simple validity check for subset_list and band_names
-check_subset <- function(subset_list, header, band_names) {
+check_subset <- function(subset_list, header, band_names, silent) {
   if (!is.null(subset_list[["year"]])) {
     years <- seq(
-      from       = get_header_item(header, "firstyear"),
-      by         = get_header_item(header, "timestep"),
+      from = get_header_item(header, "firstyear"),
+      by = get_header_item(header, "timestep"),
       length.out = get_header_item(header, "nyear")
     )
     if (!all(subset_list[["year"]] %in% years)) {
@@ -776,17 +735,19 @@ check_subset <- function(subset_list, header, band_names) {
     }
     rm(years)
   }
-  if (!is.null(subset_list[["month"]])) {
-    warning(paste0(
+  if (!is.null(subset_list[["month"]]) && !silent) {
+    warning(
       "Using \"month\" as subset is currently not supported in this context ",
-      "and thus will be ignored."
-    ))
+      "and thus will be ignored.",
+      call. = FALSE
+    )
   }
-  if (!is.null(subset_list[["day"]])) {
-    warning(paste0(
+  if (!is.null(subset_list[["day"]]) && !silent) {
+    warning(
       "Using \"day\" as subset is currently not supported in this context ",
-      "and thus will be ignored."
-    ))
+      "and thus will be ignored.",
+      call. = FALSE
+    )
   }
   if (!is.null(subset_list[["cell"]])) {
     if (is.character(subset_list[["cell"]])) {
@@ -819,71 +780,80 @@ check_subset <- function(subset_list, header, band_names) {
     length(band_names) != get_header_item(header, "nbands")
   ) {
     stop(
-      paste0(
-        "Provided band_names ",
-        toString(
-          sQuote(
-            if (length(band_names) > 6) {
-                c(utils::head(band_names, n = 4), "...",
-                  utils::tail(band_names, n = 1))
-            } else {
-              band_names
-            }
-          )
-        ),
-        " do not match number of bands in file: ",
-        length(band_names), "!=", get_header_item(header, "nbands")
-      )
+      "Provided band_names ",
+      toString(
+        dQuote(
+          if (length(band_names) > 6) {
+              c(utils::head(band_names, n = 4), "...",
+                utils::tail(band_names, n = 1))
+          } else {
+            band_names
+          }
+        )
+      ),
+      " do not match number of bands in file: ",
+      length(band_names), "!=", get_header_item(header, "nbands"),
+      call. = FALSE
     )
   }
   if (!is.null(subset_list[["band"]])) {
-    if (is.character(subset_list[["band"]]) && is.null(band_names)) {
-      stop(
-        paste(
-          "File has no associated band_names. Cannot do subset by name.",
-          "\nProvide band indices instead of band names in",
-          "subset_list[[\"cell\"]] or set band_names."
-        )
-      )
-      if (!all(subset_list[["band"]] %in% band_names)) {
+    if (is.character(subset_list[["band"]])) {
+      if (is.null(band_names)) {
         stop(
-          paste(
-            "Requested band(s)", setdiff(subset_list[["band"]], band_names),
-            "not covered by file.",
-            "\nCheck subset_list[[\"cell\"]]."
-          )
+          "File has no associated band_names. Cannot do subset by name.",
+          "\nProvide band indices instead of band names in ",
+          "subset_list[[\"cell\"]] or set band_names.",
+          call. = FALSE
+        )
+      }
+      if (!all(subset_list[["band"]] %in% band_names)) {
+        missing_bands <- setdiff(subset_list[["band"]], band_names)
+        stop(
+          "Requested band(s) ",
+          toString(
+            dQuote(
+              if (length(missing_bands) > 6) {
+                c(utils::head(missing_bands, n = 4), "...",
+                  utils::tail(missing_bands, n = 1))
+              } else {
+                missing_bands
+              }
+            )
+          ),
+          " not covered by file.",
+          "\nCheck subset_list[[\"band\"]].",
+          call. = FALSE
         )
       }
     } else if (is.numeric(subset_list[["band"]])) {
       bands <- seq(get_header_item(header, "nbands"))
       if (!all(subset_list[["band"]] %in% bands)) {
         stop(
-          paste(
-            "Requested band(s)", setdiff(subset_list[["band"]], bands),
-            "not covered by file.",
-            "\nCheck subset_list[[\"band\"]]."
-          )
+          "Requested band(s) ", toString(setdiff(subset_list[["band"]], bands)),
+          " not covered by file.",
+          "\nCheck subset_list[[\"band\"]].",
+          call. = FALSE
         )
       }
       rm(bands)
     }
   }
   if (
-    any(!names(subset_list) %in% c("cell", "year", "month", "day", "band"))
+    any(!names(subset_list) %in% c("cell", "year", "month", "day", "band")) &&
+    !silent
   ) {
     warning(
-      paste0(
-        "Invalid 'subset_list' name(s)",
-        toString(
-          dQuote(
-            setdiff(
-              names(subset_list),
-              c("cell", "year", "month", "day", "band")
-            )
+      "Invalid 'subset_list' name(s) ",
+      toString(
+        dQuote(
+          setdiff(
+            names(subset_list),
+            c("cell", "year", "month", "day", "band")
           )
-        ),
-        "will be ignored."
-      )
+        )
+      ),
+      " will be ignored.",
+      call. = FALSE
     )
   }
 }

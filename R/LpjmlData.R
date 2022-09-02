@@ -545,7 +545,7 @@ LpjmlData <- R6::R6Class(
           var_name <- "cell"
           mat_sum <- mat_sum[c(1, 6), ]
         } else {
-            var_name <- self$meta_data$variable
+          var_name <- default(self$meta_data$variable, "")
         }
         space_len <- ifelse(nchar(var_name) > 8,
                             0,

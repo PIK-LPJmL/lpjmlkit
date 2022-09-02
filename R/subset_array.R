@@ -61,7 +61,7 @@ asub <- subset_array
 replace_array <- function(x, subset_list, y) {
   argum <- c(alist(x), subarray_argument(x, subset_list), alist(y))
   do.call("[<-", argum) %>%
-    return
+    return()
 }
 
 
