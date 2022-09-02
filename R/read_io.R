@@ -270,7 +270,9 @@ read_io <- function(
     )
   }
   if (get_header_item(file_header, "name") == "LPJDAMS") {
-    stop("This function currently does not support reading LPJDAMS input files.")
+    stop(
+      "This function currently does not support reading LPJDAMS input files."
+    )
   }
 
   # Read data from binary file
@@ -307,20 +309,20 @@ read_io_metadata <- function(file_name, file_type, band_names, subset_list,
     verbose <- (!is.null(version) && version < 4)
     verbose <- verbose && !silent
     file_header <- create_header(
-      name         = ifelse(is.null(name), "LPJDUMMY", as.character(name[1])),
-      version      = ifelse(is.null(version), 4, version),
+      name = ifelse(is.null(name), "LPJDUMMY", as.character(name[1])),
+      version = ifelse(is.null(version), 4, version),
       # Default: use newest version
-      order        = ifelse(is.null(order), 4, order),
+      order = ifelse(is.null(order), 4, order),
       # Default: order used in most output files
-      firstyear    = ifelse(is.null(firstyear), 1901, firstyear),
-      nyear        = ifelse(is.null(nyear), 1, nyear),
-      firstcell    = ifelse(is.null(firstcell), 0, firstcell),
-      ncell        = ifelse(is.null(ncell), 67420, ncell),
+      firstyear = ifelse(is.null(firstyear), 1901, firstyear),
+      nyear = ifelse(is.null(nyear), 1, nyear),
+      firstcell = ifelse(is.null(firstcell), 0, firstcell),
+      ncell = ifelse(is.null(ncell), 67420, ncell),
       # Default: number of grid cells in global CRU grid
-      nbands       = ifelse(is.null(nbands), 1, nbands),
+      nbands = ifelse(is.null(nbands), 1, nbands),
       cellsize_lon = ifelse(is.null(cellsize_lon), 0.5, cellsize_lon),
       # Default: resolution of global CRU grid
-      scalar       = ifelse(is.null(scalar), 1, scalar),
+      scalar = ifelse(is.null(scalar), 1, scalar),
       cellsize_lat = ifelse(
         is.null(cellsize_lat),
         # If not provided, default same as cellsize_lon
@@ -393,38 +395,38 @@ read_io_metadata <- function(file_name, file_type, band_names, subset_list,
     # Do not allow overwriting name attribute in header because it may change
     # header length, which needs to be skipped when reading data from file.
     file_header <- create_header(
-      name         = get_header_item(file_header, "name"),
-      version      = ifelse(
+      name = get_header_item(file_header, "name"),
+      version = ifelse(
         is.null(version),
         get_header_item(file_header, "version"),
         version
       ),
-      order        = ifelse(
+      order = ifelse(
         is.null(order),
         get_header_item(file_header, "order"),
         order
       ),
-      firstyear    = ifelse(
+      firstyear = ifelse(
         is.null(firstyear),
         get_header_item(file_header, "firstyear"),
         firstyear
       ),
-      nyear        = ifelse(
+      nyear = ifelse(
         is.null(nyear),
         get_header_item(file_header, "nyear"),
         nyear
       ),
-      firstcell    = ifelse(
+      firstcell = ifelse(
         is.null(firstcell),
         get_header_item(file_header, "firstcell"),
         firstcell
       ),
-      ncell        = ifelse(
+      ncell = ifelse(
         is.null(ncell),
         get_header_item(file_header, "ncell"),
         ncell
       ),
-      nbands       = ifelse(
+      nbands = ifelse(
         is.null(nbands),
         get_header_item(file_header, "nbands"),
         nbands
@@ -434,7 +436,7 @@ read_io_metadata <- function(file_name, file_type, band_names, subset_list,
         get_header_item(file_header, "cellsize_lon"),
         cellsize_lon
       ),
-      scalar       = ifelse(
+      scalar = ifelse(
         is.null(scalar),
         get_header_item(file_header, "scalar"),
         scalar
@@ -444,27 +446,27 @@ read_io_metadata <- function(file_name, file_type, band_names, subset_list,
         get_header_item(file_header, "cellsize_lat"),
         cellsize_lat
       ),
-      datatype     = ifelse(
+      datatype = ifelse(
         is.null(datatype),
         get_header_item(file_header, "datatype"),
         datatype
       ),
-      nstep        = ifelse(
+      nstep = ifelse(
         is.null(nstep),
         get_header_item(file_header, "nstep"),
         nstep
       ),
-      timestep     = ifelse(
+      timestep = ifelse(
         is.null(timestep),
         get_header_item(file_header, "timestep"),
         timestep
       ),
-      endian       = ifelse(
+      endian = ifelse(
         is.null(endian),
         get_header_item(file_header, "endian"),
         endian
       ),
-      verbose      = verbose
+      verbose = verbose
     )
 
     # Check validity of subset_list and band_names
