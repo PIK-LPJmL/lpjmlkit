@@ -21,7 +21,8 @@ LpjmlData <- R6::R6Class(
     data = NULL,
     # init function
     initialize = function(data_array, meta_data = NULL) {
-      if (is(meta_data, "LpjmlMetaData") | is(meta_data, "NULL")) {
+      if (methods::is(meta_data, "LpjmlMetaData") |
+          methods::is(meta_data, "NULL")) {
         self$meta_data <- meta_data
       } else {
         stop("Provide a LpjmlMetaData object for meta_data.")
@@ -590,7 +591,7 @@ LpjmlData <- R6::R6Class(
                                             to_char2),
                                    "...",
                                    paste0(to_char2,
-                                          tail(dim_names[[sub]], n = 1),
+                                          utils::tail(dim_names[[sub]], n = 1),
                                           to_char2)))
         } else {
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
