@@ -6,11 +6,11 @@
 #'
 #' @param file_name Mandatory character string giving the file name to read,
 #' including its path and extension.
+#' @param subset_list Optional list allowing to subset data read from file along
+#' one or several of its dimensions. See details for more information.
 #' @param band_names Optional vector of character strings providing the band
 #' names or NULL. Determined automatically from the meta file in case of
 #' `file_type = "meta"`.
-#' @param subset_list Optional list allowing to subset data read from file along
-#' one or several of its dimensions. See details for more information.
 #' @param dim_order Order of dimensions in returned LpjmlData object. Must be
 #' a character vector containing all of the following in any order: "cell",
 #' "band", "time". Select the order most useful to your further data processing.
@@ -145,8 +145,8 @@
 #' @export
 read_io <- function(
   file_name,
-  band_names   = NULL,
   subset_list  = list(),
+  band_names   = NULL,
   dim_order   = c("cell", "time", "band"),
   file_type    = NULL,
   version      = NULL,
