@@ -204,11 +204,31 @@ read_io <- function(
 
   # Construct meta data from JSON, CLM header, and/or provided function
   # arguments
-  meta_data <- read_io_metadata(
-    file_name, file_type, band_names, subset_list, version, order, firstyear,
-    nyear, firstcell, ncell, nbands, cellsize_lon, scalar, cellsize_lat,
-    datatype, nstep, timestep, endian, variable, descr, unit, name, silent
-  )
+  meta_data <- match.arg(file_type, supported_types) %>%
+    paste("read_io_metadata", ., sep = "_") %>%
+    do.call(args = list(file_name = file_name,
+                        file_type = file_type,
+                        band_names = band_names,
+                        subset_list = subset_list,
+                        version = version,
+                        order = order,
+                        firstyear = firstyear,
+                        nyear = nyear,
+                        firstcell = firstcell,
+                        ncell = ncell,
+                        nbands = nbands,
+                        cellsize_lon = cellsize_lon,
+                        scalar = scalar,
+                        cellsize_lat = cellsize_lat,
+                        datatype = datatype,
+                        nstep = nstep,
+                        timestep = timestep,
+                        endian = endian,
+                        variable = variable,
+                        descr = descr,
+                        unit = unit,
+                        name = name,
+                        silent = silent))
   # Offset at beginning of binary data file
   start_offset <- default(meta_data$offset, 0)
 
@@ -291,42 +311,6 @@ read_io <- function(
                               meta_data = meta_data)
   rm(file_data, meta_data)
   return(lpjml_data)
-}
-
-# This non-exported function reads the meta information or header from file or
-# creates meta information based on supplied function arguments or default
-# header values.
-read_io_metadata <- function(file_name, file_type, band_names, subset_list,
-                             version, order, firstyear, nyear, firstcell, ncell,
-                             nbands, cellsize_lon, scalar, cellsize_lat,
-                             datatype, nstep, timestep, endian, variable, descr,
-                             unit, name, silent) {
-  file_type <- match.arg(file_type, supported_types)
-  do.call(paste("read_io_metadata", file_type, sep = "_"),
-          list(file_name = file_name,
-               file_type = file_type,
-               band_names = band_names,
-               subset_list = subset_list,
-               version = version,
-               order = order,
-               firstyear = firstyear,
-               nyear = nyear,
-               firstcell = firstcell,
-               ncell = ncell,
-               nbands = nbands,
-               cellsize_lon = cellsize_lon,
-               scalar = scalar,
-               cellsize_lat = cellsize_lat,
-               datatype = datatype,
-               nstep = nstep,
-               timestep = timestep,
-               endian = endian,
-               variable = variable,
-               descr = descr,
-               unit = unit,
-               name = name,
-               silent = silent)) %>%
-  return()
 }
 
 # read & assign metadata for binary file without a header
