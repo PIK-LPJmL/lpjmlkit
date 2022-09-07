@@ -64,76 +64,115 @@ LpjmlData <- R6::R6Class(
 
       return(x$data)
     },
-    as_raster = function(subset_list = NULL, fix_extent = NULL) {
+    as_raster = function(subset_list = NULL,
+                         aggregate_dim = NULL,
+                         aggregate_fun = sum,
+                         ...) {
       if (!is.null(self$meta_data$variable) &&
-          self$meta_data$variable == "grid") {
+          self$meta_data$variable == "grid" &&
+          self$meta_data$dimspatial_format == "cell") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # support of lazy loading of grid for meta files else add explicitly
-      if (is.null(self$grid)) {
+      if (is.null(self$grid) &&
+          self$meta_data$dimspatial_format == "cell") {
         self$add_grid()
       }
       # workflow adjusted for subsetted grid (via cell)
       data_subset <- subset(self, subset_list)
-      if (is.null(fix_extent)) {
-        # calculate grid extent from range to span raster
-        grid_extent <- apply(
-            data_subset$grid$data,
-            "band",
-            range
-          ) + matrix(
-            # coordinates represent the centre of cell, for the extent borders
-            #   are required, thus subtract/add half of resolution
-            c(-self$meta_data$cellsize_lon / 2,
-              self$meta_data$cellsize_lon / 2,
-              -self$meta_data$cellsize_lat / 2,
-              self$meta_data$cellsize_lat / 2),
-            nrow = 2,
-            ncol = 2
-          )
-      } else {
-        grid_extent <- matrix(
-          fix_extent,
-          nrow = 2,
-          ncol = 2
-        )
+      if (!is.null(aggregate_dim) &&
+          !any(aggregate_dim %in% strsplit(self$meta_data$dimspatial_format,"_")[[1]]) && # nolint
+          all(aggregate_dim %in% names(dim(self$data)))) {
+        # not recommended for self, some meta_data not valid for data_subset!
+        data_subset$data <- aggregate(self,
+                                      dimension = aggregate_dim,
+                                      fun = aggregate_fun,
+                                      ...)
+      } else if (!is.null(aggregate_dim)) {
+        stop(paste("Only non-spatial and existing dimensions are valid for",
+                   "argument aggregate_dim. Please adjust",
+                   toString(dQuote(aggregate_dim))))
       }
+      # calculate grid extent from range to span raster
+      if (data_subset$meta_data$dimspatial_format == "cell") {
+        data_extent <- apply(data_subset$grid$data,
+                             "band",
+                             range)
+      } else {
+        data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint
+                                range(as.numeric(dimnames(data_subset$data)[["lat"]]))), # nolint
+                                nrow = 2,
+                                ncol = 2)
+      }
+      grid_extent <- data_extent + matrix(
+        # coordinates represent the centre of cell, for the extent borders
+        #   are required, thus subtract/add half of resolution
+        c(-data_subset$meta_data$cellsize_lon / 2,
+          data_subset$meta_data$cellsize_lon / 2,
+          -data_subset$meta_data$cellsize_lat / 2,
+          data_subset$meta_data$cellsize_lat / 2),
+        nrow = 2,
+        ncol = 2
+      )
+
       tmp_raster <- raster::raster(
-        res = c(self$meta_data$cellsize_lon, self$meta_data$cellsize_lat),
+        res = c(data_subset$meta_data$cellsize_lon,
+                data_subset$meta_data$cellsize_lat),
         xmn = grid_extent[1, 1],
         xmx = grid_extent[2, 1],
         ymn = grid_extent[1, 2],
         ymx = grid_extent[2, 2],
         crs = "EPSG:4326"
-        )
+      )
       # get dimensions larger 1 to check if raster or brick required
       #   (or too many dimensions > 1 which are not compatible with raster)
       multi_dims <- names(which(dim(data_subset$data) > 1))
-      if (length(multi_dims) > 2) {
-        stop(
-          paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via $subset.")
-        )
-      } else if (length(multi_dims) == 2) {
-        # get dimension with length > 1 which is not cell to use for
-        #   layer naming
-        multi_layer <- multi_dims[which(multi_dims != "cell")]
-        tmp_raster <- raster::brick(tmp_raster,
-                                    nl = dim(data_subset$data)[multi_layer])
-        names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
-      } else if (length(multi_dims) == 1) {
-        # for single rasters use variable as layer name
-        names(tmp_raster) <- self$meta_data$variable
+      # check for dimspatial_format == "lon_lat" if multiple bands/time convert
+      #   to "cell" format, if larger stop
+      if (data_subset$meta_data$dimspatial_format == "lon_lat") {
+        if (length(multi_dims) == 3) {
+          data_subset$convert_space()
+          multi_dims <- names(which(dim(data_subset$data) > 1))
+        } else if (length(multi_dims) > 3) {
+          stop(
+            paste("Too many dimensions with length > 1.",
+                  "Reduce to max. two dimensions via subset function or",
+                  "argument.")
+          )
+        } else {
+          tmp_raster <- raster::raster(
+            data_subset$data[rev(seq_len(dim(data_subset$data)[["lat"]])), ],
+            template = tmp_raster
+          )
+          names(tmp_raster) <- data_subset$meta_data$variable
+        }
       }
-      # add values of raster cells by corresponding coordinates (lon, lat)
-      tmp_raster[
-        raster::cellFromXY(
-          tmp_raster,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- data_subset$data
-
+      if (data_subset$meta_data$dimspatial_format == "cell") {
+        if (length(multi_dims) > 2) {
+          stop(
+            paste("Too many dimensions with length > 1.",
+                  "Reduce to max. two dimensions via $subset.")
+          )
+        } else if (length(multi_dims) == 2) {
+          # get dimension with length > 1 which is not cell to use for
+          #   layer naming
+          multi_layer <- multi_dims[which(multi_dims != "cell")]
+          tmp_raster <- raster::brick(tmp_raster,
+                                      nl = dim(data_subset$data)[multi_layer])
+          names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
+        } else if (length(multi_dims) == 1) {
+          # for single rasters use variable as layer name
+          names(tmp_raster) <- data_subset$meta_data$variable
+        }
+        # add values of raster cells by corresponding coordinates (lon, lat)
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- data_subset$data
+      }
       return(tmp_raster)
     },
     as_rast = function(grid_file, as_layers = "band", subset_list = NULL) {
@@ -312,7 +351,6 @@ LpjmlData <- R6::R6Class(
       if (self$meta_data$dimspatial_format == "cell" &&
           dim_format == "lon_lat") {
         # calculate grid extent from range to span raster
-        print(self$data)
         grid_extent <- apply(
             self$data,
             "band",
@@ -323,7 +361,8 @@ LpjmlData <- R6::R6Class(
                                    rev(grid_extent[1, ]),
                                    rev(grid_extent[2, ]),
                                    by = c(self$meta_data$cellsize_lat,
-                                          self$meta_data$cellsize_lon))
+                                          self$meta_data$cellsize_lon),
+                                   SIMPLIFY = FALSE)
         # init grid array
         grid_array <- array(NA,
                           dim = lapply(spatial_dimnames, length),
@@ -506,7 +545,19 @@ LpjmlData <- R6::R6Class(
       )
       return(invisible(self))
     },
-    summary = function(dimension="band",
+    # aggregation function, only to be applied for conversions (as_raster, plot)
+    #   do not apply to self to not violate data integrity !
+    aggregate = function(dimension = "band",
+                         fun = sum,
+                         ...) {
+      dim_names <- names(dim(self$data))
+      apply(X = self$data,
+            MARGIN = dim_names[!dim_names %in% dimension],
+            FUN = fun,
+            ...) %>%
+      return()
+    },
+    summary = function(dimension = "band",
                        subset_list = NULL,
                        cutoff = FALSE,
                        ...) {
@@ -659,6 +710,11 @@ add_grid <- function(x, ...) {
 convert_time <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$convert_time(...)
+  return(y)
+}
+
+aggregate <- function(x, ...) {
+  y <- x$aggregate(...)
   return(y)
 }
 
