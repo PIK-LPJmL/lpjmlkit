@@ -17,12 +17,13 @@ Handles metafile data for output data
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LpjmlMetaData$new()}}
-\item \href{#method-update_subset}{\code{LpjmlMetaData$update_subset()}}
+\item \href{#method-._update_subset}{\code{LpjmlMetaData$._update_subset()}}
 \item \href{#method-as_header}{\code{LpjmlMetaData$as_header()}}
 \item \href{#method-._init_grid}{\code{LpjmlMetaData$._init_grid()}}
 \item \href{#method-as_list}{\code{LpjmlMetaData$as_list()}}
 \item \href{#method-check}{\code{LpjmlMetaData$check()}}
-\item \href{#method-convert_time_format}{\code{LpjmlMetaData$convert_time_format()}}
+\item \href{#method-._convert_dimtime_format}{\code{LpjmlMetaData$._convert_dimtime_format()}}
+\item \href{#method-._convert_dimspatial_format}{\code{LpjmlMetaData$._convert_dimspatial_format()}}
 \item \href{#method-print}{\code{LpjmlMetaData$print()}}
 \item \href{#method-clone}{\code{LpjmlMetaData$clone()}}
 }
@@ -49,11 +50,11 @@ Handles metafile data for output data
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-update_subset"></a>}}
-\if{latex}{\out{\hypertarget{method-update_subset}{}}}
-\subsection{Method \code{update_subset()}}{
+\if{html}{\out{<a id="method-._update_subset"></a>}}
+\if{latex}{\out{\hypertarget{method-._update_subset}{}}}
+\subsection{Method \code{._update_subset()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$update_subset(subset_list)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$._update_subset(subset_list, time_dimnames = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -62,7 +63,7 @@ Handles metafile data for output data
 \if{latex}{\out{\hypertarget{method-as_header}{}}}
 \subsection{Method \code{as_header()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$as_header()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$as_header(silent = FALSE)}\if{html}{\out{</div>}}
 }
 
 }
@@ -94,11 +95,20 @@ Handles metafile data for output data
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-convert_time_format"></a>}}
-\if{latex}{\out{\hypertarget{method-convert_time_format}{}}}
-\subsection{Method \code{convert_time_format()}}{
+\if{html}{\out{<a id="method-._convert_dimtime_format"></a>}}
+\if{latex}{\out{\hypertarget{method-._convert_dimtime_format}{}}}
+\subsection{Method \code{._convert_dimtime_format()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$convert_time_format(time_format)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$._convert_dimtime_format(dimtime_format)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-._convert_dimspatial_format"></a>}}
+\if{latex}{\out{\hypertarget{method-._convert_dimspatial_format}{}}}
+\subsection{Method \code{._convert_dimspatial_format()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlMetaData$._convert_dimspatial_format(dimspatial_format)}\if{html}{\out{</div>}}
 }
 
 }

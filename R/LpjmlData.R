@@ -21,7 +21,8 @@ LpjmlData <- R6::R6Class(
     data = NULL,
     # init function
     initialize = function(data_array, meta_data = NULL) {
-      if (is(meta_data, "LpjmlMetaData") | is(meta_data, "NULL")) {
+      if (methods::is(meta_data, "LpjmlMetaData") |
+          methods::is(meta_data, "NULL")) {
         self$meta_data <- meta_data
       } else {
         stop("Provide a LpjmlMetaData object for meta_data.")
@@ -63,76 +64,115 @@ LpjmlData <- R6::R6Class(
 
       return(x$data)
     },
-    as_raster = function(subset_list = NULL, fix_extent = NULL) {
+    as_raster = function(subset_list = NULL,
+                         aggregate_dim = NULL,
+                         aggregate_fun = sum,
+                         ...) {
       if (!is.null(self$meta_data$variable) &&
-          self$meta_data$variable == "grid") {
+          self$meta_data$variable == "grid" &&
+          self$meta_data$dimspatial_format == "cell") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # support of lazy loading of grid for meta files else add explicitly
-      if (is.null(self$grid)) {
+      if (is.null(self$grid) &&
+          self$meta_data$dimspatial_format == "cell") {
         self$add_grid()
       }
       # workflow adjusted for subsetted grid (via cell)
       data_subset <- subset(self, subset_list)
-      if (is.null(fix_extent)) {
-        # calculate grid extent from range to span raster
-        grid_extent <- apply(
-            data_subset$grid$data,
-            "band",
-            range
-          ) + matrix(
-            # coordinates represent the centre of cell, for the extent borders
-            #   are required, thus subtract/add half of resolution
-            c(-self$meta_data$cellsize_lon / 2,
-              self$meta_data$cellsize_lon / 2,
-              -self$meta_data$cellsize_lat / 2,
-              self$meta_data$cellsize_lat / 2),
-            nrow = 2,
-            ncol = 2
-          )
-      } else {
-        grid_extent <- matrix(
-          fix_extent,
-          nrow = 2,
-          ncol = 2
-        )
+      if (!is.null(aggregate_dim) &&
+          !any(aggregate_dim %in% strsplit(self$meta_data$dimspatial_format,"_")[[1]]) && # nolint
+          all(aggregate_dim %in% names(dim(self$data)))) {
+        # not recommended for self, some meta_data not valid for data_subset!
+        data_subset$data <- aggregate(self,
+                                      dimension = aggregate_dim,
+                                      fun = aggregate_fun,
+                                      ...)
+      } else if (!is.null(aggregate_dim)) {
+        stop(paste("Only non-spatial and existing dimensions are valid for",
+                   "argument aggregate_dim. Please adjust",
+                   toString(dQuote(aggregate_dim))))
       }
+      # calculate grid extent from range to span raster
+      if (data_subset$meta_data$dimspatial_format == "cell") {
+        data_extent <- apply(data_subset$grid$data,
+                             "band",
+                             range)
+      } else {
+        data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint
+                                range(as.numeric(dimnames(data_subset$data)[["lat"]]))), # nolint
+                                nrow = 2,
+                                ncol = 2)
+      }
+      grid_extent <- data_extent + matrix(
+        # coordinates represent the centre of cell, for the extent borders
+        #   are required, thus subtract/add half of resolution
+        c(-data_subset$meta_data$cellsize_lon / 2,
+          data_subset$meta_data$cellsize_lon / 2,
+          -data_subset$meta_data$cellsize_lat / 2,
+          data_subset$meta_data$cellsize_lat / 2),
+        nrow = 2,
+        ncol = 2
+      )
+
       tmp_raster <- raster::raster(
-        res = c(self$meta_data$cellsize_lon, self$meta_data$cellsize_lat),
+        res = c(data_subset$meta_data$cellsize_lon,
+                data_subset$meta_data$cellsize_lat),
         xmn = grid_extent[1, 1],
         xmx = grid_extent[2, 1],
         ymn = grid_extent[1, 2],
         ymx = grid_extent[2, 2],
         crs = "EPSG:4326"
-        )
+      )
       # get dimensions larger 1 to check if raster or brick required
       #   (or too many dimensions > 1 which are not compatible with raster)
       multi_dims <- names(which(dim(data_subset$data) > 1))
-      if (length(multi_dims) > 2) {
-        stop(
-          paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via $subset.")
-        )
-      } else if (length(multi_dims) == 2) {
-        # get dimension with length > 1 which is not cell to use for
-        #   layer naming
-        multi_layer <- multi_dims[which(multi_dims != "cell")]
-        tmp_raster <- raster::brick(tmp_raster,
-                                    nl = dim(data_subset$data)[multi_layer])
-        names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
-      } else if (length(multi_dims) == 1) {
-        # for single rasters use variable as layer name
-        names(tmp_raster) <- self$meta_data$variable
+      # check for dimspatial_format == "lon_lat" if multiple bands/time convert
+      #   to "cell" format, if larger stop
+      if (data_subset$meta_data$dimspatial_format == "lon_lat") {
+        if (length(multi_dims) == 3) {
+          data_subset$convert_space()
+          multi_dims <- names(which(dim(data_subset$data) > 1))
+        } else if (length(multi_dims) > 3) {
+          stop(
+            paste("Too many dimensions with length > 1.",
+                  "Reduce to max. two dimensions via subset function or",
+                  "argument.")
+          )
+        } else {
+          tmp_raster <- raster::raster(
+            data_subset$data[rev(seq_len(dim(data_subset$data)[["lat"]])), ],
+            template = tmp_raster
+          )
+          names(tmp_raster) <- data_subset$meta_data$variable
+        }
       }
-      # add values of raster cells by corresponding coordinates (lon, lat)
-      tmp_raster[
-        raster::cellFromXY(
-          tmp_raster,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- data_subset$data
-
+      if (data_subset$meta_data$dimspatial_format == "cell") {
+        if (length(multi_dims) > 2) {
+          stop(
+            paste("Too many dimensions with length > 1.",
+                  "Reduce to max. two dimensions via $subset.")
+          )
+        } else if (length(multi_dims) == 2) {
+          # get dimension with length > 1 which is not cell to use for
+          #   layer naming
+          multi_layer <- multi_dims[which(multi_dims != "cell")]
+          tmp_raster <- raster::brick(tmp_raster,
+                                      nl = dim(data_subset$data)[multi_layer])
+          names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
+        } else if (length(multi_dims) == 1) {
+          # for single rasters use variable as layer name
+          names(tmp_raster) <- data_subset$meta_data$variable
+        }
+        # add values of raster cells by corresponding coordinates (lon, lat)
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- data_subset$data
+      }
       return(tmp_raster)
     },
     as_rast = function(grid_file, as_layers = "band", subset_list = NULL) {
@@ -188,7 +228,8 @@ LpjmlData <- R6::R6Class(
                                   subset_list[name_idx],
                                   drop = FALSE)
         # subset grid & update corresponding meta data
-        self$grid$data <- subset_array(self$data, subset_list[name_idx])
+        self$grid$data <- subset_array(self$data, subset_list[name_idx],
+                                       drop = FALSE)
         self$grid$meta_data$._update_subset(subset_list[name_idx])
         # update reduced_subset_list to avoid later double or wrong subsetting
         reduced_subset_list[name_idx] <- NULL
@@ -249,7 +290,8 @@ LpjmlData <- R6::R6Class(
         self$meta_data$._update_subset(subset_list)
       }
       if (!is.null(self$grid) && !is.null(subset_list[["cell"]])) {
-        self$grid$data <- subset_array(self$data, subset_list["cell"])
+        self$grid$data <- subset_array(self$data, subset_list["cell"],
+                                       drop = FALSE)
         self$grid$meta_data$._update_subset(subset_list["cell"])
       }
       return(invisible(self))
@@ -270,78 +312,25 @@ LpjmlData <- R6::R6Class(
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
         if (self$meta_data$subset_spatial) {
-          self$grid <- read_output(
+          self$grid <- read_io(
             file_name = filename,
             subset_list = list(cell = self$dimnames()[["cell"]])
           )
         } else {
-          self$grid <- read_output(file_name = filename)
+          self$grid <- read_io(file_name = filename)
         }
       } else {
-        # all arguments have to be provided manually via read_output args
+        # all arguments have to be provided manually via read_io args
         #   ellipsis (...) does that
         # check if arguments are provided
         if (length(as.list(match.call())) > 1) {
-          self$grid <- read_output(...)
+          self$grid <- read_io(...)
         } else {
           stop(paste("If no meta file is available $add_grid",
-                     "has to be called explicitly with args as read_output."))
+                     "has to be called explicitly with args as read_io."))
         }
       }
       return(invisible(self))
-    },
-
-    convert_spatial2 = function() {
-      # support of lazy loading of grid for meta files else add explicitly
-      if (is.null(self$grid)) {
-        self$add_grid()
-      }
-      # lon/lat information
-      lon_range <- range(self$grid$data[, "lon"])
-      lat_range <- range(self$grid$data[, "lat"])
-      # number of decimals in lon/lat resolution
-      ndigits_lon <- nchar(
-        unlist(strsplit(
-          x = as.character(self$meta_data$cellsize_lon), split = "[.]"))[2]
-      )
-      ndigits_lat <- nchar(
-        unlist(strsplit(
-          x = as.character(self$meta_data$cellsize_lat), split = "[.]"))[2]
-      )
-      # Sequence of lons & lats (X, Y dims of array), rounded to ndigits
-      lons <- round(c(
-        seq(from = lon_range[1], to = lon_range[2],
-            by = self$meta_data$cellsize_lon),
-        lon_range[2]
-      ), ndigits_lon)
-      lats <- round(c(
-        seq(from = lat_range[1], to = lat_range[2],
-            by = self$meta_data$cellsize_lat),
-          lat_range[2]
-      ), ndigits_lat)
-
-      # Initialize array_out with dimensions [lon, lat, time, band]
-      nlon      <- length(lons)
-      nlat      <- length(lats)
-      ntime     <- self$meta_data$nyear * self$meta_data$nstep
-      nband     <- length(dimnames(self$data)[["band"]])
-      dims_ls   <- list(lon  = as.character(lons),
-                        lat  = as.character(lats),
-                        time = dimnames(self)[["time"]],
-                        band = dimnames(self$data)[["band"]])
-      array_out <- array(
-        NA, dim = c(nlon, nlat, ntime, nband), dimnames = dims_ls
-        )
-
-      # Loop through grid rows
-      for (i in seq_len(nrow(self$grid$data))) {
-        # Get index of lon and lat on the output array
-        ilon <- which.min(abs(lons - self$grid$data[i, "lon"]))
-        ilat <- which.min(abs(lats - self$grid$data[i, "lat"]))
-        # Extract values from data_lpjml array & store values in array_out
-        array_out[ilon, ilat, , ] <- self$data[i, , ]
-      }
-        return(array_out)
     },
 
     convert_grid = function(dim_format = NULL) {
@@ -372,7 +361,8 @@ LpjmlData <- R6::R6Class(
                                    rev(grid_extent[1, ]),
                                    rev(grid_extent[2, ]),
                                    by = c(self$meta_data$cellsize_lat,
-                                          self$meta_data$cellsize_lon))
+                                          self$meta_data$cellsize_lon),
+                                   SIMPLIFY = FALSE)
         # init grid array
         grid_array <- array(NA,
                           dim = lapply(spatial_dimnames, length),
@@ -418,7 +408,7 @@ LpjmlData <- R6::R6Class(
 
     # INSERT ROXYGEN SKELETON: CONVERT SPATIAL METHOD
     # dim_format = c("lon_lat", "cell")
-    convert_spatial = function(dim_format = NULL) {
+    convert_space = function(dim_format = NULL) {
       if (!is.null(self$meta_data$variable) &&
           self$meta_data$variable == "grid") {
         self$convert_grid(dim_format = dim_format)
@@ -555,12 +545,25 @@ LpjmlData <- R6::R6Class(
       )
       return(invisible(self))
     },
-    summary = function(dimension="band",
+    # aggregation function, only to be applied for conversions (as_raster, plot)
+    #   do not apply to self to not violate data integrity !
+    aggregate = function(dimension = "band",
+                         fun = sum,
+                         ...) {
+      dim_names <- names(dim(self$data))
+      apply(X = self$data,
+            MARGIN = dim_names[!dim_names %in% dimension],
+            FUN = fun,
+            ...) %>%
+      return()
+    },
+    summary = function(dimension = "band",
                        subset_list = NULL,
                        cutoff = FALSE,
                        ...) {
       data <- subset_array(self$data, subset_list)
-      if (dimension %in% names(dimnames(data))) {
+      if (dimension %in% names(dimnames(data)) &&
+          length(which(dim(data) > 1)) > 1) {
         mat_sum <- data %>%
           apply(dimension, c)
         if (dim(mat_sum)[2] > 16 && cutoff) {
@@ -593,7 +596,7 @@ LpjmlData <- R6::R6Class(
           var_name <- "cell"
           mat_sum <- mat_sum[c(1, 6), ]
         } else {
-            var_name <- self$meta_data$variable
+          var_name <- default(self$meta_data$variable, "")
         }
         space_len <- ifelse(nchar(var_name) > 8,
                             0,
@@ -639,7 +642,7 @@ LpjmlData <- R6::R6Class(
                                             to_char2),
                                    "...",
                                    paste0(to_char2,
-                                          tail(dim_names[[sub]], n = 1),
+                                          utils::tail(dim_names[[sub]], n = 1),
                                           to_char2)))
         } else {
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
@@ -673,10 +676,9 @@ LpjmlData <- R6::R6Class(
   private = list(
     init_grid = function() {
       # update grid data
-      self$data <- self$data * self$meta_data$scalar
       dimnames(self$data)[["band"]] <- c("lon", "lat")
       # update grid meta data
-      self$data <- drop(self$data)
+      self$data <- drop_omit(self$data, omit = "cell")
       self$meta_data$._init_grid()
       return(invisible(self))
     }
@@ -711,9 +713,14 @@ convert_time <- function(x, ...) {
   return(y)
 }
 
-convert_spatial <- function(x, ...) {
+aggregate <- function(x, ...) {
+  y <- x$aggregate(...)
+  return(y)
+}
+
+convert_space <- function(x, ...) {
   y <- x$clone(deep = TRUE)
-  y$convert_spatial(...)
+  y$convert_space(...)
   return(y)
 }
 

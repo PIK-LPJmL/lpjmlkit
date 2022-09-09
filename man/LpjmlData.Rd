@@ -26,6 +26,8 @@ Handles LPJmL output and input data
 \item \href{#method-dimnames}{\code{LpjmlData$dimnames()}}
 \item \href{#method-subset}{\code{LpjmlData$subset()}}
 \item \href{#method-add_grid}{\code{LpjmlData$add_grid()}}
+\item \href{#method-convert_grid}{\code{LpjmlData$convert_grid()}}
+\item \href{#method-convert_space}{\code{LpjmlData$convert_space()}}
 \item \href{#method-convert_time}{\code{LpjmlData$convert_time()}}
 \item \href{#method-summary}{\code{LpjmlData$summary()}}
 \item \href{#method-print}{\code{LpjmlData$print()}}
@@ -64,7 +66,11 @@ Handles LPJmL output and input data
 \if{latex}{\out{\hypertarget{method-as_array}{}}}
 \subsection{Method \code{as_array()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_array(subset_list = NULL, drop = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$as_array(
+  subset_list = NULL,
+  spatial_format = NULL,
+  time_format = NULL
+)}\if{html}{\out{</div>}}
 }
 
 }
@@ -132,11 +138,29 @@ Handles LPJmL output and input data
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-convert_grid"></a>}}
+\if{latex}{\out{\hypertarget{method-convert_grid}{}}}
+\subsection{Method \code{convert_grid()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_grid(dim_format = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-convert_space"></a>}}
+\if{latex}{\out{\hypertarget{method-convert_space}{}}}
+\subsection{Method \code{convert_space()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_space(dim_format = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-convert_time"></a>}}
 \if{latex}{\out{\hypertarget{method-convert_time}{}}}
 \subsection{Method \code{convert_time()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_time()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$convert_time(dim_format = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -145,7 +169,7 @@ Handles LPJmL output and input data
 \if{latex}{\out{\hypertarget{method-summary}{}}}
 \subsection{Method \code{summary()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$summary(dimension = "band", subset_list = NULL, cutoff = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LpjmlData$summary(dimension = "band", subset_list = NULL, cutoff = FALSE, ...)}\if{html}{\out{</div>}}
 }
 
 }

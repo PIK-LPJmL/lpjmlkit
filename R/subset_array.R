@@ -24,10 +24,10 @@
 #' my_array <- array(1,
 #'                   dim=c(cell=67, month=12, band=3),
 #'                   dimnames=list(cell=0:66,
-#'                                 month=1:12
+#'                                 month=1:12,
 #'                                 band=c("band1", "band2", "band3")))
 #' my_subset <- subset_array(my_array,
-#'                           subset_list(bands=c("band1", "band3")))
+#'                           subset_list = list(bands=c("band1", "band3")))
 #' dimnames(my_subset)[3]
 #' # $ band
 #' #   [1] "band1"
@@ -35,7 +35,7 @@
 #'
 #' # replace subset
 #' my_replacement <- replace_array(my_subset,
-#'                                 subset_list(bands=c("band1")),
+#'                                 subset_list = list(bands=c("band1")),
 #'                                 0)
 #' @aliases asub replace_array
 #' @export
@@ -61,7 +61,7 @@ asub <- subset_array
 replace_array <- function(x, subset_list, y) {
   argum <- c(alist(x), subarray_argument(x, subset_list), alist(y))
   do.call("[<-", argum) %>%
-    return
+    return()
 }
 
 
@@ -141,6 +141,13 @@ subset_array_pair <- function(x,
   y[] <- x[!is.na(subset_mask)]
 
   return(y)
+}
+
+# drop 1 dimensional dimension except those that are selected by name
+drop_omit <- function(x, omit_dim) {
+  dims <- dim(x)
+  dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
+  return(abind::adrop(x, dims_check))
 }
 
 # pair=tibble(lat=c(-55.75,-55.25,-54.5), lon=c(-179.75, -179.25, -178.9))

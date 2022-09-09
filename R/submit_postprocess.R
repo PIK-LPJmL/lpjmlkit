@@ -135,7 +135,7 @@ submit_postprocess <- function(x = NULL,
   fun_name <- as.character(substitute(fun))
 
   # case for tibble returned by submit_lpjml
-  if (is(x, c("tbl_df", "tbl")) &
+  if (methods::is(x, c("tbl_df", "tbl")) &
       "lpjml" %in% attr(x, "stages")) {
     sim_names <- unique(x$sim_name)
     # to be used in lpjml pipe context
@@ -145,7 +145,7 @@ submit_postprocess <- function(x = NULL,
     if (!("dependency" %in% colnames(x))) x$dependency <- NA
     if (!("order" %in% colnames(x))) x$order <- 1
   # case for character vector to list sim_names (here output folder)
-  } else if (is(x, "character")) {
+  } else if (methods::is(x, "character")) {
     sim_names <- x
     is_pipe <- FALSE
   # if nothing is provided output_path is assumed to be location of output files
