@@ -644,7 +644,8 @@ mutate_config_output <- function(x,
           switch(
             ifelse(length(output_timestep) > 1,
                    output_timestep[id_ov],
-                   output_timestep),
+                   output_timestep) %>%
+              ifelse(is.na(.), "annual", .),
             annual = "/yr",
             monthly = "/month",
             daily = "/day"
