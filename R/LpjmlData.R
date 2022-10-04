@@ -67,7 +67,6 @@ LpjmlData <- R6::R6Class(
     as_raster = function(subset_list = NULL,
                          aggregate_dim = NULL,
                          aggregate_fun = sum,
-                         aggregate_idx = c(),
                          ...) {
       if (!is.null(self$meta_data$variable) &&
           self$meta_data$variable == "grid" &&
@@ -85,10 +84,9 @@ LpjmlData <- R6::R6Class(
           !any(aggregate_dim %in% strsplit(self$meta_data$dimspatial_format,"_")[[1]]) && # nolint
           all(aggregate_dim %in% names(dim(self$data)))) {
         # not recommended for self, some meta_data not valid for data_subset!
-        data_subset$data <- aggregate(self,
+        data_subset$data <- aggregate(data_subset,
                                       dimension = aggregate_dim,
                                       fun = aggregate_fun,
-                                      dim_subset = aggregate_idx,
                                       ...)
       } else if (!is.null(aggregate_dim)) {
         stop(paste("Only non-spatial and existing dimensions are valid for",
@@ -553,15 +551,8 @@ LpjmlData <- R6::R6Class(
                          fun = sum,
                          dim_subset = c(),
                          ...) {
-      if (length(dim_subset) > 0) {
-        agg_subset <- subset_array(self$data,
-                                   structure(list(dim_subset), names = dimension[1]), # nolint
-                                   drop = FALSE)
-      } else {
-        agg_subset <- self$data
-      }
-      dim_names <- names(dim(agg_subset))
-      apply(X = agg_subset,
+      dim_names <- names(dim(self$data))
+      apply(X = self$data,
             MARGIN = dim_names[!dim_names %in% dimension],
             FUN = fun,
             ...) %>%
