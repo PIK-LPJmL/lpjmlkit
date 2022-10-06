@@ -500,7 +500,8 @@ LpjmlData <- R6::R6Class(
         # possible ndays of months
         ndays_in_month <- c(31, 30, 28)
         # split time string "year-month-day" into year, month, day int vector
-        time_dimnames <- split_time_names(self$dimnames()[["time"]])
+        #   reverse it to get it into the right order for array conversion
+        time_dimnames <- split_time_names(self$dimnames()[["time"]]) %>% rev()
 
         # assume no daily data - remove day dimension
         if (all(time_dimnames[["day"]] %in% ndays_in_month)) {
