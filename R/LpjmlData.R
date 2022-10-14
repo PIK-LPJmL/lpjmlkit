@@ -34,35 +34,31 @@ LpjmlData <- R6::R6Class(
         }
       }
     },
-    as_tibble = function(subset_list = NULL, value_name = "value") {
-      self$data %>%
-        subset_array(subset_list) %>%
-        reshape2::melt(value.name = value_name) %>%
-        tibble::as_tibble() %>%
-        dplyr::mutate(across(names(dimnames(self$data)), as.factor)) %>%
+    as_array = function(subset_list = NULL,
+                        aggregate_dim = NULL,
+                        aggregate_fun = sum,
+                        ...) {
+      # initiate clone to be returned on which following methods are executed
+      self %>%
+        subset(subset_list) %>%
+        aggregate_array(dimension = aggregate_dim,
+                        fun = aggregate_fun,
+                        ...) %>%
         return()
     },
-    as_array = function(subset_list = NULL,
-                        # spatial_format = c("cell", "lon_lat")
-                        spatial_format = NULL,
-                        # time_format = c("time", "year_month_day")
-                        time_format = NULL) {
-      # initiate clone to be returned on which following methods are executed
-      x <- self$clone(deep = TRUE)
+    as_tibble = function(subset_list = NULL,
+                         aggregate_dim = NULL,
+                         aggregate_fun = sum,
+                         value_name = "value",
+                         ...) {
+      data <- self %>%
+        as_array(subset_list, aggregate_dim, aggregate_fun, ...)
 
-      # convert spatial dimension format
-      if (!is.null(spatial_format)) {
-        x <- convert_spatial(x, spatial_format)
-      }
-
-      # convert time dimension format
-      if (!is.null(time_format)) {
-        x <- convert_time(x, time_format)
-      }
-      # apply subset
-      x$subset(subset_list)
-
-      return(x$data)
+      data %>%
+        reshape2::melt(value.name = value_name) %>%
+        tibble::as_tibble() %>%
+        dplyr::mutate(across(names(dimnames(data)), as.factor)) %>%
+        return()
     },
     as_raster = function(subset_list = NULL,
                          aggregate_dim = NULL,
@@ -70,31 +66,31 @@ LpjmlData <- R6::R6Class(
                          ...) {
       if (!is.null(self$meta_data$variable) &&
           self$meta_data$variable == "grid" &&
-          self$meta_data$dimspatial_format == "cell") {
+          self$meta_data$space_format == "cell") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
       # support of lazy loading of grid for meta files else add explicitly
       if (is.null(self$grid) &&
-          self$meta_data$dimspatial_format == "cell") {
+          self$meta_data$space_format == "cell") {
         self$add_grid()
       }
       # workflow adjusted for subsetted grid (via cell)
       data_subset <- subset(self, subset_list)
       if (!is.null(aggregate_dim) &&
-          !any(aggregate_dim %in% strsplit(self$meta_data$dimspatial_format,"_")[[1]]) && # nolint
+          !any(aggregate_dim %in% strsplit(self$meta_data$space_format,"_")[[1]]) && # nolint
           all(aggregate_dim %in% names(dim(self$data)))) {
         # not recommended for self, some meta_data not valid for data_subset!
-        data_subset$data <- aggregate(data_subset,
-                                      dimension = aggregate_dim,
-                                      fun = aggregate_fun,
-                                      ...)
+        data_subset$data <- aggregate_array(data_subset,
+                                            dimension = aggregate_dim,
+                                            fun = aggregate_fun,
+                                            ...)
       } else if (!is.null(aggregate_dim)) {
         stop(paste("Only non-spatial and existing dimensions are valid for",
                    "argument aggregate_dim. Please adjust",
                    toString(dQuote(aggregate_dim))))
       }
       # calculate grid extent from range to span raster
-      if (data_subset$meta_data$dimspatial_format == "cell") {
+      if (data_subset$meta_data$space_format == "cell") {
         data_extent <- apply(data_subset$grid$data,
                              "band",
                              range)
@@ -127,11 +123,11 @@ LpjmlData <- R6::R6Class(
       # get dimensions larger 1 to check if raster or brick required
       #   (or too many dimensions > 1 which are not compatible with raster)
       multi_dims <- names(which(dim(data_subset$data) > 1))
-      # check for dimspatial_format == "lon_lat" if multiple bands/time convert
+      # check for space_format == "lon_lat" if multiple bands/time convert
       #   to "cell" format, if larger stop
-      if (data_subset$meta_data$dimspatial_format == "lon_lat") {
+      if (data_subset$meta_data$space_format == "lon_lat") {
         if (length(multi_dims) == 3) {
-          data_subset$convert_space()
+          data_subset$format_space()
           multi_dims <- names(which(dim(data_subset$data) > 1))
         } else if (length(multi_dims) > 3) {
           stop(
@@ -140,14 +136,14 @@ LpjmlData <- R6::R6Class(
                   "argument.")
           )
         } else {
-          tmp_raster <- raster::raster(
-            data_subset$data[rev(seq_len(dim(data_subset$data)[["lat"]])), ],
-            template = tmp_raster
-          )
+          tmp_raster <- data_subset$data %>%
+            subset_array(list(lat = rev(seq_len(dim(data_subset$data)[["lat"]]))), # nolint
+                        force_idx = TRUE) %>%
+            raster::raster(template = tmp_raster)
           names(tmp_raster) <- data_subset$meta_data$variable
         }
       }
-      if (data_subset$meta_data$dimspatial_format == "cell") {
+      if (data_subset$meta_data$space_format == "cell") {
         if (length(multi_dims) > 2) {
           stop(
             paste("Too many dimensions with length > 1.",
@@ -175,7 +171,7 @@ LpjmlData <- R6::R6Class(
       }
       return(tmp_raster)
     },
-    as_rast = function(grid_file, as_layers = "band", subset_list = NULL) {
+    as_terra = function(grid_file, as_layers = "band", subset_list = NULL) {
       stop("TO BE IMPLEMENTED SOON")
     },
     length = function() {
@@ -190,110 +186,119 @@ LpjmlData <- R6::R6Class(
 
     # INSERT ROXYGEN SKELETON: SUBSET METHOD
     subset = function(subset_list) {
-      # if ("coords" %in% names(subset_list) &&
-      #     self$meta_data$dimspatial_format == "coords") {
-      #   if (is.matrix(subset_list["lon_lat"])) {
-      #     for (irow in seq_len(subset_list["coords"])) {
-      #       self$data[irow[1], irow[2], , ]
-      #     }
-      #   }
-      # init reduced subset list to avoid later double or wrong subsetting
-      reduced_subset_list <- subset_list
 
-      # spatial subsseting
+      # function to throw error if subset dimension does not fit the format
+      stop_format <- function(subset_dim, format) {
+        stop(
+          paste0(
+            "\u001b[34m",
+            paste0(subset_dim, collapse = ", "),
+            "\u001b[0m",
+            " is defined in subset_list, but x has the wrong format. Use ",
+            "\u001b[34m",
+            "format(\"",
+            format,
+            "\")",
+            "\u001b[0m",
+            " to convert into suitable format."
+          ),
+          call. = FALSE
+        )
+      }
       lon_lat <- c("lon", "lat")
-      dimspatial_format <- self$meta_data$dimspatial_format
 
-      # cell subset before dims are converted to lat, lon
-      if ("cell" %in% names(subset_list) &&
-          !any(lon_lat %in% names(subset_list)) &&
-          self$meta_data$dimspatial_format != "cell") {
-        self$convert_spatial("cell")
-        self$data <- subset_array(self$data,
-                                  subset_list["cell"],
-                                  drop = FALSE)
-        # update reduced_subset_list to avoid later double or wrong subsetting
-        reduced_subset_list["cell"] <- NULL
-        self$convert_spatial(dimspatial_format)
-
-      # lat, lon subset before dims are converted to cell
-      } else if (any(lon_lat %in% names(subset_list)) &&
-                 !("cell" %in% names(subset_list)) &&
-                 self$meta_data$dimtime_format != "lon_lat") {
-        self$convert_time("lon_lat")
-        name_idx <- as.vector(
-          na.omit(match(lon_lat, names(subset_list)))
-        )
-        self$data <- subset_array(self$data,
-                                  subset_list[name_idx],
-                                  drop = FALSE)
-        # subset grid & update corresponding meta data
-        self$grid$data <- subset_array(self$data, subset_list[name_idx],
-                                       drop = FALSE)
-        self$grid$meta_data$._update_subset(subset_list[name_idx])
-        # update reduced_subset_list to avoid later double or wrong subsetting
-        reduced_subset_list[name_idx] <- NULL
-        self$convert_spatial(dimspatial_format)
-
-      } else if (any(lon_lat %in% names(subset_list)) &&
-                 "cell" %in% names(subset_list)) {
-        stop(paste("Combinations of subset dimension \"cell\" with dimensions",
-                  toString(dQuote(lon_lat)),
-                  "are not allowed."))
-      }
-
-      # time subsseting
-      year_month_day <- c("year", "month", "day")
-      dimtime_format <- self$meta_data$dimtime_format
-
-      # for time if dimtime_format is not time convert_time format
-      if ("time" %in% names(subset_list) &&
-          !any(year_month_day %in% names(subset_list)) &&
-          self$meta_data$dimtime_format != "time") {
-        self$convert_time("time")
-        self$data <- subset_array(self$data,
-                                  subset_list["time"],
-                                  drop = FALSE)
-        reduced_subset_list["time"] <- NULL
-        self$convert_time(dimtime_format)
-
-      # for year, month, day if dimtime_format is not year, month, day
-      #   convert_time format
-      } else if (any(year_month_day %in% names(subset_list)) &&
-                 !("time" %in% names(subset_list)) &&
-                 self$meta_data$dimtime_format != "year_month_day") {
-        self$convert_time("year_month_day")
-        name_idx <- as.vector(
-          na.omit(match(year_month_day, names(subset_list)))
-        )
-        self$data <- subset_array(self$data,
-                                  subset_list[name_idx],
-                                  drop = FALSE)
-        reduced_subset_list[name_idx] <- NULL
-        self$convert_time(dimtime_format)
-
-
-      } else if (any(year_month_day %in% names(subset_list)) &&
-                 "time" %in% names(subset_list)) {
-        stop(paste("Combinations of subset dimension \"time\" with dimensions",
-                  toString(dQuote(year_month_day)),
-                  "are not allowed."))
-      }
-
-      # rest of subsetting (with reduced subset_list that has not been subset)
-      self$data <- subset_array(self$data, reduced_subset_list, drop = FALSE)
-
-      if ("time" %in% names(subset_list) &&
-          self$meta_data$dimtime_format == "time") {
-        self$meta_data$._update_subset(subset_list, self$dimnames()[["time"]])
+      # if coords/coordinates are provided use subset pair function first
+      if (any(c("coords", "coordinates") %in% names(subset_list))) {
+        # get term beeing used for subsetting ("coords" or "coordinates" legit)
+        coords <- c("coords", "coordinates")[
+          c("coords", "coordinates") %in% names(subset_list)
+        ]
+        # check if current space_format is "lon_lat"
+        if (self$meta_data$space_format != "lon_lat") {
+          stop_format(coords, "lon_lat")
+        }
+        # subset pairs for both data and grid data
+        self$data <- subset_array_pair(x = self$data,
+                                       pair = subset_list[[coords]])
+        self$grid$data <- subset_array_pair(x = self$grid$data,
+                                            pair = subset_list[[coords]])
       } else {
-        self$meta_data$._update_subset(subset_list)
+        # to avoid errors when subsetting list with coords
+        coords <- "none"
       }
-      if (!is.null(self$grid) && !is.null(subset_list[["cell"]])) {
-        self$grid$data <- subset_array(self$data, subset_list["cell"],
+
+      # assign subset_space_dim for fomrat "cell"
+      if ("cell" %in% names(subset_list)) {
+        subset_space_dim <- "cell"
+        # check if current space_format is "cell"
+        if (self$meta_data$space_format != "cell") {
+          stop_format(subset_space_dim, "cell")
+        }
+      } else {
+        subset_space_dim <- NULL
+      }
+      # assign subset_space_dim for fomrat "lat_lon"
+      if (any(lon_lat %in% names(subset_list))) {
+        subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
+        # check if current space_format is "lat_lon"
+        if (self$meta_data$space_format != "lon_lat") {
+          stop_format(subset_space_dim, "lon_lat")
+        }
+      }
+      # do subset without coords (if provided - done already in the beginning)
+      self$data <- subset_array(self$data,
+                                subset_list[names(subset_list) != coords],
+                                drop = FALSE)
+
+      # same for grid but only for space dimensions
+      if (!is.null(self$grid) && !is.null(subset_space_dim)) {
+        self$grid$data <- subset_array(self$grid$data,
+                                       subset_list[subset_space_dim],
                                        drop = FALSE)
-        self$grid$meta_data$._update_subset(subset_list["cell"])
       }
+
+      if ("time" %in% names(subset_list)) {
+        if (self$meta_data$time_format != "time") {
+          # check if current time_format is "time"
+          stop_format("time", "time")
+        }
+        # if time should be converted by time string, it has to be passed
+        #   to ._update_subset method in LpjmlMetaData which does not have
+        #   time strings of the data
+        time_dimnames <- self$dimnames()$time
+      } else {
+        time_dimnames <- NULL
+      }
+
+      if (any(c(lon_lat, "cell", coords) %in% names(subset_list))) {
+        # if space dimensions are subsetted convert ._update_subset method
+        #   in LpjmlMetaData needs to know the resulting number of cells
+        #   as well as the (new) firstcell - pass resulting cell_dimnames
+        if (self$meta_data$space_format == "cell") {
+          cell_dimnames <- self$dimnames()$cell
+        } else {
+          cell_dimnames <- format_space(self$grid) %>%
+            dimnames() %>%
+            .$cell
+        }
+      } else {
+        cell_dimnames <- NULL
+      }
+      # workaround for coords - sufficient to pass corresponding lat, lon to
+      #   to update subset in meta data
+      if (coords %in% names(subset_list)) {
+        subset_list$lat <- subset_list[[coords]]$lat
+        subset_list$lon <- subset_list[[coords]]$lon
+        subset_list[[coords]] <- NULL
+      }
+      # update corresponding meta data for subsets
+      self$meta_data$._update_subset(subset_list,
+                                     time_dimnames,
+                                     cell_dimnames)
+      if (!is.null(self$grid)) {
+        self$grid$meta_data$._update_subset(subset_list[subset_space_dim])
+      }
+
       return(invisible(self))
     },
 
@@ -311,7 +316,7 @@ LpjmlData <- R6::R6Class(
         filename <- paste(self$meta_data$data_dir, grid_file, sep = "/")
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
-        if (self$meta_data$subset_spatial) {
+        if (self$meta_data$subset_space) {
           self$grid <- read_io(
             file_name = filename,
             subset_list = list(cell = self$dimnames()[["cell"]])
@@ -333,23 +338,23 @@ LpjmlData <- R6::R6Class(
       return(invisible(self))
     },
 
-    convert_grid = function(dim_format = NULL) {
+    format_grid = function(to = NULL) {
       if (is.null(self$meta_data$variable) ||
           self$meta_data$variable != "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
-      # convenience function - if null automatically switch to other dim_format
-      if (is.null(dim_format)) {
-        if (self$meta_data$dimspatial_format == "cell") {
-          dim_format <- "lon_lat"
+      # convenience function - if null automatically switch to other to
+      if (is.null(to)) {
+        if (self$meta_data$space_format == "cell") {
+          to <- "lon_lat"
         } else {
-          dim_format <- "cell"
+          to <- "cell"
         }
       }
 
       # convert between single cell dimension and lon, lat dimensions
-      if (self$meta_data$dimspatial_format == "cell" &&
-          dim_format == "lon_lat") {
+      if (self$meta_data$space_format == "cell" &&
+          to == "lon_lat") {
         # calculate grid extent from range to span raster
         grid_extent <- apply(
             self$data,
@@ -363,25 +368,26 @@ LpjmlData <- R6::R6Class(
                                    by = c(self$meta_data$cellsize_lat,
                                           self$meta_data$cellsize_lon),
                                    SIMPLIFY = FALSE)
+        # spatial_dimnames$lat <- rev(spatial_dimnames$lat)
         # init grid array
         grid_array <- array(NA,
                           dim = lapply(spatial_dimnames, length),
                           dimnames = spatial_dimnames)
         # get indices of lat and lon dimnames
         ilon <- match(self$data[, 1],
-                     as.numeric(dimnames(grid_array)[["lon"]]))
+                      as.numeric(dimnames(grid_array)$lon))
         ilat <- match(self$data[, 2],
-                     as.numeric(dimnames(grid_array)[["lat"]]))
-        # replace cell of of lon and lat by cell index
+                      as.numeric(dimnames(grid_array)$lat))
+        # replace cell of lon and lat by cell index
         grid_array[cbind(ilat, ilon)] <- as.integer(
-          dimnames(self$data)[["cell"]]
+          dimnames(self$data)$cell
         )
         self$data <- grid_array
-        self$meta_data$._convert_dimspatial_format("lon_lat")
+        self$meta_data$._convert_space_format("lon_lat")
 
       # convert between lon, lat dimensions and single cell dimension
-      } else if (self$meta_data$dimspatial_format == "lon_lat" &&
-          dim_format == "cell") {
+      } else if (self$meta_data$space_format == "lon_lat" &&
+          to == "cell") {
         # get indices of actual cells
         grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
         grid_dimnames <- lapply(dimnames(self$data), as.numeric)
@@ -400,42 +406,48 @@ LpjmlData <- R6::R6Class(
           dimnames = list(cell = self$data[grid_indices],
                           band = c("lon", "lat"))
         )
-        self$meta_data$._convert_dimspatial_format("cell")
+        self$meta_data$._convert_space_format("cell")
       }
 
       return(invisible(self))
     },
 
     # INSERT ROXYGEN SKELETON: CONVERT SPATIAL METHOD
-    # dim_format = c("lon_lat", "cell")
-    convert_space = function(dim_format = NULL) {
+    # to = c("lon_lat", "cell")
+    format_space = function(to = NULL) {
+      # check if grid then use format_grid method
       if (!is.null(self$meta_data$variable) &&
           self$meta_data$variable == "grid") {
-        self$convert_grid(dim_format = dim_format)
+        self$format_grid(to = to)
         return(invisible(self))
+      }
+      # if to is not specified switch to avail other format else if to equals
+      #   current format return directly
+      if (is.null(to)) {
+        if (self$meta_data$space_format == "cell") {
+          to <- "lon_lat"
+        } else {
+          to <- "cell"
+        }
+      } else {
+        if (self$meta_data$space_format == to) {
+          return(invisible(self))
+        }
       }
       # support of lazy loading of grid for meta files else add explicitly
       if (is.null(self$grid)) {
         self$add_grid()
       }
-      if (is.null(dim_format)) {
-        if (self$meta_data$dimspatial_format == "cell") {
-          dim_format <- "lon_lat"
-        } else {
-          dim_format <- "cell"
-        }
-      }
-
       # create new data array based on disaggregated time dimension
       other_dimnames <- dimnames(self$data) %>%
-        `[<-`(unlist(strsplit(self$meta_data$dimspatial_format, "_")), NULL)
+        `[<-`(unlist(strsplit(self$meta_data$space_format, "_")), NULL)
       other_dims <- dim(self$data) %>%
         `[`(names(other_dimnames))
 
       # convert between single cell dimension and lon, lat dimensions
-      if (self$meta_data$dimspatial_format == "cell" &&
-          dim_format == "lon_lat") {
-        self$grid$convert_grid(dim_format = dim_format)
+      if (self$meta_data$space_format == "cell" &&
+          to == "lon_lat") {
+        self$grid$format_grid(to = to)
         data_array <- array(
           self$grid$data,
           dim = c(dim(self$grid$data), other_dims),
@@ -445,15 +457,16 @@ LpjmlData <- R6::R6Class(
         )
         data_array[!is.na(data_array)] <- self$data
         # set corresponding meta_data entry
-        self$meta_data$._convert_dimspatial_format("lon_lat")
+        self$meta_data$._convert_space_format("lon_lat")
 
       # convert between lon, lat dimensions and single cell dimension
-      } else if (self$meta_data$dimspatial_format == "lon_lat" &&
-          dim_format == "cell") {
+      } else if (self$meta_data$space_format == "lon_lat" &&
+          to == "cell") {
+        is_sequential <- function(x) all(diff(as.integer(x)) == 1)
         mask_array <- array(self$grid$data,
                             dim = dim(self$data),
                             dimnames = dimnames(self$data))
-        self$grid$convert_grid(dim_format = dim_format)
+        self$grid$format_grid(to = to)
         data_array <- array(
           NA,
           dim = c(dim(self$grid$data)["cell"], other_dims),
@@ -462,10 +475,12 @@ LpjmlData <- R6::R6Class(
                                       other_dimnames))
         )
         data_array[] <- self$data[!is.na(mask_array)]
+
         # set corresponding meta_data entry
-        self$meta_data$._convert_dimspatial_format("cell")
+        self$meta_data$._convert_space_format("cell")
+
         if (!is.null(self$grid)) {
-          self$grid$meta_data$._convert_dimspatial_format("cell")
+          self$grid$meta_data$._convert_space_format("cell")
         }
 
       } else {
@@ -478,25 +493,31 @@ LpjmlData <- R6::R6Class(
     },
 
     # INSERT ROXYGEN SKELETON: CONVERT TIME METHOD
-    # dim_format = c("year_month_day", "time")
-    convert_time = function(dim_format = NULL) {
+    # to = c("year_month_day", "time")
+    format_time = function(to = NULL) {
+      # check if grid then use format_grid method
       if (!is.null(self$meta_data$variable) &&
           self$meta_data$variable == "grid") {
         stop(paste("not legit for variable", self$meta_data$variable))
       }
-      if (is.null(dim_format)) {
-        if (self$meta_data$dimtime_format == "time") {
-          dim_format <- "year_month_day"
+      # if to is not specified switch to avail other format else if to equals
+      #   current format return directly
+      if (is.null(to)) {
+        if (self$meta_data$time_format == "time") {
+          to <- "year_month_day"
         } else {
-          dim_format <- "time"
+          to <- "time"
+        }
+      } else {
+        if (self$meta_data$time_format == to) {
+          return(invisible(self))
         }
       }
-
       # convert between aggregated time = "year-month-day" & disaggregated time
       #   format with year, month, day
       # convert from "time" to "year_month_day"
-      if (self$meta_data$dimtime_format == "time" &&
-          dim_format == "year_month_day") {
+      if (self$meta_data$time_format == "time" &&
+          to == "year_month_day") {
         # possible ndays of months
         ndays_in_month <- c(31, 30, 28)
         # split time string "year-month-day" into year, month, day int vector
@@ -512,26 +533,27 @@ LpjmlData <- R6::R6Class(
             is.null(time_dimnames[["day"]])) {
           time_dimnames[["month"]] <- NULL
         }
-        self$meta_data$._convert_dimtime_format("year_month_day")
+        self$meta_data$._convert_time_format("year_month_day")
 
       # convert from "year_month_day" to "time"
-      } else if (self$meta_data$dimtime_format == "year_month_day" &&
-                 dim_format == "time") {
+      } else if (self$meta_data$time_format == "year_month_day" &&
+                 to == "time") {
         pre_dimnames <- self$dimnames() %>%
-          lapply(as.integer)
+          lapply(as.integer) %>%
+          suppressWarnings()
         time_dimnames <- list(
           time = create_time_names(nstep = self$meta_data$nstep,
                                    years = pre_dimnames$year,
                                    months = pre_dimnames$month,
                                    days = pre_dimnames$day)
         )
-        self$meta_data$._convert_dimtime_format("time")
+        self$meta_data$._convert_time_format("time")
       # else return without execution
       } else {
         return(invisible(self))
       }
 
-      spatial_dims <- unlist(strsplit(self$meta_data$dimspatial_format, "_"))
+      spatial_dims <- unlist(strsplit(self$meta_data$space_format, "_"))
       # create new data array based on disaggregated time dimension
       time_dims <- lapply(time_dimnames, length)
       self$data <- array(
@@ -546,18 +568,58 @@ LpjmlData <- R6::R6Class(
       )
       return(invisible(self))
     },
+    format = function(to = NULL) {
+      if (any(to %in% self$meta_data$dimension_map$time)) {
+        self$format_time(to = "time")
+        to <- to[!to %in% self$meta_data$dimension_map$time]
+      } else if (any(to %in% self$meta_data$dimension_map$year_month_day)) {
+        self$format_time(to = "year_month_day")
+        to <- to[!to %in% self$meta_data$dimension_map$year_month_day]
+      }
+      if (any(to %in% self$meta_data$dimension_map$cell)) {
+        self$format_space(to = "cell")
+        to <- to[!to %in% self$meta_data$dimension_map$cell]
+
+      } else if (any(to %in% self$meta_data$dimension_map$lon_lat)) {
+        self$format_space(to = "lon_lat")
+        to <- to[!to %in% self$meta_data$dimension_map$lon_lat]
+      }
+      if (length(to) > 0) {
+        stop(
+          paste0(
+            "\u001b[0m",
+            ifelse(length(to) > 1, "Formats ", "Format "),
+            "\u001b[34m",
+            paste0(to, collapse = ", "),
+            "\u001b[0m",
+            ifelse(length(to) > 1, " are ", " is "),
+            "not valid. Please choose from available space formats ",
+            "\u001b[34m",
+            paste0(self$meta_data$dimension_map$space_format, collapse = ", "),
+            "\u001b[0m",
+            " and available time formats ",
+            "\u001b[34m",
+            paste0(self$meta_data$dimension_map$time_format, collapse = ", "),
+            "\u001b[0m."
+          ),
+          call. = FALSE
+        )
+      }
+      return(invisible(self))
+    },
     # aggregation function, only to be applied for conversions (as_raster, plot)
     #   do not apply to self to not violate data integrity !
-    aggregate = function(dimension = "band",
-                         fun = sum,
-                         dim_subset = c(),
-                         ...) {
-      dim_names <- names(dim(self$data))
-      apply(X = self$data,
-            MARGIN = dim_names[!dim_names %in% dimension],
-            FUN = fun,
-            ...) %>%
-      return()
+    aggregate_array = function(dimension = "band",
+                               fun = sum,
+                               ...) {
+            dim_names <- names(dim(self$data))
+            `if`(!is.null(dimension),
+              apply(X = self$data,
+                    MARGIN = dim_names[!dim_names %in% dimension],
+                    FUN = fun,
+                    ...),
+              self$data) %>%
+            return()
     },
     summary = function(dimension = "band",
                        subset_list = NULL,
@@ -667,7 +729,7 @@ LpjmlData <- R6::R6Class(
         )
       } else {
         cat(paste0("\u001b[33;3m",
-                   ifelse(self$meta_data$dimspatial_format == "cell",
+                   ifelse(self$meta_data$space_format == "cell",
                           "Note: only min & max printed as equivalent to spatial extent.", #nolint
                           "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), #nolint
                    unset_col,
@@ -683,7 +745,7 @@ LpjmlData <- R6::R6Class(
       self$data <- drop_omit(self$data, omit = "cell")
       self$meta_data$._init_grid()
       return(invisible(self))
-    }
+     }
   )
 )
 
@@ -700,6 +762,12 @@ subset.LpjmlData <- function(x, ...) {
   y$subset(...)
   return(y)
 }
+format.LpjmlData <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$format(...)
+  return(y)
+}
+
 
 # add additional (important) functions for method dispatch with deep copying
 #   x, execute function on copied object and return ("traditional way")
@@ -709,20 +777,15 @@ add_grid <- function(x, ...) {
   return(y)
 }
 
-convert_time <- function(x, ...) {
-  y <- x$clone(deep = TRUE)
-  y$convert_time(...)
+
+aggregate_array <- function(x, ...) {
+  y <- x$aggregate_array(...)
   return(y)
 }
 
-aggregate <- function(x, ...) {
-  y <- x$aggregate(...)
-  return(y)
-}
-
-convert_space <- function(x, ...) {
+format_space <- function(x, ...) {
   y <- x$clone(deep = TRUE)
-  y$convert_space(...)
+  y$format_space(...)
   return(y)
 }
 
@@ -739,4 +802,8 @@ as_tibble <- function(x, ...) {
 as_array <- function(x, ...) {
   y <- x$as_array(...)
   return(y)
+}
+
+plot <- function(x, ...) {
+  x$plot(...)
 }
