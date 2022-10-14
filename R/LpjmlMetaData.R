@@ -43,7 +43,6 @@ LpjmlMetaData <- R6::R6Class(
                       )
                      )
               )
-        
         private$init_list(header_to_meta, additional_data)
       } else {
         private$init_list(x, additional_data)
@@ -57,24 +56,28 @@ LpjmlMetaData <- R6::R6Class(
       }
     },
     # update supplied subset_list in self.subset
-    ._update_subset = function(subset_list, time_dimnames = NULL) {
+    ._update_subset = function(subset_list,
+                               time_dimnames = NULL,
+                               cell_dimnames = NULL) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
-      if (!is.null(subset_list$cell)) {
-        if (is_sequential(subset_list$cell)) {
-          if (is.character(subset_list$cell)) {
-            private$.firstcell <- min(as.integer(subset_list$cell))
+      if (!is.null(subset_list$cell) ||
+          !is.null(subset_list$lon) || !is.null(subset_list$lat)) {
+        # recalculate firstcell and ncell if subsetted by lat and/or lon
+        if (!is.null(cell_dimnames)) {
+          if (is_sequential(cell_dimnames)) {
+            private$.firstcell <- min(as.numeric(cell_dimnames))
           } else {
-            private$.firstcell <- (private$.firstcell +
-                                   min(subset_list$cell - 1))
+            firstcell <- NULL
           }
+          private$.ncell <- length(cell_dimnames)
         } else {
-          private$.firstcell <- NULL
+          private$.firstcell <- NA
+          private$.ncell <- NA
         }
-        private$.ncell <- length(subset_list$cell)
         private$.subset <- TRUE
-        private$.subset_spatial <- TRUE
+        private$.subset_space <- TRUE
       }
       # for years using indices is forbidded because they cannot be properly
       #   distinguished from years
@@ -170,11 +173,11 @@ LpjmlMetaData <- R6::R6Class(
                USE.NAMES = FALSE) %>%
       return(meta_fields)
     },
-    ._convert_dimtime_format = function(dimtime_format) {
-      private$.dimtime_format <- dimtime_format
+    ._convert_time_format = function(time_format) {
+      private$.time_format <- time_format
     },
-    ._convert_dimspatial_format = function(dimspatial_format) {
-      private$.dimspatial_format <- dimspatial_format
+    ._convert_space_format = function(space_format) {
+      private$.space_format <- space_format
     },
     print = function(all = TRUE, spaces = "") {
       quotes_option <- options(useFancyQuotes = FALSE)
@@ -329,13 +332,13 @@ LpjmlMetaData <- R6::R6Class(
     },
     subset = function() {
       if (!is.null(self$variable) && self$variable == "grid") {
-        return(private$.subset_spatial)
+        return(private$.subset_space)
       } else {
         return(private$.subset)
       }
     },
-    subset_spatial = function() {
-      return(private$.subset_spatial)
+    subset_space = function() {
+      return(private$.subset_space)
     },
     fields_set = function() {
       return(private$.fields_set)
@@ -343,11 +346,11 @@ LpjmlMetaData <- R6::R6Class(
     data_dir = function() {
       return(private$.data_dir)
     },
-    dimtime_format = function() {
-      return(private$.dimtime_format)
+    time_format = function() {
+      return(private$.time_format)
     },
-    dimspatial_format = function() {
-      return(private$.dimspatial_format)
+    space_format = function() {
+      return(private$.space_format)
     },
     dimension_map = function() {
       return(private$.dimension_map)
@@ -437,11 +440,11 @@ LpjmlMetaData <- R6::R6Class(
     .name = NULL,
     .map = NULL,
     .subset = FALSE,
-    .subset_spatial = FALSE,
+    .subset_space = FALSE,
     .fields_set = NULL,
     .data_dir = NULL,
-    .dimtime_format = "time",
-    .dimspatial_format = "cell",
+    .time_format = "time",
+    .space_format = "cell",
     .name_order = c("sim_name",
                     "source",
                     "history",
@@ -470,12 +473,14 @@ LpjmlMetaData <- R6::R6Class(
                     "version",
                     "offset"
                    ),
-    .dimension_map = list(cells = "cell",
-                         time = c("year", "month", "day"),
-                         year = "time",
-                         month = "time",
-                         day = "time",
-                         band = "band")
+    .dimension_map = list(space_format = c("cell", "lon_lat"),
+                          time_format = c("time", "year_month_day"),
+                          time = "time",
+                          year_month_day = c("year",
+                                             "year_month", "month_year",
+                                             "year_month_day", "day_month_year"), # nolint
+                          cell = "cell",
+                          lon_lat = c("lon_lat", "lat_lon"))
   )
 )
 

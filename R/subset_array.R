@@ -11,6 +11,9 @@
 #' @param drop logical. If TRUE (default), dimensions are dropped when dimension
 #' has length == 1, else dimension is kept.
 #'
+#' @param force_idx logical. If TRUE indices are always used, when numerical
+#' values are provided, even when subsetting with years or lon, lat
+#' 
 #' @param y array/vector of the same dimension as referred to by the subset_list
 #'
 #' @return array or vector (if `drop=TRUE` and one only dimension left)
@@ -39,14 +42,17 @@
 #'                                 0)
 #' @aliases asub replace_array
 #' @export
-subset_array <- function(x, subset_list = NULL, drop=TRUE) {
+subset_array <- function(x, subset_list = NULL, drop=TRUE, force_idx = FALSE) {
   if (is.null(subset_list)) {
     return(x)
   }
   if (drop) {
-    argum <- c(alist(x), subarray_argument(x, subset_list))
+    argum <- c(alist(x),
+               subarray_argument(x, subset_list, force_idx))
   } else {
-    argum <- c(alist(x), subarray_argument(x, subset_list), drop = FALSE)
+    argum <- c(alist(x),
+               subarray_argument(x, subset_list, force_idx),
+               drop = FALSE)
   }
   do.call("[", argum) %>%
     return()
@@ -66,16 +72,51 @@ replace_array <- function(x, subset_list, y) {
 
 
 # https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically
-subarray_argument <- function(x, subset_list) {
-  # first a suitable empty list
-  match_x <- which(names(dimnames(x)) %in% names(subset_list))
-  match_subset <- stats::na.omit(match(names(dimnames(x)), names(subset_list)))
+subarray_argument <- function(x, subset_list, force_idx = FALSE) {
+  # DRY
+  dim_names <- names(dimnames(x))
+  subset_names <- names(subset_list)
+
+  # check matching of subset names and dim_names
+  match_x <- which(dim_names %in% subset_names)
+  match_subset <- stats::na.omit(match(dim_names, subset_names))
+
+  # check for non matching dimensions
+  valids <- subset_names %in% dim_names
+  if (!all(valids)) {
+    non_valids <- which(!valids)
+    stop(
+      paste0(
+        ifelse(length(non_valids) > 1, "Dimension names ", "Dimension name "),
+        "\u001b[34m",
+        paste0(subset_names[non_valids], collapse = ", "),
+        "\u001b[0m",
+        ifelse(length(non_valids) > 1, " are ", " is "),
+        "not valid. Please choose from available dimension names ",
+        "\u001b[34m",
+        paste0(dim_names, collapse = ", "),
+        "\u001b[0m."
+      ),
+      call. = FALSE
+    )
+  }
   subset_list <- mapply(
     function(x, y, dim_name) {
+      # for lon, lat calculate nearest neighbor for each provided value if not
+      #   character
+      if (!is.character(x) && dim_name %in% c("lon", "lat") && !force_idx) {
+        return(
+          sapply(x, function(x, y) which.min(abs(as.numeric(y) - x)), y) %>%
+            unique()
+        )
+      }
+      # subsetting with character strings (directly dimnames)
       if (is.character(x)) {
         return(which(y %in% x))
       } else {
-        if (dim_name == "year") {
+        # exception for dimension year, use numeric years quasi as character
+        #   string
+        if (dim_name == "year" && !force_idx) {
           return(which(y %in% as.character(x)))
         }
         return(x)
@@ -83,7 +124,7 @@ subarray_argument <- function(x, subset_list) {
     },
     subset_list[match_subset],
     dimnames(x)[match_x],
-    names(dimnames(x))[match_x],
+    dim_names[match_x],
     SIMPLIFY = FALSE
   )
   argument <- rep(list(bquote()), length(dim(x)))
@@ -95,6 +136,8 @@ subarray_argument <- function(x, subset_list) {
 
 subset_array_pair <- function(x,
                               pair = NULL) {
+  # get pair in the same order as dimensions
+  pair <- pair[stats::na.omit(match(names(dimnames(x)), names(pair)))]
   pair_names <- names(pair)
 
   # look up/match vector of dimnames of x (for performance in loop)
@@ -119,26 +162,17 @@ subset_array_pair <- function(x,
   # index vectors to 2 column matrix for pair subsetting
   idims <- cbind(idim1, idim2) %>%
     `colnames<-`(pair_names)
-
   # create mask from dimension name pair
   subset_mask <- array(NA,
                     dim = dim(x)[pair_names],
                     dimnames = dimnames(x)[pair_names]) %>%
     `[<-`(idims, 1) %>%
-    array(dim(x), dimnames = dimnames(x))
+    array(dim = dim(x), dimnames = dimnames(x)) %>%
+    subset_array(as.list(pair), drop = FALSE)
 
-  # get dim & dimnames of dimensions not matching pair
-  other_dimnames <- dimnames(x)[which(names(dimnames(x)) != pair_names)]
-  # dim() workaround
-  other_dims <- lapply(other_dimnames, length)
-  mask_dims <- lapply(pair, length)
-  y <- array(NA,
-             dim = c(mask_dims, other_dims),
-             dimnames = do.call(list,
-                             args = c(pair,
-                                      other_dimnames)))
-
-  y[] <- x[!is.na(subset_mask)]
+  y <- subset_array(x, as.list(pair), drop = FALSE)
+    # get dim & dimnames of dimensions not matching pair
+  y[is.na(subset_mask)] <- NA
 
   return(y)
 }
@@ -149,5 +183,3 @@ drop_omit <- function(x, omit_dim) {
   dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
   return(abind::adrop(x, dims_check))
 }
-
-# pair=tibble(lat=c(-55.75,-55.25,-54.5), lon=c(-179.75, -179.25, -178.9))
