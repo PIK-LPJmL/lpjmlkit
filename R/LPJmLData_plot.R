@@ -363,7 +363,7 @@ LPJmLData$set("public",
   #   calculations ensure placement within margins.
   legend(
     x = graphics::par("usr")[1],
-    y = graphics::par("usr")[3] - 0.8 * grDevices::dev.size("px")[2] *
+    y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] *
       graphics::par("plt")[3] *
       ((graphics::par("usr")[4] - graphics::par("usr")[3]) /
          (
