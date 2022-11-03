@@ -47,11 +47,11 @@ LPJmLData <- R6::R6Class(
         #   does not say if cell is subsetted - but ok for now
         if (self$meta$subset_space) {
           self$grid <- read_io(
-            file_name = filename,
+            filename = filename,
             subset = list(cell = self$dimnames()[["cell"]])
           )
         } else {
-          self$grid <- read_io(file_name = filename)
+          self$grid <- read_io(filename = filename)
         }
       } else {
         # all arguments have to be provided manually via read_io args

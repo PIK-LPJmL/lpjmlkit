@@ -4,7 +4,7 @@
 #' formats. Depending on the format, arguments can be automatically detected,
 #' or have to be passed on as individual arguments.
 #'
-#' @param file_name Mandatory character string giving the file name to read,
+#' @param filename Mandatory character string giving the file name to read,
 #' including its path and extension.
 #' @param subset Optional list allowing to subset data read from file along
 #' one or several of its dimensions. See details for more information.
@@ -110,7 +110,7 @@
 #' )
 #' }
 #' @details The `file_type` determines which arguments are mandatory, optional,
-#' or not allowed. `file_name` must always be provided. `file_type` is usually
+#' or not allowed. `filename` must always be provided. `file_type` is usually
 #' detected automatically. Supply only if detected `file_type` is incorrect.
 #'
 #' In case of `file_type = "meta"`, function arguments not listed as "mandatory"
@@ -144,7 +144,7 @@
 #' @aliases read_input read_output
 #' @export
 read_io <- function(
-  file_name,
+  filename,
   subset  = list(),
   band_names   = NULL,
   dim_order   = c("cell", "time", "band"),
@@ -174,7 +174,7 @@ read_io <- function(
   on.exit(options(quotes_option))
   # Detect file_type if not provided by user
   if (is.null(file_type)) {
-    file_type <- detect_type(file_name)
+    file_type <- detect_type(filename)
   }
   # Check valid file_type
   if (!file_type %in% supported_types) {
@@ -206,7 +206,7 @@ read_io <- function(
   # arguments
   meta_data <- match.arg(file_type, supported_types) %>%
     paste("read_io_metadata", ., sep = "_") %>%
-    do.call(args = list(file_name = file_name,
+    do.call(args = list(filename = filename,
                         file_type = file_type,
                         band_names = band_names,
                         subset = subset,
@@ -233,22 +233,22 @@ read_io <- function(
   start_offset <- default(meta_data$offset, 0)
 
   if (file_type == "meta") {
-    # Get file_name from meta file.
+    # Get filename from meta file.
     if (basename(meta_data$filename) == meta_data$filename) {
-      # meta_data$filename is in same directory as file_name, can use path from
-      # file_name.
-      file_name <- file.path(dirname(file_name), meta_data$filename)
+      # meta_data$filename is in same directory as filename, can use path from
+      # filename.
+      filename <- file.path(dirname(filename), meta_data$filename)
     } else {
-      # meta_data$filename is in a different directory than file_name. Need to
+      # meta_data$filename is in a different directory than filename. Need to
       # parse path.
       # Save current working directory
       wd <- getwd()
       # Reset working directory if function exits (breaks, fails, etc.)
       on.exit(setwd(wd))
-      # Set working directory to path of file_name
-      setwd(dirname(file_name))
+      # Set working directory to path of filename
+      setwd(dirname(filename))
       # Relative path can be parsed now.
-      file_name <- normalizePath(meta_data$filename)
+      filename <- normalizePath(meta_data$filename)
       # Reset working directory
       setwd(wd)
     }
@@ -265,9 +265,9 @@ read_io <- function(
     get_header_item(file_header, "nyear") *
     get_datatype(file_header)$size + start_offset
   )
-  if (file.size(file_name) != expected_filesize) {
+  if (file.size(filename) != expected_filesize) {
     stop(
-      "Unexpected file size (", file.size(file_name), " bytes) of ", file_name,
+      "Unexpected file size (", file.size(filename), " bytes) of ", filename,
       "\nExpected size: ", expected_filesize, " bytes",
       "\nPlease check ",
       ifelse(file_type == "meta", "meta file", "header"),
@@ -296,7 +296,7 @@ read_io <- function(
   }
 
   # Read data from binary file
-  file_data <- read_io_data(file_name, meta_data, subset)
+  file_data <- read_io_data(filename, meta_data, subset)
 
   # Update meta_data based on subset
   if (length(subset) > 0) {
@@ -314,7 +314,7 @@ read_io <- function(
 }
 
 # read & assign metadata for binary file without a header
-read_io_metadata_raw <- function(file_name, file_type, band_names, subset,
+read_io_metadata_raw <- function(filename, file_type, band_names, subset,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
@@ -358,18 +358,18 @@ read_io_metadata_raw <- function(file_name, file_type, band_names, subset,
   # Generate meta_data
   meta_data <- LPJmLMetaData$new(x = file_header,
                                  additional_data = additional_data,
-                                 data_dir = dirname(file_name))
+                                 data_dir = dirname(filename))
   return(meta_data)
 }
 
 # read & assign metadata for binary file with a header
-read_io_metadata_clm <- function(file_name, file_type, band_names, subset,
+read_io_metadata_clm <- function(filename, file_type, band_names, subset,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
                                  endian, variable, descr, unit, name, silent) {
   # Read file_header
-  file_header <- read_header(file_name, version, !silent)
+  file_header <- read_header(filename, version, !silent)
 
   # Update header with the info passed as arguments (especially for version 1
   # and 2 headers values may need to be overwritten)
@@ -388,7 +388,7 @@ read_io_metadata_clm <- function(file_name, file_type, band_names, subset,
   if (get_header_item(file_header, "order") == 0 && is.null(order)) {
     if (!silent)
       warning(
-        "Header in file ", sQuote(file_name),
+        "Header in file ", sQuote(filename),
         " has invalid order = 0. Setting to 1.\n",
         "Provide order as function argument if default is incorrect."
       )
@@ -439,25 +439,25 @@ read_io_metadata_clm <- function(file_name, file_type, band_names, subset,
   # Generate meta_data
   meta_data <- LPJmLMetaData$new(x = file_header,
                                  additional_data = additional_data,
-                                 data_dir = dirname(file_name))
+                                 data_dir = dirname(filename))
   return(meta_data)
 }
 
 # read & assign metadata for meta file type (binary file with associated
 # meta-data json file)
-read_io_metadata_meta <- function(file_name, file_type, band_names, subset,
+read_io_metadata_meta <- function(filename, file_type, band_names, subset,
                                   version, order, firstyear, nyear, firstcell,
                                   ncell, nbands, cellsize_lon, scalar,
                                   cellsize_lat, datatype, nstep, timestep,
                                   endian, variable, descr, unit, name, silent) {
   # Read meta data
-  meta_data <- read_meta(file_name)
+  meta_data <- read_meta(filename)
 
   # Check if user has tried overwriting any meta attributes which we do not
   # allow for meta files.
   set_args <- setdiff(
     names(formals()),
-    c("file_name", "file_type", "silent", "subset")
+    c("filename", "file_type", "silent", "subset")
   )
   # Filter arguments that are NULL
   set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
@@ -554,7 +554,7 @@ read_io_metadata_meta <- function(file_name, file_type, band_names, subset,
 }
 
 read_io_data <- function(
-  file_name,
+  filename,
   meta_data,
   subset
 ) {
@@ -571,7 +571,7 @@ read_io_data <- function(
   }
 
   # Open binary file connection
-  file_connection <- file(file_name, "rb")
+  file_connection <- file(filename, "rb")
 
   # Dimension order during reading. Note: Must be 3 dimensions in total, with
   # "time" being last dimension for code below to work.

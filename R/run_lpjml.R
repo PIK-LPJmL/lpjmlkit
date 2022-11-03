@@ -9,7 +9,7 @@
 #' Runs as rows. Optional run parameters `"order"` and
 #' `"dependency"` used for subsequent runs (see details)
 #' \link[lpjmlKit]{write_config} returns a tibble in the required format.
-#' OR provide a character string (vector) with the file_name of a or
+#' OR provide a character string (vector) with the file name of a or
 #' multiple generated ( \link[lpjmlKit]{write_config}) configuration file(s).
 #'
 #' @param model_path character string providing the path to LPJmL

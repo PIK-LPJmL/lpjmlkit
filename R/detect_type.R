@@ -3,7 +3,7 @@
 #' provided file is of "clm", "meta", or "raw" file type. NetCDFs and simple
 #' text formats such as `.txt` or `.csv` are also detected.
 #'
-#' @param file_name Character string naming the file to check
+#' @param filename Character string naming the file to check
 #' @return character vector of length 1 giving the file type:
 #' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format)
 #' * "clm" for a binary LPJmL file with header
@@ -11,12 +11,12 @@
 #' * "raw" for a binary LPJmL file without header
 #' * "text" for any type of text-only file, e.g. `.txt` or `.csv`
 #' @export
-detect_type <- function(file_name) {
-  if (!file.exists(file_name)) {
-    stop("File ", file_name, " does not exist.")
+detect_type <- function(filename) {
+  if (!file.exists(filename)) {
+    stop("File ", filename, " does not exist.")
   }
   # Load at most the first 1024 bytes of the file for checking.
-  file_check <- readBin(file_name, raw(), n = min(file.size(file_name), 1024))
+  file_check <- readBin(filename, raw(), n = min(file.size(filename), 1024))
   on.exit(rm(file_check))
   # First check for "clm". The file header should always start with "LPJ".
   if (all(
