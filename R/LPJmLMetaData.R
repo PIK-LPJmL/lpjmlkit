@@ -2,22 +2,24 @@
 #'
 #' Handles metafile data for output data
 #'
-#' @param x list (not nested) with meta data
-#'
-#' @return LpjmlMetaData object
-#'
-#' @examples
-#' \dontrun{
-#' }
-#' @export
 # https://adv-r.hadley.nz/r6.html#r6-classes, also why CamelCase is used ...
-LpjmlMetaData <- R6::R6Class(
-  classname = "LpjmlMetaData",
+LPJmLMetaData <- R6::R6Class(
+  classname = "LPJmLMetaData",
   lock_objects = FALSE,
   public = list(
-    # init function
+    #' @description Create a new LPJmLMetaData object
+    #' @param x `list` (not nested) with meta data
+    #' @param subset `list` of array dimension(s) as name/key and
+    #' corresponding subset vector as value, e.g.
+    #' `list(cell = c(27411:27415)`, more information at
+    #' \link[lpjmlKit]{subset}.
+    #' @param additional_data `list` of additional attributes to be set that
+    #' are not included in file header. These are
+    #' `c"(band_names", "variable", "descr", "unit")`
+    #' @param data_dir Character string for data directory to "lazy load" grid
+    #' @return `LPJmLMetaData` object
     initialize = function(x,
-                          subset_list = list(),
+                          subset = list(),
                           additional_data = list(),
                           data_dir = NULL) {
       if (all(names(x) %in% c("name", "header", "endian"))) {
@@ -47,23 +49,23 @@ LpjmlMetaData <- R6::R6Class(
       } else {
         private$init_list(x, additional_data)
       }
-      if (length(subset_list) > 0) {
-        self$._update_subset(subset_list)
+      if (length(subset) > 0) {
+        self$._update_subset(subset)
       }
       # add data_dir for lazy loading of (e.g.) grid later
       if (!is.null(data_dir)) {
         private$.data_dir <- data_dir
       }
     },
-    # update supplied subset_list in self.subset
-    ._update_subset = function(subset_list,
+    # update supplied subset in self.subset
+    ._update_subset = function(subset,
                                time_dimnames = NULL,
                                cell_dimnames = NULL) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
-      if (!is.null(subset_list$cell) ||
-          !is.null(subset_list$lon) || !is.null(subset_list$lat)) {
+      if (!is.null(subset$cell) ||
+          !is.null(subset$lon) || !is.null(subset$lat)) {
         # recalculate firstcell and ncell if subsetted by lat and/or lon
         if (!is.null(cell_dimnames)) {
           if (is_sequential(cell_dimnames)) {
@@ -81,64 +83,38 @@ LpjmlMetaData <- R6::R6Class(
       }
       # for years using indices is forbidded because they cannot be properly
       #   distinguished from years
-      if (!is.null(subset_list[["time"]]) && !is.null(time_dimnames)) {
-        subset_list[["year"]] <- split_time_names(time_dimnames)[["year"]]
+      if (!is.null(subset[["time"]]) && !is.null(time_dimnames)) {
+        subset[["year"]] <- split_time_names(time_dimnames)[["year"]]
       }
-      if (!is.null(subset_list$year)) {
-        private$.firstyear <- min(as.integer(subset_list$year))
-        private$.lastyear <- max(as.integer(subset_list$year))
-        private$.nyear <- length(subset_list$year)
+      if (!is.null(subset$year)) {
+        private$.firstyear <- min(as.integer(subset$year))
+        private$.lastyear <- max(as.integer(subset$year))
+        private$.nyear <- length(subset$year)
         private$.subset <- TRUE
       }
       # band can be subsetted via indices or band_names - the latter is updated
-      if (!is.null(subset_list$band)) {
-        if (is.character(subset_list$band)) {
-          if (!all(subset_list$band %in% private$.band_names)) {
+      if (!is.null(subset$band)) {
+        if (is.character(subset$band)) {
+          if (!all(subset$band %in% private$.band_names)) {
             warning(paste0(
-              "Not all subset_list bands are represented in the original data:",
-              "\n- band_names provided to subset_list may be incorrect, or",
+              "Not all subset bands are represented in the original data:",
+              "\n- band_names provided to subset may be incorrect, or",
               "\n- new names have been provided by the user to band_names."
             ))
           }
           private$.band_names <- private$.band_names[
-            private$.band_names %in% subset_list$band
+            private$.band_names %in% subset$band
           ]
         } else {
-          private$.band_names <- private$.band_names[subset_list$band]
+          private$.band_names <- private$.band_names[subset$band]
         }
         private$.subset <- TRUE
       }
-      # if (!is.null(subset_list$day)) {
+      # if (!is.null(subset$day)) {
       # }
-      # if (!is.null(subset_list$month)) {
+      # if (!is.null(subset$month)) {
       # }
 
-    },
-    # convert to header object
-    as_header = function(silent = FALSE) {
-      invisible(
-        capture.output(
-          header <- create_header(
-            name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),
-            version = ifelse(is.null(private$.version), 4, private$.version),
-            order = ifelse(is.null(self$order), 1, self$order),
-            firstyear = ifelse(is.null(self$firstyear), 1901, self$firstyear),
-            firstcell = self$firstcell,
-            nyear = self$nyear,
-            ncell = self$ncell,
-            nbands = self$nbands,
-            cellsize_lon = self$cellsize_lon,
-            cellsize_lat = self$cellsize_lat,
-            scalar =  ifelse(is.null(self$scalar), 1.0, self$scalar),
-            datatype = self$datatype,
-            nstep = self$nstep,
-            timestep = ifelse(is.null(self$timestep), 1, self$timestep),
-            endian = ifelse(self$bigendian, "big", "little"),
-            verbose = !silent
-          )
-        )
-      )
-      return(header)
     },
     ._init_grid = function() {
       if (private$.variable != "grid") {
@@ -160,23 +136,10 @@ LpjmlMetaData <- R6::R6Class(
                        private$.fields_set))
       ]
     },
-    # return fields set as list
-    as_list = function() {
-      self$fields_set %>%
-        sapply(function(x) do.call("$", list(self, x)), simplify = FALSE) %>%
-        return()
-    },
-    check = function() {
-      print_fields <- self$fields_set
-      meta_fields <- print_fields %>%
-        sapply(function(x) do.call("$", list(self, x)),
-               USE.NAMES = FALSE) %>%
-      return(meta_fields)
-    },
-    ._convert_time_format = function(time_format) {
+    ._transform_time_format = function(time_format) {
       private$.time_format <- time_format
     },
-    ._convert_space_format = function(space_format) {
+    ._transform_space_format = function(space_format) {
       private$.space_format <- space_format
     },
     print = function(all = TRUE, spaces = "") {
@@ -359,9 +322,9 @@ LpjmlMetaData <- R6::R6Class(
   private = list(
     init_list = function(x, additional_data = list()) {
       for (name_id in private$.name_order) {
-        # if (!names(x[idx]) %in% names(LpjmlMetaData$public_fields)) {
+        # if (!names(x[idx]) %in% names(LPJmLMetaData$public_fields)) {
         #   warning(paste0(names(x[idx]),
-        #                  " may not be a valid LpjmlMetaData field."))
+        #                  " may not be a valid LPJmLMetaData field."))
         # }
         if (is.null(x[[name_id]])) {
           if (name_id %in% names(additional_data)) {
@@ -385,7 +348,7 @@ LpjmlMetaData <- R6::R6Class(
       }
     },
     exclude_print = function() {
-      # exclude entries from self print (for LpjmlData class)
+      # exclude entries from self print (for LPJmLData class)
       to_exclude <- c(
         "band_names",
         "firstyear",
@@ -483,5 +446,3 @@ LpjmlMetaData <- R6::R6Class(
                           lon_lat = c("lon_lat", "lat_lon"))
   )
 )
-
-as.list.LpjmlMetaData <- function(obj, ...) obj$as_list(...)

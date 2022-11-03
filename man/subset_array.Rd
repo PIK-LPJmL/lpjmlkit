@@ -20,6 +20,9 @@ or character strings (leads to subsetting by dimnames). Default is \code{list()}
 \item{drop}{logical. If TRUE (default), dimensions are dropped when dimension
 has length == 1, else dimension is kept.}
 
+\item{force_idx}{logical. If TRUE indices are always used, when numerical
+values are provided, even when subsetting with years or lon, lat}
+
 \item{y}{array/vector of the same dimension as referred to by the subset_list}
 }
 \value{

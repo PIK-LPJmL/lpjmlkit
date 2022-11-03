@@ -8,7 +8,7 @@
 \usage{
 read_io(
   file_name,
-  subset_list = list(),
+  subset = list(),
   band_names = NULL,
   dim_order = c("cell", "time", "band"),
   file_type = NULL,
@@ -37,14 +37,14 @@ read_io(
 \item{file_name}{Mandatory character string giving the file name to read,
 including its path and extension.}
 
-\item{subset_list}{Optional list allowing to subset data read from file along
+\item{subset}{Optional list allowing to subset data read from file along
 one or several of its dimensions. See details for more information.}
 
 \item{band_names}{Optional vector of character strings providing the band
 names or NULL. Determined automatically from the meta file in case of
 \code{file_type = "meta"}.}
 
-\item{dim_order}{Order of dimensions in returned LpjmlData object. Must be
+\item{dim_order}{Order of dimensions in returned LPJmLData object. Must be
 a character vector containing all of the following in any order: "cell",
 "band", "time". Select the order most useful to your further data processing.}
 
@@ -116,7 +116,7 @@ after testing that function works as expected with the files it is being used
 on. Default: FALSE.}
 }
 \value{
-Object of class LpjmlData
+Object of class LPJmLData
 }
 \description{
 Generic function to read LPJmL input & output files in different
@@ -146,7 +146,7 @@ Otherwise, default values valid for LPJmL standard outputs are used for
 arguments not supplied by the user. For example, the default \code{firstyear} is
 1901, the default for \code{nyear}, \code{nbands}, \code{nstep}, and \code{timestep} is 1.
 
-\code{subset_list} can be a list containing one or several named elements. Allowed
+\code{subset} can be a list containing one or several named elements. Allowed
 names are "band", "cell", and "year".
 \itemize{
 \item "year" can be used to return data for a subset of one or several years
@@ -172,7 +172,7 @@ my_data <- read_io("my_file.json")
 # 1910-1920
 my_data_wheat <- read_io(
   "my_file.json",
-  subset_list = list(band = "wheat", year = seq(1910, 1920))
+  subset = list(band = "wheat", year = seq(1910, 1920))
 )
 
 # Read data from CLM file. This includes a header describing the file
@@ -189,7 +189,7 @@ my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
 my_data_wheat <- read_io(
   "my_file.clm",
   band_names = c("wheat", "rice"),
-  subset_list = list(band = "wheat", year = seq(1910, 1920))
+  subset = list(band = "wheat", year = seq(1910, 1920))
 )
 
 # Read data from raw binary file. Information about file structure needs to
@@ -201,7 +201,7 @@ my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
 my_data_wheat <- read_io(
   "my_file.bin",
   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
-  subset_list = list(band = "wheat", year = seq(1910, 1920))
+  subset = list(band = "wheat", year = seq(1910, 1920))
   nyear = 100,
   nbands = 2,
 )

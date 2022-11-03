@@ -1,0 +1,319 @@
+#' Transform LPJmLData object
+#'
+#' ...
+#'
+#' @param to character vector defining space and/or time format into which
+#' corresponding data dimensions should be transformed. Choose from space
+#' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
+#'
+#' @return LPJmLData object
+#' @export
+#'
+#' @examples
+transform <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$transform(...)
+  return(y)
+}
+
+LPJmLData$set(
+  "public",
+  "transform",
+  # TODO: INSERT ROXYGEN DOC
+  function(to = NULL) {
+    if (any(to %in% self$meta$dimension_map$time)) {
+      self$transform_time(to = "time")
+      to <- to[!to %in% self$meta$dimension_map$time]
+    } else if (any(to %in% self$meta$dimension_map$year_month_day)) {
+      self$transform_time(to = "year_month_day")
+      to <- to[!to %in% self$meta$dimension_map$year_month_day]
+    }
+    if (any(to %in% self$meta$dimension_map$cell)) {
+      self$transform_space(to = "cell")
+      to <- to[!to %in% self$meta$dimension_map$cell]
+
+    } else if (any(to %in% self$meta$dimension_map$lon_lat)) {
+      self$transform_space(to = "lon_lat")
+      to <- to[!to %in% self$meta$dimension_map$lon_lat]
+    }
+    if (length(to) > 0) {
+      stop(
+        paste0(
+          "\u001b[0m",
+          ifelse(length(to) > 1, "Formats ", "Format "),
+          "\u001b[34m",
+          paste0(to, collapse = ", "),
+          "\u001b[0m",
+          ifelse(length(to) > 1, " are ", " is "),
+          "not valid. Please choose from available space formats ",
+          "\u001b[34m",
+          paste0(self$meta$dimension_map$space_format, collapse = ", "),
+          "\u001b[0m",
+          " and available time formats ",
+          "\u001b[34m",
+          paste0(self$meta$dimension_map$time_format, collapse = ", "),
+          "\u001b[0m."
+        ),
+        call. = FALSE
+      )
+    }
+    return(invisible(self))
+  }
+)
+
+
+LPJmLData$set(
+  "public",
+  "transform_grid",
+  # TODO: INSERT ROXYGEN DOC
+  function(to = NULL) {
+    if (is.null(self$meta$variable) ||
+        self$meta$variable != "grid") {
+      stop(paste("not legit for variable", self$meta$variable))
+    }
+    # convenience function - if null automatically switch to other to
+    if (is.null(to)) {
+      if (self$meta$space_format == "cell") {
+        to <- "lon_lat"
+      } else {
+        to <- "cell"
+      }
+    }
+
+    # case for transform from cell dimension to lon, lat dimensions
+    if (self$meta$space_format == "cell" &&
+        to == "lon_lat") {
+      # calculate grid extent from range to span raster
+      grid_extent <- apply(
+          self$data,
+          "band",
+          range
+      )
+      # calculate dimnames for full 2 dimensional grid
+      spatial_dimnames <- mapply(seq,
+                                 rev(grid_extent[1, ]),
+                                 rev(grid_extent[2, ]),
+                                 by = c(self$meta$cellsize_lat,
+                                        self$meta$cellsize_lon),
+                                 SIMPLIFY = FALSE)
+      # init grid array
+      grid_array <- array(NA,
+                        dim = lapply(spatial_dimnames, length),
+                        dimnames = spatial_dimnames)
+      # get indices of lat and lon dimnames
+      ilon <- match(self$data[, 1],
+                    as.numeric(dimnames(grid_array)$lon))
+      ilat <- match(self$data[, 2],
+                    as.numeric(dimnames(grid_array)$lat))
+      # replace cell of lon and lat by cell index
+      grid_array[cbind(ilat, ilon)] <- as.integer(
+        dimnames(self$data)$cell
+      )
+      self$data <- grid_array
+      self$meta$._transform_space_format("lon_lat")
+
+    # case for transform from lon, lat dimensions to cell dimension
+    } else if (self$meta$space_format == "lon_lat" &&
+        to == "cell") {
+      # get indices of actual cells
+      grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
+      grid_dimnames <- lapply(dimnames(self$data), as.numeric)
+      # select actual cells latitude and longitude and set cells as dimnames
+      self$data <- array(
+        cbind(
+          lon = grid_dimnames[["lon"]][
+            grid_indices[, which(names(dim(self$data)) == "lon")]
+          ],
+          lat = grid_dimnames[["lat"]][
+            grid_indices[, which(names(dim(self$data)) == "lat")]
+          ]
+        ),
+        dim = c(cell = length(self$data[grid_indices]),
+                band = 2),
+        dimnames = list(cell = self$data[grid_indices],
+                        band = c("lon", "lat"))
+      )
+      self$meta$._transform_space_format("cell")
+    }
+
+    return(invisible(self))
+  }
+)
+
+
+  # TODO: INSERT ROXYGEN DOC
+transform_space <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$transform_space(...)
+  return(y)
+}
+
+LPJmLData$set(
+  "public",
+  "transform_space",
+  # TODO: INSERT ROXYGEN DOC
+  function(to = NULL) {
+    # check if grid then use transform_grid method
+    if (!is.null(self$meta$variable) &&
+        self$meta$variable == "grid") {
+      self$transform_grid(to = to)
+      return(invisible(self))
+    }
+    # if to is not specified switch to avail other format else if to equals
+    #   current format return directly
+    if (is.null(to)) {
+      if (self$meta$space_format == "cell") {
+        to <- "lon_lat"
+      } else {
+        to <- "cell"
+      }
+    } else {
+      if (self$meta$space_format == to) {
+        return(invisible(self))
+      }
+    }
+    # support of lazy loading of grid for meta files else add explicitly
+    if (is.null(self$grid)) {
+      self$add_grid()
+    }
+    # create new data array based on disaggregated time dimension
+    other_dimnames <- dimnames(self$data) %>%
+      `[<-`(unlist(strsplit(self$meta$space_format, "_")), NULL)
+    other_dims <- dim(self$data) %>%
+      `[`(names(other_dimnames))
+
+    # case for transform from cell dimension to lon, lat dimensions
+    if (self$meta$space_format == "cell" &&
+        to == "lon_lat") {
+      self$grid$transform_grid(to = to)
+      data_array <- array(
+        self$grid$data,
+        dim = c(dim(self$grid$data), other_dims),
+        dimnames = do.call(list,
+                           args = c(dimnames(self$grid$data),
+                                    other_dimnames))
+      )
+      data_array[!is.na(data_array)] <- self$data
+      # set corresponding meta data entry
+      self$meta$._transform_space_format("lon_lat")
+
+    # ref between lon, lat dimensions and single cell dimension
+    } else if (self$meta$space_format == "lon_lat" &&
+        to == "cell") {
+      mask_array <- array(self$grid$data,
+                          dim = dim(self$data),
+                          dimnames = dimnames(self$data))
+      self$grid$transform_grid(to = to)
+      data_array <- array(
+        NA,
+        dim = c(dim(self$grid$data)["cell"], other_dims),
+        dimnames = do.call(list,
+                           args = c(dimnames(self$grid$data)["cell"],
+                                    other_dimnames))
+      )
+      data_array[] <- self$data[!is.na(mask_array)]
+
+      # set corresponding meta data entry
+      self$meta$._transform_space_format("cell")
+
+      if (!is.null(self$grid)) {
+        self$grid$meta$._transform_space_format("cell")
+      }
+
+    } else {
+      return(invisible(self))
+    }
+    # overwrite internal data with same data but new dimensions
+    self$data <- data_array
+
+    return(invisible(self))
+  }
+)
+
+
+  # TODO: INSERT ROXYGEN DOC
+transform_time <- function(x, ...) {
+  y <- x$clone(deep = TRUE)
+  y$transform_time(...)
+  return(y)
+}
+
+LPJmLData$set(
+  "public",
+  "transform_time",
+  # TODO: INSERT ROXYGEN DOC
+  function(to = NULL) {
+    # check if grid then use transform_grid method
+    if (!is.null(self$meta$variable) &&
+        self$meta$variable == "grid") {
+      stop(paste("not legit for variable", self$meta$variable))
+    }
+    # if to is not specified switch to avail other format else if to equals
+    #   current format return directly
+    if (is.null(to)) {
+      if (self$meta$time_format == "time") {
+        to <- "year_month_day"
+      } else {
+        to <- "time"
+      }
+    } else {
+      if (self$meta$time_format == to) {
+        return(invisible(self))
+      }
+    }
+    # case for transform from "time" dimensions to year, month, day
+    #   dimensions (if available)
+    if (self$meta$time_format == "time" &&
+        to == "year_month_day") {
+      # possible ndays of months
+      ndays_in_month <- c(31, 30, 28)
+      # split time string "year-month-day" into year, month, day int vector
+      #   reverse it to get it into the right order for array conversion
+      time_dimnames <- split_time_names(self$dimnames()[["time"]]) %>% rev()
+
+      # assume no daily data - remove day dimension
+      if (all(time_dimnames[["day"]] %in% ndays_in_month)) {
+        time_dimnames[["day"]] <- NULL
+      }
+      # assume no monthly data - remove month dimension
+      if (length(time_dimnames$month) == 1 &&
+          is.null(time_dimnames[["day"]])) {
+        time_dimnames[["month"]] <- NULL
+      }
+      self$meta$._transform_time_format("year_month_day")
+
+    # case for transform from dimensions year, month, day (if available) to 
+    #   time dimension
+    } else if (self$meta$time_format == "year_month_day" &&
+               to == "time") {
+      pre_dimnames <- self$dimnames() %>%
+        lapply(as.integer) %>%
+        suppressWarnings()
+      time_dimnames <- list(
+        time = create_time_names(nstep = self$meta$nstep,
+                                 years = pre_dimnames$year,
+                                 months = pre_dimnames$month,
+                                 days = pre_dimnames$day)
+      )
+      self$meta$._transform_time_format("time")
+    # else return without execution
+    } else {
+      return(invisible(self))
+    }
+
+    spatial_dims <- unlist(strsplit(self$meta$space_format, "_"))
+    # create new data array based on disaggregated time dimension
+    time_dims <- lapply(time_dimnames, length)
+    self$data <- array(
+      self$data,
+      dim = c(dim(self$data)[spatial_dims],
+              time_dims,
+              dim(self$data)["band"]),
+      dimnames = do.call(list,
+                         args = c(dimnames(self$data)[spatial_dims],
+                                  time_dimnames,
+                                  dimnames(self$data)["band"]))
+    )
+    return(invisible(self))
+  }
+)

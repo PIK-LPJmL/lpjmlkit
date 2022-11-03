@@ -112,7 +112,7 @@ subarray_argument <- function(x, subset_list, force_idx = FALSE) {
       }
       # subsetting with character strings (directly dimnames)
       if (is.character(x)) {
-        return(which(y %in% x))
+        return(which(tolower(y) %in% tolower(x)))
       } else {
         # exception for dimension year, use numeric years quasi as character
         #   string

@@ -6,12 +6,12 @@
 #'
 #' @param file_name Mandatory character string giving the file name to read,
 #' including its path and extension.
-#' @param subset_list Optional list allowing to subset data read from file along
+#' @param subset Optional list allowing to subset data read from file along
 #' one or several of its dimensions. See details for more information.
 #' @param band_names Optional vector of character strings providing the band
 #' names or NULL. Determined automatically from the meta file in case of
 #' `file_type = "meta"`.
-#' @param dim_order Order of dimensions in returned LpjmlData object. Must be
+#' @param dim_order Order of dimensions in returned LPJmLData object. Must be
 #' a character vector containing all of the following in any order: "cell",
 #' "band", "time". Select the order most useful to your further data processing.
 #' @param file_type Optional character string giving the file type. This is
@@ -61,7 +61,7 @@
 #' @param silent If set to TRUE, suppresses most warnings or messages. Use only
 #' after testing that function works as expected with the files it is being used
 #' on. Default: FALSE.
-#' @return Object of class LpjmlData
+#' @return Object of class LPJmLData
 #' @examples
 #' \dontrun{
 #' # First case: meta file. Reads meta information from "my_file.json" and
@@ -75,7 +75,7 @@
 #' # 1910-1920
 #' my_data_wheat <- read_io(
 #'   "my_file.json",
-#'   subset_list = list(band = "wheat", year = seq(1910, 1920))
+#'   subset = list(band = "wheat", year = seq(1910, 1920))
 #' )
 #'
 #' # Read data from CLM file. This includes a header describing the file
@@ -92,7 +92,7 @@
 #' my_data_wheat <- read_io(
 #'   "my_file.clm",
 #'   band_names = c("wheat", "rice"),
-#'   subset_list = list(band = "wheat", year = seq(1910, 1920))
+#'   subset = list(band = "wheat", year = seq(1910, 1920))
 #' )
 #'
 #' # Read data from raw binary file. Information about file structure needs to
@@ -104,7 +104,7 @@
 #' my_data_wheat <- read_io(
 #'   "my_file.bin",
 #'   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
-#'   subset_list = list(band = "wheat", year = seq(1910, 1920))
+#'   subset = list(band = "wheat", year = seq(1910, 1920))
 #'   nyear = 100,
 #'   nbands = 2,
 #' )
@@ -131,7 +131,7 @@
 #' arguments not supplied by the user. For example, the default `firstyear` is
 #' 1901, the default for `nyear`, `nbands`, `nstep`, and `timestep` is 1.
 #'
-#' `subset_list` can be a list containing one or several named elements. Allowed
+#' `subset` can be a list containing one or several named elements. Allowed
 #' names are "band", "cell", and "year".
 #' * "year" can be used to return data for a subset of one or several years
 #' included in the file.
@@ -145,7 +145,7 @@
 #' @export
 read_io <- function(
   file_name,
-  subset_list  = list(),
+  subset  = list(),
   band_names   = NULL,
   dim_order   = c("cell", "time", "band"),
   file_type    = NULL,
@@ -209,7 +209,7 @@ read_io <- function(
     do.call(args = list(file_name = file_name,
                         file_type = file_type,
                         band_names = band_names,
-                        subset_list = subset_list,
+                        subset = subset,
                         version = version,
                         order = order,
                         firstyear = firstyear,
@@ -296,25 +296,25 @@ read_io <- function(
   }
 
   # Read data from binary file
-  file_data <- read_io_data(file_name, meta_data, subset_list)
+  file_data <- read_io_data(file_name, meta_data, subset)
 
-  # Update meta_data based on subset_list
-  if (length(subset_list) > 0) {
-    meta_data$._update_subset(subset_list)
+  # Update meta_data based on subset
+  if (length(subset) > 0) {
+    meta_data$._update_subset(subset)
   }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))
     file_data <- aperm(file_data, perm = dim_order)
 
-  # Create LpjmlData object and bring together data and meta_data
-  lpjml_data <- LpjmlData$new(data_array = file_data,
+  # Create LPJmLData object and bring together data and meta_data
+  lpjml_data <- LPJmLData$new(data_array = file_data,
                               meta_data = meta_data)
   rm(file_data, meta_data)
   return(lpjml_data)
 }
 
 # read & assign metadata for binary file without a header
-read_io_metadata_raw <- function(file_name, file_type, band_names, subset_list,
+read_io_metadata_raw <- function(file_name, file_type, band_names, subset,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
@@ -344,8 +344,8 @@ read_io_metadata_raw <- function(file_name, file_type, band_names, subset_list,
     verbose = verbose
   )
 
-  # Check validity of subset_list and band_names
-  check_subset(subset_list, file_header, band_names, silent)
+  # Check validity of subset and band_names
+  check_subset(subset, file_header, band_names, silent)
 
   # Prepare additional attributes to be added to meta information
   additional_data <- list(band_names = band_names, variable = variable,
@@ -356,14 +356,14 @@ read_io_metadata_raw <- function(file_name, file_type, band_names, subset_list,
     additional_data[["variable"]] <- get_header_item(file_header, "name")
   }
   # Generate meta_data
-  meta_data <- LpjmlMetaData$new(x = file_header,
+  meta_data <- LPJmLMetaData$new(x = file_header,
                                  additional_data = additional_data,
                                  data_dir = dirname(file_name))
   return(meta_data)
 }
 
 # read & assign metadata for binary file with a header
-read_io_metadata_clm <- function(file_name, file_type, band_names, subset_list,
+read_io_metadata_clm <- function(file_name, file_type, band_names, subset,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
@@ -418,8 +418,8 @@ read_io_metadata_clm <- function(file_name, file_type, band_names, subset_list,
     verbose = verbose
   )
 
-  # Check validity of subset_list and band_names
-  check_subset(subset_list, file_header, band_names, silent)
+  # Check validity of subset and band_names
+  check_subset(subset, file_header, band_names, silent)
 
   # Prepare additional attributes to be added to meta information
   additional_data <- list(band_names = band_names, variable = variable,
@@ -437,7 +437,7 @@ read_io_metadata_clm <- function(file_name, file_type, band_names, subset_list,
   additional_data[["offset"]] <- unname(get_headersize(file_header))
 
   # Generate meta_data
-  meta_data <- LpjmlMetaData$new(x = file_header,
+  meta_data <- LPJmLMetaData$new(x = file_header,
                                  additional_data = additional_data,
                                  data_dir = dirname(file_name))
   return(meta_data)
@@ -445,7 +445,7 @@ read_io_metadata_clm <- function(file_name, file_type, band_names, subset_list,
 
 # read & assign metadata for meta file type (binary file with associated
 # meta-data json file)
-read_io_metadata_meta <- function(file_name, file_type, band_names, subset_list,
+read_io_metadata_meta <- function(file_name, file_type, band_names, subset,
                                   version, order, firstyear, nyear, firstcell,
                                   ncell, nbands, cellsize_lon, scalar,
                                   cellsize_lat, datatype, nstep, timestep,
@@ -457,7 +457,7 @@ read_io_metadata_meta <- function(file_name, file_type, band_names, subset_list,
   # allow for meta files.
   set_args <- setdiff(
     names(formals()),
-    c("file_name", "file_type", "silent", "subset_list")
+    c("file_name", "file_type", "silent", "subset")
   )
   # Filter arguments that are NULL
   set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
@@ -547,8 +547,8 @@ read_io_metadata_meta <- function(file_name, file_type, band_names, subset_list,
   # Convert meta data into header
   file_header <- meta_data$as_header(silent)
 
-  # Check validity of subset_list and band_names
-  check_subset(subset_list, file_header, meta_data$band_names, silent)
+  # Check validity of subset and band_names
+  check_subset(subset, file_header, meta_data$band_names, silent)
 
   return(meta_data)
 }
@@ -556,11 +556,11 @@ read_io_metadata_meta <- function(file_name, file_type, band_names, subset_list,
 read_io_data <- function(
   file_name,
   meta_data,
-  subset_list
+  subset
 ) {
   # Years to read
-  if ("year" %in% names(subset_list)) {
-    years <- subset_list[["year"]]
+  if ("year" %in% names(subset)) {
+    years <- subset[["year"]]
   } else {
     # All years in the file
     years <- seq(
@@ -638,13 +638,13 @@ read_io_data <- function(
     )
 
     # Convert to read_band_order and apply subsetting along bands or cells
-    index <- which(!names(subset_list) %in%
+    index <- which(!names(subset) %in%
       c("day", "month", "year", "time")
     )
     year_data <- aperm(year_data, perm = read_band_order) %>%
       # Apply any subsetting along bands or cells
       subset_array(
-        subset_list[index],
+        subset[index],
         drop = FALSE
       )
 
@@ -700,61 +700,61 @@ read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
   return(file_data)
 }
 
-# Simple validity check for subset_list and band_names
-check_subset <- function(subset_list, header, band_names, silent) {
-  if (!is.null(subset_list[["year"]])) {
+# Simple validity check for subset and band_names
+check_subset <- function(subset, header, band_names, silent) {
+  if (!is.null(subset[["year"]])) {
     years <- seq(
       from = get_header_item(header, "firstyear"),
       by = get_header_item(header, "timestep"),
       length.out = get_header_item(header, "nyear")
     )
-    if (!all(subset_list[["year"]] %in% years)) {
+    if (!all(subset[["year"]] %in% years)) {
       stop(
         paste(
-          "Requested year(s)", setdiff(subset_list[["year"]], years),
+          "Requested year(s)", setdiff(subset[["year"]], years),
           "not covered by file.",
-          "\nCheck subset_list[[\"year\"]]."
+          "\nCheck subset[[\"year\"]]."
         )
       )
     }
     rm(years)
   }
-  if (!is.null(subset_list[["month"]]) && !silent) {
+  if (!is.null(subset[["month"]]) && !silent) {
     warning(
       "Using \"month\" as subset is currently not supported in this context ",
       "and thus will be ignored.",
       call. = FALSE
     )
   }
-  if (!is.null(subset_list[["day"]]) && !silent) {
+  if (!is.null(subset[["day"]]) && !silent) {
     warning(
       "Using \"day\" as subset is currently not supported in this context ",
       "and thus will be ignored.",
       call. = FALSE
     )
   }
-  if (!is.null(subset_list[["cell"]])) {
-    if (is.character(subset_list[["cell"]])) {
+  if (!is.null(subset[["cell"]])) {
+    if (is.character(subset[["cell"]])) {
       cells <- seq(
         from = get_header_item(header, "firstcell"),
         length.out = get_header_item(header, "ncell")
       )
-    } else if (is.numeric(subset_list[["cell"]])) {
+    } else if (is.numeric(subset[["cell"]])) {
       cells <- seq_len(get_header_item(header, "ncell"))
     } else {
       stop(
         paste(
-          "subset_list[[\"cell\"]] must be numerical index vector or",
+          "subset[[\"cell\"]] must be numerical index vector or",
           "vector of cell names."
         )
       )
     }
-    if (!all(subset_list[["cell"]] %in% cells)) {
+    if (!all(subset[["cell"]] %in% cells)) {
       stop(
         paste(
-          "Requested cell(s)", setdiff(subset_list[["cell"]], cells),
+          "Requested cell(s)", setdiff(subset[["cell"]], cells),
           "not covered by file.",
-          "\nCheck subset_list[[\"cell\"]]."
+          "\nCheck subset[[\"cell\"]]."
         )
       )
     }
@@ -780,18 +780,18 @@ check_subset <- function(subset_list, header, band_names, silent) {
       call. = FALSE
     )
   }
-  if (!is.null(subset_list[["band"]])) {
-    if (is.character(subset_list[["band"]])) {
+  if (!is.null(subset[["band"]])) {
+    if (is.character(subset[["band"]])) {
       if (is.null(band_names)) {
         stop(
           "File has no associated band_names. Cannot do subset by name.",
           "\nProvide band indices instead of band names in ",
-          "subset_list[[\"cell\"]] or set band_names.",
+          "subset[[\"cell\"]] or set band_names.",
           call. = FALSE
         )
       }
-      if (!all(subset_list[["band"]] %in% band_names)) {
-        missing_bands <- setdiff(subset_list[["band"]], band_names)
+      if (!all(subset[["band"]] %in% band_names)) {
+        missing_bands <- setdiff(subset[["band"]], band_names)
         stop(
           "Requested band(s) ",
           toString(
@@ -805,17 +805,17 @@ check_subset <- function(subset_list, header, band_names, silent) {
             )
           ),
           " not covered by file.",
-          "\nCheck subset_list[[\"band\"]].",
+          "\nCheck subset[[\"band\"]].",
           call. = FALSE
         )
       }
-    } else if (is.numeric(subset_list[["band"]])) {
+    } else if (is.numeric(subset[["band"]])) {
       bands <- seq(get_header_item(header, "nbands"))
-      if (!all(subset_list[["band"]] %in% bands)) {
+      if (!all(subset[["band"]] %in% bands)) {
         stop(
-          "Requested band(s) ", toString(setdiff(subset_list[["band"]], bands)),
+          "Requested band(s) ", toString(setdiff(subset[["band"]], bands)),
           " not covered by file.",
-          "\nCheck subset_list[[\"band\"]].",
+          "\nCheck subset[[\"band\"]].",
           call. = FALSE
         )
       }
@@ -823,15 +823,15 @@ check_subset <- function(subset_list, header, band_names, silent) {
     }
   }
   if (
-    any(!names(subset_list) %in% c("cell", "year", "month", "day", "band")) &&
+    any(!names(subset) %in% c("cell", "year", "month", "day", "band")) &&
     !silent
   ) {
     warning(
-      "Invalid 'subset_list' name(s) ",
+      "Invalid 'subset' name(s) ",
       toString(
         dQuote(
           setdiff(
-            names(subset_list),
+            names(subset),
             c("cell", "year", "month", "day", "band")
           )
         )

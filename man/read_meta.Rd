@@ -11,7 +11,7 @@ read_meta(filename)
 (if differs from current working directory) and filename}
 }
 \value{
-LpjmlMetaData object
+LPJmLMetaData object
 }
 \description{
 Reads a meta JSON file.
