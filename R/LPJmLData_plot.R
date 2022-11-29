@@ -112,10 +112,10 @@ LPJmLData$set("public", "plot",
       .[!(. %in% names(aggregate))] %>%
       .[!(. %in% space_dims)]
 
-    # if still two z dimensions filter dimension of length 1
-    if (length(z_dim) > 1) {
+    # if still two z dimensions filter dimensions of length 1
+    if (length(z_dim) > 1 && any(dim(data_subset)[z_dim] > 1)) {
       z_dim <- z_dim[z_dim %in% names(dim(data_subset))[dim(data_subset) > 1]]
-    } else if (length(z_dim) == 0) {
+    } else if (length(z_dim) != 1) {
       z_dim <- "band"
     }
 
