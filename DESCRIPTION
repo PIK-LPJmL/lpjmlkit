@@ -1,7 +1,7 @@
-Package: lpjmlKit
+Package: lpjmlkit
 Type: Package
-Title: Function kit for handling and processing LPJmL related stuff, such as input, output, plotting, aggregation
-Version: 0.4.0
+Title: Function kit for basic LPJmL handling
+Version: 0.5.0
 Author: LPJmL Team at PIK Potsdam
 Maintainer:
     Christoph Mueller <cmueller@pik-potsdam.de>,
@@ -10,8 +10,8 @@ Maintainer:
     Jannes Breier <jannesbr@pik-potsdam.de>,
     Sebastian Ostberg <ostberg@pik-potsdam.de>,
     Stephen Wirth <wirth@pik-potsdam.de>
-Description: Function kit for handling and processing LPJmL related stuff,
-    such as input, output, plotting, aggregation.
+Description: Function kit for basic LPJmL handling, including simulations,
+    corresponding configurations as well as input & output data.
 License: GPL-3
 LazyData: true
 RoxygenNote: 7.1.2

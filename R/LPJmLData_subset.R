@@ -3,13 +3,15 @@
 #' Use dimension names of LPJmLData array directly to subset each by simply
 #' using subset vectors.
 #'
-#' @param ... dimensions of each
-#'
+#' @param ... Provide dimension to bet subset of LPJmLData objects underlying
+#' data array in combination with indices vectors, e.g. `cell = c(27409, 27415)`
+#' , or ``band = -c(14:16, 19:32) or subset using a "character" vector like
+#' `band = c("rainfed rice","rainfed maize")`
 #' @return LPJmLData object
-#' @export
-#'
 #' @examples
-subset <- function(x, ...) {
+#'
+#' @export
+subset.LPJmLData <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$subset(...)
   return(y)

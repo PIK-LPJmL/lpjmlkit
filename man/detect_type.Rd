@@ -4,10 +4,10 @@
 \alias{detect_type}
 \title{Detect file type of an LPJmL file}
 \usage{
-detect_type(file_name)
+detect_type(filename)
 }
 \arguments{
-\item{file_name}{Character string naming the file to check}
+\item{filename}{Character string naming the file to check}
 }
 \value{
 character vector of length 1 giving the file type:

@@ -7,10 +7,10 @@
 #' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
 #'
 #' @return LPJmLData object
-#' @export
-#'
 #' @examples
-transform <- function(x, ...) {
+#'
+#' @export
+transform.LPJmLData <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$transform(...)
   return(y)

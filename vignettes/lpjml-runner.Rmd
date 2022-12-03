@@ -2,7 +2,9 @@
 title: "LPJmL Runner"
 author: "Jannes Breier"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document # md_document html_vignette
+output:
+  pdf_document
+    # variant: markdown_github
 vignette: >
   %\VignetteIndexEntry{lpjml-runner}
   %\VignetteEngine{knitr::rmarkdown}
@@ -29,11 +31,10 @@ Please make sure to have set the
 [working environment for LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
 correctly if you are not working on the PIK cluster
 (with [Slurm Workload Manager](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm)).
-Else it is recommended to add something like this to the working environment or your `".profile"`.
+On the PIK cluster please load the lpjml module (below) or add it to your `".profile"`.
 \newline
 
 ```bash
-export LPJROOT=<PATH_TO_LPJML_REPOSITORY>
 
 module load lpjml
 ```
@@ -128,11 +129,10 @@ output_path <- "./my_runs"
 &nbsp;
 &nbsp;
 
-Continued on next page ...
 \newpage
 
-#### Single cell run sequences\
-\
+### Single cell run sequences\
+
 Potential natural vegetation and land-use run:
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 
@@ -226,8 +226,8 @@ run_details_2 <- run_lpjml(config_details_2, model_path, output_path)
 ```
 
 \newpage
-#### Submission of global run sequences to the PIK cluster\
-\
+### Submission of global run sequences to the PIK cluster\
+
 Compare old vs new land use (lpjml input toolbox):
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 # create parameter tibble

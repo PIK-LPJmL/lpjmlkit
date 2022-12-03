@@ -4,17 +4,26 @@
 \alias{make_lpjml}
 \title{Make all (compile, link, etc.) LPJmL}
 \usage{
-make_lpjml(model_path = ".", make_fast = TRUE, make_clean = FALSE)
+make_lpjml(
+  model_path = ".",
+  make_fast = TRUE,
+  make_clean = FALSE,
+  throw_error = TRUE
+)
 }
 \arguments{
 \item{model_path}{character string providing the path to LPJmL
 (equal to LPJROOT)}
 
-\item{make_fast}{logical - if TRUE \verb{make -j8 all} is executed.
+\item{make_fast}{logical - if TRUE \verb{make -j16 all} is executed.
 Defaults to TRUE}
 
 \item{make_clean}{logical - if TRUE execute make clean first.
 Defaults to FALSE}
+
+\item{throw_error}{logical - if FALSE does not throw an error if sub process
+has non-zero exit status, hence if compilation fails in first attempt.
+Defaults to TRUE}
 }
 \value{
 a list with process status, see \link[processx]{run}

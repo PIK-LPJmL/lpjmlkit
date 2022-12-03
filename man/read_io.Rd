@@ -7,7 +7,7 @@
 \title{Read LPJmL input and output files}
 \usage{
 read_io(
-  file_name,
+  filename,
   subset = list(),
   band_names = NULL,
   dim_order = c("cell", "time", "band"),
@@ -34,7 +34,7 @@ read_io(
 )
 }
 \arguments{
-\item{file_name}{Mandatory character string giving the file name to read,
+\item{filename}{Mandatory character string giving the file name to read,
 including its path and extension.}
 
 \item{subset}{Optional list allowing to subset data read from file along
@@ -125,7 +125,7 @@ or have to be passed on as individual arguments.
 }
 \details{
 The \code{file_type} determines which arguments are mandatory, optional,
-or not allowed. \code{file_name} must always be provided. \code{file_type} is usually
+or not allowed. \code{filename} must always be provided. \code{file_type} is usually
 detected automatically. Supply only if detected \code{file_type} is incorrect.
 
 In case of \code{file_type = "meta"}, function arguments not listed as "mandatory"

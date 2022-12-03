@@ -18,10 +18,10 @@
 #' raster::plot()
 #'
 #' @return NULL
-#' @export
-#'
 #' @examples
-plot <- function(x, ...) {
+#'
+#' @export
+plot.LPJmLData <- function(x, ...) {
   x$plot(...)
 }
 
