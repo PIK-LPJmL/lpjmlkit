@@ -1,9 +1,9 @@
 #' Check LPJmL config JSON files using lpjcheck
 #'
-#' Check if created LPJmL config JSON files (\link[lpjmlKit]{write_config}) are
+#' Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
 #' valid.
 #'
-#' @param x job_details object returned by \link[lpjmlKit]{write_config} or
+#' @param x job_details object returned by \link[lpjmlkit]{write_config} or
 #' character vector providing the config file names
 #' (hint: returns x as a list entry)
 #'

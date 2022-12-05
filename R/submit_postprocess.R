@@ -1,7 +1,7 @@
 #' Submit postprocess
 #'
 #' postprocess functions are submitted to Slurm based on submitted LPJmL runs
-#' \link[lpjmlKit]{submit_lpjml}. `submit_lpjml` returns a tibble that can be
+#' \link[lpjmlkit]{submit_lpjml}. `submit_lpjml` returns a tibble that can be
 #' used as an input (see `x`). It serves the details to submit single
 #' or multiple (dependent/subsequent) postprocess runs.
 #'
@@ -68,7 +68,7 @@
 #' @examples
 #'
 #' \dontrun{
-#' library(lpjmlKit)
+#' library(lpjmlkit)
 #' library(tibble)
 #'
 #' model_path <- paste0("/home/",Sys.getenv("USER"), "/LPJmL_internal")

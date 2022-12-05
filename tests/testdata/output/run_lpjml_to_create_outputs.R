@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Project:     lpjmlKit
+# Project:     lpjmlkit
 # ------------------------------------ #
 # Author:      Sara Minoli
 # Email:       sara.minoli@pik-potsdam.de
@@ -8,7 +8,7 @@
 
 rm(list = ls(all = T))
 
-library(lpjmlKit)
+library(lpjmlkit)
 library(tibble)
 #library(magrittr)
 
@@ -16,8 +16,8 @@ library(tibble)
 # ------------------------------------ #
 # Paths ----
 lpjdir <- paste0("/home/minoli/LPJmL_GitLab/nitrogen_cotton_tillage_newoutput/")
-outdir <- paste0("/home/minoli/git_lpjmlKit/lpjml_outputs/")
-testdatadir <- paste0("/home/minoli/git_lpjmlKit/lpjmlKit/tests/testdata/")
+outdir <- paste0("/home/minoli/git_lpjmlkit/lpjml_outputs/")
+testdatadir <- paste0("/home/minoli/git_lpjmlkit/lpjmlkit/tests/testdata/")
 
 
 # ------------------------------------ #
@@ -84,7 +84,7 @@ run_details <- run_lpjml(
 )
 
 # ------------------------------------ #
-# Copy Files to lpjmlKit test
+# Copy Files to lpjmlkit test
 outputs <- c(
   paste0(outputs_df$output, ".bin.json"),
   paste0(outputs_df$output, ".bin"),

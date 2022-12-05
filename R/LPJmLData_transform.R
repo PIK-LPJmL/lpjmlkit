@@ -1,13 +1,42 @@
 #' Transform LPJmLData object
 #'
-#' ...
+#' Function to transform inner \link[lpjmlkit](LPJmLData) array into another
+#' space or another time format. Combinations are also possible.
 #'
 #' @param to character vector defining space and/or time format into which
 #' corresponding data dimensions should be transformed. Choose from space
 #' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
 #'
-#' @return LPJmLData object
+#' @return \link[lpjmlkit](LPJmLData) object in selected format
+#'
 #' @examples
+#' \dontrun{
+#'
+#' runoff <- read_io(filename = glue("{output_path}/runoff.bin.json"),
+#'                   subset = list(year = 1991:2000))
+#'
+#' # transform into space format "lon_lat"
+#' transform(runoff, to = "lon_lat")
+#' # [...]
+#' # $data %>%
+#' #   dimnames() %>%
+#' #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
+#' #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
+#' #     .$time  "1991-01-31" "1991-02-28" "1991-03-31" "1991-04-30" ...
+#' #     .$band  "1"
+#' # [...]
+#'
+#' # transform -> split time format into years, months (, days)
+#' transform(runoff, to = "year_month_day")
+#' # [...]
+#' # $data %>%
+#' #   dimnames() %>%
+#' #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
+#' #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
+#' #     .$month  "1" "2" "3" "4" ... "12"
+#' #     .$year  "1991" "1992" "1993" "1994" ... "2000"
+#' #     .$band  "1"
+#' # [...]
 #'
 #' @export
 transform.LPJmLData <- function(x, ...) {
@@ -16,11 +45,13 @@ transform.LPJmLData <- function(x, ...) {
   return(y)
 }
 
-LPJmLData$set(
-  "public",
-  "transform",
-  # TODO: INSERT ROXYGEN DOC
-  function(to = NULL) {
+LPJmLData$set("public",
+              "transform",
+              #' @description
+              #' Function to transform inner \link[lpjmlkit](LPJmLData) array
+              #' into another space or another time format.
+              #' See also \link[lpjmlkit]{transform}
+              function(to = NULL) {
     if (any(to %in% self$meta$dimension_map$time)) {
       self$transform_time(to = "time")
       to <- to[!to %in% self$meta$dimension_map$time]
@@ -61,11 +92,11 @@ LPJmLData$set(
   }
 )
 
-
+# method to transform dimensions of grid array from "cell" to "lon_lat" or the other
+#   way around
 LPJmLData$set(
   "public",
   "transform_grid",
-  # TODO: INSERT ROXYGEN DOC
   function(to = NULL) {
     if (is.null(self$meta$variable) ||
         self$meta$variable != "grid") {
@@ -141,17 +172,18 @@ LPJmLData$set(
 )
 
 
-  # TODO: INSERT ROXYGEN DOC
+# function for transforming space dimensions of array
 transform_space <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$transform_space(...)
   return(y)
 }
 
+# method to transform space dimension of array from "cell" to "lon_lat" or the
+#   other way around. If required add_grid to LPJmLData along the way
 LPJmLData$set(
   "public",
   "transform_space",
-  # TODO: INSERT ROXYGEN DOC
   function(to = NULL) {
     # check if grid then use transform_grid method
     if (!is.null(self$meta$variable) &&
@@ -231,17 +263,18 @@ LPJmLData$set(
 )
 
 
-  # TODO: INSERT ROXYGEN DOC
+# function for transforming time dimensions of array
 transform_time <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$transform_time(...)
   return(y)
 }
 
+# method to transform time dimension of array from "time" to "year_month_cell"
+#   or the other way around.
 LPJmLData$set(
   "public",
   "transform_time",
-  # TODO: INSERT ROXYGEN DOC
   function(to = NULL) {
     # check if grid then use transform_grid method
     if (!is.null(self$meta$variable) &&

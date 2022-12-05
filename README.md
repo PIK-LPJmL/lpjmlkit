@@ -1,4 +1,4 @@
-# lpjmlKit  <a href=''><img src='./inst/img/logo.png' align="right" height="139" /></a>
+# lpjmlkit  <a href=''><img src='./inst/img/logo.png' align="right" height="139" /></a>
 
 _A kit of R-functions to work with inputs, outputs and configuration files of the LPJmL model_
 
@@ -45,26 +45,26 @@ devtools::install("<path_to_lpjmlkit>/lpjmlkit")
 
 ```bash
 cd <path_to_lpjmlkit>
-R CMD build lpjmlKit
-R CMD INSTALL [-l /path/Rlib/] lpjmlKit_<version_nr>.tar.gz
+R CMD build lpjmlkit
+R CMD INSTALL [-l /path/Rlib/] lpjmlkit_<version_nr>.tar.gz
 ```
 [Go to Top](#)
 
 ## Usage
 
-After the installation, you can use `lpjmlKit` as any other R package.
+After the installation, you can use `lpjmlkit` as any other R package.
 
 ```R
-# Load lpjmlKit
-library(lpjmlKit)
+# Load lpjmlkit
+library(lpjmlkit)
 # Optional, specify the library paths
-library(lpjmlKit, lib.loc = "/path/Rlib")
+library(lpjmlkit, lib.loc = "/path/Rlib")
 
 # To get an overview of all functions included you can use:
-library(help = "lpjmlKit")
+library(help = "lpjmlkit")
 ```
 
-- In `lpjmlKit` there are functions to handle LPJmL file headers (mostly used in input files), e.g.:
+- In `lpjmlkit` there are functions to handle LPJmL file headers (mostly used in input files), e.g.:
   - `read_header` *read the header of LPJmL files*
   - `get_headersize` *to get the size of a file header*
   - `get_datatype` *get information on the data type used in different LPJmL files*
@@ -77,7 +77,7 @@ library(help = "lpjmlKit")
 
 ## Contribute
 
-If you want to contribute to further develop `lpjmlKit`, by modifying or adding new functions, please follow the guidelines here below.
+If you want to contribute to further develop `lpjmlkit`, by modifying or adding new functions, please follow the guidelines here below.
 
 **Required libraries**
 
@@ -92,9 +92,9 @@ library(testthat)
 library(lintr)
 ```
 
-**Note on the structure of the lpjmlKit repository**
+**Note on the structure of the lpjmlkit repository**
 
-The `lpjmlKit` repository include the following branches:
+The `lpjmlkit` repository include the following branches:
 
 - `master`: this is the clean version of the package. Note: **this branch is protected**, direct push is not allowed, changes to `master` are possible only via 'Merge Requests'.
 - `your_temporary_branch`:  The branch you create whenever you want to make a new development. **Please, delete it when you are done.**

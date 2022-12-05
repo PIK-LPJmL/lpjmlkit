@@ -61,7 +61,7 @@
 #' @param silent If set to TRUE, suppresses most warnings or messages. Use only
 #' after testing that function works as expected with the files it is being used
 #' on. Default: FALSE.
-#' @return Object of class LPJmLData
+#' @return \link[lpjmlkit](LPJmLData) object
 #' @examples
 #' \dontrun{
 #' # First case: meta file. Reads meta information from "my_file.json" and

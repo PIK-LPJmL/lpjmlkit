@@ -1,5 +1,5 @@
 **LPJmL Runner** is the collective term for a set of functions within
-**`lpjmlKit`** that have the goal to simplify the execution of
+**`lpjmlkit`** that have the goal to simplify the execution of
 simulations with LPJmL and furthermore to execute complex, nested and
 multiple simulation sequences fast and error free without having a big
 (bash) script overhead.
@@ -89,7 +89,7 @@ module load lpjml
 
 ``` r
 # https://gitlab.pik-potsdam.de/lpjml/lpjmlkit
-library(lpjmlKit)
+library(lpjmlkit)
 # why tibble? -> https://r4ds.had.co.nz/tibbles.html
 library(tibble)
 

@@ -47,7 +47,7 @@ Create a new LPJmLMetaData object
 \item{\code{subset}}{\code{list} of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlKit]{subset}.}
+\link[lpjmlkit]{subset}.}
 
 \item{\code{additional_data}}{\code{list} of additional attributes to be set that
 are not included in file header. These are

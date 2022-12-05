@@ -12,11 +12,9 @@ corresponding data dimensions should be transformed. Choose from space
 formats \code{c("cell", "lon_lat")} and time formats \code{c("time","year_month_day")}.}
 }
 \value{
-LPJmLData object
+\link\href{LPJmLData}{lpjmlkit} object in selected format
 }
 \description{
-...
-}
-\examples{
-
+Function to transform inner \link\href{LPJmLData}{lpjmlkit} array into another
+space or another time format. Combinations are also possible.
 }

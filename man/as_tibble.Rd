@@ -13,7 +13,7 @@ as_tibble(x, ...)
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlKit]{subset}.}
+\link[lpjmlkit]{subset}.}
 
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
@@ -23,12 +23,12 @@ corresponding aggregation function as value, e.g.
 \code{"value"}.}
 }
 \value{
-a \verb{link[tibble]\{tibble\}} with columns corresponding to dimension
+a \verb{\link[tibble]\{tibble\}} with columns corresponding to dimension
 naming of \code{LPJmLData$data} array and values in value column.
 }
 \description{
 Function to coerce (convert) a \code{LPJmLData} object into a
-\link[tibble]{tibble} (modern \verb{link[base]\{data.frame\}}, read more
+\link[tibble]{tibble} (modern \verb{\link[base]\{data.frame\}}, read more
 \href{https://r4ds.had.co.nz/tibbles.html}{here})
 }
 \examples{

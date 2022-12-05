@@ -1,32 +1,66 @@
 #' Plot LPJmLData class
 #'
 #' Function to plot a time-series or raster map of a LPJmLData
-#' object. This function is only supposed to give an overview of
-#' the data and not to create publication ready graphics.
+#' object. *The intent is to provide a quick overview of the data,
+#' not to create publication-ready graphs.*
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlKit]{subset}.
+#' `list(cell = c(27411:27416)`, more information at
+#' \link[lpjmlkit]{subset}.
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
 #' `list(band = sum)`.
 #' @param raster_extent if `aggregate` does not include space dim
-#' [extent object](\link[raster]{extent}), or any object from
+#' \link[raster]{extent}, or any object from
 #' which an Extent object can be extracted
-#' @param ... arguments forwarded to graphics::plot() and
-#' raster::plot()
+#' @param ... arguments forwarded to \link[graphics](plot) and
+#' \link[raster](plot)
 #'
 #' @return NULL
 #' @examples
+#' \dontrun{
 #'
+#' vegc <- read_io(filename = "./vegc.bin.json")
+#'
+#' # plots first 9 years starting from 1901 as a raster plot
+#' plot(vegc)
+#'
+#' # plots raster with mean over whole time series
+#' plot(vegc,
+#'      aggregate = list(time=mean))
+#'
+#' # plots only year 2010 as raster
+#' plot(vegc,
+#'      subset = list(time = "2010"))
+#'
+#' # plots only year 2010 as raster
+#' plot(vegc,
+#'      subset = list(time = "2010")
+#'
+#' # plots first 10 time steps as global mean time series
+#' plot(vegc,
+#'      subset = list(time = 1:10),
+#'      aggregate = list(cell = mean))
+#'
+#' # plots time series for cells with LPJmL index 27410 - 27414 (C indices start
+#' #    at 0 in contrast to R indices - at 1)
+#' plot(vegc,
+#'      subset = list(cell = 27411:27416))
+#'
+#' }
+#'
+#' @md
 #' @export
 plot.LPJmLData <- function(x, ...) {
   x$plot(...)
 }
 
-LPJmLData$set("public", "plot",
-              # TODO: INSERT ROXYGEN DOC
+LPJmLData$set("public",
+              "plot",
+              #' @description
+              #' Method to plot a time-series or raster map of a LPJmLData
+              #' object. See also \link[lpjmlkit]{plot}
               function(subset = NULL,
                        aggregate = NULL,
                        raster_extent = NULL,
@@ -162,6 +196,7 @@ LPJmLData$set("public", "plot",
 
 
 # helper function to draw time series plots
+#   TODO: requires refactoring
 LPJmLData$set("public",
               "._plot_by_band",
               function(data, dots) {

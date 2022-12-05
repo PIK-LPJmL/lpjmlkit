@@ -7,18 +7,43 @@
 \method{subset}{LPJmLData}(x, ...)
 }
 \arguments{
-\item{...}{Provide dimension to bet subset of LPJmLData objects underlying
-data array in combination with indices vectors, e.g. \code{cell = c(27409, 27415)}
-, or ``band = -c(14:16, 19:32) or subset using a "character" vector like
-\code{band = c("rainfed rice","rainfed maize")}}
+\item{...}{Provide dimension to be used to subset \code{LPJmLData} objects
+underlying data array in combination with indices vectors,
+e.g. \code{cell = c(27411:27416)}, or ``band = -c(14:16, 19:32) or subset
+using a "character" vector like \code{band = c("rainfed rice","rainfed maize")}}
 }
 \value{
-LPJmLData object
+\link\href{LPJmLData}{lpjmlkit} object with/without subset cell of
+dimension
 }
 \description{
-Use dimension names of LPJmLData array directly to subset each by simply
-using subset vectors.
+Function to use dimension names of \link\href{LPJmLData}{lpjmlkit} array directly
+to subset each by simply using supplying vectors.
 }
 \examples{
+\dontrun{
+
+vegc <- read_io(filename = "./vegc.bin.json")
+
+# subset cells by index
+subset(vegc, cell = c(27409, 27415))
+# [...]
+# $data \%>\%
+#   dimnames() \%>\%
+#     .$cell  "27409" "27410" "27411" "27412" "27413" "27414"
+#     .$time  "1901-12-31" "1902-12-31" "1903-12-31" "1904-12-31" ...
+#     .$band  "1"
+# [...]
+
+#' # subset time by character vector
+subset(vegc, cell = c("2001-12-31", "2002-12-31", "2003-12-31"))
+# [...]
+# $data \%>\%
+#   dimnames() \%>\%
+#     .$cell  "0" "1" "2" "3" ... "67419"
+#     .$time  "2001-12-31" "2002-12-31" "2003-12-31"
+#     .$band  "1"
+# [...]
+}
 
 }

@@ -12,7 +12,7 @@ LPJmLMetaData <- R6::R6Class(
     #' @param subset `list` of array dimension(s) as name/key and
     #' corresponding subset vector as value, e.g.
     #' `list(cell = c(27411:27415)`, more information at
-    #' \link[lpjmlKit]{subset}.
+    #' \link[lpjmlkit]{subset}.
     #' @param additional_data `list` of additional attributes to be set that
     #' are not included in file header. These are
     #' `c"(band_names", "variable", "descr", "unit")`

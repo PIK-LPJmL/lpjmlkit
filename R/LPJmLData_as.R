@@ -1,14 +1,14 @@
 #' Coerce LPJmLData to an array
 #'
 #' Function to coerce (convert) a `LPJmLData` object into a pure
-#' `link[base]{array}`. Pure - because LPJmLData stores the data already as 
+#' `\link[base]{array}`. Pure - because LPJmLData stores the data already as
 #' an `array` which can be accessed via `$data`.
 #' `as_array` provides further functionality to subset or aggregate the `array`.
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlKit]{subset}.
+#' \link[lpjmlkit]{subset}.
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -17,9 +17,9 @@
 #' @param ... arguments forwarded to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
-#' @return a `link[base]{array}` with dimensions of objects `$data` with applied
-#' `subset` and `aggregate` functionality as well as `dim` and `dimnames` from
-#' the `LPJmLData` object.
+#' @return a `\link[base]{array}` with dimensions of objects `$data` with
+#' applied `subset` and `aggregate` functionality as well as `dim` and
+#' `dimnames` from the `LPJmLData` object.
 #'
 #' @examples
 #' \dontrun{
@@ -61,6 +61,9 @@ as_array <- function(x, ...) {
 
 LPJmLData$set("public",
               "as_array",
+              #' @description
+              #' Method to coerce (convert) a `LPJmLData` object into a pure
+              #' `\link[base]{array}`. See also \link[lpjmlkit]{as_array}
               function(subset = NULL,
                        aggregate = NULL,
                        ...) {
@@ -79,13 +82,13 @@ LPJmLData$set("public",
 #' Coerce LPJmLData to an tibble
 #'
 #' Function to coerce (convert) a `LPJmLData` object into a
-#' \link[tibble]{tibble} (modern `link[base]{data.frame}`, read more
+#' \link[tibble]{tibble} (modern `\link[base]{data.frame}`, read more
 #' [here](https://r4ds.had.co.nz/tibbles.html))
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlKit]{subset}.
+#' \link[lpjmlkit]{subset}.
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -97,7 +100,7 @@ LPJmLData$set("public",
 #' @param ... arguments forwarded to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
-#' @return a `link[tibble]{tibble}` with columns corresponding to dimension
+#' @return a `\link[tibble]{tibble}` with columns corresponding to dimension
 #' naming of `LPJmLData$data` array and values in value column.
 #'
 #' @examples
@@ -127,6 +130,10 @@ as_tibble <- function(x, ...) {
 
 LPJmLData$set("public",
               "as_tibble",
+              #' @description
+              #' Method to coerce (convert) a `LPJmLData` object into a
+              #' `\link[base]{tibble}` (modern `\link[base]{data.frame}`.
+              #' See also \link[lpjmlkit]{as_tibble}
               function(subset = NULL,
                        aggregate = NULL,
                        value_name = "value",
@@ -155,7 +162,7 @@ LPJmLData$set("public",
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlKit]{subset}.
+#' \link[lpjmlkit]{subset}.
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -164,15 +171,15 @@ LPJmLData$set("public",
 #' @param ... arguments forwarded to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
-#' @return a `link[raster]{raster}` or `link[raster]{brick}` with grid based on
+#' @return a `\link[raster]{raster}` or `\link[raster]{brick}` with grid based on
 #' internal `$grid` attribute (LPJmLData of `"./grid.*"`) and corresponding data
 #' for each grid cell. If multiple bands or time dimensions exist, a
-#' `link[raster]{brick}` is created. Further meta information such as the
+#' `\link[raster]{brick}` is created. Further meta information such as the
 #' lon/lat resolution are extracted from `$meta`.
 #'
-#' @details for coercion to a `link[raster]{raster}` or `link[raster]{brick}`,
+#' @details for coercion to a `\link[raster]{raster}` or `\link[raster]{brick}`,
 #' the `$grid` attribute is required. When using `file_type = "meta"`, grid data
-#' is read automatically via `\link[lpjmlKit]{add_grid}`. If `file_type = "clm"`
+#' is read automatically via `\link[lpjmlkit]{add_grid}`. If `file_type = "clm"`
 #' or `file_type = "raw"` is used, `add_grid` has to be performed beforehand.
 #'
 #' @examples
@@ -327,7 +334,7 @@ LPJmLData$set("public",
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlKit]{subset}.
+#' \link[lpjmlkit]{subset}.
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -336,15 +343,15 @@ LPJmLData$set("public",
 #' @param ... arguments forwarded to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
-#' @return a `link[terra]{rast}`  with grid based on
+#' @return a `\link[terra]{rast}`  with grid based on
 #' internal `$grid` attribute (LPJmLData of `"./grid.*"`) and corresponding data
 #' for each grid cell. If multiple bands or time dimensions exist, a
-#' `link[raster]{brick}` is created. Further meta information such as the
+#' `\link[raster]{brick}` is created. Further meta information such as the
 #' lon/lat resolution are extracted from `$meta`.
 #'
-#' @details for coercion to a `link[terra]{rast}` the `$grid` attribute is
+#' @details for coercion to a `\link[terra]{rast}` the `$grid` attribute is
 #' required. When using `file_type = "meta"`, grid data is read automatically
-#' via `\link[lpjmlKit]{add_grid}`. If `file_type = "clm"` or
+#' via `\link[lpjmlkit]{add_grid}`. If `file_type = "clm"` or
 #' `file_type = "raw"` is used, `add_grid` has to be performed beforehand.
 #'
 #' @examples
@@ -354,7 +361,7 @@ LPJmLData$set("public",
 #'
 #' # returns a SpatRaster for all data
 #' as_terra(vegc)
-#' # ....
+#' # ...
 #' }
 #'
 #' @md

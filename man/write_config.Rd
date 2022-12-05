@@ -52,7 +52,7 @@ to enable tracebacks and all types of error messages. Defaults to \code{FALSE}}
 \link[tibble]{tibble} with at least columns \code{"sime_name"} defined.
 If defined in params run parameters \code{"order"} and \code{"dependency"} are
 included. \link[tibble]{tibble} in this format is required for
-\link[lpjmlKit]{submit_lpjml}.
+\link[lpjmlkit]{submit_lpjml}.
 }
 \description{
 Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
@@ -143,7 +143,7 @@ transient to get a better position in the slurm queue. This can be achieved
 by supplying this option as parameter to \code{param}. \cr
 4 options are availble, namely \code{sclass} \code{ntask}, \code{wtime}, \code{blocking}. \cr
 If specified in \code{param} they overwrite the corresponding function arguments
-in \link[lpjmlKit]{submit_lpjml}.\if{html}{\out{<div class="R">}}\preformatted{my_params4 <- tibble(
+in \link[lpjmlkit]{submit_lpjml}.\if{html}{\out{<div class="R">}}\preformatted{my_params4 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
  order = c(FALSE, TRUE),
@@ -173,7 +173,7 @@ keys for accessing the config json values
 \item the column \code{"sim_name"} is mandatory (used as identifier)
 \item run parameters (\code{"order"}, \code{"dependency"}) are
 optional but lay the basis for subsequent runs using
-\link[lpjmlKit]{submit_lpjml}
+\link[lpjmlkit]{submit_lpjml}
 \item specify slurm options in \code{param} if you want to differentiate between the
 runs
 \item if \code{NA} is specified as cell value the original value is used
@@ -185,7 +185,7 @@ runs
 \examples{
 \dontrun{
 library(tibble)
-library(lpjmlKit)
+library(lpjmlkit)
 
 model_path <- "./LPJmL_internal"
 output_path <-"./my_runs"

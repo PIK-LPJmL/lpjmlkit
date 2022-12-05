@@ -13,17 +13,17 @@ as_terra(x, ...)
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlKit]{subset}.}
+\link[lpjmlkit]{subset}.}
 
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
 }
 \value{
-a \verb{link[terra]\{rast\}}  with grid based on
+a \verb{\link[terra]\{rast\}}  with grid based on
 internal \verb{$grid} attribute (LPJmLData of \code{"./grid.*"}) and corresponding data
 for each grid cell. If multiple bands or time dimensions exist, a
-\verb{link[raster]\{brick\}} is created. Further meta information such as the
+\verb{\link[raster]\{brick\}} is created. Further meta information such as the
 lon/lat resolution are extracted from \verb{$meta}.
 }
 \description{
@@ -32,9 +32,9 @@ Function to coerce (convert) a \code{LPJmLData} object into a
 Read more \href{https://rspatial.org/}{here}, \strong{TO BE IMPLEMENTED SOON}
 }
 \details{
-for coercion to a \verb{link[terra]\{rast\}} the \verb{$grid} attribute is
+for coercion to a \verb{\link[terra]\{rast\}} the \verb{$grid} attribute is
 required. When using \code{file_type = "meta"}, grid data is read automatically
-via \verb{\link[lpjmlKit]\{add_grid\}}. If \code{file_type = "clm"} or
+via \verb{\link[lpjmlkit]\{add_grid\}}. If \code{file_type = "clm"} or
 \code{file_type = "raw"} is used, \code{add_grid} has to be performed beforehand.
 }
 \examples{
@@ -44,7 +44,7 @@ vegc <- read_io(filename = "./vegc.bin.json")
 
 # returns a SpatRaster for all data
 as_terra(vegc)
-# ....
+# ...
 }
 
 }

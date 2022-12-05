@@ -39,7 +39,7 @@
 #' @return \link[tibble]{tibble} with at least columns `"sime_name"` defined.
 #' If defined in params run parameters `"order"` and `"dependency"` are
 #' included. \link[tibble]{tibble} in this format is required for
-#' \link[lpjmlKit]{submit_lpjml}.
+#' \link[lpjmlkit]{submit_lpjml}.
 #'
 #' @details
 #'
@@ -137,7 +137,7 @@
 #' by supplying this option as parameter to `param`. \cr
 #' 4 options are availble, namely `sclass` `ntask`, `wtime`, `blocking`. \cr
 #' If specified in `param` they overwrite the corresponding function arguments
-#' in \link[lpjmlKit]{submit_lpjml}.
+#' in \link[lpjmlkit]{submit_lpjml}.
 #'
 #' ```R
 #' my_params4 <- tibble(
@@ -169,7 +169,7 @@
 #' * the column `"sim_name"` is mandatory (used as identifier)
 #' * run parameters (`"order"`, `"dependency"`) are
 #'   optional but lay the basis for subsequent runs using
-#'   \link[lpjmlKit]{submit_lpjml}
+#'   \link[lpjmlkit]{submit_lpjml}
 #' * specify slurm options in `param` if you want to differentiate between the
 #'   runs
 #' * if `NA` is specified as cell value the original value is used
@@ -179,7 +179,7 @@
 #' @examples
 #' \dontrun{
 #' library(tibble)
-#' library(lpjmlKit)
+#' library(lpjmlkit)
 #'
 #' model_path <- "./LPJmL_internal"
 #' output_path <-"./my_runs"

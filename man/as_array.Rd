@@ -13,20 +13,20 @@ as_array(x, ...)
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlKit]{subset}.}
+\link[lpjmlkit]{subset}.}
 
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
 }
 \value{
-a \verb{link[base]\{array\}} with dimensions of objects \verb{$data} with applied
-\code{subset} and \code{aggregate} functionality as well as \code{dim} and \code{dimnames} from
-the \code{LPJmLData} object.
+a \verb{\link[base]\{array\}} with dimensions of objects \verb{$data} with
+applied \code{subset} and \code{aggregate} functionality as well as \code{dim} and
+\code{dimnames} from the \code{LPJmLData} object.
 }
 \description{
 Function to coerce (convert) a \code{LPJmLData} object into a pure
-\verb{link[base]\{array\}}. Pure - because LPJmLData stores the data already as
+\verb{\link[base]\{array\}}. Pure - because LPJmLData stores the data already as
 an \code{array} which can be accessed via \verb{$data}.
 \code{as_array} provides further functionality to subset or aggregate the \code{array}.
 }

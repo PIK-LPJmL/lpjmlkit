@@ -13,17 +13,17 @@ as_raster(x, ...)
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlKit]{subset}.}
+\link[lpjmlkit]{subset}.}
 
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
 }
 \value{
-a \verb{link[raster]\{raster\}} or \verb{link[raster]\{brick\}} with grid based on
+a \verb{\link[raster]\{raster\}} or \verb{\link[raster]\{brick\}} with grid based on
 internal \verb{$grid} attribute (LPJmLData of \code{"./grid.*"}) and corresponding data
 for each grid cell. If multiple bands or time dimensions exist, a
-\verb{link[raster]\{brick\}} is created. Further meta information such as the
+\verb{\link[raster]\{brick\}} is created. Further meta information such as the
 lon/lat resolution are extracted from \verb{$meta}.
 }
 \description{
@@ -35,9 +35,9 @@ successor package of raster is \href{https://rspatial.org/}{terra}, a coercion
 method will follow soon.
 }
 \details{
-for coercion to a \verb{link[raster]\{raster\}} or \verb{link[raster]\{brick\}},
+for coercion to a \verb{\link[raster]\{raster\}} or \verb{\link[raster]\{brick\}},
 the \verb{$grid} attribute is required. When using \code{file_type = "meta"}, grid data
-is read automatically via \verb{\link[lpjmlKit]\{add_grid\}}. If \code{file_type = "clm"}
+is read automatically via \verb{\link[lpjmlkit]\{add_grid\}}. If \code{file_type = "clm"}
 or \code{file_type = "raw"} is used, \code{add_grid} has to be performed beforehand.
 }
 \examples{

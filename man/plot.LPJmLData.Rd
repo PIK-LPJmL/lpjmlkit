@@ -4,30 +4,60 @@
 \alias{plot.LPJmLData}
 \title{Plot LPJmLData class}
 \usage{
-plot.LPJmLData(x, ...)
+\method{plot}{LPJmLData}(x, ...)
 }
 \arguments{
-\item{...}{arguments forwarded to graphics::plot() and
-raster::plot()}
+\item{...}{arguments forwarded to \link\href{plot}{graphics} and
+\link\href{plot}{raster}}
 
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlKit]{subset}.}
+\verb{list(cell = c(27411:27416)}, more information at
+\link[lpjmlkit]{subset}.}
 
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
 
 \item{raster_extent}{if \code{aggregate} does not include space dim
-\href{\link[raster]{extent}}{extent object}, or any object from
+\link[raster]{extent}, or any object from
 which an Extent object can be extracted}
 }
 \description{
 Function to plot a time-series or raster map of a LPJmLData
-object. This function is only supposed to give an overview of
-the data and not to create publication ready graphics.
+object. \emph{The intent is to provide a quick overview of the data,
+not to create publication-ready graphs.}
 }
 \examples{
+\dontrun{
+
+vegc <- read_io(filename = "./vegc.bin.json")
+
+# plots first 9 years starting from 1901 as a raster plot
+plot(vegc)
+
+# plots raster with mean over whole time series
+plot(vegc,
+     aggregate = list(time=mean))
+
+# plots only year 2010 as raster
+plot(vegc,
+     subset = list(time = "2010"))
+
+# plots only year 2010 as raster
+plot(vegc,
+     subset = list(time = "2010")
+
+# plots first 10 time steps as global mean time series
+plot(vegc,
+     subset = list(time = 1:10),
+     aggregate = list(cell = mean))
+
+# plots time series for cells with LPJmL index 27410 - 27414 (C indices start
+#    at 0 in contrast to R indices - at 1)
+plot(vegc,
+     subset = list(cell = 27411:27416))
+
+}
 
 }
