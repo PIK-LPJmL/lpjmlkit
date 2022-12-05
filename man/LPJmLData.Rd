@@ -58,28 +58,17 @@ Handles LPJmL output and input data
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new LPJmLData object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$new(data_array, meta_data = NULL)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_array}}{\code{array} with LPJmL data}
-
-\item{\code{meta_data}}{\code{LPJmLMetaData} Object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{LPJmLData} object
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-add_grid"></a>}}
 \if{latex}{\out{\hypertarget{method-add_grid}{}}}
 \subsection{Method \code{add_grid()}}{
+Method to add a grid to a \link\href{LPJmLData}{lpjmlkit}.
+See also \link\href{add_grid}{lpjmlkit}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$add_grid(...)}\if{html}{\out{</div>}}
 }
@@ -98,6 +87,9 @@ Create a new LPJmLData object
 \if{html}{\out{<a id="method-length"></a>}}
 \if{latex}{\out{\hypertarget{method-length}{}}}
 \subsection{Method \code{length()}}{
+Method to get the length of the array of a \link\href{LPJmLData}{lpjmlkit}
+object.
+See also \link\href{length}{base}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$length()}\if{html}{\out{</div>}}
 }
@@ -107,6 +99,9 @@ Create a new LPJmLData object
 \if{html}{\out{<a id="method-dim"></a>}}
 \if{latex}{\out{\hypertarget{method-dim}{}}}
 \subsection{Method \code{dim()}}{
+Method to get the dimension names and lengths of the array of a
+\link\href{LPJmLData}{lpjmlkit} object.
+See also \link\href{dim}{base}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$dim()}\if{html}{\out{</div>}}
 }
@@ -116,6 +111,9 @@ Create a new LPJmLData object
 \if{html}{\out{<a id="method-dimnames"></a>}}
 \if{latex}{\out{\hypertarget{method-dimnames}{}}}
 \subsection{Method \code{dimnames()}}{
+Method to get the dimensions (list) of the array of a
+\link\href{LPJmLData}{lpjmlkit} object.
+See also \link\href{dimnames}{base}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$dimnames()}\if{html}{\out{</div>}}
 }
@@ -125,6 +123,9 @@ Create a new LPJmLData object
 \if{html}{\out{<a id="method-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-summary}{}}}
 \subsection{Method \code{summary()}}{
+Method to get the summary of the array of a
+\link\href{LPJmLData}{lpjmlkit} object.
+See also \link\href{summary}{base}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$summary(dimension = "band", subset = NULL, cutoff = FALSE, ...)}\if{html}{\out{</div>}}
 }
@@ -134,6 +135,8 @@ Create a new LPJmLData object
 \if{html}{\out{<a id="method-print"></a>}}
 \if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
+Method to print the \link\href{LPJmLData}{lpjmlkit}.
+See also \link\href{print}{base}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$print()}\if{html}{\out{</div>}}
 }

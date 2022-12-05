@@ -13,10 +13,9 @@ LPJmLData <- R6::R6Class(
     #' @field Data `array` containing the underlying data
     data = NULL,
 
-    #' @description Create a new LPJmLData object
-    #' @param data_array `array` with LPJmL data
-    #' @param meta_data `LPJmLMetaData` Object
-    #' @return `LPJmLData` object
+    # Create a new LPJmLData object
+    #    data_array `array` with LPJmL data
+    #    meta_data `LPJmLMetaData` Object
     initialize = function(data_array, meta_data = NULL) {
       if (methods::is(meta_data, "LPJmLMetaData") |
           methods::is(meta_data, "NULL")) {
@@ -31,7 +30,9 @@ LPJmLData <- R6::R6Class(
         }
       }
     },
-    # TODO: INSERT ROXYGEN DOC
+    #' @description
+    #' Method to add a grid to a \link[lpjmlkit](LPJmLData).
+    #' See also \link[lpjmlkit](add_grid)
     add_grid = function(...) {
       if (!is.null(self$meta$variable) &&
           self$meta$variable == "grid") {
@@ -68,7 +69,6 @@ LPJmLData <- R6::R6Class(
     },
     # aggregation function, only to be applied for conversions (as_raster, plot)
     #   do not apply to self to not violate data integrity !
-    # TODO: INSERT ROXYGEN DOC
     aggregate_array = function(aggregate_list = NULL,
                                 ...) {
             data <- self$data
@@ -85,19 +85,31 @@ LPJmLData <- R6::R6Class(
             }
             return(data)
     },
-    # TODO: INSERT ROXYGEN DOC
+    #' @description
+    #' Method to get the length of the array of a \link[lpjmlkit](LPJmLData)
+    #' object.
+    #' See also \link[base](length)
     length = function() {
       return(length(self$data))
     },
-    # TODO: INSERT ROXYGEN DOC
+    #' @description
+    #' Method to get the dimension names and lengths of the array of a
+    #' \link[lpjmlkit](LPJmLData) object.
+    #' See also \link[base](dim)
     dim = function() {
       dim(self$data)
     },
-    # TODO: INSERT ROXYGEN DOC
+    #' @description
+    #' Method to get the dimensions (list) of the array of a
+    #' \link[lpjmlkit](LPJmLData) object.
+    #' See also \link[base](dimnames)
     dimnames = function() {
       dimnames(self$data)
     },
-    # TODO: INSERT ROXYGEN DOC
+    #' @description
+    #' Method to get the summary of the array of a
+    #' \link[lpjmlkit](LPJmLData) object.
+    #' See also \link[base](summary)
     summary = function(dimension = "band",
                        subset = NULL,
                        cutoff = FALSE,
@@ -148,7 +160,9 @@ LPJmLData <- R6::R6Class(
         return(bquote())
       }
     },
-    # TODO: INSERT ROXYGEN DOC
+    #' @description
+    #' Method to print the \link[lpjmlkit](LPJmLData).
+    #' See also \link[base](print)
     print = function() {
       quotes_option <- options(useFancyQuotes = FALSE)
       on.exit(options(quotes_option))
@@ -230,31 +244,51 @@ LPJmLData <- R6::R6Class(
 
 # set up method dispatch
 #   https://stackoverflow.com/questions/50842251/define-a-bracket-operator-on-an-r6-class # nolint
+# add additional (important) functions for method dispatch with deep copying
+#   x, execute function on copied object and return ("traditional way")
 
-# overwrite standard S3 base methods
+# Function to get the length of the array of a LPJmLData object
 length.LPJmLData <- function(x, ...) x$length(...)
 
-
+# Function to get the dimension names and lengths of the array of a LPJmLData
+#   object
 dim.LPJmLData <- function(x, ...) x$dim(...)
 
-
+# Function to get the dimensions (list) of the array of a LPJmLData object
 dimnames.LPJmLData <- function(x, ...) x$dimnames(...)
 
-
+# Function to get the summary of the array of a LPJmLData object.
 summary.LPJmLData <- function(x, ...) x$summary(...)
 
 
-# add additional (important) functions for method dispatch with deep copying
-#   x, execute function on copied object and return ("traditional way")
-# TODO: INSERT ROXYGEN DOC
+#' Add grid to LPJmLData object
+#'
+#' Function to add a grid to an \link[lpjmlkit](LPJmLData). The function acts
+#' as a \link[lpjmlkit](read_io) function for the grid file and adds it as an
+#' `LPJmLData` object itself to the the main object as an attribute `$grid`
+#'
+#' @param to character vector defining space and/or time format into which
+#' corresponding data dimensions should be transformed. Choose from space
+#' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
+#'
+#' @return \link[lpjmlkit](LPJmLData) object in selected format
+#'
+#' @examples
+#' \dontrun{
+#'
+#' vegc <- read_io(filename = "./vegc.bin.json")
+#'
+#' }
+#'
+#' @md
+#' @export
 add_grid <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$add_grid(...)
   return(y)
 }
 
-
-# TODO: INSERT ROXYGEN DOC
+# method dispatch for aggregate_array - only used internally
 aggregate_array <- function(x, ...) {
   y <- x$aggregate_array(...)
   return(y)

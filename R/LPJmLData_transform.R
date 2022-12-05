@@ -37,7 +37,9 @@
 #' #     .$year  "1991" "1992" "1993" "1994" ... "2000"
 #' #     .$band  "1"
 #' # [...]
+#' }
 #'
+#' @md
 #' @export
 transform.LPJmLData <- function(x, ...) {
   y <- x$clone(deep = TRUE)
@@ -48,7 +50,7 @@ transform.LPJmLData <- function(x, ...) {
 LPJmLData$set("public",
               "transform",
               #' @description
-              #' Function to transform inner \link[lpjmlkit](LPJmLData) array
+              #' Method to transform inner \link[lpjmlkit](LPJmLData) array
               #' into another space or another time format.
               #' See also \link[lpjmlkit]{transform}
               function(to = NULL) {

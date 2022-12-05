@@ -3,6 +3,7 @@
 S3method(plot,LPJmLData)
 S3method(subset,LPJmLData)
 S3method(transform,LPJmLData)
+export(add_grid)
 export(as_array)
 export(as_raster)
 export(as_terra)

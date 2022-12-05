@@ -18,3 +18,34 @@ formats \code{c("cell", "lon_lat")} and time formats \code{c("time","year_month_
 Function to transform inner \link\href{LPJmLData}{lpjmlkit} array into another
 space or another time format. Combinations are also possible.
 }
+\examples{
+\dontrun{
+
+runoff <- read_io(filename = glue("{output_path}/runoff.bin.json"),
+                  subset = list(year = 1991:2000))
+
+# transform into space format "lon_lat"
+transform(runoff, to = "lon_lat")
+# [...]
+# $data \%>\%
+#   dimnames() \%>\%
+#     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
+#     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
+#     .$time  "1991-01-31" "1991-02-28" "1991-03-31" "1991-04-30" ...
+#     .$band  "1"
+# [...]
+
+# transform -> split time format into years, months (, days)
+transform(runoff, to = "year_month_day")
+# [...]
+# $data \%>\%
+#   dimnames() \%>\%
+#     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
+#     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
+#     .$month  "1" "2" "3" "4" ... "12"
+#     .$year  "1991" "1992" "1993" "1994" ... "2000"
+#     .$band  "1"
+# [...]
+}
+
+}
