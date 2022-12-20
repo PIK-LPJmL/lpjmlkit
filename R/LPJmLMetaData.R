@@ -108,13 +108,9 @@ LPJmLMetaData <- R6::R6Class(
         } else {
           private$.band_names <- private$.band_names[subset$band]
         }
+        private$.nbands <- length(private$.band_names)
         private$.subset <- TRUE
       }
-      # if (!is.null(subset$day)) {
-      # }
-      # if (!is.null(subset$month)) {
-      # }
-
     },
     ._init_grid = function() {
       if (private$.variable != "grid") {

@@ -21,7 +21,8 @@
 make_lpjml <- function(model_path = ".",
                       make_fast = TRUE,
                       make_clean = FALSE,
-                      throw_error = TRUE) {
+                      throw_error = TRUE,
+                      debug = FALSE) {
   # take precompiled config.json as proxy if LPJmL was already configured
   if (file.exists(paste0(model_path, "/bin/lpjml"))) {
     init <- processx::run(command = "sh",
@@ -42,9 +43,10 @@ make_lpjml <- function(model_path = ".",
     init <- processx::run(command = "sh",
                           args = c("-c",
                                    paste0("./configure.sh;",
+                                          ifelse(debug, "-debug", ""),
                                           "make ",
-                                          ifelse(make_fast, "-j16", "")
-                                          , " all;")),
+                                          ifelse(make_fast, "-j16", ""),
+                                          " all;")),
                           cleanup_tree = TRUE,
                           error_on_status = throw_error,
                           wd = model_path,
