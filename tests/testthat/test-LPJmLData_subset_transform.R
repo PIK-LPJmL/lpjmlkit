@@ -1,13 +1,18 @@
 
 # utility function to test data integrity
+#   tests designed for data to still have sequential order (c(1,2,3) NOT c(1,3))
+#   latter would not work with following simplified tests
 test_integrity <- function(output) {
 
-  # check for data
+  # do call dim and dimnames only once
   dim_data <- dim(output$data)
   dimnames_data <- dimnames(output$data)
-  #   check for cell dimension
+
+  # check for two cases "cell" or "lon_lat"
   if ("cell" %in% names(dim_data)) {
+    # test for equal length of cell in data and meta data (ncell)
     testthat::expect_equal(dim_data[["cell"]], output$meta$ncell)
+    # test for equal dimnames of cell in data and those constructed by meta data
     testthat::expect_equal(dimnames_data$cell,
                            as.character(
                              seq(output$meta$firstcell,
@@ -15,47 +20,70 @@ test_integrity <- function(output) {
                              )
                            )
   } else {
+    # test for equal dimnames of lat, lon in data and those of underlying grid
     testthat::expect_equal(dimnames_data$lat,
                            dimnames(output$grid)$lat)
     testthat::expect_equal(dimnames_data$lon,
                            dimnames(output$grid)$lon)
   }
-  #   check for time dimension
+
+  # check for two cases "time" or "year_month_day"
   if ("time" %in% names(dim_data)) {
+    # test for equal length of time steps in data and meta data (nyear * nstep)
     testthat::expect_equal(dim_data[["time"]],
                            output$meta$nyear * output$meta$nstep)
+    # test for equal dimnames of time steps in data and those constructed by
+    #   meta data with create_time_names function (nstep, firstyear, nyear)
     testthat::expect_equal(dimnames_data$time,
                            create_time_names(output$meta$nstep,
                                              seq(output$meta$firstyear,
                                                  length.out = output$meta$nyear))) # nolint
   } else {
+    # test for equal length of years in data and meta data (nyear)
     testthat::expect_equal(dim_data[["year"]], output$meta$nyear)
+    # test for equal dimnames of years in data and those constructed by
+    #   meta data (firstyear, nyear)
     testthat::expect_equal(dimnames_data$year,
                            as.character(
                              seq(output$meta$firstyear,
                                  length.out = output$meta$nyear)
                              )
                            )
+
+    # for month there is no meta data available (like nmonth, firstmonth)
+    #   following tests only via hardcoded pre defined month to be tested
     if ("month" %in% names(dim_data) && !output$meta$subset) {
       testthat::expect_equal(dimnames_data$month, as.character(1:12))
     } else if ("month" %in% names(dim_data) && !output$meta$subset) {
       testthat::expect_equal(dimnames_data$month, as.character(6:9))
     }
   }
-  #   check for band dimension
+
+  # test for equal length of bands in data and meta data (nbands)
   testthat::expect_equal(dim_data[["band"]], output$meta$nbands)
+  # check if band dimension > 1 -> then has band_names
   if (output$meta$nbands > 1) {
+    # test for equal dimnames of band in data and those constructed by meta data
+    #   (band_names)
     testthat::expect_equal(dimnames_data$band, output$meta$band_names)
   }
 
+  # check for grid
   if (!is.null(output$grid)) {
+    # do call dimnames only once
     dimnames_grid <- dimnames(output$grid$data)
+
+    # check for two cases "cell" or "lon_lat"
     if ("cell" %in% names(dimnames_grid)) {
+      # test for equal dimnames of cell in grid data and those constructed by
+      #   output meta data
       expect_equal(dimnames_grid$cell,
                    as.character(
                     seq(output$meta$firstcell, length.out = output$meta$ncell)
                    ))
     } else {
+      # test to match data of grid (cell numbers) and cell numbers constructed
+      #   by meta data of output
       expect_true(all(as.vector(na.omit(output$grid$data)) %in%
                       seq(output$meta$firstcell, length.out = output$meta$ncell)) # nolint
                   )

@@ -1,33 +1,46 @@
 # utility function to test data integrity
+#   tests designed for data to still have sequential order (c(1,2,3) NOT c(1,3))
+#   latter would not work with following simplified tests
 test_integrity <- function(output, meta = NULL) {
 
+  # check if meta data is provided additionally for testing meta data correctness # nolint
   if (!is.null(meta)) {
-    # check for meta data
+    # test if outputs meta data is equal to meta data (usually read in via
+    #   read_meta function)
     testthat::expect_equal(output$meta, meta)
   } else {
+    # else use outputs meta data
     meta <- output$meta
   }
 
-  # check for data
+  # do call dim and dimnames only once
   dim_data <- dim(output$data)
   dimnames_data <- dimnames(output$data)
-  #   check for cell dimension
+
+  # test for equal length of cell in data and meta data (ncell)
   testthat::expect_equal(dim_data[["cell"]], meta$ncell)
+  # test for equal dimnames of cell in data and those constructed by meta data
   testthat::expect_equal(dimnames_data$cell,
                          as.character(
                           seq(meta$firstcell, length.out = meta$ncell)
                          ))
-  #   check for time dimension
+
+  # test for equal length of time steps in data and meta data (nyear * nstep)
   testthat::expect_equal(dim_data[["time"]], meta$nyear)
+  # test for equal dimnames of time steps in data and those constructed by
+  #   meta data with create_time_names function (nstep, firstyear, nyear)
   testthat::expect_equal(dimnames_data$time,
                          create_time_names(meta$nstep,
                                            seq(meta$firstyear, length.out = meta$nyear))) # nolint
-  #   check for band dimension
+
+  # test for equal length of bands in data and meta data (nbands)
   testthat::expect_equal(dim_data[["band"]], meta$nbands)
+  # check if band dimension > 1 -> then has band_names
   if (meta$nbands > 1) {
+    # test for equal dimnames of band in data and those constructed by meta data
+    #   (band_names)
     testthat::expect_equal(dimnames_data$band, meta$band_names)
   }
-
 }
 
 

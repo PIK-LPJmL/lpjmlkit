@@ -9,7 +9,7 @@ LPJmLMetaData$set(
   "public",
   "as_header",
   # TODO: INSERT ROXYGEN DOC
-  function(silent = FALSE) {
+  function(silent = TRUE) {
     invisible(
       capture.output(
         header <- create_header(
