@@ -4,12 +4,7 @@
 \alias{LPJmLData}
 \title{LPJmL data class}
 \description{
-LPJmL data class
-
-LPJmL data class
-}
-\details{
-Handles LPJmL output and input data
+Handles LPJmL output and input data.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -174,7 +169,7 @@ See also \link\href{print}{base}
 \if{latex}{\out{\hypertarget{method-as_terra}{}}}
 \subsection{Method \code{as_terra()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$as_terra(grid_file, as_layers = "band", subset = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$as_terra(subset = NULL, aggregate = NULL, ...)}\if{html}{\out{</div>}}
 }
 
 }

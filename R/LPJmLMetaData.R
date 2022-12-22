@@ -1,23 +1,21 @@
-#' LPJmL meta output class
+#' @title LPJmL meta output class
 #'
-#' Handles metafile data for output data
+#' @description Handles metafile data for output data
 #'
-# https://adv-r.hadley.nz/r6.html#r6-classes, also why CamelCase is used ...
 LPJmLMetaData <- R6::R6Class(
   classname = "LPJmLMetaData",
   lock_objects = FALSE,
   public = list(
-    #' @description Create a new LPJmLMetaData object
-    #' @param x `list` (not nested) with meta data
-    #' @param subset `list` of array dimension(s) as name/key and
-    #' corresponding subset vector as value, e.g.
-    #' `list(cell = c(27411:27415)`, more information at
-    #' \link[lpjmlkit]{subset}.
-    #' @param additional_data `list` of additional attributes to be set that
-    #' are not included in file header. These are
-    #' `c"(band_names", "variable", "descr", "unit")`
-    #' @param data_dir Character string for data directory to "lazy load" grid
-    #' @return `LPJmLMetaData` object
+    # Create a new LPJmLMetaData object
+    #   x `list` (not nested) with meta data
+    #   subset `list` of array dimension(s) as name/key and
+    #     corresponding subset vector as value, e.g.
+    #     `list(cell = c(27411:27415)`, more information at
+    #     \link[lpjmlkit]{subset}.
+    #   additional_data `list` of additional attributes to be set that
+    #     are not included in file header. These are
+    #     `c"(band_names", "variable", "descr", "unit")`
+    #   data_dir Character string for data directory to "lazy load" grid
     initialize = function(x,
                           subset = list(),
                           additional_data = list(),
@@ -211,75 +209,110 @@ LPJmLMetaData <- R6::R6Class(
     }
   ),
   active = list(
+    #' @field `sim_name` simulation name (workds as identifier in LPJmL Runner)
     sim_name = function() {
       return(private$.sim_name)
     },
+    #' @field `source` LPJmL version (character string).
     source = function() {
       return(private$.source)
     },
+    #' @field `history` Character string of path to LPJmL executable and path to
+    #' config file for simulation.
     history = function() {
       return(private$.history)
     },
+    #' @field `variable` Variable of output like `"npp"` or `"runoff"`
     variable = function() {
       return(private$.variable)
     },
+    #' @field `descr` Description of the output/variable.
     descr = function() {
       return(private$.descr)
     },
+    #' @field `unit` Unit of the output/variable.
     unit = function() {
       return(private$.unit)
     },
+    #' @field `nbands` Number (numeric) of bands (categoric dimension). Please
+    #' note that nband has somehow become accepted instead of nband as opposed
+    #' to nyear or ncell (!)
     nbands = function() {
       return(private$.nbands)
     },
+    #' @field `band_names` Name of bands (categoric dimension), if `nbands > 1`,
+    #' else it is not included (!)
     band_names = function() {
       return(private$.band_names)
     },
+    #' @field `nyear` Number (numeric) of simulation years in the output.
     nyear = function() {
       return(private$.nyear)
     },
+    #' @field `firstyear` First year (numeric) of output of the simulation.
     firstyear = function() {
       return(private$.firstyear)
     },
+    #' @field `lastyear` First year (numeric) of output of the simulation.
     lastyear = function() {
       return(private$.lastyear)
     },
+    #' @field `nstep` Intra annual time steps (numeric) `1 == "annual"`,
+    #' `12 == "monthly"` and `365 == "daily"`.
     nstep = function() {
       return(private$.nstep)
     },
+    #' @field `timestep` Inter annual time steps (numeric). `timestep = 5` means
+    #' that output is written every 5 years.
     timestep = function() {
       return(private$.timestep)
     },
+    #' @field `ncell` Number (numeric) of cells used in the simulation.
     ncell = function() {
       return(private$.ncell)
     },
+    #' @field `firstcell` First cell (numeric) beeing simulated.
     firstcell = function() {
       return(private$.firstcell)
     },
+    #' @field `cellsize_lon` Longitude cellsize in degree (numeric).
     cellsize_lon = function() {
       return(private$.cellsize_lon)
     },
+    #' @field `cellsize_lat` Latitude cellsize in degree (numeric).
     cellsize_lat = function() {
       return(private$.cellsize_lat)
     },
+    #' @field `datatype` File data type (character string), e.g. `"float"`.
     datatype = function() {
       return(private$.datatype)
     },
+    #' @field `scalar` Conversion factor (numeric).
     scalar = function() {
       return(private$.scalar)
     },
+    #' @field `order` Order of data items , either `1 == "cellyear"`,
+    #' `2 == "yearcell"` or `3 == "cellindex"`
     order = function() {
       return(private$.order)
     },
+    #' @field `offset` Offset in binary file (numeric).
     offset = function() {
       return(private$.offset)
     },
+    #' @field bigendian (logical) Endianness refers to the order in which bytes
+    #' are stored in a multi-byte value, with big-endian storing the most
+    #' significant byte at the lowest address and little-endian storing the
+    #' least significant byte at the lowest address.
     bigendian = function() {
       return(private$.bigendian)
     },
+    #' @field `format` Output format (character string). Either "raw" or "clm"
+    #' (raw with header), or "cdf" for netCDF format.
     format = function() {
       return(private$.format)
     },
+    #' @field `filename` Name of the file.
     filename = function() {
       return(private$.filename)
     },
@@ -289,6 +322,7 @@ LPJmLMetaData <- R6::R6Class(
     version = function() {
       return(private$.version)
     },
+    #' @field `subset` Logical. Whether is subsetted or not.
     subset = function() {
       if (!is.null(self$variable) && self$variable == "grid") {
         return(private$.subset_space)

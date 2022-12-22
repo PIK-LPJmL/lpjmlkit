@@ -8,7 +8,8 @@ make_lpjml(
   model_path = ".",
   make_fast = TRUE,
   make_clean = FALSE,
-  throw_error = TRUE
+  throw_error = TRUE,
+  debug = FALSE
 )
 }
 \arguments{

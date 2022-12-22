@@ -4,12 +4,134 @@
 \alias{LPJmLMetaData}
 \title{LPJmL meta output class}
 \description{
-LPJmL meta output class
-
-LPJmL meta output class
-}
-\details{
 Handles metafile data for output data
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{`sim_name`}}{simulation name (workds as identifier in LPJmL Runner)}
+
+\item{\code{`source`}}{LPJmL version (character string).}
+
+\item{\code{`history`}}{Character string of path to LPJmL executable and path to
+config file for simulation.}
+
+\item{\code{`variable`}}{Variable of output like \code{"npp"} or \code{"runoff"}}
+
+\item{\code{`descr`}}{Description of the output/variable.}
+
+\item{\code{`unit`}}{Unit of the output/variable.}
+
+\item{\code{`nbands`}}{Number (numeric) of bands (categoric dimension). Please
+note that nband has somehow become accepted instead of nband as opposed
+to nyear or ncell (!)}
+
+\item{\code{`band_names`}}{Name of bands (categoric dimension), if \code{nbands > 1},
+else it is not included (!)}
+
+\item{\code{`nyear`}}{Number (numeric) of simulation years in the output.}
+
+\item{\code{`firstyear`}}{First year (numeric) of output of the simulation.}
+
+\item{\code{`lastyear`}}{First year (numeric) of output of the simulation.}
+
+\item{\code{`nstep`}}{Intra annual time steps (numeric) \code{1 == "annual"},
+\code{12 == "monthly"} and \code{365 == "daily"}.}
+
+\item{\code{`timestep`}}{Inter annual time steps (numeric). \code{timestep = 5} means
+that output is written every 5 years.}
+
+\item{\code{`ncell`}}{Number (numeric) of cells used in the simulation.}
+
+\item{\code{`firstcell`}}{First cell (numeric) beeing simulated.}
+
+\item{\code{`cellsize_lon`}}{Longitude cellsize in degree (numeric).}
+
+\item{\code{`cellsize_lat`}}{Latitude cellsize in degree (numeric).}
+
+\item{\code{`datatype`}}{File data type (character string), e.g. \code{"float"}.}
+
+\item{\code{`scalar`}}{Conversion factor (numeric).}
+
+\item{\code{`order`}}{Order of data items , either \code{1 == "cellyear"},
+\code{2 == "yearcell"} or \code{3 == "cellindex"}}
+
+\item{\code{`offset`}}{Offset in binary file (numeric).}
+
+\item{\code{`format`}}{Output format (character string). Either "raw" or "clm"
+(raw with header), or "cdf" for netCDF format.}
+
+\item{\code{`filename`}}{Name of the file.}
+
+\item{\code{`subset`}}{Logical. Whether is subsetted or not.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{`sim_name`}}{simulation name (workds as identifier in LPJmL Runner)}
+
+\item{\code{`source`}}{LPJmL version (character string).}
+
+\item{\code{`history`}}{Character string of path to LPJmL executable and path to
+config file for simulation.}
+
+\item{\code{`variable`}}{Variable of output like \code{"npp"} or \code{"runoff"}}
+
+\item{\code{`descr`}}{Description of the output/variable.}
+
+\item{\code{`unit`}}{Unit of the output/variable.}
+
+\item{\code{`nbands`}}{Number (numeric) of bands (categoric dimension). Please
+note that nband has somehow become accepted instead of nband as opposed
+to nyear or ncell (!)}
+
+\item{\code{`band_names`}}{Name of bands (categoric dimension), if \code{nbands > 1},
+else it is not included (!)}
+
+\item{\code{`nyear`}}{Number (numeric) of simulation years in the output.}
+
+\item{\code{`firstyear`}}{First year (numeric) of output of the simulation.}
+
+\item{\code{`lastyear`}}{First year (numeric) of output of the simulation.}
+
+\item{\code{`nstep`}}{Intra annual time steps (numeric) \code{1 == "annual"},
+\code{12 == "monthly"} and \code{365 == "daily"}.}
+
+\item{\code{`timestep`}}{Inter annual time steps (numeric). \code{timestep = 5} means
+that output is written every 5 years.}
+
+\item{\code{`ncell`}}{Number (numeric) of cells used in the simulation.}
+
+\item{\code{`firstcell`}}{First cell (numeric) beeing simulated.}
+
+\item{\code{`cellsize_lon`}}{Longitude cellsize in degree (numeric).}
+
+\item{\code{`cellsize_lat`}}{Latitude cellsize in degree (numeric).}
+
+\item{\code{`datatype`}}{File data type (character string), e.g. \code{"float"}.}
+
+\item{\code{`scalar`}}{Conversion factor (numeric).}
+
+\item{\code{`order`}}{Order of data items , either \code{1 == "cellyear"},
+\code{2 == "yearcell"} or \code{3 == "cellindex"}}
+
+\item{\code{`offset`}}{Offset in binary file (numeric).}
+
+\item{\code{bigendian}}{(logical) Endianness refers to the order in which bytes
+are stored in a multi-byte value, with big-endian storing the most
+significant byte at the lowest address and little-endian storing the
+least significant byte at the lowest address.}
+
+\item{\code{`format`}}{Output format (character string). Either "raw" or "clm"
+(raw with header), or "cdf" for netCDF format.}
+
+\item{\code{`filename`}}{Name of the file.}
+
+\item{\code{`subset`}}{Logical. Whether is subsetted or not.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -29,7 +151,6 @@ Handles metafile data for output data
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Create a new LPJmLMetaData object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
   x,
@@ -39,27 +160,6 @@ Create a new LPJmLMetaData object
 )}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{\code{list} (not nested) with meta data}
-
-\item{\code{subset}}{\code{list} of array dimension(s) as name/key and
-corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
-\link[lpjmlkit]{subset}.}
-
-\item{\code{additional_data}}{\code{list} of additional attributes to be set that
-are not included in file header. These are
-\verb{c"(band_names", "variable", "descr", "unit")}}
-
-\item{\code{data_dir}}{Character string for data directory to "lazy load" grid}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{LPJmLMetaData} object
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-._update_subset"></a>}}
@@ -115,7 +215,7 @@ are not included in file header. These are
 \if{latex}{\out{\hypertarget{method-as_header}{}}}
 \subsection{Method \code{as_header()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_header(silent = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_header(silent = TRUE)}\if{html}{\out{</div>}}
 }
 
 }

@@ -1,8 +1,7 @@
-#' LPJmL data class
+#' @title LPJmL data class
 #'
-#' Handles LPJmL output and input data
+#' @description Handles LPJmL output and input data.
 #'
-# https://adv-r.hadley.nz/r6.html#r6-classes, also why CamelCase is used ...
 LPJmLData <- R6::R6Class(
   classname = "LPJmLData",
   lock_objects = FALSE,
