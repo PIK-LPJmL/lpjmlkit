@@ -14,8 +14,11 @@ Description: Function kit for basic LPJmL handling, including simulations,
     corresponding configurations as well as input & output data.
 License: GPL-3
 LazyData: true
-RoxygenNote: 7.1.2
-Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE,
+              r6 = TRUE)
+Depends: 
+    R (>= 3.5.0)
 Imports:
     magrittr,
     dplyr,

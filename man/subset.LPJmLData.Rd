@@ -13,11 +13,11 @@ e.g. \code{cell = c(27411:27416)}, or ``band = -c(14:16, 19:32) or subset
 using a "character" vector like \code{band = c("rainfed rice","rainfed maize")}}
 }
 \value{
-\link\href{LPJmLData}{lpjmlkit} object with/without subset cell of
+\link[lpjmlkit]{LPJmLData} object with/without subset cell of
 dimension
 }
 \description{
-Function to use dimension names of \link\href{LPJmLData}{lpjmlkit} array directly
+Function to use dimension names of \link[lpjmlkit]{LPJmLData} array directly
 to subset each by simply using supplying vectors.
 }
 \examples{

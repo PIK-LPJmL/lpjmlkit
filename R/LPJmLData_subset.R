@@ -1,6 +1,6 @@
 #' Subset LPJmLData object
 #'
-#' Function to use dimension names of \link[lpjmlkit](LPJmLData) array directly
+#' Function to use dimension names of \link[lpjmlkit]{LPJmLData} array directly
 #' to subset each by simply using supplying vectors.
 #'
 #' @param ... Provide dimension to be used to subset `LPJmLData` objects
@@ -8,7 +8,7 @@
 #' e.g. `cell = c(27411:27416)`, or ``band = -c(14:16, 19:32) or subset
 #' using a "character" vector like `band = c("rainfed rice","rainfed maize")`
 #'
-#' @return \link[lpjmlkit](LPJmLData) object with/without subset cell of
+#' @return \link[lpjmlkit]{LPJmLData} object with/without subset cell of
 #' dimension
 #'
 #' @examples
@@ -45,13 +45,16 @@ subset.LPJmLData <- function(x, ...) {
   return(y)
 }
 
-LPJmLData$set("public",
-              "subset",
+# subset method roxygen documentation in LPJmlData.R
+LPJmLData$set("private",
+              ".subset",
               #' @description
-              #' Method to use dimension names of link[lpjmlkit](LPJmLData)
+              #' Method to use dimension names of link[lpjmlkit]{LPJmLData}
               #' array directly to subset each by simply using supplying
               #' vectors. See also \link[lpjmlkit]{subset}
               function(...) {
+    # check for locked objects
+    check_method_locked(self, "subset")
     # function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {
       stop(
@@ -85,10 +88,14 @@ LPJmLData$set("public",
         stop_format(coords, "lon_lat")
       }
       # subset pairs for both data and grid data
-      self$data <- subset_array_pair(x = self$data,
-                                     pair = subset_list[[coords]])
-      self$grid$data <- subset_array_pair(x = self$grid$data,
-                                          pair = subset_list[[coords]])
+      self$.__set_data__(
+        subset_array_pair(x = self$data,
+                          pair = subset_list[[coords]])
+      )
+      private$.grid$.__set_data__(
+        subset_array_pair(x = self$grid$data,
+                          pair = subset_list[[coords]])
+      )
     } else {
       # to avoid errors when subsetting list with coords
       coords <- "none"
@@ -113,15 +120,19 @@ LPJmLData$set("public",
       }
     }
     # do subset without coords (if provided - done already in the beginning)
-    self$data <- subset_array(self$data,
-                              subset_list[names(subset_list) != coords],
-                              drop = FALSE)
+    self$.__set_data__(
+      subset_array(self$data,
+                   subset_list[names(subset_list) != coords],
+                   drop = FALSE)
+    )
 
     # same for grid but only for space dimensions
     if (!is.null(self$grid) && !is.null(subset_space_dim)) {
-      self$grid$data <- subset_array(self$grid$data,
-                                     subset_list[subset_space_dim],
-                                     drop = FALSE)
+      private$.grid$.__set_data__(
+        subset_array(self$grid$data,
+                     subset_list[subset_space_dim],
+                     drop = FALSE)
+      )
     }
 
     if ("time" %in% names(subset_list)) {
@@ -130,7 +141,7 @@ LPJmLData$set("public",
         stop_format("time", "time")
       }
       # if time should be converted by time string, it has to be passed
-      #   to ._update_subset method in LPJmLMetaData which does not have
+      #   to .__update_subset__ method in LPJmLMetaData which does not have
       #   time strings of the data
       time_dimnames <- self$dimnames()$time
     } else {
@@ -138,13 +149,15 @@ LPJmLData$set("public",
     }
 
     if (any(c(lon_lat, "cell", coords) %in% names(subset_list))) {
-      # if space dimensions are subsetted convert ._update_subset method
+      # if space dimensions are subsetted convert .__update_subset__ method
       #   in LPJmLMetaData needs to know the resulting number of cells
       #   as well as the (new) firstcell - pass resulting cell_dimnames
       if (self$meta$space_format == "cell") {
         cell_dimnames <- self$dimnames()$cell
       } else {
-        cell_dimnames <- transform_space(self$grid) %>%
+        grid <- private$.grid$clone(deep = TRUE)
+        grid$.__set_lock__(is_locked = FALSE)
+        cell_dimnames <- transform(grid, to = "cell") %>%
           dimnames() %>%
           .$cell
       }
@@ -160,12 +173,12 @@ LPJmLData$set("public",
       subset_list[[coords]] <- NULL
     }
     # update corresponding meta data for subsets
-    self$meta$._update_subset(subset_list,
+    self$meta$.__update_subset__(subset_list,
                               time_dimnames,
                               cell_dimnames)
     if (!is.null(self$grid)) {
-      self$grid$meta$._update_subset(subset_list[subset_space_dim],
-                                     cell_dimnames = cell_dimnames)
+      private$.grid$meta$.__update_subset__(subset_list[subset_space_dim],
+                                         cell_dimnames = cell_dimnames)
     }
 
     return(invisible(self))

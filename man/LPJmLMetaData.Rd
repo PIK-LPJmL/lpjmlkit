@@ -6,150 +6,89 @@
 \description{
 Handles metafile data for output data
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{`sim_name`}}{simulation name (workds as identifier in LPJmL Runner)}
-
-\item{\code{`source`}}{LPJmL version (character string).}
-
-\item{\code{`history`}}{Character string of path to LPJmL executable and path to
-config file for simulation.}
-
-\item{\code{`variable`}}{Variable of output like \code{"npp"} or \code{"runoff"}}
-
-\item{\code{`descr`}}{Description of the output/variable.}
-
-\item{\code{`unit`}}{Unit of the output/variable.}
-
-\item{\code{`nbands`}}{Number (numeric) of bands (categoric dimension). Please
-note that nband has somehow become accepted instead of nband as opposed
-to nyear or ncell (!)}
-
-\item{\code{`band_names`}}{Name of bands (categoric dimension), if \code{nbands > 1},
-else it is not included (!)}
-
-\item{\code{`nyear`}}{Number (numeric) of simulation years in the output.}
-
-\item{\code{`firstyear`}}{First year (numeric) of output of the simulation.}
-
-\item{\code{`lastyear`}}{First year (numeric) of output of the simulation.}
-
-\item{\code{`nstep`}}{Intra annual time steps (numeric) \code{1 == "annual"},
-\code{12 == "monthly"} and \code{365 == "daily"}.}
-
-\item{\code{`timestep`}}{Inter annual time steps (numeric). \code{timestep = 5} means
-that output is written every 5 years.}
-
-\item{\code{`ncell`}}{Number (numeric) of cells used in the simulation.}
-
-\item{\code{`firstcell`}}{First cell (numeric) beeing simulated.}
-
-\item{\code{`cellsize_lon`}}{Longitude cellsize in degree (numeric).}
-
-\item{\code{`cellsize_lat`}}{Latitude cellsize in degree (numeric).}
-
-\item{\code{`datatype`}}{File data type (character string), e.g. \code{"float"}.}
-
-\item{\code{`scalar`}}{Conversion factor (numeric).}
-
-\item{\code{`order`}}{Order of data items , either \code{1 == "cellyear"},
-\code{2 == "yearcell"} or \code{3 == "cellindex"}}
-
-\item{\code{`offset`}}{Offset in binary file (numeric).}
-
-\item{\code{`format`}}{Output format (character string). Either "raw" or "clm"
-(raw with header), or "cdf" for netCDF format.}
-
-\item{\code{`filename`}}{Name of the file.}
-
-\item{\code{`subset`}}{Logical. Whether is subsetted or not.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{`sim_name`}}{simulation name (workds as identifier in LPJmL Runner)}
+\item{\code{sim_name}}{simulation name (workds as identifier in LPJmL Runner)}
 
-\item{\code{`source`}}{LPJmL version (character string).}
+\item{\code{source}}{LPJmL version (character string).}
 
-\item{\code{`history`}}{Character string of path to LPJmL executable and path to
+\item{\code{history}}{Character string of path to LPJmL executable and path to
 config file for simulation.}
 
-\item{\code{`variable`}}{Variable of output like \code{"npp"} or \code{"runoff"}}
+\item{\code{variable}}{Variable of output like \code{"npp"} or \code{"runoff"}}
 
-\item{\code{`descr`}}{Description of the output/variable.}
+\item{\code{descr}}{Description of the output/variable.}
 
-\item{\code{`unit`}}{Unit of the output/variable.}
+\item{\code{unit}}{Unit of the output/variable.}
 
-\item{\code{`nbands`}}{Number (numeric) of bands (categoric dimension). Please
+\item{\code{nbands}}{Number (numeric) of bands (categoric dimension). Please
 note that nband has somehow become accepted instead of nband as opposed
 to nyear or ncell (!)}
 
-\item{\code{`band_names`}}{Name of bands (categoric dimension), if \code{nbands > 1},
+\item{\code{band_names}}{Name of bands (categoric dimension), if \code{nbands > 1},
 else it is not included (!)}
 
-\item{\code{`nyear`}}{Number (numeric) of simulation years in the output.}
+\item{\code{nyear}}{Number (numeric) of simulation years in the output.}
 
-\item{\code{`firstyear`}}{First year (numeric) of output of the simulation.}
+\item{\code{firstyear}}{First year (numeric) of output of the simulation.}
 
-\item{\code{`lastyear`}}{First year (numeric) of output of the simulation.}
+\item{\code{lastyear}}{First year (numeric) of output of the simulation.}
 
-\item{\code{`nstep`}}{Intra annual time steps (numeric) \code{1 == "annual"},
+\item{\code{nstep}}{Intra annual time steps (numeric) \code{1 == "annual"},
 \code{12 == "monthly"} and \code{365 == "daily"}.}
 
-\item{\code{`timestep`}}{Inter annual time steps (numeric). \code{timestep = 5} means
+\item{\code{timestep}}{Inter annual time steps (numeric). \code{timestep = 5} means
 that output is written every 5 years.}
 
-\item{\code{`ncell`}}{Number (numeric) of cells used in the simulation.}
+\item{\code{ncell}}{Number (numeric) of cells used in the simulation.}
 
-\item{\code{`firstcell`}}{First cell (numeric) beeing simulated.}
+\item{\code{firstcell}}{First cell (numeric) beeing simulated.}
 
-\item{\code{`cellsize_lon`}}{Longitude cellsize in degree (numeric).}
+\item{\code{cellsize_lon}}{Longitude cellsize in degree (numeric).}
 
-\item{\code{`cellsize_lat`}}{Latitude cellsize in degree (numeric).}
+\item{\code{cellsize_lat}}{Latitude cellsize in degree (numeric).}
 
-\item{\code{`datatype`}}{File data type (character string), e.g. \code{"float"}.}
+\item{\code{datatype}}{File data type (character string), e.g. \code{"float"}.}
 
-\item{\code{`scalar`}}{Conversion factor (numeric).}
+\item{\code{scalar}}{Conversion factor (numeric).}
 
-\item{\code{`order`}}{Order of data items , either \code{1 == "cellyear"},
+\item{\code{order}}{Order of data items , either \code{1 == "cellyear"},
 \code{2 == "yearcell"} or \code{3 == "cellindex"}}
 
-\item{\code{`offset`}}{Offset in binary file (numeric).}
+\item{\code{offset}}{Offset in binary file (numeric).}
 
 \item{\code{bigendian}}{(logical) Endianness refers to the order in which bytes
 are stored in a multi-byte value, with big-endian storing the most
 significant byte at the lowest address and little-endian storing the
 least significant byte at the lowest address.}
 
-\item{\code{`format`}}{Output format (character string). Either "raw" or "clm"
+\item{\code{format}}{Output format (character string). Either "raw" or "clm"
 (raw with header), or "cdf" for netCDF format.}
 
-\item{\code{`filename`}}{Name of the file.}
+\item{\code{filename}}{Name of the file.}
 
-\item{\code{`subset`}}{Logical. Whether is subsetted or not.}
+\item{\code{subset}}{Logical. Whether is subsetted or not.}
 }
 \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{LPJmLMetaData$new()}}
-\item \href{#method-._update_subset}{\code{LPJmLMetaData$._update_subset()}}
-\item \href{#method-._init_grid}{\code{LPJmLMetaData$._init_grid()}}
-\item \href{#method-._transform_time_format}{\code{LPJmLMetaData$._transform_time_format()}}
-\item \href{#method-._transform_space_format}{\code{LPJmLMetaData$._transform_space_format()}}
-\item \href{#method-print}{\code{LPJmLMetaData$print()}}
-\item \href{#method-as_header}{\code{LPJmLMetaData$as_header()}}
-\item \href{#method-as_list}{\code{LPJmLMetaData$as_list()}}
-\item \href{#method-clone}{\code{LPJmLMetaData$clone()}}
+\item \href{#method-LPJmLMetaData-new}{\code{LPJmLMetaData$new()}}
+\item \href{#method-LPJmLMetaData-print}{\code{LPJmLMetaData$print()}}
+\item \href{#method-LPJmLMetaData-as_list}{\code{LPJmLMetaData$as_list()}}
+\item \href{#method-LPJmLMetaData-as_header}{\code{LPJmLMetaData$as_header()}}
+\item \href{#method-LPJmLMetaData-.__init_grid__}{\code{LPJmLMetaData$.__init_grid__()}}
+\item \href{#method-LPJmLMetaData-.__update_subset__}{\code{LPJmLMetaData$.__update_subset__()}}
+\item \href{#method-LPJmLMetaData-.__transform_time_format__}{\code{LPJmLMetaData$.__transform_time_format__()}}
+\item \href{#method-LPJmLMetaData-.__transform_space_format__}{\code{LPJmLMetaData$.__transform_space_format__()}}
+\item \href{#method-LPJmLMetaData-clone}{\code{LPJmLMetaData$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
@@ -162,11 +101,53 @@ least significant byte at the lowest address.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-._update_subset"></a>}}
-\if{latex}{\out{\hypertarget{method-._update_subset}{}}}
-\subsection{Method \code{._update_subset()}}{
+\if{html}{\out{<a id="method-LPJmLMetaData-print"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-print}{}}}
+\subsection{Method \code{print()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$._update_subset(
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$print(all = TRUE, spaces = "")}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-as_list"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-as_list}{}}}
+\subsection{Method \code{as_list()}}{
+Method to coerce (convert) a \code{LPJmLMetaData} object into a
+\link[base]{list}. \cr
+See also \code{\link{as_list.LPJmLMetaData}}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_list(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-as_header"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-as_header}{}}}
+\subsection{Method \code{as_header()}}{
+Method to coerce (convert) a \code{LPJmLMetaData} object into a
+\href{\link[lpjmlkit]{create_header}}{LPJmL input header}. \cr
+See also \code{\link{as_header.LPJmLMetaData}}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_header(...)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__init_grid__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__init_grid__}{}}}
+\subsection{Method \code{.__init_grid__()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__init_grid__()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__update_subset__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__update_subset__}{}}}
+\subsection{Method \code{.__update_subset__()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__update_subset__(
   subset,
   time_dimnames = NULL,
   cell_dimnames = NULL
@@ -175,62 +156,26 @@ least significant byte at the lowest address.}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-._init_grid"></a>}}
-\if{latex}{\out{\hypertarget{method-._init_grid}{}}}
-\subsection{Method \code{._init_grid()}}{
+\if{html}{\out{<a id="method-LPJmLMetaData-.__transform_time_format__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__transform_time_format__}{}}}
+\subsection{Method \code{.__transform_time_format__()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$._init_grid()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__transform_time_format__(time_format)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-._transform_time_format"></a>}}
-\if{latex}{\out{\hypertarget{method-._transform_time_format}{}}}
-\subsection{Method \code{._transform_time_format()}}{
+\if{html}{\out{<a id="method-LPJmLMetaData-.__transform_space_format__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__transform_space_format__}{}}}
+\subsection{Method \code{.__transform_space_format__()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$._transform_time_format(time_format)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__transform_space_format__(space_format)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-._transform_space_format"></a>}}
-\if{latex}{\out{\hypertarget{method-._transform_space_format}{}}}
-\subsection{Method \code{._transform_space_format()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$._transform_space_format(space_format)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
-\subsection{Method \code{print()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$print(all = TRUE, spaces = "")}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_header"></a>}}
-\if{latex}{\out{\hypertarget{method-as_header}{}}}
-\subsection{Method \code{as_header()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_header(silent = TRUE)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_list"></a>}}
-\if{latex}{\out{\hypertarget{method-as_list}{}}}
-\subsection{Method \code{as_list()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_list()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

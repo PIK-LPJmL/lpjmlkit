@@ -116,7 +116,7 @@ after testing that function works as expected with the files it is being used
 on. Default: FALSE.}
 }
 \value{
-\link\href{LPJmLData}{lpjmlkit} object
+\link{LPJmLData} object
 }
 \description{
 Generic function to read LPJmL input & output files in different

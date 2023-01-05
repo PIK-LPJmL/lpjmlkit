@@ -109,25 +109,25 @@ test_that("test subset method", {
 
 
 # test transform_time method
-test_that("test transform_time method", {
+test_that("test transform (time) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
-  output$transform_time(to = "year_month_day")
+  output$transform(to = "year_month_day")
   test_integrity(output)
 })
 
 
 # test transform_time method
-test_that("test transform_space method", {
+test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
-  output$transform_space(to = "lon_lat")
+  output$transform(to = "lon_lat")
   test_integrity(output)
 })
 
 
 # test transform and subset method
-test_that("test transform_space method", {
+test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
   output$transform(to = c("year_month_day", "lon_lat"))
@@ -144,7 +144,7 @@ coordinates <- tibble::tibble(lat = c(55.9, 63.7),
                               lon = c(-87.3, -87.1))
 
 # test subset method for coordinates (pair)
-test_that("test transform_space method", {
+test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
   output$transform(to = c("lon_lat"))

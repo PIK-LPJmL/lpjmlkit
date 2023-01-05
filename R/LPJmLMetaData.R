@@ -4,7 +4,7 @@
 #'
 LPJmLMetaData <- R6::R6Class(
   classname = "LPJmLMetaData",
-  lock_objects = FALSE,
+  lock_objects = TRUE,
   public = list(
     # Create a new LPJmLMetaData object
     #   x `list` (not nested) with meta data
@@ -48,94 +48,14 @@ LPJmLMetaData <- R6::R6Class(
         private$init_list(x, additional_data)
       }
       if (length(subset) > 0) {
-        self$._update_subset(subset)
+        self$.__update_subset__(subset)
       }
       # add data_dir for lazy loading of (e.g.) grid later
       if (!is.null(data_dir)) {
         private$.data_dir <- data_dir
       }
     },
-    # update supplied subset in self.subset
-    ._update_subset = function(subset,
-                               time_dimnames = NULL,
-                               cell_dimnames = NULL) {
-      is_sequential <- function(x) all(diff(as.integer(x)) == 1)
-      # update cell fields - distinguish between character -> LPJmL C index
-      #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
-      if (!is.null(subset$cell) ||
-          !is.null(subset$lon) || !is.null(subset$lat)) {
-        # recalculate firstcell and ncell if subsetted by lat and/or lon
-        if (!is.null(cell_dimnames)) {
-          if (is_sequential(cell_dimnames)) {
-            private$.firstcell <- min(as.numeric(cell_dimnames))
-          } else {
-            firstcell <- NULL
-          }
-          private$.ncell <- length(cell_dimnames)
-        } else {
-          private$.firstcell <- NA
-          private$.ncell <- NA
-        }
-        private$.subset <- TRUE
-        private$.subset_space <- TRUE
-      }
-      # for years using indices is forbidded because they cannot be properly
-      #   distinguished from years
-      if (!is.null(subset[["time"]]) && !is.null(time_dimnames)) {
-        subset[["year"]] <- split_time_names(time_dimnames)[["year"]]
-      }
-      if (!is.null(subset$year)) {
-        private$.firstyear <- min(as.integer(subset$year))
-        private$.lastyear <- max(as.integer(subset$year))
-        private$.nyear <- length(subset$year)
-        private$.subset <- TRUE
-      }
-      # band can be subsetted via indices or band_names - the latter is updated
-      if (!is.null(subset$band)) {
-        if (is.character(subset$band)) {
-          if (!all(subset$band %in% private$.band_names)) {
-            warning(paste0(
-              "Not all subset bands are represented in the original data:",
-              "\n- band_names provided to subset may be incorrect, or",
-              "\n- new names have been provided by the user to band_names."
-            ))
-          }
-          private$.band_names <- private$.band_names[
-            private$.band_names %in% subset$band
-          ]
-        } else {
-          private$.band_names <- private$.band_names[subset$band]
-        }
-        private$.nbands <- length(private$.band_names)
-        private$.subset <- TRUE
-      }
-    },
-    ._init_grid = function() {
-      if (private$.variable != "grid") {
-        stop(paste("Only valid for variable", sQuote("grid"), "."))
-      }
-      # set all time fields to NULL
-      private$.nyear <- NULL
-      private$.firstyear <- NULL
-      private$.lastyear <- NULL
-      private$.nstep <- NULL
-      private$.timestep <- NULL
-      # update fields_set
-      private$.fields_set <- private$.fields_set[
-        -na.omit(match(c("nyear",
-                         "firstyear",
-                         "lastyear",
-                         "nstep",
-                         "timestep"),
-                       private$.fields_set))
-      ]
-    },
-    ._transform_time_format = function(time_format) {
-      private$.time_format <- time_format
-    },
-    ._transform_space_format = function(space_format) {
-      private$.space_format <- space_format
-    },
+
     print = function(all = TRUE, spaces = "") {
       quotes_option <- options(useFancyQuotes = FALSE)
       on.exit(options(quotes_option))
@@ -206,97 +126,199 @@ LPJmLMetaData <- R6::R6Class(
           "\n"
         )
       )
+    },
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLMetaData` object into a
+    #' \link[base]{list}. \cr
+    #' See also [`as_list.LPJmLMetaData`]
+    as_list = function(...) {
+      private$.as_list(...)
+    },
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLMetaData` object into a LPJmL input
+    #' header (more info at [`create_header`]). \cr
+    #' See also [`as_header.LPJmLMetaData`]
+    as_header = function(...) {
+      private$.as_header(...)
+    },
+
+    # initialize grid meta data
+    .__init_grid__ = function() {
+      if (private$.variable != "grid") {
+        stop(paste("Only valid for variable", sQuote("grid"), "."))
+      }
+      # set all time fields to NULL
+      private$.nyear <- NULL
+      private$.firstyear <- NULL
+      private$.lastyear <- NULL
+      private$.nstep <- NULL
+      private$.timestep <- NULL
+      # update fields_set
+      private$.fields_set <- private$.fields_set[
+        -na.omit(match(c("nyear",
+                         "firstyear",
+                         "lastyear",
+                         "nstep",
+                         "timestep"),
+                       private$.fields_set))
+      ]
+    },
+
+    # update supplied subset in self.subset
+    .__update_subset__ = function(subset,
+                               time_dimnames = NULL,
+                               cell_dimnames = NULL) {
+      is_sequential <- function(x) all(diff(as.integer(x)) == 1)
+      # update cell fields - distinguish between character -> LPJmL C index
+      #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
+      if (!is.null(subset$cell) ||
+          !is.null(subset$lon) || !is.null(subset$lat)) {
+        # recalculate firstcell and ncell if subsetted by lat and/or lon
+        if (!is.null(cell_dimnames)) {
+          if (is_sequential(cell_dimnames)) {
+            private$.firstcell <- min(as.numeric(cell_dimnames))
+          } else {
+            firstcell <- NULL
+          }
+          private$.ncell <- length(cell_dimnames)
+        } else {
+          private$.firstcell <- NA
+          private$.ncell <- NA
+        }
+        private$.subset <- TRUE
+        private$.subset_space <- TRUE
+      }
+      # for years using indices is forbidded because they cannot be properly
+      #   distinguished from years
+      if (!is.null(subset[["time"]]) && !is.null(time_dimnames)) {
+        subset[["year"]] <- split_time_names(time_dimnames)[["year"]]
+      }
+      if (!is.null(subset$year)) {
+        private$.firstyear <- min(as.integer(subset$year))
+        private$.lastyear <- max(as.integer(subset$year))
+        private$.nyear <- length(subset$year)
+        private$.subset <- TRUE
+      }
+      # band can be subsetted via indices or band_names - the latter is updated
+      if (!is.null(subset$band)) {
+        if (is.character(subset$band)) {
+          if (!all(subset$band %in% private$.band_names)) {
+            warning(paste0(
+              "Not all subset bands are represented in the original data:",
+              "\n- band_names provided to subset may be incorrect, or",
+              "\n- new names have been provided by the user to band_names."
+            ))
+          }
+          private$.band_names <- private$.band_names[
+            private$.band_names %in% subset$band
+          ]
+        } else {
+          private$.band_names <- private$.band_names[subset$band]
+        }
+        private$.nbands <- length(private$.band_names)
+        private$.subset <- TRUE
+      }
+    },
+
+    .__transform_time_format__ = function(time_format) {
+      private$.time_format <- time_format
+    },
+
+    .__transform_space_format__ = function(space_format) {
+      private$.space_format <- space_format
     }
   ),
   active = list(
-    #' @field `sim_name` simulation name (workds as identifier in LPJmL Runner)
+    #' @field sim_name simulation name (workds as identifier in LPJmL Runner)
     sim_name = function() {
       return(private$.sim_name)
     },
-    #' @field `source` LPJmL version (character string).
+    #' @field source LPJmL version (character string).
     source = function() {
       return(private$.source)
     },
-    #' @field `history` Character string of path to LPJmL executable and path to
+    #' @field history Character string of path to LPJmL executable and path to
     #' config file for simulation.
     history = function() {
       return(private$.history)
     },
-    #' @field `variable` Variable of output like `"npp"` or `"runoff"`
+    #' @field variable Variable of output like `"npp"` or `"runoff"`
     variable = function() {
       return(private$.variable)
     },
-    #' @field `descr` Description of the output/variable.
+    #' @field descr Description of the output/variable.
     descr = function() {
       return(private$.descr)
     },
-    #' @field `unit` Unit of the output/variable.
+    #' @field unit Unit of the output/variable.
     unit = function() {
       return(private$.unit)
     },
-    #' @field `nbands` Number (numeric) of bands (categoric dimension). Please
+    #' @field nbands Number (numeric) of bands (categoric dimension). Please
     #' note that nband has somehow become accepted instead of nband as opposed
     #' to nyear or ncell (!)
     nbands = function() {
       return(private$.nbands)
     },
-    #' @field `band_names` Name of bands (categoric dimension), if `nbands > 1`,
+    #' @field band_names Name of bands (categoric dimension), if `nbands > 1`,
     #' else it is not included (!)
     band_names = function() {
       return(private$.band_names)
     },
-    #' @field `nyear` Number (numeric) of simulation years in the output.
+    #' @field nyear Number (numeric) of simulation years in the output.
     nyear = function() {
       return(private$.nyear)
     },
-    #' @field `firstyear` First year (numeric) of output of the simulation.
+    #' @field firstyear First year (numeric) of output of the simulation.
     firstyear = function() {
       return(private$.firstyear)
     },
-    #' @field `lastyear` First year (numeric) of output of the simulation.
+    #' @field lastyear First year (numeric) of output of the simulation.
     lastyear = function() {
       return(private$.lastyear)
     },
-    #' @field `nstep` Intra annual time steps (numeric) `1 == "annual"`,
+    #' @field nstep Intra annual time steps (numeric) `1 == "annual"`,
     #' `12 == "monthly"` and `365 == "daily"`.
     nstep = function() {
       return(private$.nstep)
     },
-    #' @field `timestep` Inter annual time steps (numeric). `timestep = 5` means
+    #' @field timestep Inter annual time steps (numeric). `timestep = 5` means
     #' that output is written every 5 years.
     timestep = function() {
       return(private$.timestep)
     },
-    #' @field `ncell` Number (numeric) of cells used in the simulation.
+    #' @field ncell Number (numeric) of cells used in the simulation.
     ncell = function() {
       return(private$.ncell)
     },
-    #' @field `firstcell` First cell (numeric) beeing simulated.
+    #' @field firstcell First cell (numeric) beeing simulated.
     firstcell = function() {
       return(private$.firstcell)
     },
-    #' @field `cellsize_lon` Longitude cellsize in degree (numeric).
+    #' @field cellsize_lon Longitude cellsize in degree (numeric).
     cellsize_lon = function() {
       return(private$.cellsize_lon)
     },
-    #' @field `cellsize_lat` Latitude cellsize in degree (numeric).
+    #' @field cellsize_lat Latitude cellsize in degree (numeric).
     cellsize_lat = function() {
       return(private$.cellsize_lat)
     },
-    #' @field `datatype` File data type (character string), e.g. `"float"`.
+    #' @field datatype File data type (character string), e.g. `"float"`.
     datatype = function() {
       return(private$.datatype)
     },
-    #' @field `scalar` Conversion factor (numeric).
+    #' @field scalar Conversion factor (numeric).
     scalar = function() {
       return(private$.scalar)
     },
-    #' @field `order` Order of data items , either `1 == "cellyear"`,
+    #' @field order Order of data items , either `1 == "cellyear"`,
     #' `2 == "yearcell"` or `3 == "cellindex"`
     order = function() {
       return(private$.order)
     },
-    #' @field `offset` Offset in binary file (numeric).
+    #' @field offset Offset in binary file (numeric).
     offset = function() {
       return(private$.offset)
     },
@@ -307,12 +329,12 @@ LPJmLMetaData <- R6::R6Class(
     bigendian = function() {
       return(private$.bigendian)
     },
-    #' @field `format` Output format (character string). Either "raw" or "clm"
+    #' @field format Output format (character string). Either "raw" or "clm"
     #' (raw with header), or "cdf" for netCDF format.
     format = function() {
       return(private$.format)
     },
-    #' @field `filename` Name of the file.
+    #' @field filename Name of the file.
     filename = function() {
       return(private$.filename)
     },
@@ -322,7 +344,7 @@ LPJmLMetaData <- R6::R6Class(
     version = function() {
       return(private$.version)
     },
-    #' @field `subset` Logical. Whether is subsetted or not.
+    #' @field subset Logical. Whether is subsetted or not.
     subset = function() {
       if (!is.null(self$variable) && self$variable == "grid") {
         return(private$.subset_space)

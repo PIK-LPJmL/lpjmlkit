@@ -14,8 +14,8 @@
 #' @param raster_extent if `aggregate` does not include space dim
 #' \link[raster]{extent}, or any object from
 #' which an Extent object can be extracted
-#' @param ... arguments forwarded to \link[graphics](plot) and
-#' \link[raster](plot)
+#' @param ... arguments forwarded to \link[graphics]{plot} and
+#' \link[raster]{plot}
 #'
 #' @return NULL
 #' @examples
@@ -56,8 +56,9 @@ plot.LPJmLData <- function(x, ...) {
   x$plot(...)
 }
 
-LPJmLData$set("public",
-              "plot",
+# plot method roxygen documentation in LPJmlData.R
+LPJmLData$set("private",
+              ".plot",
               #' @description
               #' Method to plot a time-series or raster map of a LPJmLData
               #' object. See also \link[lpjmlkit]{plot}
@@ -131,7 +132,9 @@ LPJmLData$set("public",
     data_only <- aggregate_array(data_subset,
                                  aggregate_list = aggregate,
                                  na.rm = TRUE)
-    data_subset$._plot_by_band(data = data_only, dots = dots)
+    plot_by_band(lpjml_data = data_subset,
+                 raw_data = data_only,
+                 dots = dots)
     message(
       paste0(
         "\u001b[33;3m",
@@ -161,9 +164,11 @@ LPJmLData$set("public",
     # subset first 9 (later) raster layers (only 9 can be visualized well)
     #   for performance reasons already here
     if (dim(data_subset)[z_dim] > 9) {
-      data_subset$data <- subset_array(data_subset$data,
-                                       as.list(setNames(list(seq_len(9)), z_dim)), # nolint
-                                       force_idx = TRUE)
+      data_subset$.__set_data__(
+        subset_array(data_subset$data,
+                     as.list(setNames(list(seq_len(9)), z_dim)),
+                     force_idx = TRUE)
+      )
     }
 
     # create plot title if not provided
@@ -175,9 +180,11 @@ LPJmLData$set("public",
     }
 
     # aggregate over selected dimensions and corresponding fun of aggregate
-    data_subset$data <- aggregate_array(data_subset,
-                                        aggregate_list = aggregate,
-                                        na.rm = TRUE)
+    data_subset$.__set_data__(
+      aggregate_array(data_subset,
+                      aggregate_list = aggregate,
+                      na.rm = TRUE)
+    )
 
     # create raster and crop if extent ist provided, otherwise automatic
     #   cropping via as_raster functionality is used
@@ -197,15 +204,14 @@ LPJmLData$set("public",
 
 # helper function to draw time series plots
 #   TODO: requires refactoring
-LPJmLData$set("public",
-              "._plot_by_band",
-              function(data, dots) {
-  is_sequential <- function(x) all(diff(as.integer(x)) == 1)
-  time_dims <- strsplit(self$meta$time_format, "_")[[1]]
-  space_dims <- strsplit(self$meta$space_format, "_")[[1]]
-  dim_names <- names(dim(data))
+plot_by_band <- function(lpjml_data,
+                         raw_data,
+                         dots) {
+  time_dims <- strsplit(lpjml_data$meta$time_format, "_")[[1]]
+  space_dims <- strsplit(lpjml_data$meta$space_format, "_")[[1]]
+  dim_names <- names(dim(raw_data))
 
-  if (length(which(dim(data) > 2)) > 2) {
+  if (length(which(dim(raw_data) > 2)) > 2) {
     stop(
       paste0(
         "\u001b[0m",
@@ -225,7 +231,7 @@ LPJmLData$set("public",
         ".\n"
       )
     )
-  } else if (length(dim(data)) < 2) {
+  } else if (length(dim(raw_data)) < 2) {
     stop(paste0("Only one dimensional data supplied. Data must have two ",
                 "dimensions with a minimum of one temporal dimension."))
   }
@@ -249,46 +255,39 @@ LPJmLData$set("public",
     x_dim <- "time"
   }
 
-  if (self$meta$space_format == "lon_lat" &&
-      any(dim(data)[space_dims] > 1) &&
-      all(dim(data)[time_dims] == 1, na.rm = TRUE)) {
-    x_dim <- space_dims[which(dim(data)[space_dims] > 1)]
+  if (lpjml_data$meta$space_format == "lon_lat" &&
+      any(dim(raw_data)[space_dims] > 1) &&
+      all(dim(raw_data)[time_dims] == 1, na.rm = TRUE)) {
+    x_dim <- space_dims[which(dim(raw_data)[space_dims] > 1)]
   }
 
   # dimension to be shown in the legend "3rd dimension"
   legend_dim <- dim_names[!dim_names == x_dim]
   if (length(legend_dim) > 1)
-    legend_dim <- legend_dim[legend_dim %in% dim_names[dim(data) > 1]]
+    legend_dim <- legend_dim[legend_dim %in% dim_names[dim(raw_data) > 1]]
 
   # limit plot lines to maximum of 8
-  legend_length <- dim(data)[[legend_dim]] %>%
+  legend_length <- dim(raw_data)[[legend_dim]] %>%
     ifelse(. > 8, 8, .)
 
-  # subset data that is actually displayed
-  data <- subset_array(
-    data,
+  # subset raw_data that is actually displayed
+  raw_data <- subset_array(
+    raw_data,
     as.list(setNames(list(seq_len(legend_length)), legend_dim)),
     force_idx = TRUE,
     drop = FALSE
   )
 
-  # set default Axis lims and colors if not provided
+  # set default axis lims and colors if not provided
   if (is.null(dots$ylim)) {
-    dots$ylim <- range(data, na.rm = TRUE, finite = TRUE)
+    dots$ylim <- range(raw_data, na.rm = TRUE, finite = TRUE)
   }
-  # if (is.null(dots$xlim)) {
-  #   if (x_dim != "time") {
-  #     xlabels <- as.numeric(dimnames(data)[[x_dim]])
-  #     if (x_dim != "year") {
-  #       dots$xlim <- range(xlabels)
-  #     } else {
-  #       dots$xlim <- range(xlabels - (xlabels[1] + 1))
-  #     }
-  #   }
-  # }
   if (!is.null(dots$col)) {
-    col <- dots$col
+    cols <- dots$col
     dots <- dots[names(dots) != "col"]
+  } else {
+    # use default colours
+    cols <- seq_len(legend_length)
   }
   if (is.null(dots$type)) {
     dots$type <- "l"
@@ -340,15 +339,13 @@ LPJmLData$set("public",
     ))
   }
 
-  # use default colours
-  cols <- seq_len(legend_length)
   opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE)
 
   # do.call for use of ellipsis via dots list
   #   subset_array for dynamic subsetting of flexible legend_dim
   #   force_idx to use index instead of numeric year or lat, lon for subsetting
   do.call(graphics::plot,
-          c(x = list(subset_array(data,
+          c(x = list(subset_array(raw_data,
                                   as.list(setNames(1, legend_dim)),
                                   force_idx = TRUE)),
             col = cols[1],
@@ -356,42 +353,42 @@ LPJmLData$set("public",
 
   # depending on length of time series set breaks accordingly
   if (x_dim %in% c("time", "year")) {
-    if (self$meta$nyear > 100) {
+    if (lpjml_data$meta$nyear > 100) {
       brks <- 20
-    } else if (self$meta$nyear > 50) {
+    } else if (lpjml_data$meta$nyear > 50) {
       brks <- 10
-    } else if (self$meta$nyear > 25) {
+    } else if (lpjml_data$meta$nyear > 25) {
       brks <- 5
-    } else if (self$meta$nyear > 10) {
+    } else if (lpjml_data$meta$nyear > 10) {
       brks <- 2
     } else {
       brks <- 1
     }
 
     # set nstep only if time dimension, leads to month inbetween years
-    #   if self$meta$nstep > 1
-    nstep <- ifelse(x_dim == "time", self$meta$nstep, 1)
+    #   if lpjml_data$meta$nstep > 1
+    nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
 
     # set tickmarks and label for time or year dim
     at_ticks <- seq(1,
-                    self$meta$nyear * nstep,
+                    lpjml_data$meta$nyear * nstep,
                     by = brks * nstep)
     graphics::axis(side = 1,
                    at = at_ticks,
-                   labels = dimnames(data)[[x_dim]][at_ticks])
+                   labels = dimnames(raw_data)[[x_dim]][at_ticks])
   }
 
   for (i in cols[-1]) {
   # subset_array for dynamic subsetting of flexible legend_dim
   #   force_idx to use index instead of numeric year or lat, lon for subsetting
-    graphics::lines(subset_array(data,
+    graphics::lines(subset_array(raw_data,
                                  as.list(setNames(i, legend_dim)),
                                  force_idx = TRUE),
                     col = cols[i],
                     type = dots$type)
   }
   # calculate length of longest string in legend to not overlap
-  char_len <- dimnames(data)[[legend_dim]] %>%
+  char_len <- dimnames(raw_data)[[legend_dim]] %>%
     .[which.max(nchar(.))]
 
   # legend at the bottom left side of the graphic device.
@@ -418,7 +415,7 @@ LPJmLData$set("public",
     pch = unlist(ifelse(
       dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
     )),
-    legend = dimnames(data)[[legend_dim]][cols],
+    legend = dimnames(raw_data)[[legend_dim]][cols],
     bty = "n"
   )
   graphics::par(opar) %>% invisible()
@@ -432,4 +429,4 @@ LPJmLData$set("public",
   } else {
     graphics::grid()
   }
-})
+}

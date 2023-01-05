@@ -1,16 +1,19 @@
 # test LPJmLMetaData content/ as_list function with JSON file content
 test_that("test LPJmLMetaData content", {
+  file_name <- "../testdata/output/pft_npp.bin.json"
+
+  # read in json data via jsonlite library
+  meta_list <- jsonlite::read_json(path = file_name, simplify = TRUE)
+
   # read in meta data to LPJmLMetaData object
   meta_data <- read_meta(
-    filename = "../testdata/output/pft_npp.bin.json"
+    filename = file_name
   ) %>%
     # export as list for comarability
     as_list() %>%
     # reorder for testing
     .[names(meta_list)]
 
-  # read in json data via jsonlite library
-  meta_list <- jsonlite::read_json(path = file_name, simplify = TRUE)
   # test if meta_data information matches that of file
   testthat::expect_equal(meta_data, meta_list)
 })

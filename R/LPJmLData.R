@@ -4,25 +4,19 @@
 #'
 LPJmLData <- R6::R6Class(
   classname = "LPJmLData",
-  lock_objects = FALSE,
+  lock_objects = TRUE,
   public = list(
-    #' @field `LPJmLMetaData` object to store corresponding meta data
-    meta = NULL,
-
-    #' @field Data `array` containing the underlying data
-    data = NULL,
-
-    # Create a new LPJmLData object
-    #    data_array `array` with LPJmL data
-    #    meta_data `LPJmLMetaData` Object
-    initialize = function(data_array, meta_data = NULL) {
+    # description Create a new LPJmLData object
+    # param array `array` with LPJmL data
+    # param meta_data `LPJmLMetaData` Object
+    initialize = function(data, meta_data = NULL) {
       if (methods::is(meta_data, "LPJmLMetaData") |
           methods::is(meta_data, "NULL")) {
-        self$meta <- meta_data
+        private$.meta <- meta_data
       } else {
         stop("Provide a LPJmLMetaData object for meta data.")
       }
-      self$data <- data_array
+      private$.data <- data
       if (!is.null(self$meta$variable)) {
         if (self$meta$variable == "grid") {
           private$init_grid()
@@ -30,13 +24,11 @@ LPJmLData <- R6::R6Class(
       }
     },
     #' @description
-    #' Method to add a grid to a \link[lpjmlkit](LPJmLData).
-    #' See also \link[lpjmlkit](add_grid)
+    #' Method to add a grid to a `LPJmLData`.
+    #' See also [`add_grid.LPJmLData`]
     add_grid = function(...) {
-      if (!is.null(self$meta$variable) &&
-          self$meta$variable == "grid") {
-        stop(paste("not legit for variable", self$meta$variable))
-      }
+      # check for locked objects
+      check_method_locked(self, "add_grid")
       # check if meta file for grid is located in output location
       grid_file <- list.files(self$meta$data_dir,
                               pattern = "grid.bin.json")
@@ -46,69 +38,78 @@ LPJmLData <- R6::R6Class(
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
         if (self$meta$subset_space) {
-          self$grid <- read_io(
-            filename = filename,
-            subset = list(cell = self$dimnames()[["cell"]])
+          self$.__set_grid__(
+            read_io(
+              filename = filename,
+              subset = list(cell = self$dimnames()[["cell"]])
+            )
           )
         } else {
-          self$grid <- read_io(filename = filename)
+          self$.__set_grid__(
+            read_io(filename = filename)
+          )
         }
       } else {
         # all arguments have to be provided manually via read_io args
         #   ellipsis (...) does that
         # check if arguments are provided
         if (length(as.list(match.call())) > 1) {
-          self$grid <- read_io(...)
+          self$.__set_grid__(
+            read_io(...)
+          )
         } else {
           stop(paste("If no meta file is available $add_grid",
                      "has to be called explicitly with args as read_io."))
         }
       }
-      return(invisible(self))
+      private$.grid$.__set_lock__(is_locked = TRUE)
     },
-    # aggregation function, only to be applied for conversions (as_raster, plot)
-    #   do not apply to self to not violate data integrity !
-    aggregate_array = function(aggregate_list = NULL,
-                                ...) {
-            data <- self$data
-            if (!is.null(aggregate_list)) {
-              for (idx in seq_along(aggregate_list)) {
-                dim_names <- names(dim(data))
-                data <- apply(X = data,
-                              MARGIN = dim_names[
-                                !dim_names %in% names(aggregate_list)[idx]
-                              ],
-                              FUN = aggregate_list[[idx]],
-                              ...)
-              }
-            }
-            return(data)
-    },
+
     #' @description
-    #' Method to get the length of the array of a \link[lpjmlkit](LPJmLData)
+    #' Method to use dimension names of `LPJmLData`
+    #' array directly to subset each by simply using supplying
+    #' vectors. \cr
+    #' See also [`subset.LPJmLData`]
+    subset = function(...) {
+      private$.subset(...)
+    },
+
+    #' @description
+    #' Method to transform inner `LPJmLData` array
+    #' into another space or another time format. \cr
+    #' See also [`transform.LPJmLData`]
+    transform = function(...) {
+      private$.transform(...)
+    },
+
+    #' @description
+    #' Method to get the length of the array of a `LPJmLData`
     #' object.
-    #' See also \link[base](length)
+    #' See also \link[base]{length}
     length = function() {
       return(length(self$data))
     },
+
     #' @description
     #' Method to get the dimension names and lengths of the array of a
-    #' \link[lpjmlkit](LPJmLData) object.
-    #' See also \link[base](dim)
+    #' `LPJmLData` object.
+    #' See also \link[base]{dim}
     dim = function() {
       dim(self$data)
     },
+
     #' @description
     #' Method to get the dimensions (list) of the array of a
-    #' \link[lpjmlkit](LPJmLData) object.
-    #' See also \link[base](dimnames)
+    #' `LPJmLData` object.
+    #' See also \link[base]{dimnames}
     dimnames = function() {
       dimnames(self$data)
     },
+
     #' @description
     #' Method to get the summary of the array of a
-    #' \link[lpjmlkit](LPJmLData) object.
-    #' See also \link[base](summary)
+    #' \link[lpjmlkit]{LPJmLData} object.
+    #' See also \link[base]{summary}
     summary = function(dimension = "band",
                        subset = NULL,
                        cutoff = FALSE,
@@ -160,8 +161,8 @@ LPJmLData <- R6::R6Class(
       }
     },
     #' @description
-    #' Method to print the \link[lpjmlkit](LPJmLData).
-    #' See also \link[base](print)
+    #' Method to print the \link[lpjmlkit]{LPJmLData}.
+    #' See also \link[base]{print}
     print = function() {
       quotes_option <- options(useFancyQuotes = FALSE)
       on.exit(options(quotes_option))
@@ -226,18 +227,101 @@ LPJmLData <- R6::R6Class(
                    unset_col,
                    "\n"))
       }
+    },
+    #' @description
+    #' Method to plot a time-series or raster map of a LPJmLData
+    #' object. \cr
+    #' See also [`plot.LPJmLData`]
+    plot = function(...) {
+      private$.plot(...)
+    },
+    # export methods --------------------------------------------------------- #
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLData` object into a pure
+    #' \link[base]{array}. \cr
+    #' See also [`as_array.LPJmLData`]
+    as_array = function(...) {
+      private$.as_array(...)
+    },
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' \link[base]{tibble} (modern \link[base]{data.frame}). \cr
+    #' See also [`as_tibble.LPJmLData`]
+    as_tibble = function(...) {
+      private$.as_tibble(...)
+    },
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' \link[raster]{raster} or \link[raster]{brick} object, that opens the
+    #' space for any GIS based raster operations. \cr
+    #' See also [`as_raster.LPJmLData`]
+    as_raster = function(...) {
+      private$.as_raster(...)
+    },
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' \link[terra]{rast}, that opens the space for any GIS based raster
+    #' operations. \cr
+    #' See also [`as_terra.LPJmLData`]
+    as_terra = function(...) {
+      private$.as_terra(...)
+    },
+
+    .__transform_grid__ = function(...) {
+      private$.transform_grid(...)
+    },
+    # overwrite data attribute only to be used internally or explicitly
+    #   on purpose
+    .__set_data__ = function(data) {
+      private$.data <- data
+    },
+
+    .__set_grid__ = function(grid) {
+      private$.grid <- grid
+    },
+
+    .__set_lock__ = function(is_locked) {
+      private$.is_locked <- is_locked
+    }
+
+  ),
+  active = list(
+    #' @field meta [`LPJmLMetaData`] object to store corresponding meta data
+    meta = function() {
+      return(private$.meta)
+    },
+    #' @field data \link[base]{array} containing the underlying data
+    data = function() {
+      return(private$.data)
+    },
+    #' @field grid *optional* - `LPJmLData` containing the underlying grid,
+    grid = function() {
+      return(private$.grid)
+    },
+    is_locked = function() {
+      return(private$.is_locked)
     }
   ),
   private = list(
     # init grid if variable == "grid"
     init_grid = function() {
       # update grid data
-      dimnames(self$data)[["band"]] <- c("lon", "lat")
+      dimnames(private$.data)[["band"]] <- c("lon", "lat")
       # update grid meta data
-      self$data <- drop_omit(self$data, omit = "cell")
-      self$meta$._init_grid()
+      self$.__set_data__(
+        drop_omit(self$data, omit = "cell")
+      )
+      self$meta$.__init_grid__()
       return(invisible(self))
-     }
+    },
+    .meta = NULL,
+    .data = NULL,
+    .grid = NULL,
+    .is_locked = FALSE
   )
 )
 
@@ -262,15 +346,15 @@ summary.LPJmLData <- function(x, ...) x$summary(...)
 
 #' Add grid to LPJmLData object
 #'
-#' Function to add a grid to an \link[lpjmlkit](LPJmLData). The function acts
-#' as a \link[lpjmlkit](read_io) function for the grid file and adds it as an
+#' Function to add a grid to an [`LPJmLData`]. The function acts
+#' as a [`read_io`] function for the grid file and adds it as an
 #' `LPJmLData` object itself to the the main object as an attribute `$grid`
 #'
 #' @param to character vector defining space and/or time format into which
 #' corresponding data dimensions should be transformed. Choose from space
 #' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
 #'
-#' @return \link[lpjmlkit](LPJmLData) object in selected format
+#' @return [`LPJmLData`] object in selected format
 #'
 #' @examples
 #' \dontrun{
@@ -281,14 +365,50 @@ summary.LPJmLData <- function(x, ...) x$summary(...)
 #'
 #' @md
 #' @export
-add_grid <- function(x, ...) {
+add_grid.LPJmLData <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$add_grid(...)
   return(y)
 }
 
-# method dispatch for aggregate_array - only used internally
-aggregate_array <- function(x, ...) {
-  y <- x$aggregate_array(...)
-  return(y)
+
+# aggregation function, only to be applied for conversions (as_raster, plot)
+#   do not apply to self to not violate data integrity !
+aggregate_array <- function(x,
+                            aggregate_list = NULL,
+                            ...) {
+  data <- x$data
+  if (!is.null(aggregate_list)) {
+    for (idx in seq_along(aggregate_list)) {
+      dim_names <- names(dim(data))
+      data <- apply(X = data,
+                    MARGIN = dim_names[
+                      !dim_names %in% names(aggregate_list)[idx]
+                    ],
+                    FUN = aggregate_list[[idx]],
+                    ...)
+    }
+  }
+  return(data)
+}
+
+
+check_method_locked <- function(x, method_name) {
+  if (x$is_locked) {
+    stop(
+      paste0(
+        "\u001b[0m",
+        "The attribute ",
+        "\u001b[34m",
+        ifelse(is.null(x$meta$variable), "???", x$meta$variable),
+        "\u001b[0m",
+        " is locked. You cannot use method ",
+        "\u001b[34m",
+        method_name,
+        "\u001b[0m",
+        " on this object.",
+        "\n"
+      )
+    )
+  }
 }

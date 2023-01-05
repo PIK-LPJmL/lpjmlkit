@@ -7,8 +7,8 @@
 \method{plot}{LPJmLData}(x, ...)
 }
 \arguments{
-\item{...}{arguments forwarded to \link\href{plot}{graphics} and
-\link\href{plot}{raster}}
+\item{...}{arguments forwarded to \link[graphics]{plot} and
+\link[raster]{plot}}
 
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.

@@ -61,7 +61,7 @@
 #' @param silent If set to TRUE, suppresses most warnings or messages. Use only
 #' after testing that function works as expected with the files it is being used
 #' on. Default: FALSE.
-#' @return \link[lpjmlkit](LPJmLData) object
+#' @return [LPJmLData] object
 #' @examples
 #' \dontrun{
 #' # First case: meta file. Reads meta information from "my_file.json" and
@@ -300,14 +300,14 @@ read_io <- function(
 
   # Update meta_data based on subset
   if (length(subset) > 0) {
-    meta_data$._update_subset(subset)
+    meta_data$.__update_subset__(subset)
   }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))
     file_data <- aperm(file_data, perm = dim_order)
 
   # Create LPJmLData object and bring together data and meta_data
-  lpjml_data <- LPJmLData$new(data_array = file_data,
+  lpjml_data <- LPJmLData$new(data = file_data,
                               meta_data = meta_data)
   rm(file_data, meta_data)
   return(lpjml_data)

@@ -1,13 +1,13 @@
 # convert to header object
 # TODO: INSERT ROXYGEN DOC
-as_header <- function(x, ...) {
+as_header.LPJmLMetaData <- function(x, ...) {
   y <- x$as_header(...)
   return(y)
 }
 
 LPJmLMetaData$set(
-  "public",
-  "as_header",
+  "private",
+  ".as_header",
   # TODO: INSERT ROXYGEN DOC
   function(silent = TRUE) {
     invisible(
@@ -39,14 +39,14 @@ LPJmLMetaData$set(
 
 # convert (useful) set fields as list
 # TODO: INSERT ROXYGEN DOC
-as_list <- function(x, ...) {
+as_list.LPJmLMetaData <- function(x, ...) {
   y <- x$as_list(...)
   return(y)
 }
 
 LPJmLMetaData$set(
-  "public",
-  "as_list",
+  "private",
+  ".as_list",
   # TODO: INSERT ROXYGEN DOC
   function() {
     self$fields_set %>%
