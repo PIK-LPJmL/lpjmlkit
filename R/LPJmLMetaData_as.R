@@ -1,6 +1,39 @@
-# convert to header object
-# TODO: INSERT ROXYGEN DOC
-as_header.LPJmLMetaData <- function(x, ...) {
+#' Coerce LPJmLMetaData to a LPJmL header object
+#'
+#' Function to coerce (convert) a `LPJmLMetaData` object into a
+#' LPJmL header object, more information at [`create_header`].
+#'
+#' @param silent Logical. Whether to suppress notifications from header
+#' conversion/initialization.
+#'
+#' @return a LPJmL header object, more information at [`create_header`]
+#'
+#' @examples
+#' \dontrun{
+#'
+#' vegc_meta <- read_meta(filename = "./vegc.bin.json")
+#'
+#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' as_header(vegc_meta)
+#' # $name
+#' # [1] "LPJDUMMY"
+#' #
+#' # $header
+#' #      version        order    firstyear        nyear    firstcell
+#' #          4.0          4.0       1901.0        200.0          0.0
+#' #       nbands cellsize_lon       scalar cellsize_lat     datatype
+#' #          1.0          0.5          1.0          0.5          3.0
+#' #     timestep
+#' #          1.0
+#' #
+#' # $endian
+#' # [1] "little"
+#'
+#' }
+#'
+#' @md
+#' @export
+as_header <- function(x, ...) {
   y <- x$as_header(...)
   return(y)
 }
@@ -8,7 +41,7 @@ as_header.LPJmLMetaData <- function(x, ...) {
 LPJmLMetaData$set(
   "private",
   ".as_header",
-  # TODO: INSERT ROXYGEN DOC
+  # as_header method roxygen documentation in LPJmlMetaData.R
   function(silent = TRUE) {
     invisible(
       capture.output(
@@ -37,23 +70,56 @@ LPJmLMetaData$set(
 )
 
 
-# convert (useful) set fields as list
-# TODO: INSERT ROXYGEN DOC
-as_list.LPJmLMetaData <- function(x, ...) {
-  y <- x$as_list(...)
+#' Coerce LPJmLMetaData to a list
+#'
+#' Function to coerce (convert) a `LPJmLMetaData` object into a
+#' \link[base]{list}.
+#'
+#' @return a \link[base]{list}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' vegc_meta <- read_meta(filename = "./vegc.bin.json")
+#'
+#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' as_list(vegc_meta)
+#' # $sim_name
+#' # [1] "lu_cf"
+#' #
+#' # $source
+#' # [1] "LPJmL C Version 5.3.001"
+#' #
+#' # $variable
+#' # [1] "vegc"
+#' #
+#' # $descr
+#' # [1] "vegetation carbon"
+#' #
+#' # $unit
+#' # [1] "gC/m2"
+#' #
+#' # $nbands
+#' # [1] 1
+#' #
+#' # ...
+#'
+#' }
+#'
+#' @md
+#' @export
+as_list <- function(x) {
+  y <- x$as_list()
   return(y)
 }
 
 LPJmLMetaData$set(
   "private",
   ".as_list",
-  # TODO: INSERT ROXYGEN DOC
+  # as_header method roxygen documentation in LPJmlMetaData.R
   function() {
     self$fields_set %>%
       sapply(function(x) do.call("$", list(self, x)), simplify = FALSE) %>%
       return()
   }
 )
-
-# overwrite conversion of all set fields as list
-# as.list.LPJmLMetaData <- function(obj, ...) obj$as_list(...)

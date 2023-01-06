@@ -6,56 +6,28 @@ LPJmLMetaData <- R6::R6Class(
   classname = "LPJmLMetaData",
   lock_objects = TRUE,
   public = list(
-    # Create a new LPJmLMetaData object
-    #   x `list` (not nested) with meta data
-    #   subset `list` of array dimension(s) as name/key and
-    #     corresponding subset vector as value, e.g.
-    #     `list(cell = c(27411:27415)`, more information at
-    #     \link[lpjmlkit]{subset}.
-    #   additional_data `list` of additional attributes to be set that
-    #     are not included in file header. These are
-    #     `c"(band_names", "variable", "descr", "unit")`
-    #   data_dir Character string for data directory to "lazy load" grid
-    initialize = function(x,
-                          subset = list(),
-                          additional_data = list(),
-                          data_dir = NULL) {
-      if (all(names(x) %in% c("name", "header", "endian"))) {
-        header_to_meta <- as.list(x$header) %>%
-          append(list(
-            "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
-            # "descr" = tolower(x$name),
-            "lastyear" = x$header[["firstyear"]] +
-                         x$header[["timestep"]] *
-                         (x$header[["nyear"]] - 1),
-            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
-          )) %>%
-        `[[<-`("order",
-               switch(as.character(.$order),
-                      `1` = "cellyear",
-                      `2` = "yearcell",
-                      `3` = "cellindex",
-                      `4` = "cellseq",
-                      stop(
-                        paste(
-                          "Invalid order value", sQuote(.$order), "in header"
-                        )
-                      )
-                     )
-              )
-        private$init_list(header_to_meta, additional_data)
-      } else {
-        private$init_list(x, additional_data)
-      }
-      if (length(subset) > 0) {
-        self$.__update_subset__(subset)
-      }
-      # add data_dir for lazy loading of (e.g.) grid later
-      if (!is.null(data_dir)) {
-        private$.data_dir <- data_dir
-      }
+    # export methods --------------------------------------------------------- #
+
+    #' @description
+    #' Method to coerce (convert) a `LPJmLMetaData` object into a
+    #' \link[base]{list}. \cr
+    #' See also [`as_list`]
+    as_list = function() {
+      private$.as_list()
     },
 
+    #' @description
+    #' Method to coerce (convert) a `LPJmLMetaData` object into a LPJmL input
+    #' header (more info at [`create_header`]). \cr
+    #'
+    #' @param ... See [`as_header`]
+    as_header = function(...) {
+      private$.as_header(...)
+    },
+
+    #' @description
+    #' Method to print a `LPJmLMetaData` object.
+    #' See also \link[base]{print}
     print = function(all = TRUE, spaces = "") {
       quotes_option <- options(useFancyQuotes = FALSE)
       on.exit(options(quotes_option))
@@ -126,22 +98,6 @@ LPJmLMetaData <- R6::R6Class(
           "\n"
         )
       )
-    },
-
-    #' @description
-    #' Method to coerce (convert) a `LPJmLMetaData` object into a
-    #' \link[base]{list}. \cr
-    #' See also [`as_list.LPJmLMetaData`]
-    as_list = function(...) {
-      private$.as_list(...)
-    },
-
-    #' @description
-    #' Method to coerce (convert) a `LPJmLMetaData` object into a LPJmL input
-    #' header (more info at [`create_header`]). \cr
-    #' See also [`as_header.LPJmLMetaData`]
-    as_header = function(...) {
-      private$.as_header(...)
     },
 
     # initialize grid meta data
@@ -228,6 +184,56 @@ LPJmLMetaData <- R6::R6Class(
 
     .__transform_space_format__ = function(space_format) {
       private$.space_format <- space_format
+    },
+
+    # Create a new LPJmLMetaData object
+    #   x `list` (not nested) with meta data
+    #   subset `list` of array dimension(s) as name/key and
+    #     corresponding subset vector as value, e.g.
+    #     `list(cell = c(27411:27415)`, more information at
+    #     \link[lpjmlkit]{subset}.
+    #   additional_data `list` of additional attributes to be set that
+    #     are not included in file header. These are
+    #     `c"(band_names", "variable", "descr", "unit")`
+    #   data_dir Character string for data directory to "lazy load" grid
+    initialize = function(x,
+                          subset = list(),
+                          additional_data = list(),
+                          data_dir = NULL) {
+      if (all(names(x) %in% c("name", "header", "endian"))) {
+        header_to_meta <- as.list(x$header) %>%
+          append(list(
+            "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
+            # "descr" = tolower(x$name),
+            "lastyear" = x$header[["firstyear"]] +
+                         x$header[["timestep"]] *
+                         (x$header[["nyear"]] - 1),
+            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
+          )) %>%
+        `[[<-`("order",
+               switch(as.character(.$order),
+                      `1` = "cellyear",
+                      `2` = "yearcell",
+                      `3` = "cellindex",
+                      `4` = "cellseq",
+                      stop(
+                        paste(
+                          "Invalid order value", sQuote(.$order), "in header"
+                        )
+                      )
+                     )
+              )
+        private$init_list(header_to_meta, additional_data)
+      } else {
+        private$init_list(x, additional_data)
+      }
+      if (length(subset) > 0) {
+        self$.__update_subset__(subset)
+      }
+      # add data_dir for lazy loading of (e.g.) grid later
+      if (!is.null(data_dir)) {
+        private$.data_dir <- data_dir
+      }
     }
   ),
   active = list(

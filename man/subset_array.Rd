@@ -38,7 +38,7 @@ my_array <- array(1,
                                 month=1:12,
                                 band=c("band1", "band2", "band3")))
 my_subset <- subset_array(my_array,
-                          subset_list = list(bands=c("band1", "band3")))
+                          subset_list = list(band=c("band1", "band3")))
 dimnames(my_subset)[3]
 # $ band
 #   [1] "band1"
@@ -46,6 +46,6 @@ dimnames(my_subset)[3]
 
 # replace subset
 my_replacement <- replace_array(my_subset,
-                                subset_list = list(bands=c("band1")),
+                                subset_list = list(band=c("band1")),
                                 0)
 }

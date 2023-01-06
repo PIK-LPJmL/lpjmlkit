@@ -13,7 +13,7 @@
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27416)}, more information at
-\link[lpjmlkit]{subset}.}
+\code{\link{subset.LPJmLData}}.}
 
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
@@ -21,10 +21,10 @@ corresponding aggregation function as value, e.g.
 
 \item{raster_extent}{if \code{aggregate} does not include space dim
 \link[raster]{extent}, or any object from
-which an Extent object can be extracted}
+which an Extent object can be extracted.}
 }
 \description{
-Function to plot a time-series or raster map of a LPJmLData
+Function to plot a time-series or raster map of a \code{\link{LPJmLData}}
 object. \emph{The intent is to provide a quick overview of the data,
 not to create publication-ready graphs.}
 }

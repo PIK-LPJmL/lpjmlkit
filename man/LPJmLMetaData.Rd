@@ -75,39 +75,16 @@ least significant byte at the lowest address.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-LPJmLMetaData-new}{\code{LPJmLMetaData$new()}}
-\item \href{#method-LPJmLMetaData-print}{\code{LPJmLMetaData$print()}}
 \item \href{#method-LPJmLMetaData-as_list}{\code{LPJmLMetaData$as_list()}}
 \item \href{#method-LPJmLMetaData-as_header}{\code{LPJmLMetaData$as_header()}}
+\item \href{#method-LPJmLMetaData-print}{\code{LPJmLMetaData$print()}}
 \item \href{#method-LPJmLMetaData-.__init_grid__}{\code{LPJmLMetaData$.__init_grid__()}}
 \item \href{#method-LPJmLMetaData-.__update_subset__}{\code{LPJmLMetaData$.__update_subset__()}}
 \item \href{#method-LPJmLMetaData-.__transform_time_format__}{\code{LPJmLMetaData$.__transform_time_format__()}}
 \item \href{#method-LPJmLMetaData-.__transform_space_format__}{\code{LPJmLMetaData$.__transform_space_format__()}}
+\item \href{#method-LPJmLMetaData-new}{\code{LPJmLMetaData$new()}}
 \item \href{#method-LPJmLMetaData-clone}{\code{LPJmLMetaData$clone()}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLMetaData-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLMetaData-new}{}}}
-\subsection{Method \code{new()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
-  x,
-  subset = list(),
-  additional_data = list(),
-  data_dir = NULL
-)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLMetaData-print"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLMetaData-print}{}}}
-\subsection{Method \code{print()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$print(all = TRUE, spaces = "")}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLMetaData-as_list"></a>}}
@@ -115,9 +92,9 @@ least significant byte at the lowest address.}
 \subsection{Method \code{as_list()}}{
 Method to coerce (convert) a \code{LPJmLMetaData} object into a
 \link[base]{list}. \cr
-See also \code{\link{as_list.LPJmLMetaData}}
+See also \code{\link{as_list}}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_list(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_list()}\if{html}{\out{</div>}}
 }
 
 }
@@ -125,11 +102,28 @@ See also \code{\link{as_list.LPJmLMetaData}}
 \if{html}{\out{<a id="method-LPJmLMetaData-as_header"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLMetaData-as_header}{}}}
 \subsection{Method \code{as_header()}}{
-Method to coerce (convert) a \code{LPJmLMetaData} object into a
-\href{\link[lpjmlkit]{create_header}}{LPJmL input header}. \cr
-See also \code{\link{as_header.LPJmLMetaData}}
+Method to coerce (convert) a \code{LPJmLMetaData} object into a LPJmL input
+header (more info at \code{\link{create_header}}). \cr
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$as_header(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{See \code{\link{as_header}}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-print"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-print}{}}}
+\subsection{Method \code{print()}}{
+Method to print a \code{LPJmLMetaData} object.
+See also \link[base]{print}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$print(all = TRUE, spaces = "")}\if{html}{\out{</div>}}
 }
 
 }
@@ -170,6 +164,20 @@ See also \code{\link{as_header.LPJmLMetaData}}
 \subsection{Method \code{.__transform_space_format__()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__transform_space_format__(space_format)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
+  x,
+  subset = list(),
+  additional_data = list(),
+  data_dir = NULL
+)}\if{html}{\out{</div>}}
 }
 
 }

@@ -1,23 +1,25 @@
 #' Plot LPJmLData class
 #'
-#' Function to plot a time-series or raster map of a LPJmLData
+#' Function to plot a time-series or raster map of a [`LPJmLData`]
 #' object. *The intent is to provide a quick overview of the data,
 #' not to create publication-ready graphs.*
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27416)`, more information at
-#' \link[lpjmlkit]{subset}.
+#' [`subset.LPJmLData`].
+#'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
 #' `list(band = sum)`.
+#'
 #' @param raster_extent if `aggregate` does not include space dim
 #' \link[raster]{extent}, or any object from
-#' which an Extent object can be extracted
+#' which an Extent object can be extracted.
+#'
 #' @param ... arguments forwarded to \link[graphics]{plot} and
 #' \link[raster]{plot}
 #'
-#' @return NULL
 #' @examples
 #' \dontrun{
 #'
@@ -166,7 +168,7 @@ LPJmLData$set("private",
     if (dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
         subset_array(data_subset$data,
-                     as.list(setNames(list(seq_len(9)), z_dim)),
+                     as.list(stats::setNames(list(seq_len(9)), z_dim)),
                      force_idx = TRUE)
       )
     }
@@ -273,7 +275,7 @@ plot_by_band <- function(lpjml_data,
   # subset raw_data that is actually displayed
   raw_data <- subset_array(
     raw_data,
-    as.list(setNames(list(seq_len(legend_length)), legend_dim)),
+    as.list(stats::setNames(list(seq_len(legend_length)), legend_dim)),
     force_idx = TRUE,
     drop = FALSE
   )
@@ -346,7 +348,7 @@ plot_by_band <- function(lpjml_data,
   #   force_idx to use index instead of numeric year or lat, lon for subsetting
   do.call(graphics::plot,
           c(x = list(subset_array(raw_data,
-                                  as.list(setNames(1, legend_dim)),
+                                  as.list(stats::setNames(1, legend_dim)),
                                   force_idx = TRUE)),
             col = cols[1],
             dots))
@@ -382,7 +384,7 @@ plot_by_band <- function(lpjml_data,
   # subset_array for dynamic subsetting of flexible legend_dim
   #   force_idx to use index instead of numeric year or lat, lon for subsetting
     graphics::lines(subset_array(raw_data,
-                                 as.list(setNames(i, legend_dim)),
+                                 as.list(stats::setNames(i, legend_dim)),
                                  force_idx = TRUE),
                     col = cols[i],
                     type = dots$type)
@@ -393,7 +395,7 @@ plot_by_band <- function(lpjml_data,
 
   # legend at the bottom left side of the graphic device.
   #   calculations ensure placement within margins.
-  legend(
+  graphics::legend(
     x = graphics::par("usr")[1],
     y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] *
       graphics::par("plt")[3] *
@@ -406,7 +408,7 @@ plot_by_band <- function(lpjml_data,
     y.intersp = 1.5,
     title = tools::toTitleCase(legend_dim),
     ncol = 2,
-    text.width = strwidth(char_len) * 2,
+    text.width = graphics::strwidth(char_len) * 2,
     col = cols,
     lty = unlist(ifelse(
       dots$type %in% c("l", "b", "c", "o"),
@@ -424,7 +426,7 @@ plot_by_band <- function(lpjml_data,
     graphics::abline(v = at_ticks,
                      col = "lightgray",
                      lty = "dotted",
-                     lwd = par("lwd"))
+                     lwd = graphics::par("lwd"))
     graphics::grid(nx = NA, ny = NULL)
   } else {
     graphics::grid()

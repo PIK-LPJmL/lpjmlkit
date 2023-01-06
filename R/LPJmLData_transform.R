@@ -1,13 +1,13 @@
 #' Transform LPJmLData object
 #'
-#' Function to transform inner \link[lpjmlkit]{LPJmLData} array into another
+#' Function to transform inner [`LPJmLData`] array into another
 #' space or another time format. Combinations are also possible.
 #'
 #' @param to character vector defining space and/or time format into which
 #' corresponding data dimensions should be transformed. Choose from space
 #' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
 #'
-#' @return \link[lpjmlkit]{LPJmLData} object in selected format
+#' @return [`LPJmLData`] object in selected format
 #'
 #' @examples
 #' \dontrun{

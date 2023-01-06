@@ -1,15 +1,14 @@
 #' Subset LPJmLData object
 #'
-#' Function to use dimension names of \link[lpjmlkit]{LPJmLData} array directly
+#' Function to use dimension names of [`LPJmLData`] array directly
 #' to subset each by simply using supplying vectors.
 #'
 #' @param ... Provide dimension to be used to subset `LPJmLData` objects
 #' underlying data array in combination with indices vectors,
 #' e.g. `cell = c(27411:27416)`, or ``band = -c(14:16, 19:32) or subset
-#' using a "character" vector like `band = c("rainfed rice","rainfed maize")`
+#' using a "character" vector like `band = c("rainfed rice","rainfed maize")`.
 #'
-#' @return \link[lpjmlkit]{LPJmLData} object with/without subset cell of
-#' dimension
+#' @return [`LPJmLData`] object with/without subset cell of dimension
 #'
 #' @examples
 #' \dontrun{
@@ -48,10 +47,6 @@ subset.LPJmLData <- function(x, ...) {
 # subset method roxygen documentation in LPJmlData.R
 LPJmLData$set("private",
               ".subset",
-              #' @description
-              #' Method to use dimension names of link[lpjmlkit]{LPJmLData}
-              #' array directly to subset each by simply using supplying
-              #' vectors. See also \link[lpjmlkit]{subset}
               function(...) {
     # check for locked objects
     check_method_locked(self, "subset")

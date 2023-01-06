@@ -1,6 +1,6 @@
 #' Coerce LPJmLData to an array
 #'
-#' Function to coerce (convert) a `LPJmLData` object into a pure
+#' Function to coerce (convert) a [`LPJmLData`] object into a pure
 #' \link[base]{array}. Pure - because LPJmLData stores the data already as
 #' an `array` which can be accessed via `$data`.
 #' `as_array` provides further functionality to subset or aggregate the `array`.
@@ -8,7 +8,7 @@
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlkit]{subset}.
+#' [`subset.LPJmLData`].
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -18,8 +18,8 @@
 #' `na.rm = TRUE`.
 #'
 #' @return a \link[base]{array} with dimensions of objects `$data` with
-#' applied `subset` and `aggregate` functionality as well as `dim` and
-#' `dimnames` from the `LPJmLData` object.
+#' applied [`subset`] and [`aggregate`] functionality as well as `dim` and
+#' `dimnames` from the [`LPJmLData`] object.
 #'
 #' @examples
 #' \dontrun{
@@ -54,7 +54,7 @@
 #'
 #' @md
 #' @export
-as_array.LPJmLData <- function(x, ...) {
+as_array <- function(x, ...) {
   y <- x$as_array(...)
   return(y)
 }
@@ -77,16 +77,16 @@ LPJmLData$set("private",
 )
 
 
-#' Coerce LPJmLData to an tibble
+#' Coerce LPJmLData to a tibble
 #'
-#' Function to coerce (convert) a `LPJmLData` object into a
+#' Function to coerce (convert) a [`LPJmLData`] object into a
 #' \link[tibble]{tibble} (modern \link[base]{data.frame}, read more
 #' [here](https://r4ds.had.co.nz/tibbles.html))
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlkit]{subset}.
+#' [`subset.LPJmLData`].
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -121,7 +121,7 @@ LPJmLData$set("private",
 #'
 #' @md
 #' @export
-as_tibble.LPJmLData <- function(x, ...) {
+as_tibble <- function(x, ...) {
   y <- x$as_tibble(...)
   return(y)
 }
@@ -146,7 +146,7 @@ LPJmLData$set("private",
 
 #' Coerce LPJmLData to a raster object
 #'
-#' Function to coerce (convert) a `LPJmLData` object into a
+#' Function to coerce (convert) a [`LPJmLData`] object into a
 #' \link[raster]{raster} or \link[raster]{brick} object, that opens the space
 #' for any GIS based raster operations. Read more
 #' [here](https://rspatial.github.io/raster/reference/raster-package.html). The
@@ -155,7 +155,7 @@ LPJmLData$set("private",
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlkit]{subset}.
+#' [`subset.LPJmLData`].
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -165,14 +165,14 @@ LPJmLData$set("private",
 #' `na.rm = TRUE`.
 #'
 #' @return a \link[raster]{raster} or \link[raster]{brick} with grid based on
-#' internal `$grid` attribute (LPJmLData of `"./grid.*"`) and corresponding data
-#' for each grid cell. If multiple bands or time dimensions exist, a
+#' internal `$grid` attribute ([`LPJmLData`] of `"./grid.*"`) and corresponding
+#' data for each grid cell. If multiple bands or time dimensions exist, a
 #' \link[raster]{brick} is created. Further meta information such as the
 #' lon/lat resolution are extracted from `$meta`.
 #'
 #' @details for coercion to a \link[raster]{raster} or \link[raster]{brick},
 #' the `$grid` attribute is required. When using `file_type = "meta"`, grid data
-#' is read automatically via \link[lpjmlkit]{add_grid}. If `file_type = "clm"`
+#' is read automatically via [`add_grid`]. If `file_type = "clm"`
 #' or `file_type = "raw"` is used, `add_grid` has to be performed beforehand.
 #'
 #' @examples
@@ -196,7 +196,7 @@ LPJmLData$set("private",
 #'
 #' @md
 #' @export
-as_raster.LPJmLData <- function(x, ...) {
+as_raster <- function(x, ...) {
   y <- x$as_raster(...)
   return(y)
 }
@@ -265,14 +265,14 @@ LPJmLData$set("private",
 
 #' Coerce LPJmLData to a terra object
 #'
-#' Function to coerce (convert) a `LPJmLData` object into a
+#' Function to coerce (convert) a [`LPJmLData`] object into a
 #' \link[terra]{rast}, that opens the space for any GIS based raster operations.
 #' Read more [here](https://rspatial.org/).
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
-#' \link[lpjmlkit]{subset}.
+#' [`subset.LPJmLData`].
 #'
 #' @param aggregate list of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
@@ -282,14 +282,14 @@ LPJmLData$set("private",
 #' `na.rm = TRUE`.
 #'
 #' @return a \link[terra]{rast}  with grid based on
-#' internal `$grid` attribute (LPJmLData of `"./grid.*"`) and corresponding data
-#' for each grid cell. If multiple bands or time dimensions exist, a
+#' internal `$grid` attribute ([`LPJmLData`] of `"./grid.*"`) and corresponding
+#' data for each grid cell. If multiple bands or time dimensions exist, a
 #' \link[raster]{brick} is created. Further meta information such as the
 #' lon/lat resolution are extracted from `$meta`.
 #'
 #' @details for coercion to a \link[terra]{rast} the `$grid` attribute is
 #' required. When using `file_type = "meta"`, grid data is read automatically
-#' via \link[lpjmlkit]{add_grid}. If `file_type = "clm"` or
+#' via [`add_grid`]. If `file_type = "clm"` or
 #' `file_type = "raw"` is used, `add_grid` has to be performed beforehand.
 #'
 #' @examples
@@ -304,7 +304,7 @@ LPJmLData$set("private",
 #'
 #' @md
 #' @export
-as_terra.LPJmLData <- function(x, ...) {
+as_terra <- function(x, ...) {
   y <- x$as_terra(...)
   return(y)
 }

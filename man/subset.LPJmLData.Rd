@@ -10,14 +10,13 @@
 \item{...}{Provide dimension to be used to subset \code{LPJmLData} objects
 underlying data array in combination with indices vectors,
 e.g. \code{cell = c(27411:27416)}, or ``band = -c(14:16, 19:32) or subset
-using a "character" vector like \code{band = c("rainfed rice","rainfed maize")}}
+using a "character" vector like \code{band = c("rainfed rice","rainfed maize")}.}
 }
 \value{
-\link[lpjmlkit]{LPJmLData} object with/without subset cell of
-dimension
+\code{\link{LPJmLData}} object with/without subset cell of dimension
 }
 \description{
-Function to use dimension names of \link[lpjmlkit]{LPJmLData} array directly
+Function to use dimension names of \code{\link{LPJmLData}} array directly
 to subset each by simply using supplying vectors.
 }
 \examples{
