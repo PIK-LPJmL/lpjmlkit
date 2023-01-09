@@ -29,7 +29,8 @@
 #' @param firstyear Integer providing first year of data in the file.
 #' @param nyear Integer providing number of years of data included in the file.
 #' These are  not consecutive in case of `timestep > 1`.
-#' @param firstcell Integer providing cell index of first data item. 0 by default.
+#' @param firstcell Integer providing cell index of first data item. 0 by
+#' default.
 #' @param ncell Integer providing number of data items per band.
 #' @param nbands Integer providing number of bands per time step of data.
 #' @param cellsize_lon Numeric value providing longitude cell size in degrees.
@@ -50,7 +51,9 @@
 #' default uses endianness set in file header or meta information or
 #' platform-specific endianness `.Platform$endian` if not set.
 #' @param variable Optional character string providing name of variable
-#' contained in file. Included in some JSON meta files.
+#' contained in file. Included in some JSON meta files. **Important:** If
+#' `"file_type" == "raw` and data should be recognized as a grid, prescribe
+#' `variable = "grid"`!
 #' @param descr Optional character string providing a more detailed description
 #' of variable contained in file. Included in some JSON meta files.
 #' @param unit Optional character string providing unit of data in file.

@@ -68,7 +68,8 @@ for LPJmL input/output files are "cellyear" 1, "yearcell" 2, "cellindex" 3,
 \item{nyear}{Integer providing number of years of data included in the file.
 These are  not consecutive in case of \code{timestep > 1}.}
 
-\item{firstcell}{Integer providing cell index of first data item. 0 by default.}
+\item{firstcell}{Integer providing cell index of first data item. 0 by
+default.}
 
 \item{ncell}{Integer providing number of data items per band.}
 
@@ -99,7 +100,9 @@ default uses endianness set in file header or meta information or
 platform-specific endianness \code{.Platform$endian} if not set.}
 
 \item{variable}{Optional character string providing name of variable
-contained in file. Included in some JSON meta files.}
+contained in file. Included in some JSON meta files. \strong{Important:} If
+\verb{"file_type" == "raw} and data should be recognized as a grid, prescribe
+\code{variable = "grid"}!}
 
 \item{descr}{Optional character string providing a more detailed description
 of variable contained in file. Included in some JSON meta files.}

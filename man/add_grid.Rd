@@ -20,6 +20,9 @@ Function to add a grid to an \code{\link{LPJmLData}}. The function acts
 as a \code{\link{read_io}} function for the grid file and adds it as an
 \code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}
 }
+\details{
+\strong{Important:} If "file_type" == "raw\verb{and data should be recognized as a grid, prescribe}variable = "grid"`!
+}
 \examples{
 \dontrun{
 

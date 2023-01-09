@@ -282,7 +282,7 @@ LPJmLData <- R6::R6Class(
         if (self$meta$variable == "grid") {
           private$init_grid()
         } else if (self$meta$variable == "LPJGRID") {
-          private$.meta$.__set_attribute__("variable", "grid")
+          private$.meta$.__set_attribute__("variable", ".grid")
           private$init_grid()
         }
       }
@@ -339,6 +339,9 @@ LPJmLData <- R6::R6Class(
 #' as a [`read_io`] function for the grid file and adds it as an
 #' `LPJmLData` object itself to the the main object as an attribute `$grid`
 #'
+#' @details
+#' **Important:** If "file_type" == "raw` and data should be recognized as a
+#' grid, prescribe `variable = "grid"`!
 #' @param x [LPJmLData] object
 #'
 #' @param ... arguments passed to [`read_io`] if no grid file and or meta
