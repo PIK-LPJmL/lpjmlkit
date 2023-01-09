@@ -5,6 +5,8 @@
 #' an `array` which can be accessed via `$data`.
 #' `as_array` provides further functionality to subset or aggregate the `array`.
 #'
+#' @param x [LPJmLData] object
+#'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
@@ -54,8 +56,13 @@
 #'
 #' @md
 #' @export
-as_array <- function(x, ...) {
-  y <- x$as_array(...)
+as_array <- function(x,
+                     subset = NULL,
+                     aggregate = NULL,
+                     ...) {
+  y <- x$as_array(subset,
+                  aggregate,
+                  ...)
   return(y)
 }
 
@@ -82,6 +89,8 @@ LPJmLData$set("private",
 #' Function to coerce (convert) a [`LPJmLData`] object into a
 #' \link[tibble]{tibble} (modern \link[base]{data.frame}, read more
 #' [here](https://r4ds.had.co.nz/tibbles.html))
+#'
+#' @param x [LPJmLData] object
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
@@ -121,8 +130,15 @@ LPJmLData$set("private",
 #'
 #' @md
 #' @export
-as_tibble <- function(x, ...) {
-  y <- x$as_tibble(...)
+as_tibble <- function(x,
+                      subset = NULL,
+                      aggregate = NULL,
+                      value_name = "value",
+                      ...) {
+  y <- x$as_tibble(subset,
+                   aggregate,
+                   value_name,
+                   ...)
   return(y)
 }
 
@@ -151,6 +167,8 @@ LPJmLData$set("private",
 #' for any GIS based raster operations. Read more
 #' [here](https://rspatial.github.io/raster/reference/raster-package.html). The
 #' successor package of raster is [terra](https://rspatial.org/).
+#'
+#' @param x [LPJmLData] object
 #'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
@@ -196,8 +214,13 @@ LPJmLData$set("private",
 #'
 #' @md
 #' @export
-as_raster <- function(x, ...) {
-  y <- x$as_raster(...)
+as_raster <- function(x,
+                      subset = NULL,
+                      aggregate = NULL,
+                      ...) {
+  y <- x$as_raster(subset,
+                   aggregate,
+                   ...)
   return(y)
 }
 
@@ -209,12 +232,14 @@ LPJmLData$set("private",
                        ...) {
     data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
     tmp_raster <- create_tmp_raster(data_subset)
+
     # get dimensions larger 1 to check if raster or brick required
     #   (or too many dimensions > 1 which are not compatible with raster)
     multi_dims <- names(which(dim(data_subset$data) > 1))
+
     # check for space_format == "lon_lat" if multiple bands/time convert
     #   to "cell" format, if larger stop
-    if (data_subset$meta$space_format == "lon_lat") {
+    if (data_subset$meta$._space_format_ == "lon_lat") {
       if (length(multi_dims) == 3) {
         data_subset$transform(to = "cell")
         multi_dims <- names(which(dim(data_subset$data) > 1))
@@ -232,7 +257,8 @@ LPJmLData$set("private",
         names(tmp_raster) <- data_subset$meta$variable
       }
     }
-    if (data_subset$meta$space_format == "cell") {
+
+    if (data_subset$meta$._space_format_ == "cell") {
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
@@ -269,6 +295,8 @@ LPJmLData$set("private",
 #' \link[terra]{rast}, that opens the space for any GIS based raster operations.
 #' Read more [here](https://rspatial.org/).
 #'
+#' @param x [LPJmLData] object
+#'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27415)`, more information at
@@ -304,8 +332,13 @@ LPJmLData$set("private",
 #'
 #' @md
 #' @export
-as_terra <- function(x, ...) {
-  y <- x$as_terra(...)
+as_terra <- function(x,
+                     subset = NULL,
+                     aggregate = NULL,
+                      ...) {
+  y <- x$as_terra(subset,
+                  aggregate,
+                  ...)
   return(y)
 }
 
@@ -317,12 +350,14 @@ LPJmLData$set("private",
                        ...) {
     data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
     tmp_rast <- create_tmp_raster(data_subset, is_terra = TRUE)
+
     # get dimensions larger 1 to check if raster or brick required
     #   (or too many dimensions > 1 which are not compatible with raster)
     multi_dims <- names(which(dim(data_subset$data) > 1))
+
     # check for space_format == "lon_lat" if multiple bands/time convert
     #   to "cell" format, if larger stop
-    if (data_subset$meta$space_format == "lon_lat") {
+    if (data_subset$meta$._space_format_ == "lon_lat") {
       if (length(multi_dims) == 3) {
         data_subset$transform(to = "cell")
         multi_dims <- names(which(dim(data_subset$data) > 1))
@@ -341,7 +376,8 @@ LPJmLData$set("private",
         names(tmp_rast) <- data_subset$meta$variable
       }
     }
-    if (data_subset$meta$space_format == "cell") {
+
+    if (data_subset$meta$._space_format_ == "cell") {
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
@@ -390,21 +426,24 @@ LPJmLData$set("private",
                        ...) {
     if (!is.null(self$meta$variable) &&
         self$meta$variable == "grid" &&
-        self$meta$space_format == "cell") {
+        self$meta$._space_format_ == "cell") {
       stop(paste("not legit for variable", self$meta$variable))
     }
+
     # support of lazy loading of grid for meta files else add explicitly
     if (is.null(self$grid) &&
-        self$meta$space_format == "cell") {
+        self$meta$._space_format_ == "cell") {
       self$add_grid()
     }
+
     # workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone()
     if (!is.null(subset)) {
       do.call(data_subset$subset, args = subset)
     }
+
     if (!is.null(aggregate) &&
-        !any(names(aggregate) %in% strsplit(self$meta$space_format,"_")[[1]]) && # nolint
+        !any(names(aggregate) %in% strsplit(self$meta$._space_format_,"_")[[1]]) && # nolint
         all(names(aggregate) %in% names(dim(self$data)))) {
       # not recommended for self, some meta data not valid for data_subset!
       data_subset$.__set_data__(
@@ -417,6 +456,7 @@ LPJmLData$set("private",
                  "aggregate. Please adjust",
                  toString(dQuote(names(aggregate)))))
     }
+
     return(data_subset)
   }
 )
@@ -424,7 +464,7 @@ LPJmLData$set("private",
 
 create_tmp_raster <- function(data_subset, is_terra = FALSE) {
   # calculate grid extent from range to span raster
-  if (data_subset$meta$space_format == "cell") {
+  if (data_subset$meta$._space_format_ == "cell") {
     data_extent <- apply(data_subset$grid$data,
                          "band",
                          range)

@@ -11,16 +11,16 @@ Handles metafile data for output data
 \describe{
 \item{\code{sim_name}}{simulation name (workds as identifier in LPJmL Runner)}
 
-\item{\code{source}}{LPJmL version (character string).}
+\item{\code{source}}{LPJmL version (character string)}
 
 \item{\code{history}}{Character string of path to LPJmL executable and path to
-config file for simulation.}
+config file for simulation}
 
 \item{\code{variable}}{Variable of output like \code{"npp"} or \code{"runoff"}}
 
-\item{\code{descr}}{Description of the output/variable.}
+\item{\code{descr}}{Description of the output/variable}
 
-\item{\code{unit}}{Unit of the output/variable.}
+\item{\code{unit}}{Unit of the output/variable}
 
 \item{\code{nbands}}{Number (numeric) of bands (categoric dimension). Please
 note that nband has somehow become accepted instead of nband as opposed
@@ -29,34 +29,34 @@ to nyear or ncell (!)}
 \item{\code{band_names}}{Name of bands (categoric dimension), if \code{nbands > 1},
 else it is not included (!)}
 
-\item{\code{nyear}}{Number (numeric) of simulation years in the output.}
+\item{\code{nyear}}{Number (numeric) of simulation years in the output}
 
-\item{\code{firstyear}}{First year (numeric) of output of the simulation.}
+\item{\code{firstyear}}{First year (numeric) of output of the simulation}
 
-\item{\code{lastyear}}{First year (numeric) of output of the simulation.}
+\item{\code{lastyear}}{First year (numeric) of output of the simulation}
 
 \item{\code{nstep}}{Intra annual time steps (numeric) \code{1 == "annual"},
-\code{12 == "monthly"} and \code{365 == "daily"}.}
+\code{12 == "monthly"} and \code{365 == "daily"}}
 
 \item{\code{timestep}}{Inter annual time steps (numeric). \code{timestep = 5} means
 that output is written every 5 years.}
 
-\item{\code{ncell}}{Number (numeric) of cells used in the simulation.}
+\item{\code{ncell}}{Number (numeric) of cells used in the simulation}
 
-\item{\code{firstcell}}{First cell (numeric) beeing simulated.}
+\item{\code{firstcell}}{First cell (numeric) beeing simulated}
 
-\item{\code{cellsize_lon}}{Longitude cellsize in degree (numeric).}
+\item{\code{cellsize_lon}}{Longitude cellsize in degree (numeric)}
 
-\item{\code{cellsize_lat}}{Latitude cellsize in degree (numeric).}
+\item{\code{cellsize_lat}}{Latitude cellsize in degree (numeric)}
 
 \item{\code{datatype}}{File data type (character string), e.g. \code{"float"}.}
 
-\item{\code{scalar}}{Conversion factor (numeric).}
+\item{\code{scalar}}{Conversion factor (numeric)}
 
 \item{\code{order}}{Order of data items , either \code{1 == "cellyear"},
 \code{2 == "yearcell"} or \code{3 == "cellindex"}}
 
-\item{\code{offset}}{Offset in binary file (numeric).}
+\item{\code{offset}}{Offset in binary file (numeric)}
 
 \item{\code{bigendian}}{(logical) Endianness refers to the order in which bytes
 are stored in a multi-byte value, with big-endian storing the most
@@ -64,11 +64,33 @@ significant byte at the lowest address and little-endian storing the
 least significant byte at the lowest address.}
 
 \item{\code{format}}{Output format (character string). Either "raw" or "clm"
-(raw with header), or "cdf" for netCDF format.}
+(raw with header), or "cdf" for netCDF format}
 
-\item{\code{filename}}{Name of the file.}
+\item{\code{filename}}{Name of the file}
 
 \item{\code{subset}}{Logical. Whether is subsetted or not.}
+
+\item{\code{map}}{for inputs}
+
+\item{\code{version}}{version of file}
+
+\item{\code{._data_dir_}}{\emph{internal} Character string LPJmL simulation output
+directory.}
+
+\item{\code{._subset_space_}}{\emph{internal} Logical. Whether space dimensions are
+subsetted.}
+
+\item{\code{._fields_set_}}{\emph{internal} Character vector of names of attributes
+set by meta file}
+
+\item{\code{._time_format_}}{\emph{internal} Character sting. Time dimension format,
+either \code{"time"} or \code{"year_month_day"}}
+
+\item{\code{._space_format_}}{\emph{internal} Character string. Space dimension
+format, either \code{"cell"} or \code{"lon_lat"}}
+
+\item{\code{._dimension_map_}}{\emph{internal} Dictionary/List of space and time
+dimension formats with categories and namings}
 }
 \if{html}{\out{</div>}}
 }
@@ -82,6 +104,7 @@ least significant byte at the lowest address.}
 \item \href{#method-LPJmLMetaData-.__update_subset__}{\code{LPJmLMetaData$.__update_subset__()}}
 \item \href{#method-LPJmLMetaData-.__transform_time_format__}{\code{LPJmLMetaData$.__transform_time_format__()}}
 \item \href{#method-LPJmLMetaData-.__transform_space_format__}{\code{LPJmLMetaData$.__transform_space_format__()}}
+\item \href{#method-LPJmLMetaData-.__set_attribute__}{\code{LPJmLMetaData$.__set_attribute__()}}
 \item \href{#method-LPJmLMetaData-new}{\code{LPJmLMetaData$new()}}
 \item \href{#method-LPJmLMetaData-clone}{\code{LPJmLMetaData$clone()}}
 }
@@ -126,11 +149,22 @@ See also \link[base]{print}
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$print(all = TRUE, spaces = "")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{all}}{Logical. Should all attributes be printed or only the most
+relevant (\code{all = FALSE})}
+
+\item{\code{spaces}}{\emph{internal} Spaces to be printed in the beginning}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLMetaData-.__init_grid__"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__init_grid__}{}}}
 \subsection{Method \code{.__init_grid__()}}{
+!Internal method only to be used for package development!
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__init_grid__()}\if{html}{\out{</div>}}
 }
@@ -140,6 +174,7 @@ See also \link[base]{print}
 \if{html}{\out{<a id="method-LPJmLMetaData-.__update_subset__"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__update_subset__}{}}}
 \subsection{Method \code{.__update_subset__()}}{
+!Internal method only to be used for package development!
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__update_subset__(
   subset,
@@ -148,29 +183,79 @@ See also \link[base]{print}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{subset}}{list of subset arguments, see also \code{\link{subset_array}}.}
+
+\item{\code{time_dimnames}}{optional - list of new time_dimnames of subset data
+to update meta data}
+
+\item{\code{cell_dimnames}}{optional - list of new cell_dimnames of subset data
+to update meta data}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLMetaData-.__transform_time_format__"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__transform_time_format__}{}}}
 \subsection{Method \code{.__transform_time_format__()}}{
+!Internal method only to be used for package development!
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__transform_time_format__(time_format)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{time_format}}{Character. Choose between \code{"year_month_day"} and
+\code{"time"}}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLMetaData-.__transform_space_format__"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__transform_space_format__}{}}}
 \subsection{Method \code{.__transform_space_format__()}}{
+!Internal method only to be used for package development!
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__transform_space_format__(space_format)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{space_format}}{Character. Choose between \code{"lon_lat"} and \code{"cell"}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__set_attribute__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__set_attribute__}{}}}
+\subsection{Method \code{.__set_attribute__()}}{
+!Internal method only to be used for package development!
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__set_attribute__(key, value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{key}}{Character. Name of the attribute, e.g. \code{"variable"}}
+
+\item{\code{value}}{Value of the attribute, e.g. \code{"grid"}}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLMetaData-new"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLMetaData-new}{}}}
 \subsection{Method \code{new()}}{
+Create a new LPJmLMetaData object
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
   x,
@@ -180,6 +265,24 @@ See also \link[base]{print}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{\code{list} (not nested) with meta data}
+
+\item{\code{subset}}{\code{list} of array dimension(s) as name/key and
+corresponding subset vector as value, e.g.
+\verb{list(cell = c(27411:27415)}, more information at
+\code{\link{subset.LPJmLData}}.}
+
+\item{\code{additional_data}}{\code{list} of additional attributes to be set that
+are not included in file header. These are
+\verb{c"(band_names", "variable", "descr", "unit")}}
+
+\item{\code{data_dir}}{Character string for data directory to "lazy load" grid}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLMetaData-clone"></a>}}

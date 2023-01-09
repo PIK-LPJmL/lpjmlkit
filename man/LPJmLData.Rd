@@ -14,6 +14,9 @@ Handles LPJmL output and input data.
 \item{\code{data}}{\link[base]{array} containing the underlying data}
 
 \item{\code{grid}}{\emph{optional} - \code{LPJmLData} containing the underlying grid,}
+
+\item{\code{._is_locked_}}{\emph{internal} Logical. Is object locked (no method can
+be performed directly on the object)}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,7 +94,7 @@ into another space or another time format.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{See \code{\link{transform.LPJmLData}}}
+\item{\code{...}}{See \code{\link{transform}}}
 }
 \if{html}{\out{</div>}}
 }
@@ -119,7 +122,7 @@ Method to coerce (convert) a \code{LPJmLData} object into a
 \if{latex}{\out{\hypertarget{method-LPJmLData-as_tibble}{}}}
 \subsection{Method \code{as_tibble()}}{
 Method to coerce (convert) a \code{LPJmLData} object into a
-\link[base]{tibble} (modern \link[base]{data.frame}).
+\link[tibble]{tibble} (modern \link[base]{data.frame}).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$as_tibble(...)}\if{html}{\out{</div>}}
 }
@@ -237,7 +240,7 @@ Method to get the dimensions (list) of the array of a
 Method to get the summary of the array of a
 \code{LPJmLData} object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$summary(dimension = "band", subset = NULL, cutoff = FALSE, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$summary(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -341,7 +344,7 @@ Internal method only to be used for package development.
 \describe{
 \item{\code{data}}{\code{array} with LPJmL data}
 
-\item{\code{param}}{meta_data \code{LPJmLMetaData} Object}
+\item{\code{meta_data}}{meta_data \code{LPJmLMetaData} Object}
 }
 \if{html}{\out{</div>}}
 }

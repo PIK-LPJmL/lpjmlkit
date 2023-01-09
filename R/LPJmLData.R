@@ -17,14 +17,14 @@ LPJmLData <- R6::R6Class(
       # check for locked objects
       check_method_locked(self, "add_grid")
       # check if meta file for grid is located in output location
-      grid_file <- list.files(self$meta$data_dir,
+      grid_file <- list.files(self$meta$._data_dir_,
                               pattern = "grid.bin.json")
       if (length(grid_file) == 1) {
         # if so get concatenate existing file and data_dir to read grid
-        filename <- paste(self$meta$data_dir, grid_file, sep = "/")
+        filename <- paste(self$meta$._data_dir_, grid_file, sep = "/")
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
-        if (self$meta$subset_space) {
+        if (self$meta$._subset_space_) {
           self$.__set_grid__(
             read_io(
               filename = filename,
@@ -66,7 +66,7 @@ LPJmLData <- R6::R6Class(
     #' Method to transform inner `LPJmLData` array
     #' into another space or another time format.
     #'
-    #' @param ... See [`transform.LPJmLData`]
+    #' @param ... See [`transform`]
     transform = function(...) {
       private$.transform(...)
     },
@@ -84,7 +84,7 @@ LPJmLData <- R6::R6Class(
 
     #' @description
     #' Method to coerce (convert) a `LPJmLData` object into a
-    #' \link[base]{tibble} (modern \link[base]{data.frame}).
+    #' \link[tibble]{tibble} (modern \link[base]{data.frame}).
     #'
     #' @param ... See [`as_tibble`]
     as_tibble = function(...) {
@@ -127,7 +127,7 @@ LPJmLData <- R6::R6Class(
     #' object. \cr
     #' See also \link[base]{length}
     length = function() {
-      return(length(self$data))
+      private$.length()
     },
 
     #' @description
@@ -135,7 +135,7 @@ LPJmLData <- R6::R6Class(
     #' `LPJmLData` object. \cr
     #' See also \link[base]{dim}
     dim = function() {
-      dim(self$data)
+      private$.dim()
     },
 
     #' @description
@@ -144,7 +144,7 @@ LPJmLData <- R6::R6Class(
     #'
     #' @param ... See [dimnames.LPJmLData]
     dimnames = function(...) {
-      dimnames(self$data, ...)
+      private$.dimnames(...)
     },
 
     #' @description
@@ -152,55 +152,8 @@ LPJmLData <- R6::R6Class(
     #' `LPJmLData` object.
     #'
     #' @param ... See [summary.LPJmLData]
-    summary = function(dimension = "band",
-                       subset = NULL,
-                       cutoff = FALSE,
-                       ...) {
-      data <- subset_array(self$data, subset)
-      if (dimension %in% names(dimnames(data)) &&
-          length(which(dim(data) > 1)) > 1) {
-        mat_sum <- data %>%
-          apply(dimension, c)
-        if (dim(mat_sum)[2] > 16 && cutoff) {
-          cat(paste0(
-            "\u001b[33;3m",
-            "Note: not printing all ",
-            dimension,
-            "s summary, use $summary() or summary() to get all.",
-            "\u001b[0m",
-            "\n")
-          )
-          mat_sum[, seq_len(16)] %>%
-            summary(...)
-        } else {
-          if (!is.null(self$meta$variable) &&
-              self$meta$variable == "grid") {
-
-            mat_sum %>%
-                summary(...) %>%
-                `[`(c(1, 6), )
-          } else {
-            mat_sum %>%
-              summary(...)
-          }
-        }
-      } else {
-        mat_sum <- summary(matrix(data), ...)
-        if (!is.null(self$meta$variable) &&
-            self$meta$variable == "grid") {
-          var_name <- "cell"
-          mat_sum <- mat_sum[c(1, 6), ]
-        } else {
-          var_name <- default(self$meta$variable, "")
-        }
-        space_len <- ifelse(nchar(var_name) > 8,
-                            0,
-                            4 - sqrt(nchar(var_name)))
-        paste0(c(rep(" ", space_len), var_name, "\n")) %>%
-          append(paste0(mat_sum, collapse = "\n ")) %>%
-        cat()
-        return(bquote())
-      }
+    summary = function(...) {
+      private$.summary(...)
     },
 
     #' @description
@@ -264,7 +217,7 @@ LPJmLData <- R6::R6Class(
         )
       } else {
         cat(paste0("\u001b[33;3m",
-                   ifelse(self$meta$space_format == "cell",
+                   ifelse(self$meta$._space_format_ == "cell",
                           "Note: only min & max printed as equivalent to spatial extent.", #nolint
                           "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), #nolint
                    unset_col,
@@ -316,7 +269,7 @@ LPJmLData <- R6::R6Class(
     #'
     #' @param data `array` with LPJmL data
     #'
-    #' @param param meta_data `LPJmLMetaData` Object
+    #' @param meta_data meta_data `LPJmLMetaData` Object
     initialize = function(data, meta_data = NULL) {
       if (methods::is(meta_data, "LPJmLMetaData") |
           methods::is(meta_data, "NULL")) {
@@ -326,7 +279,10 @@ LPJmLData <- R6::R6Class(
       }
       private$.data <- data
       if (!is.null(self$meta$variable)) {
-        if (self$meta$variable == "grid" || self$meta$variable == "LPJGRID") {
+        if (self$meta$variable == "grid") {
+          private$init_grid()
+        } else if (self$meta$variable == "LPJGRID") {
+          private$.meta$.__set_attribute__("variable", "grid")
           private$init_grid()
         }
       }
@@ -345,7 +301,9 @@ LPJmLData <- R6::R6Class(
     grid = function() {
       return(private$.grid)
     },
-    is_locked = function() {
+    #' @field ._is_locked_ *internal* Logical. Is object locked (no method can
+    #' be performed directly on the object)
+    ._is_locked_ = function() {
       return(private$.is_locked)
     }
   ),
@@ -374,65 +332,14 @@ LPJmLData <- R6::R6Class(
 # add additional (important) functions for method dispatch with deep copying
 #   x, execute function on copied object and return ("traditional way")
 
-#' Get length of LPJmLData's data array
-# '
-#' Function to get the length of the array of a LPJmLData object
-#'
-#' @param ... further arguments to be passed on to \link[base]{length}
-#'
-#' @md
-#' @export
-length.LPJmLData <- function(x) x$length()
-
-
-#' Get dimension names and lengths of LPJmLData's data array
-# '
-#' Function to get the dimension names and lengths of the array of a LPJmLData
-#' object
-#'
-#' @param ... further arguments to be passed on to \link[base]{dim}
-#'
-#' @md
-#' @export
-dim.LPJmLData <- function(x) x$dim()
-
-#' Get dimensions of LPJmLData's data array
-# '
-#' Function to get the dimensions (list) of the array of a
-#' `LPJmLData` object.
-#'
-#' @param ... further arguments to be passed on to \link[base]{dimnames}
-#'
-#' @md
-#' @export
-dimnames.LPJmLData <- function(x, ...) x$dimnames(...)
-
-
-
-#' Function to get the summary of the array of a `LPJmLData` object.
-#' See also \link[base]{summary}
-#'
-#' @param dimension for which a summary is printed for every element
-#' (in style of matrix summary). Defaults to `"band"`. Choose from available
-#' dimensions like `"time"` or `"cell"`.
-#'
-#' @param subset list of array dimension(s) as name/key and
-#' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27415)`, more information at
-#' [`subset.LPJmLData`].
-#'
-#' @param cutoff Logical. If `TRUE` summary for dimension elements > 16 are
-#' cut off.
-#'
-#' @param ... further arguments to be passed on to \link[base]{summary}
-summary.LPJmLData <- function(x, ...) x$summary(...)
-
 
 #' Add grid to LPJmLData object
 #'
 #' Function to add a grid to an [`LPJmLData`]. The function acts
 #' as a [`read_io`] function for the grid file and adds it as an
 #' `LPJmLData` object itself to the the main object as an attribute `$grid`
+#'
+#' @param x [LPJmLData] object
 #'
 #' @param ... arguments passed to [`read_io`] if no grid file and or meta
 #' file in corresponding output directory available.
@@ -442,7 +349,11 @@ summary.LPJmLData <- function(x, ...) x$summary(...)
 #' @examples
 #' \dontrun{
 #'
+#' # read in vegetation carbon data with meta file
 #' vegc <- read_io(filename = "./vegc.bin.json")
+#'
+#' # add grid as attribute (via meta file in output directory)
+#' vegc_with_grid <- add_grid(vegc)
 #'
 #' }
 #'
@@ -453,6 +364,7 @@ add_grid <- function(x, ...) {
   y$add_grid(...)
   return(y)
 }
+
 
 # utility functions ---------------------------------------------------------- #
 
@@ -478,7 +390,7 @@ aggregate_array <- function(x,
 
 
 check_method_locked <- function(x, method_name) {
-  if (x$is_locked) {
+  if (x$._is_locked_) {
     stop(
       paste0(
         "\u001b[0m",

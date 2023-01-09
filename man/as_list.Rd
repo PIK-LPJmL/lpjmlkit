@@ -6,6 +6,9 @@
 \usage{
 as_list(x)
 }
+\arguments{
+\item{x}{\link{LPJmLMetaData} object}
+}
 \value{
 a \link[base]{list}
 }

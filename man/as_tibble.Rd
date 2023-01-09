@@ -4,11 +4,10 @@
 \alias{as_tibble}
 \title{Coerce LPJmLData to a tibble}
 \usage{
-as_tibble(x, ...)
+as_tibble(x, subset = NULL, aggregate = NULL, value_name = "value", ...)
 }
 \arguments{
-\item{...}{arguments forwarded to the aggregate function(s), e.g.
-\code{na.rm = TRUE}.}
+\item{x}{\link{LPJmLData} object}
 
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
@@ -21,6 +20,9 @@ corresponding aggregation function as value, e.g.
 
 \item{value_name}{rename value column in  returned \code{tibble}. Defaults to
 \code{"value"}.}
+
+\item{...}{arguments forwarded to the aggregate function(s), e.g.
+\code{na.rm = TRUE}.}
 }
 \value{
 a \link[tibble]{tibble} with columns corresponding to dimension

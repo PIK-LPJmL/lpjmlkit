@@ -4,6 +4,8 @@
 #' object. *The intent is to provide a quick overview of the data,
 #' not to create publication-ready graphs.*
 #'
+#' @param x [LPJmLData] object
+#'
 #' @param subset list of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
 #' `list(cell = c(27411:27416)`, more information at
@@ -61,15 +63,12 @@ plot.LPJmLData <- function(x, ...) {
 # plot method roxygen documentation in LPJmlData.R
 LPJmLData$set("private",
               ".plot",
-              #' @description
-              #' Method to plot a time-series or raster map of a LPJmLData
-              #' object. See also \link[lpjmlkit]{plot}
               function(subset = NULL,
                        aggregate = NULL,
                        raster_extent = NULL,
                        ...) {
-  time_dims <- strsplit(self$meta$time_format, "_")[[1]]
-  space_dims <- strsplit(self$meta$space_format, "_")[[1]]
+  time_dims <- strsplit(self$meta$._time_format_, "_")[[1]]
+  space_dims <- strsplit(self$meta$._space_format_, "_")[[1]]
   # do subsetting first for better performance
   data_subset <- self$clone()
   if (!is.null(subset)) {
@@ -120,8 +119,8 @@ LPJmLData$set("private",
                   self$meta$unit)
   # for spatial aggregation plot time series
   if (all(space_dims %in% names(aggregate)) ||
-      (self$meta$space_format == "cell" && space_len <= 8) ||
-      (self$meta$space_format == "lon_lat" && any(space_dims %in% names(aggregate)))) { # nolint
+      (self$meta$._space_format_ == "cell" && space_len <= 8) ||
+      (self$meta$._space_format_ == "lon_lat" && any(space_dims %in% names(aggregate)))) { # nolint
     #add default axes labels to plot.
     var_title <- paste0(descr, " [", unit, "]")
     if (is.null(dots$ylab)) {
@@ -209,8 +208,8 @@ LPJmLData$set("private",
 plot_by_band <- function(lpjml_data,
                          raw_data,
                          dots) {
-  time_dims <- strsplit(lpjml_data$meta$time_format, "_")[[1]]
-  space_dims <- strsplit(lpjml_data$meta$space_format, "_")[[1]]
+  time_dims <- strsplit(lpjml_data$meta$._time_format_, "_")[[1]]
+  space_dims <- strsplit(lpjml_data$meta$._space_format_, "_")[[1]]
   dim_names <- names(dim(raw_data))
 
   if (length(which(dim(raw_data) > 2)) > 2) {
@@ -257,7 +256,7 @@ plot_by_band <- function(lpjml_data,
     x_dim <- "time"
   }
 
-  if (lpjml_data$meta$space_format == "lon_lat" &&
+  if (lpjml_data$meta$._space_format_ == "lon_lat" &&
       any(dim(raw_data)[space_dims] > 1) &&
       all(dim(raw_data)[time_dims] == 1, na.rm = TRUE)) {
     x_dim <- space_dims[which(dim(raw_data)[space_dims] > 1)]

@@ -28,14 +28,19 @@ LPJmLMetaData <- R6::R6Class(
     #' @description
     #' Method to print a `LPJmLMetaData` object.
     #' See also \link[base]{print}
+    #'
+    #' @param all Logical. Should all attributes be printed or only the most
+    #' relevant (`all = FALSE`)
+    #'
+    #' @param spaces *internal* Spaces to be printed in the beginning
     print = function(all = TRUE, spaces = "") {
       quotes_option <- options(useFancyQuotes = FALSE)
       on.exit(options(quotes_option))
       if (!all) {
-        print_fields <- self$fields_set %>%
+        print_fields <- self$._fields_set_ %>%
           `[`(-stats::na.omit(match(private$exclude_print(), .)))
       } else {
-        print_fields <- self$fields_set
+        print_fields <- self$._fields_set_
       }
       # colorize self print
       blue_col <- "\u001b[34m"
@@ -100,7 +105,10 @@ LPJmLMetaData <- R6::R6Class(
       )
     },
 
-    # initialize grid meta data
+    # Method to initialize meta data for LPJmLMetaData object with variable
+    #   == "grid"
+    #' @description
+    #' !Internal method only to be used for package development!
     .__init_grid__ = function() {
       if (private$.variable != "grid") {
         stop(paste("Only valid for variable", sQuote("grid"), "."))
@@ -123,9 +131,19 @@ LPJmLMetaData <- R6::R6Class(
     },
 
     # update supplied subset in self.subset
+    #   (!only in conjunction with LPJmLData!)
+    #' @description
+    #' !Internal method only to be used for package development!
+    #' @param subset list of subset arguments, see also [`subset_array`].
+    #'
+    #' @param time_dimnames optional - list of new time_dimnames of subset data
+    #' to update meta data
+    #'
+    #' @param cell_dimnames optional - list of new cell_dimnames of subset data
+    #' to update meta data
     .__update_subset__ = function(subset,
-                               time_dimnames = NULL,
-                               cell_dimnames = NULL) {
+                                  time_dimnames = NULL,
+                                  cell_dimnames = NULL) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
@@ -178,24 +196,50 @@ LPJmLMetaData <- R6::R6Class(
       }
     },
 
+    # set new time format
+    #' @description
+    #' !Internal method only to be used for package development!
+    #'
+    #' @param time_format Character. Choose between `"year_month_day"` and
+    #' `"time"`
     .__transform_time_format__ = function(time_format) {
       private$.time_format <- time_format
     },
 
+    # set new space format
+    #' @description
+    #' !Internal method only to be used for package development!
+    #'
+    #' @param space_format Character. Choose between `"lon_lat"` and `"cell"`
     .__transform_space_format__ = function(space_format) {
       private$.space_format <- space_format
     },
 
-    # Create a new LPJmLMetaData object
-    #   x `list` (not nested) with meta data
-    #   subset `list` of array dimension(s) as name/key and
-    #     corresponding subset vector as value, e.g.
-    #     `list(cell = c(27411:27415)`, more information at
-    #     \link[lpjmlkit]{subset}.
-    #   additional_data `list` of additional attributes to be set that
-    #     are not included in file header. These are
-    #     `c"(band_names", "variable", "descr", "unit")`
-    #   data_dir Character string for data directory to "lazy load" grid
+    # set attribute
+    #' @description
+    #' !Internal method only to be used for package development!
+    #' @param key Character. Name of the attribute, e.g. `"variable"`
+    #'
+    #' @param value Value of the attribute, e.g. `"grid"`
+    .__set_attribute__ = function(key, value) {
+      private[[key]] <- value
+    },
+
+    #' @description
+    #' Create a new LPJmLMetaData object
+    #'
+    #' @param x `list` (not nested) with meta data
+    #'
+    #' @param subset `list` of array dimension(s) as name/key and
+    #' corresponding subset vector as value, e.g.
+    #' `list(cell = c(27411:27415)`, more information at
+    #' [`subset.LPJmLData`].
+    #'
+    #' @param additional_data `list` of additional attributes to be set that
+    #' are not included in file header. These are
+    #' `c"(band_names", "variable", "descr", "unit")`
+    #'
+    #' @param data_dir Character string for data directory to "lazy load" grid
     initialize = function(x,
                           subset = list(),
                           additional_data = list(),
@@ -241,12 +285,12 @@ LPJmLMetaData <- R6::R6Class(
     sim_name = function() {
       return(private$.sim_name)
     },
-    #' @field source LPJmL version (character string).
+    #' @field source LPJmL version (character string)
     source = function() {
       return(private$.source)
     },
     #' @field history Character string of path to LPJmL executable and path to
-    #' config file for simulation.
+    #' config file for simulation
     history = function() {
       return(private$.history)
     },
@@ -254,11 +298,11 @@ LPJmLMetaData <- R6::R6Class(
     variable = function() {
       return(private$.variable)
     },
-    #' @field descr Description of the output/variable.
+    #' @field descr Description of the output/variable
     descr = function() {
       return(private$.descr)
     },
-    #' @field unit Unit of the output/variable.
+    #' @field unit Unit of the output/variable
     unit = function() {
       return(private$.unit)
     },
@@ -273,20 +317,20 @@ LPJmLMetaData <- R6::R6Class(
     band_names = function() {
       return(private$.band_names)
     },
-    #' @field nyear Number (numeric) of simulation years in the output.
+    #' @field nyear Number (numeric) of simulation years in the output
     nyear = function() {
       return(private$.nyear)
     },
-    #' @field firstyear First year (numeric) of output of the simulation.
+    #' @field firstyear First year (numeric) of output of the simulation
     firstyear = function() {
       return(private$.firstyear)
     },
-    #' @field lastyear First year (numeric) of output of the simulation.
+    #' @field lastyear First year (numeric) of output of the simulation
     lastyear = function() {
       return(private$.lastyear)
     },
     #' @field nstep Intra annual time steps (numeric) `1 == "annual"`,
-    #' `12 == "monthly"` and `365 == "daily"`.
+    #' `12 == "monthly"` and `365 == "daily"`
     nstep = function() {
       return(private$.nstep)
     },
@@ -295,19 +339,19 @@ LPJmLMetaData <- R6::R6Class(
     timestep = function() {
       return(private$.timestep)
     },
-    #' @field ncell Number (numeric) of cells used in the simulation.
+    #' @field ncell Number (numeric) of cells used in the simulation
     ncell = function() {
       return(private$.ncell)
     },
-    #' @field firstcell First cell (numeric) beeing simulated.
+    #' @field firstcell First cell (numeric) beeing simulated
     firstcell = function() {
       return(private$.firstcell)
     },
-    #' @field cellsize_lon Longitude cellsize in degree (numeric).
+    #' @field cellsize_lon Longitude cellsize in degree (numeric)
     cellsize_lon = function() {
       return(private$.cellsize_lon)
     },
-    #' @field cellsize_lat Latitude cellsize in degree (numeric).
+    #' @field cellsize_lat Latitude cellsize in degree (numeric)
     cellsize_lat = function() {
       return(private$.cellsize_lat)
     },
@@ -315,7 +359,7 @@ LPJmLMetaData <- R6::R6Class(
     datatype = function() {
       return(private$.datatype)
     },
-    #' @field scalar Conversion factor (numeric).
+    #' @field scalar Conversion factor (numeric)
     scalar = function() {
       return(private$.scalar)
     },
@@ -324,7 +368,7 @@ LPJmLMetaData <- R6::R6Class(
     order = function() {
       return(private$.order)
     },
-    #' @field offset Offset in binary file (numeric).
+    #' @field offset Offset in binary file (numeric)
     offset = function() {
       return(private$.offset)
     },
@@ -336,19 +380,13 @@ LPJmLMetaData <- R6::R6Class(
       return(private$.bigendian)
     },
     #' @field format Output format (character string). Either "raw" or "clm"
-    #' (raw with header), or "cdf" for netCDF format.
+    #' (raw with header), or "cdf" for netCDF format
     format = function() {
       return(private$.format)
     },
-    #' @field filename Name of the file.
+    #' @field filename Name of the file
     filename = function() {
       return(private$.filename)
-    },
-    map = function() {
-      return(private$.map)
-    },
-    version = function() {
-      return(private$.version)
     },
     #' @field subset Logical. Whether is subsetted or not.
     subset = function() {
@@ -358,22 +396,42 @@ LPJmLMetaData <- R6::R6Class(
         return(private$.subset)
       }
     },
-    subset_space = function() {
-      return(private$.subset_space)
+    #' @field map for inputs
+    map = function() {
+      return(private$.map)
     },
-    fields_set = function() {
-      return(private$.fields_set)
+    #' @field version version of file
+    version = function() {
+      return(private$.version)
     },
-    data_dir = function() {
+    #' @field ._data_dir_ *internal* Character string LPJmL simulation output
+    #' directory.
+    ._data_dir_ = function() {
       return(private$.data_dir)
     },
-    time_format = function() {
+    #' @field ._subset_space_ *internal* Logical. Whether space dimensions are
+    #' subsetted.
+    ._subset_space_ = function() {
+      return(private$.subset_space)
+    },
+    #' @field ._fields_set_ *internal* Character vector of names of attributes
+    #' set by meta file
+    ._fields_set_ = function() {
+      return(private$.fields_set)
+    },
+    #' @field ._time_format_ *internal* Character sting. Time dimension format,
+    #' either `"time"` or `"year_month_day"`
+    ._time_format_ = function() {
       return(private$.time_format)
     },
-    space_format = function() {
+    #' @field ._space_format_ *internal* Character string. Space dimension
+    #' format, either `"cell"` or `"lon_lat"`
+    ._space_format_ = function() {
       return(private$.space_format)
     },
-    dimension_map = function() {
+    #' @field ._dimension_map_ *internal* Dictionary/List of space and time
+    #' dimension formats with categories and namings
+    ._dimension_map_ = function() {
       return(private$.dimension_map)
     }
   ),

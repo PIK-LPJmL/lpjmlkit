@@ -3,6 +3,8 @@
 #' Function to coerce (convert) a `LPJmLMetaData` object into a
 #' LPJmL header object, more information at [`create_header`].
 #'
+#' @param x [LPJmLMetaData] object
+#'
 #' @param silent Logical. Whether to suppress notifications from header
 #' conversion/initialization.
 #'
@@ -33,8 +35,9 @@
 #'
 #' @md
 #' @export
-as_header <- function(x, ...) {
-  y <- x$as_header(...)
+as_header <- function(x,
+                      silent = TRUE) {
+  y <- x$as_header(silent)
   return(y)
 }
 
@@ -74,6 +77,8 @@ LPJmLMetaData$set(
 #'
 #' Function to coerce (convert) a `LPJmLMetaData` object into a
 #' \link[base]{list}.
+#'
+#' @param x [LPJmLMetaData] object
 #'
 #' @return a \link[base]{list}
 #'
@@ -118,7 +123,7 @@ LPJmLMetaData$set(
   ".as_list",
   # as_header method roxygen documentation in LPJmlMetaData.R
   function() {
-    self$fields_set %>%
+    self$._fields_set_ %>%
       sapply(function(x) do.call("$", list(self, x)), simplify = FALSE) %>%
       return()
   }

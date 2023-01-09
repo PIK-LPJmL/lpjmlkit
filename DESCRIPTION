@@ -17,6 +17,7 @@ LazyData: true
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE,
               r6 = TRUE)
+Encoding: UTF-8
 Depends: 
     R (>= 3.5.0)
 Imports:

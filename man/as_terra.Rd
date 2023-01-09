@@ -4,11 +4,10 @@
 \alias{as_terra}
 \title{Coerce LPJmLData to a terra object}
 \usage{
-as_terra(x, ...)
+as_terra(x, subset = NULL, aggregate = NULL, ...)
 }
 \arguments{
-\item{...}{arguments forwarded to the aggregate function(s), e.g.
-\code{na.rm = TRUE}.}
+\item{x}{\link{LPJmLData} object}
 
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
@@ -18,6 +17,9 @@ corresponding subset vector as value, e.g.
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
+
+\item{...}{arguments forwarded to the aggregate function(s), e.g.
+\code{na.rm = TRUE}.}
 }
 \value{
 a \link[terra]{rast}  with grid based on

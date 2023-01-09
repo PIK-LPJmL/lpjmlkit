@@ -7,6 +7,8 @@
 \method{plot}{LPJmLData}(x, ...)
 }
 \arguments{
+\item{x}{\link{LPJmLData} object}
+
 \item{...}{arguments forwarded to \link[graphics]{plot} and
 \link[raster]{plot}}
 

@@ -4,11 +4,10 @@
 \alias{as_array}
 \title{Coerce LPJmLData to an array}
 \usage{
-as_array(x, ...)
+as_array(x, subset = NULL, aggregate = NULL, ...)
 }
 \arguments{
-\item{...}{arguments forwarded to the aggregate function(s), e.g.
-\code{na.rm = TRUE}.}
+\item{x}{\link{LPJmLData} object}
 
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
@@ -18,6 +17,9 @@ corresponding subset vector as value, e.g.
 \item{aggregate}{list of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
+
+\item{...}{arguments forwarded to the aggregate function(s), e.g.
+\code{na.rm = TRUE}.}
 }
 \value{
 a \link[base]{array} with dimensions of objects \verb{$data} with

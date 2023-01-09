@@ -7,6 +7,8 @@
 add_grid(x, ...)
 }
 \arguments{
+\item{x}{\link{LPJmLData} object}
+
 \item{...}{arguments passed to \code{\link{read_io}} if no grid file and or meta
 file in corresponding output directory available.}
 }
@@ -21,7 +23,11 @@ as a \code{\link{read_io}} function for the grid file and adds it as an
 \examples{
 \dontrun{
 
+# read in vegetation carbon data with meta file
 vegc <- read_io(filename = "./vegc.bin.json")
+
+# add grid as attribute (via meta file in output directory)
+vegc_with_grid <- add_grid(vegc)
 
 }
 

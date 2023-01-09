@@ -4,9 +4,11 @@
 \alias{as_header}
 \title{Coerce LPJmLMetaData to a LPJmL header object}
 \usage{
-as_header(x, ...)
+as_header(x, silent = TRUE)
 }
 \arguments{
+\item{x}{\link{LPJmLMetaData} object}
+
 \item{silent}{Logical. Whether to suppress notifications from header
 conversion/initialization.}
 }
