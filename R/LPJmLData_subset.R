@@ -7,7 +7,7 @@
 #'
 #' @param ... Provide dimension to be used to subset `LPJmLData` objects
 #' underlying data array in combination with indices vectors,
-#' e.g. `cell = c(27411:27416)`, or ``band = -c(14:16, 19:32) or subset
+#' e.g. `cell = c(27411:27416)`, or `band = -c(14:16, 19:32)` or subset
 #' using a "character" vector like `band = c("rainfed rice","rainfed maize")`.
 #'
 #' @return [`LPJmLData`] object with/without subset cell of dimension

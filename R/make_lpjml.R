@@ -11,9 +11,11 @@
 #' @param make_clean logical - if TRUE execute make clean first.
 #' Defaults to FALSE
 #'
-#' @param throw_error logical - if FALSE does not throw an error if sub process
-#' has non-zero exit status, hence if compilation fails in first attempt.
-#' Defaults to TRUE
+#' @param throw_error logical - if `FALSE` does not throw an error if sub
+#' process has non-zero exit status, hence if compilation fails in first
+#' attempt. Defaults to TRUE
+#'
+#'@param debug logical - if `TRUE`LPJmL is compiled with flag `-debug`
 #'
 #' @return a list with process status, see \link[processx]{run}
 #'

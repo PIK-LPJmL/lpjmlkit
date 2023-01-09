@@ -4,13 +4,10 @@
 \alias{plot.LPJmLData}
 \title{Plot LPJmLData class}
 \usage{
-\method{plot}{LPJmLData}(x, ...)
+\method{plot}{LPJmLData}(x, subset = NULL, aggregate = NULL, raster_extent = NULL, ...)
 }
 \arguments{
 \item{x}{\link{LPJmLData} object}
-
-\item{...}{arguments forwarded to \link[graphics]{plot} and
-\link[raster]{plot}}
 
 \item{subset}{list of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
@@ -24,6 +21,9 @@ corresponding aggregation function as value, e.g.
 \item{raster_extent}{if \code{aggregate} does not include space dim
 \link[raster]{extent}, or any object from
 which an Extent object can be extracted.}
+
+\item{...}{arguments forwarded to \link[graphics]{plot} and
+\link[raster]{plot}}
 }
 \description{
 Function to plot a time-series or raster map of a \code{\link{LPJmLData}}

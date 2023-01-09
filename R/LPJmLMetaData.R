@@ -134,7 +134,7 @@ LPJmLMetaData <- R6::R6Class(
     #   (!only in conjunction with LPJmLData!)
     #' @description
     #' !Internal method only to be used for package development!
-    #' @param subset list of subset arguments, see also [`subset_array`].
+    #' @param subset list of subset arguments, see also [`subset`].
     #'
     #' @param time_dimnames optional - list of new time_dimnames of subset data
     #' to update meta data

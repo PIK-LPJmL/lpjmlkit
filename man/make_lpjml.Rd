@@ -22,9 +22,11 @@ Defaults to TRUE}
 \item{make_clean}{logical - if TRUE execute make clean first.
 Defaults to FALSE}
 
-\item{throw_error}{logical - if FALSE does not throw an error if sub process
-has non-zero exit status, hence if compilation fails in first attempt.
-Defaults to TRUE}
+\item{throw_error}{logical - if \code{FALSE} does not throw an error if sub
+process has non-zero exit status, hence if compilation fails in first
+attempt. Defaults to TRUE}
+
+\item{debug}{logical - if \code{TRUE}LPJmL is compiled with flag \code{-debug}}
 }
 \value{
 a list with process status, see \link[processx]{run}

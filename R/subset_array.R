@@ -4,24 +4,18 @@
 #'
 #' @param x array with named dimensions
 #'
-#' @param subset_list names list with names being names of dimnames to be
-#' subsetted. list values can either be numeric (leads to subsetting by indices)
-#' or character strings (leads to subsetting by dimnames). Default is `list()`
+#' @param ... Provide dimension names to be used to subset an \link[base]{array}
+#' in combination with indices vectors, e.g. `cell = c(27411:27416)`, or
+#' `band = -c(14:16, 19:32)` or subset using a "character" vector like
+#' `band = c("rainfed rice","rainfed maize")`.
 #'
 #' @param drop logical. If TRUE (default), dimensions are dropped when dimension
 #' has length == 1, else dimension is kept.
 #'
-#' @param force_idx logical. If TRUE indices are always used, when numerical
-#' values are provided, even when subsetting with years or lon, lat
-#' 
-#' @param y array/vector of the same dimension as referred to by the subset_list
+#' @param value array/vector of the same dimension as referred to by dimension
+#' and subset vector (`...`)
 #'
 #' @return array or vector (if `drop=TRUE` and one only dimension left)
-#'
-#' @usage
-#' subset_array(x, subset_list = NULL, drop = TRUE)
-#' asub(x, subset_list = NULL, drop = TRUE)
-#' replace_array(x, subset_list, y)
 #'
 #' @examples
 #' my_array <- array(1,
@@ -29,20 +23,43 @@
 #'                   dimnames=list(cell=0:66,
 #'                                 month=1:12,
 #'                                 band=c("band1", "band2", "band3")))
-#' my_subset <- subset_array(my_array,
-#'                           subset_list = list(band=c("band1", "band3")))
+#' my_subset <- asub(my_array,
+#'                   band=c("band1", "band3"))
 #' dimnames(my_subset)[3]
 #' # $ band
 #' #   [1] "band1"
 #' #   [2] "band3"
 #'
 #' # replace subset
-#' my_replacement <- replace_array(my_subset,
-#'                                 subset_list = list(band=c("band1")),
-#'                                 0)
-#' @aliases asub replace_array
+#' asub(my_subset, band=c("band1")) <- 0
+#'
 #' @export
-subset_array <- function(x, subset_list = NULL, drop=TRUE, force_idx = FALSE) {
+asub <- function(x,
+                 ...,
+                 drop = TRUE) {
+  x %>%
+  subset_array(subset_list = list(...),
+               drop = TRUE,
+               force_idx = FALSE) %>%
+  return()
+}
+
+#' @describeIn asub replace an array subset
+#' @export
+"asub<-" <- function(x, ..., value) {
+  argum <- c(alist(x), subarray_argument(x, list(...)), alist(value))
+  do.call("[<-", argum) %>%
+    return()
+}
+
+
+subset_array <- function(x,
+                         subset_list = NULL,
+                         drop = TRUE,
+                         # if force_idx indices are always used, when numerical
+                         #    values are provided, even when subsetting with
+                         #    years or lon, lat
+                         force_idx = FALSE) {
   if (is.null(subset_list)) {
     return(x)
   }
@@ -59,19 +76,7 @@ subset_array <- function(x, subset_list = NULL, drop=TRUE, force_idx = FALSE) {
 }
 
 
-#' @export
-asub <- subset_array
-
-
-#' @export
-replace_array <- function(x, subset_list, y) {
-  argum <- c(alist(x), subarray_argument(x, subset_list), alist(y))
-  do.call("[<-", argum) %>%
-    return()
-}
-
-
-# https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically
+# https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically # nolint
 subarray_argument <- function(x, subset_list, force_idx = FALSE) {
   # DRY
   dim_names <- names(dimnames(x))

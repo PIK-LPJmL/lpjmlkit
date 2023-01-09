@@ -56,8 +56,15 @@
 #'
 #' @md
 #' @export
-plot.LPJmLData <- function(x, ...) {
-  x$plot(...)
+plot.LPJmLData <- function(x,
+                           subset = NULL,
+                           aggregate = NULL,
+                           raster_extent = NULL,
+                           ...) {
+  x$plot(subset,
+         aggregate,
+         raster_extent,
+         ...)
 }
 
 # plot method roxygen documentation in LPJmlData.R

@@ -186,7 +186,7 @@ relevant (\code{all = FALSE})}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{subset}}{list of subset arguments, see also \code{\link{subset_array}}.}
+\item{\code{subset}}{list of subset arguments, see also \code{\link{subset}}.}
 
 \item{\code{time_dimnames}}{optional - list of new time_dimnames of subset data
 to update meta data}

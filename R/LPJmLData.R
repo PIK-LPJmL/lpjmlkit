@@ -411,3 +411,6 @@ check_method_locked <- function(x, method_name) {
     )
   }
 }
+
+# avoid note ...
+utils::globalVariables(".")
