@@ -347,9 +347,6 @@ read_io_metadata_raw <- function(filename, file_type, band_names, subset,
     verbose = verbose
   )
 
-  # Check validity of subset and band_names
-  check_subset(subset, file_header, band_names, silent)
-
   # Prepare additional attributes to be added to meta information
   additional_data <- list(band_names = band_names, variable = variable,
                           descr = descr, unit = unit)
@@ -420,9 +417,6 @@ read_io_metadata_clm <- function(filename, file_type, band_names, subset,
     endian = default(endian, get_header_item(file_header, "endian")),
     verbose = verbose
   )
-
-  # Check validity of subset and band_names
-  check_subset(subset, file_header, band_names, silent)
 
   # Prepare additional attributes to be added to meta information
   additional_data <- list(band_names = band_names, variable = variable,
@@ -550,9 +544,6 @@ read_io_metadata_meta <- function(filename, file_type, band_names, subset,
   # Convert meta data into header
   file_header <- meta_data$as_header(silent)
 
-  # Check validity of subset and band_names
-  check_subset(subset, file_header, meta_data$band_names, silent)
-
   return(meta_data)
 }
 
@@ -644,6 +635,7 @@ read_io_data <- function(
     index <- which(!names(subset) %in%
       c("day", "month", "year", "time")
     )
+
     year_data <- aperm(year_data, perm = read_band_order) %>%
       # Apply any subsetting along bands or cells
       subset_array(
@@ -703,147 +695,6 @@ read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
   return(file_data)
 }
 
-# Simple validity check for subset and band_names
-check_subset <- function(subset, header, band_names, silent) {
-  if (!is.null(subset[["year"]])) {
-    years <- seq(
-      from = get_header_item(header, "firstyear"),
-      by = get_header_item(header, "timestep"),
-      length.out = get_header_item(header, "nyear")
-    )
-    if (!all(subset[["year"]] %in% years)) {
-      stop(
-        paste(
-          "Requested year(s)", setdiff(subset[["year"]], years),
-          "not covered by file.",
-          "\nCheck subset[[\"year\"]]."
-        )
-      )
-    }
-    rm(years)
-  }
-  if (!is.null(subset[["month"]]) && !silent) {
-    warning(
-      "Using \"month\" as subset is currently not supported in this context ",
-      "and thus will be ignored.",
-      call. = FALSE
-    )
-  }
-  if (!is.null(subset[["day"]]) && !silent) {
-    warning(
-      "Using \"day\" as subset is currently not supported in this context ",
-      "and thus will be ignored.",
-      call. = FALSE
-    )
-  }
-  if (!is.null(subset[["cell"]])) {
-    if (is.character(subset[["cell"]])) {
-      cells <- seq(
-        from = get_header_item(header, "firstcell"),
-        length.out = get_header_item(header, "ncell")
-      )
-    } else if (is.numeric(subset[["cell"]])) {
-      cells <- seq_len(get_header_item(header, "ncell"))
-    } else {
-      stop(
-        paste(
-          "subset[[\"cell\"]] must be numerical index vector or",
-          "vector of cell names."
-        )
-      )
-    }
-    if (!all(subset[["cell"]] %in% cells)) {
-      stop(
-        paste(
-          "Requested cell(s)", setdiff(subset[["cell"]], cells),
-          "not covered by file.",
-          "\nCheck subset[[\"cell\"]]."
-        )
-      )
-    }
-    rm(cells)
-  }
-  if (!is.null(band_names) &&
-    length(band_names) != get_header_item(header, "nbands")
-  ) {
-    stop(
-      "Provided band_names ",
-      toString(
-        dQuote(
-          if (length(band_names) > 6) {
-              c(utils::head(band_names, n = 4), "...",
-                utils::tail(band_names, n = 1))
-          } else {
-            band_names
-          }
-        )
-      ),
-      " do not match number of bands in file: ",
-      length(band_names), "!=", get_header_item(header, "nbands"),
-      call. = FALSE
-    )
-  }
-  if (!is.null(subset[["band"]])) {
-    if (is.character(subset[["band"]])) {
-      if (is.null(band_names)) {
-        stop(
-          "File has no associated band_names. Cannot do subset by name.",
-          "\nProvide band indices instead of band names in ",
-          "subset[[\"cell\"]] or set band_names.",
-          call. = FALSE
-        )
-      }
-      if (!all(subset[["band"]] %in% band_names)) {
-        missing_bands <- setdiff(subset[["band"]], band_names)
-        stop(
-          "Requested band(s) ",
-          toString(
-            dQuote(
-              if (length(missing_bands) > 6) {
-                c(utils::head(missing_bands, n = 4), "...",
-                  utils::tail(missing_bands, n = 1))
-              } else {
-                missing_bands
-              }
-            )
-          ),
-          " not covered by file.",
-          "\nCheck subset[[\"band\"]].",
-          call. = FALSE
-        )
-      }
-    } else if (is.numeric(subset[["band"]])) {
-      bands <- seq(get_header_item(header, "nbands"))
-      if (!all(subset[["band"]] %in% bands)) {
-        stop(
-          "Requested band(s) ", toString(setdiff(subset[["band"]], bands)),
-          " not covered by file.",
-          "\nCheck subset[[\"band\"]].",
-          call. = FALSE
-        )
-      }
-      rm(bands)
-    }
-  }
-  if (
-    any(!names(subset) %in% c("cell", "year", "month", "day", "band")) &&
-    !silent
-  ) {
-    warning(
-      "Invalid 'subset' name(s) ",
-      toString(
-        dQuote(
-          setdiff(
-            names(subset),
-            c("cell", "year", "month", "day", "band")
-          )
-        )
-      ),
-      " will be ignored.",
-      call. = FALSE
-    )
-  }
-}
 
 # Utility function to replace missing attribute with default value
 default <- function(value, default) {
