@@ -160,16 +160,18 @@ LPJmLData <- R6::R6Class(
     #' Method to print the `LPJmLData`. \cr
     #' See also \link[base]{print}
     print = function() {
-      quotes_option <- options(useFancyQuotes = FALSE)
-      on.exit(options(quotes_option))
+      # set colour higlighting
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
+      # print meta data
       cat(paste0("\u001b[1m", blue_col, "$meta %>%", unset_col, "\n"))
       self$meta$print(all = FALSE, spaces = "  .")
+      # not all meta data are printed 
       cat(paste0("\u001b[33;3m",
                  "Note: not printing all meta data, use $meta to get all.",
                  unset_col,
                  "\n"))
+      # print grid only if available
       if (!is.null(self$grid)) {
         cat(paste0("\u001b[1m\u001b[31m",
                    "$grid",
@@ -179,11 +181,13 @@ LPJmLData <- R6::R6Class(
                    unset_col,
                    "\n"))
       }
+      # print data attribute
       cat(paste0("\u001b[1m",
                  blue_col,
                  "$data %>%",
                  unset_col,
                  "\n"))
+      # dimnames
       dim_names <- self$dimnames()
       cat(paste0(blue_col, "  dimnames() %>%", unset_col, "\n"))
       for (sub in seq_along(dim_names)) {
@@ -206,6 +210,7 @@ LPJmLData <- R6::R6Class(
             abbr_dim_names)
         cat("\n")
       }
+      # summary
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
       if (is.null(self$meta$variable) ||

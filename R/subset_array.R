@@ -39,7 +39,7 @@ asub <- function(x,
                  drop = TRUE) {
   x %>%
   subset_array(subset_list = list(...),
-               drop = TRUE,
+               drop = drop,
                force_idx = FALSE) %>%
   return()
 }
@@ -117,13 +117,23 @@ subarray_argument <- function(x, subset_list, force_idx = FALSE) {
       }
       # subsetting with character strings (directly dimnames)
       if (is.character(x)) {
-        return(which(tolower(y) %in% tolower(x)))
+        # get valid subsets - non valids are NA
+        valid_sub <- match(tolower(x), tolower(y))
+        # check if it contains NA - if so stop and print non valid subsets
+        check_string_index(x, valid_sub, dim_name)
+        return(valid_sub)
       } else {
         # exception for dimension year, use numeric years quasi as character
         #   string
         if (dim_name == "year" && !force_idx) {
-          return(which(y %in% as.character(x)))
+          # get valid year subsets - non valids are NA
+          valid_sub <- match(as.character(x), y)
+          # check if it contains NA - if so stop and print non valid subsets
+          check_string_index(x, valid_sub, dim_name)
+          return(valid_sub)
         }
+        # check if indices are valid - if not stop and print non valid indices
+        check_index(x, y, dim_name)
         return(x)
       }
     },
@@ -182,9 +192,50 @@ subset_array_pair <- function(x,
   return(y)
 }
 
+
 # drop 1 dimensional dimension except those that are selected by name
 drop_omit <- function(x, omit_dim) {
   dims <- dim(x)
   dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
   return(abind::adrop(x, dims_check))
+}
+
+# check if indices exist in dimension of array
+check_index <- function(x, y, dim_name) {
+  if (any(abs(x) > length(y))) {
+    nonvalids <- which(abs(x) > length(y))
+    stop_subset(x, nonvalids, dim_name)
+  }
+}
+
+# check if character vector elements exist in dimension of array
+check_string_index <- function(x, valids, dim_name) {
+  if (any(is.na(valids))) {
+    nonvalids <- which(is.na(valids))
+    stop_subset(x, nonvalids, dim_name, TRUE)
+  }
+}
+
+# print warning for non valid elements of dimension
+stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
+  if (string_index) {
+    x_nonvalid <- paste0(dQuote(x[nonvalids]), collapse = ", ")
+  } else {
+    x_nonvalid <- paste0(x[nonvalids], collapse = ", ")
+  }
+  stop(
+    paste0(
+      "For dimension ",
+      "\u001b[34m",
+      dim_name,
+      "\u001b[0m",
+      ifelse(string_index, " string", ""),
+      ifelse(length(nonvalids) > 1, " indices ", " index "),
+      "\u001b[34m",
+      x_nonvalid,
+      "\u001b[0m",
+      ifelse(length(nonvalids) > 1, " are", " is"),
+      " not valid."
+    )
+  )
 }
