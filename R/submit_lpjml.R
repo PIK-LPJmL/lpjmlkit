@@ -174,7 +174,7 @@ submit_lpjml <- function(x,
                          blocking = "",
                          no_submit = FALSE) {
   # check if working in cluster environment (workaround by Ciaron)
-  if (!dir.exists("/p/system")) {
+  if (!dir.exists("/p/system") && !no_submit) {
     stop("submit_lpjml is only available on the PIK cluster environment")
   }
   # check if model_path is set or unit test flag provided
