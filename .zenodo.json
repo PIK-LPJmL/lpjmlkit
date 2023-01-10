@@ -1,0 +1,25 @@
+{
+  "title": "lpjmlkit: Function kit for basic LPJmL handling",
+  "version": "0.5.1",
+  "description": "<p>Function kit for basic LPJmL handling, including simulations,\n    corresponding configurations as well as input & output data.<\/p>",
+  "creators": [
+    {
+      "name": "Mueller, Christoph"
+    },
+    {
+      "name": "Stenzel, Fabian"
+    },
+    {
+      "name": "Minoli, Sara"
+    },
+    {
+      "name": "Breier, Jannes"
+    },
+    {
+      "name": "Ostberg, Sebastian"
+    },
+    {
+      "name": "Wirth, Stephen"
+    }
+  ]
+}
