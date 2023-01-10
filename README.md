@@ -37,8 +37,6 @@ library(help = "lpjmlkit")
   - `get_headersize` *to get the size of a file header*
   - `get_datatype` *get information on the data type used in different LPJmL files*
 
-```
-
 ## Installation
 
 For installation of the most recent package version an additional repository has to be added in R:

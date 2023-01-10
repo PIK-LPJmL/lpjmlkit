@@ -26,5 +26,3 @@ library(help = "lpjmlkit")
   - `read_header` *read the header of LPJmL files*
   - `get_headersize` *to get the size of a file header*
   - `get_datatype` *get information on the data type used in different LPJmL files*
-
-```

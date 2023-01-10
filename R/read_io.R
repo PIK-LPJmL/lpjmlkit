@@ -347,6 +347,10 @@ read_io_metadata_raw <- function(filename, file_type, band_names, subset,
     verbose = verbose
   )
 
+  # Check validity of band_names
+  check_band_names(get_header_item(file_header, "nbands"),
+                   band_names)
+
   # Prepare additional attributes to be added to meta information
   additional_data <- list(band_names = band_names, variable = variable,
                           descr = descr, unit = unit)
@@ -417,6 +421,10 @@ read_io_metadata_clm <- function(filename, file_type, band_names, subset,
     endian = default(endian, get_header_item(file_header, "endian")),
     verbose = verbose
   )
+
+  # Check validity of band_names
+  check_band_names(get_header_item(file_header, "nbands"),
+                   band_names)
 
   # Prepare additional attributes to be added to meta information
   additional_data <- list(band_names = band_names, variable = variable,
@@ -543,6 +551,10 @@ read_io_metadata_meta <- function(filename, file_type, band_names, subset,
 
   # Convert meta data into header
   file_header <- meta_data$as_header(silent)
+
+  # Check validity of band_names
+  check_band_names(get_header_item(file_header, "nbands"),
+                   meta_data$band_names)
 
   return(meta_data)
 }
@@ -680,7 +692,8 @@ read_io_data <- function(
 
   return(file_data)
 }
-  
+
+
 # Function to read LPJmL binary files
 read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
   seek(con = file_connection, where = data_offset)
@@ -693,6 +706,31 @@ read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
     endian = endian
   )
   return(file_data)
+}
+
+
+# Simple validity check for band_names
+check_band_names <- function(nbands, band_names) {
+  if (!is.null(band_names) &&
+    length(band_names) != nbands
+  ) {
+    stop(
+      "Provided band_names ",
+      toString(
+        dQuote(
+          if (length(band_names) > 6) {
+              c(utils::head(band_names, n = 4), "...",
+                utils::tail(band_names, n = 1))
+          } else {
+            band_names
+          }
+        )
+      ),
+      " do not match number of bands in file: ",
+      length(band_names), "!=", nbands,
+      call. = FALSE
+    )
+  }
 }
 
 
