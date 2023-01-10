@@ -8,3 +8,16 @@
 \description{
 Function kit for basic LPJmL handling, including simulations, corresponding configurations as well as input & output data.
 }
+\author{
+\strong{Maintainer}: Jannes Breier \email{jannesbr@pik-potsdam.de}
+
+Authors:
+\itemize{
+  \item Christoph Mueller \email{cmueller@pik-potsdam.de}
+  \item Fabian Stenzel \email{stenzel@pik-potsdam.de}
+  \item Sara Minoli \email{minoli@pik-potsdam.de}
+  \item Sebastian Ostberg \email{ostberg@pik-potsdam.de}
+  \item Stephen Wirth \email{wirth@pik-potsdam.de}
+}
+
+}

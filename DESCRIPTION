@@ -1,14 +1,14 @@
 Package: lpjmlkit
 Type: Package
 Title: Function kit for basic LPJmL handling
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: c(
-    person(Mueller, Christoph, cmueller@pik-potsdam.de),
-    person(Stenzel, Fabian, stenzel@pik-potsdam.de),
-    person(Minoli, Sara, minoli@pik-potsdam.de),
-    person(Breier, Jannes, jannesbr@pik-potsdam.de),
-    person(Ostberg, Sebastian, ostberg@pik-potsdam.de),
-    person(Wirth, Stephen, wirth@pik-potsdam.de)
+    person("Christoph", "Mueller", , "cmueller@pik-potsdam.de", role = "aut"),
+    person("Fabian", "Stenzel", , "stenzel@pik-potsdam.de", role = "aut"),
+    person("Sara","Minoli", , "minoli@pik-potsdam.de", role = "aut"),
+    person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre")),
+    person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut"),
+    person("Stephen", "Wirth", , "wirth@pik-potsdam.de", role = "aut")
   )
 Description: Function kit for basic LPJmL handling, including simulations,
     corresponding configurations as well as input & output data.
@@ -40,3 +40,4 @@ Suggests:
     reshape2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Date: 2023-01-10
