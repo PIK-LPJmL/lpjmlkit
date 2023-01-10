@@ -6,7 +6,7 @@
 \alias{lpjmlkit-package}
 \title{lpjmlkit: Function kit for basic LPJmL handling}
 \description{
-Function kit for basic LPJmL handling, including simulations, corresponding configurations as well as input & output data.
+A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 }
 \author{
 \strong{Maintainer}: Jannes Breier \email{jannesbr@pik-potsdam.de}

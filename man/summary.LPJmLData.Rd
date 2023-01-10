@@ -5,24 +5,21 @@
 \title{Function to get the summary of the array of a \code{LPJmLData} object.
 See also \link[base]{summary}}
 \usage{
-\method{summary}{LPJmLData}(x, dimension = "band", subset = NULL, cutoff = FALSE, ...)
+\method{summary}{LPJmLData}(object, ...)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{object}{\link{LPJmLData} object}
 
-\item{dimension}{for which a summary is printed for every element
-(in style of matrix summary). Defaults to \code{"band"}. Choose from available
-dimensions like \code{"time"} or \code{"cell"}.}
-
-\item{subset}{list of array dimension(s) as name/key and
-corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
-\code{\link{subset.LPJmLData}}.}
-
-\item{cutoff}{Logical. If \code{TRUE} summary for dimension elements > 16 are
-cut off.}
-
-\item{...}{further arguments to be passed on to \link[base]{summary}}
+\item{...}{Further arguments:
+\code{dimension} for which a summary is printed for every element
+(in style of matrix summary). Default is \verb{dimension = band"}. Choose from
+available dimensions like \code{"time"} or \code{"cell"}.
+\code{subset} list of array dimension(s) as name/key and corresponding subset
+vector as value, e.g. \verb{list(cell = c(27411:27415)}, more information at
+\code{\link{subset.LPJmLData}}.
+\code{cutoff} (logical) If \code{TRUE} summary for dimension elements > 16 are
+cut off.
+Or arguments to be passed on to \link[base]{summary}}
 }
 \description{
 Function to get the summary of the array of a \code{LPJmLData} object.

@@ -10,8 +10,8 @@ Authors@R: c(
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut"),
     person("Stephen", "Wirth", , "wirth@pik-potsdam.de", role = "aut")
   )
-Description: Function kit for basic LPJmL handling, including simulations,
-    corresponding configurations as well as input & output data.
+Description: A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
+    It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 License: GPL-3
 LazyData: true
 RoxygenNote: 7.2.3
