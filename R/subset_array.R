@@ -47,7 +47,8 @@ asub <- function(x,
 #' @describeIn asub replace an array subset
 #' @export
 "asub<-" <- function(x, ..., value) {
-  argum <- c(alist(x), subarray_argument(x, list(...)), alist(value))
+  argum <- c(alist(x),
+             subarray_argument(x, list(...)), alist(value))
   do.call("[<-", argum) %>%
     return()
 }
@@ -89,14 +90,14 @@ subarray_argument <- function(x, subset_list, force_idx = FALSE) {
   # check for non matching dimensions
   valids <- subset_names %in% dim_names
   if (!all(valids)) {
-    non_valids <- which(!valids)
+    nonvalids <- which(!valids)
     stop(
       paste0(
-        ifelse(length(non_valids) > 1, "Dimension names ", "Dimension name "),
+        ifelse(length(nonvalids) > 1, "Dimension names ", "Dimension name "),
         "\u001b[34m",
-        paste0(subset_names[non_valids], collapse = ", "),
+        paste0(subset_names[nonvalids], collapse = ", "),
         "\u001b[0m",
-        ifelse(length(non_valids) > 1, " are ", " is "),
+        ifelse(length(nonvalids) > 1, " are ", " is "),
         "not valid. Please choose from available dimension names ",
         "\u001b[34m",
         paste0(dim_names, collapse = ", "),
@@ -236,6 +237,7 @@ stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
       "\u001b[0m",
       ifelse(length(nonvalids) > 1, " are", " is"),
       " not valid."
-    )
+    ),
+    call. = FALSE
   )
 }
