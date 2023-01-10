@@ -77,6 +77,9 @@ LPJmLData$set("private",
 #' cut off.
 #'
 #' @param ... further arguments to be passed on to \link[base]{summary}
+#'
+#' @md
+#' @export
 summary.LPJmLData <- function(x,
                               dimension = "band",
                               subset = NULL,
