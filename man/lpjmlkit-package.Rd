@@ -4,14 +4,13 @@
 \name{lpjmlkit-package}
 \alias{lpjmlkit}
 \alias{lpjmlkit-package}
-\title{lpjmlkit: Function kit for basic LPJmL handling}
+\title{lpjmlkit: Toolkit for basic LPJmL handling}
 \description{
-A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
+A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. It provides functions for performing LPJmL simulations, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/PIK-LPJmL/lpjmlkit}
   \item Report bugs at \url{https://github.com/PIK-LPJmL/lpjmlkit/issues, https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues}
 }
 

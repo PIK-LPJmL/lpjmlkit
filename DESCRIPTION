@@ -1,6 +1,6 @@
 Package: lpjmlkit
 Type: Package
-Title: Function kit for basic LPJmL handling
+Title: Toolkit for basic LPJmL handling
 Version: 0.5.2
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre")),
@@ -11,7 +11,7 @@ Authors@R: c(
     person("Christoph", "Mueller", , "cmueller@pik-potsdam.de", role = "aut")
   )
 Description: A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
-    It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
+    It provides functions for performing LPJmL simulations, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 License: GPL-3
 LazyData: true
 RoxygenNote: 7.2.3
@@ -20,7 +20,6 @@ Roxygen: list(markdown = TRUE,
 Encoding: UTF-8
 Depends:
     R (>= 3.5.0)
-URL: https://github.com/PIK-LPJmL/lpjmlkit
 BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues,
     https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues
 Imports:

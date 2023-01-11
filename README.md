@@ -1,13 +1,13 @@
-# Function kit for basic LPJmL handling
+# Toolkit for basic LPJmL handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
 R package **lpjmlkit**, version **0.5.2**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
+[![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/workflows/check/badge.svg)](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/actions) [![codecov](https://codecov.io/gh/lpjml/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/lpjml/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
 
 ## Purpose and Functionality
 
 A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
-    It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
+    It provides functions for performing LPJmL simulations, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 ## Overview
 
 ### **[LPJmL Runner](./vignettes/lpjml-runner.pdf)** to perform LPJmL simulations
@@ -65,16 +65,15 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Function kit for basic LPJmL handling_. R package version 0.5.2, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.5.2.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
 @Manual{,
-  title = {lpjmlkit: Function kit for basic LPJmL handling},
+  title = {lpjmlkit: Toolkit for basic LPJmL handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Wirth and Sara Minoli and Fabian Stenzel and Christoph Mueller},
   year = {2023},
   note = {R package version 0.5.2},
-  url = {https://github.com/PIK-LPJmL/lpjmlkit},
 }
 ```
