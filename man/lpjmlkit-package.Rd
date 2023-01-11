@@ -8,16 +8,24 @@
 \description{
 A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/PIK-LPJmL/lpjmlkit}
+  \item Report bugs at \url{https://github.com/PIK-LPJmL/lpjmlkit/issues, https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jannes Breier \email{jannesbr@pik-potsdam.de}
 
 Authors:
 \itemize{
-  \item Christoph Mueller \email{cmueller@pik-potsdam.de}
-  \item Fabian Stenzel \email{stenzel@pik-potsdam.de}
-  \item Sara Minoli \email{minoli@pik-potsdam.de}
   \item Sebastian Ostberg \email{ostberg@pik-potsdam.de}
   \item Stephen Wirth \email{wirth@pik-potsdam.de}
+  \item Sara Minoli \email{minoli@pik-potsdam.de}
+  \item Fabian Stenzel \email{stenzel@pik-potsdam.de}
+  \item Christoph Mueller \email{cmueller@pik-potsdam.de}
 }
 
 }

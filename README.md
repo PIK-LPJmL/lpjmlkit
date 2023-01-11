@@ -1,40 +1,32 @@
 # Function kit for basic LPJmL handling
 
-R package **lpjmlkit**, version **0.5.1**
+R package **lpjmlkit**, version **0.5.2**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/workflows/check/badge.svg)](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/actions) [![codecov](https://codecov.io/gh/lpjml/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/lpjml/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
+[![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
 
 ## Purpose and Functionality
 
 A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
     It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
-## Usage
+## Overview
 
-```R
-library(lpjmlkit)
-
-# To get an overview of all functions included you can use:
-library(help = "lpjmlkit")
-```
-### **[LPJmL Data](TODO:vignette)** for reading and processing LPJmL data
-- `read_io` read LPJmL input and output as LPJmLData object
-- **`LPJmLData`** class, containing data and `LPJmLMetaData` while ensuring integrity and providing methods for processing
-  - **modify methods** `add_grid`, `subset` and `transform` to add grid data,
-  subset the underlying data or transform it to other time and space formats
-  - **base stats methods** `summary`, `dim`, `dimnames` to get an overview on the data
-  - **export methods** `as_array`, `as_tibble`, `as_raster` and `as_terra` to export into established formats
-- `read_meta` read meta files as LPJmLMetaData object
-- **`LPJmLMetaData`** class, meta data from meta files, file headers or those provided manually
-  - **export methods** `as_list` and `as_header` to export as list or LPJmL header format
 ### **[LPJmL Runner](./vignettes/lpjml-runner.pdf)** to perform LPJmL simulations
-  - **`write_config`** write "config.json" file(s) based on a parameters tibble and lpjml.js. 
-  - `read_config` or `view_config`
-  - `make_lpjml` compile LPJmL and `check_lpjml`
-  - **`run_lpjml`**, **`submit_lpjml`** run or submit LPJmL (to Slurm) with corresponding "config.json"
-### miscellaneous
-- functions to handle LPJmL file headers, `read_header` read the header of LPJmL files, `get_headersize` get the size of a file header or `create_header` to create a header object for writing input files
-- `get_datatype` get information on the data type used in different LPJmL files
-- `asub` functionality of the subset method to be used on a base array, also to replace data
+  - `write_config()` write config.json files using a tibble with parameters to be changed and a base lpjml.js file
+  - `check_config()` check if generated config.json files are valid for LPJmL simulations
+  - `run_lpjml()` run LPJmL directly (e.g. single cell simulations)
+  - `submit_lpjml()` submit LPJmL to SLURM (e.g. global simulations)
+
+### **[LPJmL Data](TODO:vignette)** for reading and processing LPJmL data
+- `read_io` read LPJmL input and output as an `LPJmLData` object, containing the data array and LPJmLMetaData
+  - `subset()` subset the underlying data
+  - `transform()` transform it to other time and space formats
+  -  `as_array()`, `as_tibble()`, `as_raster()` and `as_terra()` to export into established data formats
+- `read_meta()` read meta or header files as `LPJmLMetaData` object
+
+### **miscellaneous**
+- functions to handle LPJmL file headers, `read_header()` read the header of LPJmL files, `get_headersize()` get the size of a file header or `create_header()` to create a header object for writing input files
+- `get_datatype()` get information on the data type used in different LPJmL files
+- `asub()` functionality of the subset method to be used on a base array, also to replace data
 
 ## Installation
 
@@ -73,15 +65,16 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Mueller C, Stenzel F, Minoli S, Breier J, Ostberg S, Wirth S (2023). _lpjmlkit: Function kit for basic LPJmL handling_. R package version 0.5.1.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Function kit for basic LPJmL handling_. R package version 0.5.2, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
 @Manual{,
   title = {lpjmlkit: Function kit for basic LPJmL handling},
-  author = {Christoph Mueller and Fabian Stenzel and Sara Minoli and Jannes Breier and Sebastian Ostberg and Stephen Wirth},
+  author = {Jannes Breier and Sebastian Ostberg and Stephen Wirth and Sara Minoli and Fabian Stenzel and Christoph Mueller},
   year = {2023},
-  note = {R package version 0.5.1},
+  note = {R package version 0.5.2},
+  url = {https://github.com/PIK-LPJmL/lpjmlkit},
 }
 ```

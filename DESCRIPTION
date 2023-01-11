@@ -1,14 +1,14 @@
 Package: lpjmlkit
 Type: Package
 Title: Function kit for basic LPJmL handling
-Version: 0.5.1
+Version: 0.5.2
 Authors@R: c(
-    person("Christoph", "Mueller", , "cmueller@pik-potsdam.de", role = "aut"),
-    person("Fabian", "Stenzel", , "stenzel@pik-potsdam.de", role = "aut"),
-    person("Sara","Minoli", , "minoli@pik-potsdam.de", role = "aut"),
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut"),
-    person("Stephen", "Wirth", , "wirth@pik-potsdam.de", role = "aut")
+    person("Stephen", "Wirth", , "wirth@pik-potsdam.de", role = "aut"),
+    person("Sara","Minoli", , "minoli@pik-potsdam.de", role = "aut"),
+    person("Fabian", "Stenzel", , "stenzel@pik-potsdam.de", role = "aut"),
+    person("Christoph", "Mueller", , "cmueller@pik-potsdam.de", role = "aut")
   )
 Description: A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
     It provides functions for running LPJmL, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
@@ -18,8 +18,11 @@ RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE,
               r6 = TRUE)
 Encoding: UTF-8
-Depends: 
+Depends:
     R (>= 3.5.0)
+URL: https://github.com/PIK-LPJmL/lpjmlkit
+BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues,
+    https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues
 Imports:
     magrittr,
     dplyr,
@@ -40,4 +43,4 @@ Suggests:
     reshape2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-01-10
+Date: 2023-01-11

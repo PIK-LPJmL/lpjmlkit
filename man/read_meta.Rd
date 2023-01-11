@@ -2,31 +2,34 @@
 % Please edit documentation in R/read_meta.R
 \name{read_meta}
 \alias{read_meta}
-\title{Read a LPJmL meta file}
+\title{Read a LPJmL meta or header file}
 \usage{
-read_meta(filename)
+read_meta(filename, ...)
 }
 \arguments{
 \item{filename}{character string representing path
 (if differs from current working directory) and filename}
+
+\item{...}{further arguments passed to \code{\link{read_header}} if header file is read}
 }
 \value{
 LPJmLMetaData object
 }
 \description{
-Reads a meta JSON file.
+Reads a meta JSON file or a LPJmL input or output that includes a file
+header.
 }
 \examples{
 \dontrun{
  meta <- read_meta(filename = "mpft_npp.bin.json")
 
- meta[[sim_name]]
+ meta$sim_name
  # [1] "LPJmL Run"
 
- meta[[firstcell]]
+ meta$firstcell
  # [1] 27410
 
- meta[[pft]][[1]]
+ meta$band_names[1]
  # [1] "tropical broadleaved evergreen tree"
 }
 }
