@@ -134,8 +134,8 @@ read_header <- function(filename, force_version = NULL, verbose = TRUE) {
         timestep = 1
       )
       if (verbose)
-        warning(
-          "Type 1 header. Adding default values for cellsize, scalar, ",
+        message(
+          "Note: Type 1 header. Adding default values for cellsize, scalar, ",
           "datatype, nstep and timestep which may not be correct in all cases."
         )
     }
@@ -149,16 +149,16 @@ read_header <- function(filename, force_version = NULL, verbose = TRUE) {
         timestep = 1
       )
       if (verbose)
-        warning(
-          "Type 2 header. Adding default values for datatype, nstep and ",
+        message(
+          "Note: Type 2 header. Adding default values for datatype, nstep and ",
           "timestep which may not be correct in all cases."
         )
     }
     if (length(headerdata) == 10) {
       headerdata <- c(headerdata, nstep = 1, timestep = 1)
       if (verbose)
-        warning(
-          "Type 3 header. Adding default values for nstep and timestep which ",
+        message(
+          "Note: Type 3 header. Adding default values for nstep and timestep which ",
           "may not be correct in all cases."
       )
     }
