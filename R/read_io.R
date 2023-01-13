@@ -137,7 +137,9 @@
 #' `subset` can be a list containing one or several named elements. Allowed
 #' names are "band", "cell", and "year".
 #' * "year" can be used to return data for a subset of one or several years
-#' included in the file.
+#' included in the file. Integer indices can be between 1 and `nyear`. If
+#' subsetting by actual calendar years (starting at `firstyear`) supply a
+#' character vector.
 #' * "band" can be used to return data for a subset of one or several bands
 #' included in the file. These can be specified either as integer indices or as
 #' a character vector if bands are named.
@@ -234,6 +236,9 @@ read_io <- function(
                         silent = silent))
   # Offset at beginning of binary data file
   start_offset <- default(meta_data$offset, 0)
+  
+  # Check if subset contains valid year subset
+  check_year_subset(subset, meta_data, silent)
 
   if (file_type == "meta") {
     # Get filename from meta file.
@@ -564,16 +569,19 @@ read_io_data <- function(
   meta_data,
   subset
 ) {
+  # All years in the file
+  years <- seq(
+    from       = default(meta_data$firstyear, 1901),
+    by         = default(meta_data$timestep, 1),
+    length.out = default(meta_data$nyear, 1)
+  )
   # Years to read
   if ("year" %in% names(subset)) {
-    years <- subset[["year"]]
-  } else {
-    # All years in the file
-    years <- seq(
-      from       = default(meta_data$firstyear, 1901),
-      by         = default(meta_data$timestep, 1),
-      length.out = default(meta_data$nyear, 1)
-    )
+    if (is.numeric(subset[["year"]])) {
+      years <- years[subset[["year"]]]
+    } else {
+      years <- as.integer(subset[["year"]])
+    }
   }
 
   # Open binary file connection
@@ -733,6 +741,53 @@ check_band_names <- function(nbands, band_names) {
   }
 }
 
+# Simple validity check for year subset
+check_year_subset <- function(subset, meta_data, silent = FALSE) {
+  if ("year" %in% names(subset)) {
+    if (is.numeric(subset[["year"]])) {
+      outside_range <- which(
+        as.integer(subset[["year"]]) < 1 |
+        as.integer(subset[["year"]]) > default(meta_data$nyear, 1)
+      )
+      if (length(outside_range) > 0) {
+        stop(
+          ifelse(length(outside_range) > 1, "Years ", "Year "),
+          toString(subset[["year"]][outside_range]),
+          " provided as subset[[", dQuote("year"), "]] outside of file range"
+        )
+      }
+    } else if (is.character(subset[["year"]])) {
+      file_years <- seq(
+        from = default(meta_data$firstyear, 1901),
+        by = default(meta_data$timestep, 1),
+        length.out = default(meta_data$nyear, 1)
+      )
+      outside_range <- setdiff(subset[["year"]], file_years)
+      if (length(outside_range) > 0) {
+        stop(
+          ifelse(length(outside_range) > 1, "Years ", "Year "),
+          toString(dQuote(outside_range)),
+          " provided as subset[[", dQuote("year"), "]] outside of file range"
+        )
+      }
+    } else {
+      stop(
+        "Unsupported type ", sQuote(typeof(subset[["year"]])),
+        " provided as subset[[", dQuote("year"), "]]"
+      )
+    }
+    if (length(unique(subset[["year"]])) != length(subset[["year"]]) && !silent) {
+      warning(
+        "Removing ", 
+        length(subset[["year"]]) - length(unique(subset[["year"]])),
+        " duplicate ",
+        ifelse(length(subset[["year"]]) - length(unique(subset[["year"]])) > 1,
+               "entries", "entry"),
+        " from provided subset[[", dQuote("year"), "]]"
+      )
+    }
+  }
+}
 
 # Utility function to replace missing attribute with default value
 default <- function(value, default) {
