@@ -244,7 +244,9 @@ plot_by_band <- function(lpjml_data,
                 "dimensions with a minimum of one temporal dimension."))
   }
 
-  if (!any(time_dims %in% dim_names)) {
+  if (!any(time_dims %in% dim_names) &&
+      (lpjml_data$meta$._space_format_ == "cell" ||
+       any(space_dims %in% names(aggregate)))) {
     stop(paste0("At least one temporal dimension of ",
                 "\u001b[34m",
                  paste0(time_dims, collapse = ", "),
@@ -271,8 +273,11 @@ plot_by_band <- function(lpjml_data,
 
   # dimension to be shown in the legend "3rd dimension"
   legend_dim <- dim_names[!dim_names == x_dim]
-  if (length(legend_dim) > 1)
+  if (length(legend_dim) > 1 && any(dim(raw_data)[legend_dim]) > 1)
     legend_dim <- legend_dim[legend_dim %in% dim_names[dim(raw_data) > 1]]
+  else if (length(legend_dim) > 1 && all(dim(raw_data)[legend_dim]) == 1)
+    legend_dim <- ifelse("band" %in% legend_dim, "band", legend_dim[1])
+
 
   # limit plot lines to maximum of 8
   legend_length <- dim(raw_data)[[legend_dim]] %>%
