@@ -1,6 +1,6 @@
 {
   "title": "lpjmlkit: Toolkit for basic LPJmL handling",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "<p>A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.\n    It provides functions for performing LPJmL simulations, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.<\/p>",
   "creators": [
     {

@@ -142,6 +142,7 @@ LPJmLData$set("private",
                                  na.rm = TRUE)
     plot_by_band(lpjml_data = data_subset,
                  raw_data = data_only,
+                 aggregate = aggregate,
                  dots = dots)
     message(
       paste0(
@@ -214,6 +215,7 @@ LPJmLData$set("private",
 #   TODO: requires refactoring
 plot_by_band <- function(lpjml_data,
                          raw_data,
+                         aggregate,
                          dots) {
   time_dims <- strsplit(lpjml_data$meta$._time_format_, "_")[[1]]
   space_dims <- strsplit(lpjml_data$meta$._space_format_, "_")[[1]]

@@ -3,11 +3,12 @@ title: "LPJmL Data"
 author: "Jannes Breier"
 date: "`r Sys.Date()`"
 output:
-  # pdf_document
-  md_document:
-    variant: markdown_github
+  pdf_document
+  # rmarkdown::html_vignette
+  # md_document:
+  #   variant: gfm
 vignette: >
-  %\VignetteIndexEntry{lpjml-runner}
+  %\VignetteIndexEntry{lpjml-data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

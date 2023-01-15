@@ -3,9 +3,9 @@ title: "LPJmL Runner"
 author: "Jannes Breier"
 date: "`r Sys.Date()`"
 output:
-  # pdf_document
-  md_document:
-    variant: markdown_github
+  pdf_document
+  # md_document:
+  #   variant: gfm
 vignette: >
   %\VignetteIndexEntry{lpjml-runner}
   %\VignetteEngine{knitr::rmarkdown}
