@@ -329,6 +329,13 @@ submit_run <- function(sim_name,
                   "errfile_",
                   timestamp,
                   ".err")
+  output_config <- paste0(output_path,
+                  "/output/",
+                  sim_name,
+                  "/",
+                  "config_",
+                  timestamp,
+                  ".json")
   inner_command <-  paste0(model_path, "/bin/lpjsubmit",
                            " -nocheck",
                            " -class ", sclass,
@@ -359,6 +366,11 @@ submit_run <- function(sim_name,
     submit_status <- processx::run(command = "sh",
                                    args = c("-c", inner_command),
                                    cleanup_tree = TRUE)
+    copied <- file.copy(from = paste(output_path,
+                                     "configurations",
+                                     config_file,
+                                     sep = "/"),
+                        to = output_config)
   }, finally = {
     if (pre_lpjroot == "") {
       # "" meaning it was not defined before thus unset
