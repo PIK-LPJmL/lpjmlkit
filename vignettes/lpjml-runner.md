@@ -1,9 +1,9 @@
-**LPJmL Runner** is a `lpjmlkit` module of functions that have the goal
-to simplify the execution of simulations with LPJmL and further to
-execute complex, nested and multiple simulation sequences fast and less
-error prone without having a big (bash) script overhead.
+**LPJmL Runner** :runner: is a lpjmlkit module of functions that have
+the goal to simplify the execution of simulations with LPJmL and further
+to execute complex, nested and multiple simulation sequences fast and
+less error prone without having a big (bash) script overhead.
 
-## Setup
+## :gear: Setup
 
 Please make sure to have set the [working environment for
 LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
@@ -27,7 +27,7 @@ modified parameter table (1), create the corresponding configuration
 files (2), check if the these are valid for LPJmL (3 - optional) and run
 or submit LPJmL with each configurations (4).
 
-#### **1. Define a table of modified configuration parameters** 
+#### **1. :clipboard: Define a table of modified configuration parameters** 
 
   
 Define what LPJmL parameters/settings (here all referred to as
@@ -47,7 +47,7 @@ my_params <- tibble(
 )
 ```
 
-#### **2. Create corresponding Configuration files** 
+#### **2. :writing_hand: Create corresponding Configuration files** 
 
   
 Now the central function is `write_config`, create and write LPJmL
@@ -59,7 +59,7 @@ with the parameters of a base `"lpjml.js"` file to be changed.
 config_details <- write_config(my_params, model_path, output_path)
 ```
 
-#### **3. Check validity of Configurations** 
+#### **3. :mag: Check validity of Configurations** 
 
   
 Check whether your Config(s) are valid for LPJmL by passing the returned
@@ -71,20 +71,19 @@ not be satisfied yet) but will print/return the information of
 lpjml_check(config_details, model_path, output_path)
 ```
 
-#### **4. Run or submit LPJmL** 
+#### **4. :arrow_forward: Run or :rocket: submit LPJmL** 
 
   
-Execute LPJmL for each Configuration via `submit_lpjml` or run it
-interactively via `run_lpjml`. `run_lpjml` can also be utilized within
-slurm jobs to execute multiple single cell runs.  
+Run LPJmL for each Configuration locally via `run_lpjml` or submit as a
+batch job to SLURM (PIK Cluster) via `submit_lpjml`.  
 `?submit_lpjml` *or* `?run_lpjml` *for more information.*
 
 ``` r
-# submit to Slurm
-run_details <- submit_lpjml(config_details, model_path, output_path)
-
-# OR run interactively
+# run interactively
 run_details <- run_lpjml(config_details, model_path, output_path)
+
+# OR submit to Slurm
+submit_details <- submit_lpjml(config_details, model_path, output_path)
 ```
 
 #### **miscellaneous** 
@@ -302,3 +301,6 @@ run_details <- submit_lpjml(
     you can copy the file or create a symlink of the file to
     `"<output_path>/restart/<spinup_sim_name>/restart.lpj"`. Make sure
     the file/symlink is named `"restart.lpj"`
+
+4. `run_lpjml` can also be utilized within slurm jobs to execute multiple
+single cell runs (in parallel).

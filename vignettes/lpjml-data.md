@@ -1,10 +1,10 @@
-**LPJmL Data** is a lpjmlkit module that groups around the data class
-`LPJmLData` and aims to facilitate the reading and processing of LPJmL
-inputs and outputs by combining the raw data with available meta data
-(meta files, header files or manually) to avoid a large overhead. It
-further enables easy subsetting, transformations and basic statistics of
-the data and allows export to common data formats. All in all, with only
-a few lines of code.
+**LPJmL Data** :floppy_disk: is a lpjmlkit module that groups around the
+data class `LPJmLData` and aims to facilitate the reading and processing
+of LPJmL inputs and outputs by combining the raw data with available
+meta data (meta files, header files or manually) to avoid a large
+overhead. It further enables easy subsetting, transformations and basic
+statistics of the data and allows export to common data formats. All in
+all, with only a few lines of code.
 
  
 
@@ -15,7 +15,7 @@ applying the read_io function (1). The returned object is of class
 LPJmLData (2) for which base stats can be calculated (3), the inner data
 can be modified (4) or common data formats can be exported (5).
 
-#### **1. Data reading function read_io** 
+#### **1. :book: Data reading function read_io** 
 
   
 The generic function to read LPJmL input and output, currently supported
@@ -60,7 +60,7 @@ are three different file formats, “meta”, “clm” and “raw”:
 
  
 
-#### **2. Data class LPJmLData** 
+#### **2. :file_folder: Data class LPJmLData** 
 
   
 read_io returns an object of a R6 class `LPJmLData` with two main
@@ -114,7 +114,7 @@ attributes, `$data` and `$meta`:
 
      
 
-#### **3. Base stats of LPJmLData objects** 
+#### **3. :chart_with_upwards_trend: Base stats of LPJmLData objects** 
 
   
 To get an overview of the data, `LPJmLData` offers support for various
@@ -164,15 +164,15 @@ plot(runoff)
 
  
 
-#### **4. Modify LPJmLData objects** 
+#### **4. :pencil2: Modify LPJmLData objects** 
 
   
 LPJmLData objects come with a bundle of methods to modify its state:
 `add_grid()`, `transform()` and `subset()`.
 
--   **`add_grid()`** Add a **$grid** attribute (as LPJmLData object) to
-    the object, providing the spatial reference (longitude and latitude)
-    for every cell.
+-   **:round_pushpin: `add_grid()`** Add a **$grid** attribute (as
+    LPJmLData object) to the object, providing the spatial reference
+    (longitude and latitude) for every cell.
 
     ``` r
     # object oriented (R6 class) notation (assigning grid directly to runoff)
@@ -185,7 +185,7 @@ LPJmLData objects come with a bundle of methods to modify its state:
     runoff <- add_grid(runoff, "./output/grid.clm")
     ```
 
--   **`transform()`** Transform the `$data` dimensions.  
+-   **:repeat: `transform()`** the `$data` dimensions.  
     Either the cell dimension into two “lon” (longitude) and “lat”
     (latitude) dimensions or the time into “year”, “month” and “day”
     dimension (if available) - combinations and back transformations are
@@ -231,7 +231,7 @@ LPJmLData objects come with a bundle of methods to modify its state:
     # [...]
     ```
 
--   **`subset()`** Subset the `$data`.  
+-   **:scissors: `subset()`** the `$data`.  
     Use `$data` dimensions as key and dimension names or indices as
     value to subset `$data`. `$meta` is adjusted according to the
     subset.
@@ -272,7 +272,7 @@ LPJmLData objects come with a bundle of methods to modify its state:
 
      
 
-#### **5. Export LPJmLData objects** 
+#### **5. :package: Export LPJmLData objects** 
 
   
 Finally LPJmLData objects can be exported into common R data formats:
@@ -312,19 +312,20 @@ Finally LPJmLData objects can be exported into common R data formats:
     #    cell  time       band  value
     #    <fct> <fct>      <fct> <dbl>
     #  1 0     1901-01-31 1      184.
-    #  2 1     1901-01-31 1        0 
-    #  3 2     1901-01-31 1        0 
-    #  4 3     1901-01-31 1        0 
-    #  5 4     1901-01-31 1        0 
-    #  6 5     1901-01-31 1        0 
-    #  7 6     1901-01-31 1        0 
-    #  8 7     1901-01-31 1        0 
-    #  9 8     1901-01-31 1        0 
-    # 10 9     1901-01-31 1        0 
+    #  2 1     1901-01-31 1        0
+    #  3 2     1901-01-31 1        0
+    #  4 3     1901-01-31 1        0
+    #  5 4     1901-01-31 1        0
+    #  6 5     1901-01-31 1        0
+    #  7 6     1901-01-31 1        0
+    #  8 7     1901-01-31 1        0
+    #  9 8     1901-01-31 1        0
+    # 10 9     1901-01-31 1        0
     # # … with 404,510 more rows
     ```
 
--   **`as_raster()`** / **`as_terra()`** \*\* Export `$data` as a
+-   **:globe_with_meridians: `as_raster()`** / **`as_terra()`** Export
+    `$data` as a
     [`raster`](https://rspatial.github.io/raster/reference/raster-package.html)
     or a [`terra`](https://rspatial.org/) object (successor of raster),
     providing the same further functionality as as_array.
@@ -347,16 +348,16 @@ Finally LPJmLData objects can be exported into common R data formats:
     # dimensions  : 280, 720, 1  (nrow, ncol, nlyr)
     # resolution  : 0.5, 0.5  (x, y)
     # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-    # coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    # source      : memory 
-    # name        :        runoff 
-    # min value   : -1.682581e-13 
-    # max value   :  6.718747e+02 
+    # coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    # source      : memory
+    # name        :        runoff
+    # min value   : -1.682581e-13
+    # max value   :  6.718747e+02
     # unit        :      mm/month
 
     # export first 4 time step as raster brick
     as_raster(runoff, subset = list(time = 1:4))
-    # class      : RasterBrick 
+    # class      : RasterBrick
     # dimensions : 280, 720, 201600, 4  (nrow, ncol, ncell, nlayers)
     # resolution : 0.5, 0.5  (x, y)
     # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
