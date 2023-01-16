@@ -4,7 +4,16 @@
 \alias{LPJmLData}
 \title{LPJmL data class}
 \description{
-Handles LPJmL output and input data.
+A data container for LPJmL input and output. Container - because
+a LPJmLData object is a environment in which the data array as well as the
+meta data are stored after \code{\link{read_io}}.
+The data array can be accessed via \verb{$data}, the meta data via \verb{$meta}.
+The enclosing environment is locked and cannot be altered by any
+other than the available modify methods and thus ensures its integrity and
+validity.
+Please use base stats methods like [\code{print}, \code{\link{summary.LPJmLData}} or
+\code{\link{plot.LPJmLData}} to get insights and export methods like \code{\link{as_tibble}} or
+\code{\link{as_raster}} to export it into common working formats.
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}

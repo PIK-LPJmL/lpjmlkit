@@ -19,19 +19,19 @@
 #'
 #' @examples
 #' my_array <- array(1,
-#'                   dim=c(cell=67, month=12, band=3),
-#'                   dimnames=list(cell=0:66,
-#'                                 month=1:12,
-#'                                 band=c("band1", "band2", "band3")))
+#'                   dim=c(cell = 67, month=12, band = 3),
+#'                   dimnames = list(cell = 0:66,
+#'                                 month = 1:12,
+#'                                 band = c("band1", "band2", "band3")))
 #' my_subset <- asub(my_array,
-#'                   band=c("band1", "band3"))
+#'                   band = c("band1", "band3"))
 #' dimnames(my_subset)[3]
 #' # $ band
 #' #   [1] "band1"
 #' #   [2] "band3"
 #'
 #' # replace subset
-#' asub(my_subset, band=c("band1")) <- 0
+#' asub(my_subset, band = c("band1")) <- 0
 #'
 #' @export
 asub <- function(x,

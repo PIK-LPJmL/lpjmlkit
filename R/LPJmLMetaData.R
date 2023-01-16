@@ -1,6 +1,11 @@
 #' @title LPJmL meta output class
 #'
-#' @description Handles metafile data for output data
+#' @description A meta data container for LPJmL input and output. Container -
+#' because a LPJmLMetaData object is a environment in which the meta data is
+#' stored after [`read_meta`] (or [`read_io`]).
+#' Each attribute can be accessed via `$<attribute>`. To get an overview over
+#' available attributes, print the object or export is a list [`as_list`].
+#' The enclosing environment is locked and cannot be altered.
 #'
 LPJmLMetaData <- R6::R6Class(
   classname = "LPJmLMetaData",
