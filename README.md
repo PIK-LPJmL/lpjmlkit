@@ -13,8 +13,7 @@ A collection of base functions to facilitate the work with the DGVM LPJmL hosted
 ### **[LPJmL Runner :runner:](./vignettes/lpjml-runner.md)**  to perform LPJmL simulations <sub><sup>[**PDF**](./vignettes/lpjml-runner.pdf)</sup></sub>
 - :writing_hand: `write_config()` write config.json files using a tibble with parameters to be changed and a base lpjml.js file
 - :mag:  `check_config()` check if generated config.json files are valid for LPJmL simulations
-- :arrow_forward:  `run_lpjml()` run LPJmL directly (e.g. single cell simulations)
-- :rocket: `submit_lpjml()` submit LPJmL to SLURM (e.g. global simulations)
+- :arrow_forward:  `run_lpjml()` run LPJmL directly (e.g. single cell simulations) or :rocket: `submit_lpjml()` to SLURM (e.g. global simulations)
 
 ### **[LPJmL Data :floppy_disk: ](./vignettes/lpjml-data.md)** for reading and processing LPJmL data <sub><sup>[**PDF**](./vignettes/lpjml-data.pdf)</sup></sub>
 - `read_io()` read LPJmL input and output as an `LPJmLData` object, containing the data array and LPJmLMetaData
