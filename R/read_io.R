@@ -116,9 +116,10 @@
 #' or not allowed. `filename` must always be provided. `file_type` is usually
 #' detected automatically. Supply only if detected `file_type` is incorrect.
 #'
-#' In case of `file_type = "meta"`, function arguments not listed as "mandatory"
-#' will be ignored if they are already set in the JSON file. Only meta
-#' attributes not set in the JSON file can be added.
+#' In case of `file_type = "meta"`, if any of the function arguments not listed
+#' as "mandatory" are provided and are already set in the JSON file, a warning
+#' is given, but they can still be overwritten. Normally, you would only set
+#' meta attributes not set in the JSON file.
 #'
 #' In case of `file_type = "clm"`, function arguments not listed as "optional"
 #' are normally determined automatically from the file header included in the
