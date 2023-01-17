@@ -3,7 +3,7 @@
 ### **[LPJmL Runner :runner:](./vignettes/lpjml-runner.md)**  to perform LPJmL simulations <sub><sup>[**PDF**](./vignettes/lpjml-runner.pdf)</sup></sub>
 - :writing_hand: [`write_config()`](./vignettes/lpjml-runner.md#1-clipboard-define-a-table-of-modified-configuration-parameters) write config.json files using a tibble with parameters to be changed and a base lpjml.js file
 - :mag: [`check_config()`](./vignettes/lpjml-runner.md#2-writing_hand-create-corresponding-configuration-files) check if generated config.json files are valid for LPJmL simulations
-- :arrow_forward: [`run_lpjml()`](https://github.com/PIK-LPJmL/lpjmlkit/blob/metafile/vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or :rocket: [`submit_lpjml()`](https://github.com/PIK-LPJmL/lpjmlkit/blob/metafile/vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)
+- :arrow_forward: [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or :rocket: [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)
 
 ### **[LPJmL Data :floppy_disk: ](./vignettes/lpjml-data.md)** for reading and processing LPJmL data <sub><sup>[**PDF**](./vignettes/lpjml-data.pdf)</sup></sub>
 - [`read_io()`](./vignettes/lpjml-data.md#1-book-data-reading-function-read_io) read LPJmL input and output as an [`LPJmLData`](/vignettes/lpjml-data.md#2-file_folder-data-class-lpjmldata) object, containing the data array and LPJmLMetaData
