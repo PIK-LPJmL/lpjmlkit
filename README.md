@@ -6,8 +6,12 @@ R package **lpjmlkit**, version **0.5.6**
 
 ## Purpose and Functionality
 
-A collection of base functions to facilitate the work with the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research.
-    It provides functions for performing LPJmL simulations, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
+A collection of base functions to facilitate the work with the
+    Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land
+    (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK).
+    It provides functions for performing LPJmL simulations, as well as reading,
+    processing and writing model-related data such as inputs and outputs or
+    configuration files.
 ## Overview
 
 ### **[LPJmL Runner :runner:](./vignettes/lpjml-runner.md)**  to perform LPJmL simulations <sub><sup>[**PDF**](./vignettes/lpjml-runner.pdf)</sup></sub>
