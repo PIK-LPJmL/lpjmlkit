@@ -644,7 +644,8 @@ mutate_config_output <- function(x,
           switch(
             ifelse(length(output_timestep) > 1,
                    output_timestep[id_ov],
-                   output_timestep),
+                   output_timestep) %>%
+              ifelse(is.na(.), "annual", .),
             annual = "/yr",
             monthly = "/month",
             daily = "/day"
@@ -685,16 +686,15 @@ mutate_config_output <- function(x,
   }
   if (!is.null(x[["restart_filename"]]) && !is.null(params[["dependency"]])) {
     # if dependency is defined start from restart file of dependency sim_name
-    x[["restart_filename"]] <- gsub("restart/",
-                                          ifelse(is.na(params[["dependency"]]),
-                                            rpath,
-                                            paste(output_path,
-                                                  "restart",
-                                                  params[["dependency"]],
-                                                  "",
-                                                  sep = "/")
-                                          ),
-                                          x[["restart_filename"]])
+    x[["restart_filename"]] <- paste0(ifelse(is.na(params[["dependency"]]),
+                                        rpath,
+                                        paste(output_path,
+                                              "restart",
+                                              params[["dependency"]],
+                                              "",
+                                              sep = "/")
+                                      ),
+                                      "restart.lpj")
   } else if (!is.null(x[["restart_filename"]]) &&
              is.null(params[["dependency"]]) &&
              is.na(params[["restart_filename"]])) {
@@ -702,9 +702,7 @@ mutate_config_output <- function(x,
                    " please make sure to explicitly set restart_filename in",
                    " params. Else the original entry is used!"))
   }
-  x[["write_restart_filename"]] <- gsub("restart/",
-                                        rpath,
-                                        x[["write_restart_filename"]])
+  x[["write_restart_filename"]] <- paste0(rpath, "restart.lpj")
 
   return(x)
 }

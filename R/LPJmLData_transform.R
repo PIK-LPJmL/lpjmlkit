@@ -309,7 +309,7 @@ LPJmLData$set("private",
       }
       self$meta$.__transform_time_format__("year_month_day")
 
-    # case for transform from dimensions year, month, day (if available) to 
+    # case for transform from dimensions year, month, day (if available) to
     #   time dimension
     } else if (self$meta$._time_format_ == "year_month_day" &&
                to == "time") {

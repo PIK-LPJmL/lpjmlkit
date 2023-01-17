@@ -19,19 +19,19 @@
 #'
 #' @examples
 #' my_array <- array(1,
-#'                   dim=c(cell=67, month=12, band=3),
-#'                   dimnames=list(cell=0:66,
-#'                                 month=1:12,
-#'                                 band=c("band1", "band2", "band3")))
+#'                   dim=c(cell = 67, month=12, band = 3),
+#'                   dimnames = list(cell = 0:66,
+#'                                 month = 1:12,
+#'                                 band = c("band1", "band2", "band3")))
 #' my_subset <- asub(my_array,
-#'                   band=c("band1", "band3"))
+#'                   band = c("band1", "band3"))
 #' dimnames(my_subset)[3]
 #' # $ band
 #' #   [1] "band1"
 #' #   [2] "band3"
 #'
 #' # replace subset
-#' asub(my_subset, band=c("band1")) <- 0
+#' asub(my_subset, band = c("band1")) <- 0
 #'
 #' @export
 asub <- function(x,
@@ -39,8 +39,7 @@ asub <- function(x,
                  drop = TRUE) {
   x %>%
   subset_array(subset_list = list(...),
-               drop = drop,
-               force_idx = FALSE) %>%
+               drop = drop) %>%
   return()
 }
 
@@ -56,20 +55,16 @@ asub <- function(x,
 
 subset_array <- function(x,
                          subset_list = NULL,
-                         drop = TRUE,
-                         # if force_idx indices are always used, when numerical
-                         #    values are provided, even when subsetting with
-                         #    years or lon, lat
-                         force_idx = FALSE) {
+                         drop = TRUE) {
   if (is.null(subset_list)) {
     return(x)
   }
   if (drop) {
     argum <- c(alist(x),
-               subarray_argument(x, subset_list, force_idx))
+               subarray_argument(x, subset_list))
   } else {
     argum <- c(alist(x),
-               subarray_argument(x, subset_list, force_idx),
+               subarray_argument(x, subset_list),
                drop = FALSE)
   }
   do.call("[", argum) %>%
@@ -78,7 +73,7 @@ subset_array <- function(x,
 
 
 # https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically # nolint
-subarray_argument <- function(x, subset_list, force_idx = FALSE) {
+subarray_argument <- function(x, subset_list) {
   # DRY
   dim_names <- names(dimnames(x))
   subset_names <- names(subset_list)
@@ -106,14 +101,18 @@ subarray_argument <- function(x, subset_list, force_idx = FALSE) {
       call. = FALSE
     )
   }
-  subset_list <- mapply(
+  subset_list <- mapply(  # nolint: undesirable_function_linter.
     function(x, y, dim_name) {
       # for lon, lat calculate nearest neighbor for each provided value if not
       #   character
-      if (!is.character(x) && dim_name %in% c("lon", "lat") && !force_idx) {
+      if (dim_name %in% c("lon", "lat") && is.character(x)) {
         return(
-          sapply(x, function(x, y) which.min(abs(as.numeric(y) - x)), y) %>%
-            unique()
+          sapply(x, # nolint: undesirable_function_linter.
+            function(x, y) {
+                which.min(abs(as.numeric(y) - as.numeric(x)))
+              },
+            y) %>%
+              unique()
         )
       }
       # subsetting with character strings (directly dimnames)
@@ -124,15 +123,6 @@ subarray_argument <- function(x, subset_list, force_idx = FALSE) {
         check_string_index(x, valid_sub, dim_name)
         return(valid_sub)
       } else {
-        # exception for dimension year, use numeric years quasi as character
-        #   string
-        if (dim_name == "year" && !force_idx) {
-          # get valid year subsets - non valids are NA
-          valid_sub <- match(as.character(x), y)
-          # check if it contains NA - if so stop and print non valid subsets
-          check_string_index(x, valid_sub, dim_name)
-          return(valid_sub)
-        }
         # check if indices are valid - if not stop and print non valid indices
         check_index(x, y, dim_name)
         return(x)

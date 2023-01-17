@@ -1,6 +1,15 @@
 #' @title LPJmL data class
 #'
-#' @description Handles LPJmL output and input data.
+#' @description A data container for LPJmL input and output. Container - because
+#' a LPJmLData object is a environment in which the data array as well as the
+#' meta data are stored after [`read_io`].
+#' The data array can be accessed via `$data`, the meta data via `$meta`.
+#' The enclosing environment is locked and cannot be altered by any
+#' other than the available modify methods and thus ensures its integrity and
+#' validity.
+#' Please use base stats methods like [`print`, [`summary.LPJmLData`] or
+#' [`plot.LPJmLData`] to get insights and export methods like [`as_tibble`] or
+#' [`as_raster`] to export it into common working formats.
 #'
 LPJmLData <- R6::R6Class(
   classname = "LPJmLData",
@@ -417,5 +426,5 @@ check_method_locked <- function(x, method_name) {
   }
 }
 
-# avoid note ...
+# avoid note for "."...
 utils::globalVariables(".")

@@ -1,8 +1,13 @@
 #' @title LPJmL meta output class
 #'
-#' @description Handles metafile data for output data
+#' @description A meta data container for LPJmL input and output. Container -
+#' because a LPJmLMetaData object is a environment in which the meta data is
+#' stored after [`read_meta`] (or [`read_io`]).
+#' Each attribute can be accessed via `$<attribute>`. To get an overview over
+#' available attributes, print the object or export is a list [`as_list`].
+#' The enclosing environment is locked and cannot be altered.
 #'
-LPJmLMetaData <- R6::R6Class(
+LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
   classname = "LPJmLMetaData",
   lock_objects = TRUE,
   public = list(
@@ -34,8 +39,6 @@ LPJmLMetaData <- R6::R6Class(
     #'
     #' @param spaces *internal* Spaces to be printed in the beginning
     print = function(all = TRUE, spaces = "") {
-      quotes_option <- options(useFancyQuotes = FALSE)
-      on.exit(options(quotes_option))
       if (!all) {
         print_fields <- self$._fields_set_ %>%
           `[`(-stats::na.omit(match(private$exclude_print(), .)))
@@ -46,10 +49,10 @@ LPJmLMetaData <- R6::R6Class(
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
       meta_fields <- print_fields %>%
-        sapply(function(x) do.call("$", list(self, x)),
+        sapply(function(x) do.call("$", list(self, x)), # nolint: undesirable_function_linter
                USE.NAMES = FALSE)
       to_char1 <- print_fields %>%
-        sapply(function(x) {
+        sapply(function(x) { # nolint: undesirable_function_linter
           check <- do.call("$", list(self, x))
           if (is.character(check) & length(check) <= 1) {
             return("\"")
@@ -143,6 +146,7 @@ LPJmLMetaData <- R6::R6Class(
     #' to update meta data
     .__update_subset__ = function(subset,
                                   time_dimnames = NULL,
+                                  year_dimnames = NULL,
                                   cell_dimnames = NULL) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
@@ -164,15 +168,15 @@ LPJmLMetaData <- R6::R6Class(
         private$.subset <- TRUE
         private$.subset_space <- TRUE
       }
-      # for years using indices is forbidded because they cannot be properly
+      # for years using indices is forbidden because they cannot be properly
       #   distinguished from years
       if (!is.null(subset[["time"]]) && !is.null(time_dimnames)) {
-        subset[["year"]] <- split_time_names(time_dimnames)[["year"]]
+        year_dimnames <- split_time_names(time_dimnames)[["year"]]
       }
-      if (!is.null(subset$year)) {
-        private$.firstyear <- min(as.integer(subset$year))
-        private$.lastyear <- max(as.integer(subset$year))
-        private$.nyear <- length(subset$year)
+      if (!is.null(year_dimnames)) {
+        private$.firstyear <- min(as.integer(year_dimnames))
+        private$.lastyear <- max(as.integer(year_dimnames))
+        private$.nyear <- length(year_dimnames)
         private$.subset <- TRUE
       }
       # band can be subsetted via indices or band_names - the latter is updated

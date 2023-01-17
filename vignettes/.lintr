@@ -1,4 +1,3 @@
 linters: lucode2::lintrRules(allowUndesirable = TRUE,
-                             modification = list(object_name_linter = lintr::object_name_linter(styles = "snake_case")))
-
+    modification = list(object_name_linter = lintr::object_name_linter(styles = "snake_case")))
 encoding: "UTF-8"

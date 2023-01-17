@@ -251,8 +251,9 @@ LPJmLData$set("private",
         )
       } else {
         tmp_raster <- data_subset$data %>%
-          subset_array(list(lat = rev(seq_len(dim(data_subset$data)[["lat"]]))), # nolint
-                      force_idx = TRUE) %>%
+          subset_array(
+            list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
+          ) %>%
           raster::raster(template = tmp_raster)
         names(tmp_raster) <- data_subset$meta$variable
       }
@@ -276,11 +277,12 @@ LPJmLData$set("private",
         names(tmp_raster) <- data_subset$meta$variable
       }
       # add values of raster cells by corresponding coordinates (lon, lat)
+      tmp_grid <- as.character(data_subset$grid$data)
       tmp_raster[
         raster::cellFromXY(
           tmp_raster,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
+          cbind(subset_array(tmp_grid, list(band = "lon")),
+                subset_array(tmp_grid, list(band = "lat")))
         )
       ] <- data_subset$data
     }
@@ -369,8 +371,9 @@ LPJmLData$set("private",
         )
       } else {
         tmp_rast <- data_subset$data %>%
-          subset_array(list(lat = rev(seq_len(dim(data_subset$data)[["lat"]]))), # nolint
-                      force_idx = TRUE) %>%
+          subset_array(
+            list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
+          ) %>%
           terra::rast(crs = terra::crs(tmp_rast),
                       extent = terra::ext(tmp_rast))
         names(tmp_rast) <- data_subset$meta$variable
@@ -403,12 +406,13 @@ LPJmLData$set("private",
         # for single rasters use variable as layer name
         names(tmp_rast) <- data_subset$meta$variable
       }
+      tmp_grid <- as.character(data_subset$grid$data)
       # add values of raster cells by corresponding coordinates (lon, lat)
       tmp_rast[
         terra::cellFromXY(
           tmp_rast,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
+          cbind(subset_array(tmp_grid, list(band = "lon")),
+                subset_array(tmp_grid, list(band = "lat")))
         )
       ] <- data_subset$data
     }

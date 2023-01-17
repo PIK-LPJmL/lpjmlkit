@@ -4,7 +4,12 @@
 \alias{LPJmLMetaData}
 \title{LPJmL meta output class}
 \description{
-Handles metafile data for output data
+A meta data container for LPJmL input and output. Container -
+because a LPJmLMetaData object is a environment in which the meta data is
+stored after \code{\link{read_meta}} (or \code{\link{read_io}}).
+Each attribute can be accessed via \verb{$<attribute>}. To get an overview over
+available attributes, print the object or export is a list \code{\link{as_list}}.
+The enclosing environment is locked and cannot be altered.
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}

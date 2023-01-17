@@ -142,6 +142,7 @@ LPJmLData$set("private",
                                  na.rm = TRUE)
     plot_by_band(lpjml_data = data_subset,
                  raw_data = data_only,
+                 aggregate = aggregate,
                  dots = dots)
     message(
       paste0(
@@ -174,8 +175,7 @@ LPJmLData$set("private",
     if (dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
         subset_array(data_subset$data,
-                     as.list(stats::setNames(list(seq_len(9)), z_dim)),
-                     force_idx = TRUE)
+                     as.list(stats::setNames(list(seq_len(9)), z_dim)))
       )
     }
 
@@ -214,6 +214,7 @@ LPJmLData$set("private",
 #   TODO: requires refactoring
 plot_by_band <- function(lpjml_data,
                          raw_data,
+                         aggregate,
                          dots) {
   time_dims <- strsplit(lpjml_data$meta$._time_format_, "_")[[1]]
   space_dims <- strsplit(lpjml_data$meta$._space_format_, "_")[[1]]
@@ -244,7 +245,9 @@ plot_by_band <- function(lpjml_data,
                 "dimensions with a minimum of one temporal dimension."))
   }
 
-  if (!any(time_dims %in% dim_names)) {
+  if (!any(time_dims %in% dim_names) &&
+      (lpjml_data$meta$._space_format_ == "cell" ||
+       any(space_dims %in% names(aggregate)))) {
     stop(paste0("At least one temporal dimension of ",
                 "\u001b[34m",
                  paste0(time_dims, collapse = ", "),
@@ -271,8 +274,11 @@ plot_by_band <- function(lpjml_data,
 
   # dimension to be shown in the legend "3rd dimension"
   legend_dim <- dim_names[!dim_names == x_dim]
-  if (length(legend_dim) > 1)
+  if (length(legend_dim) > 1 && any(dim(raw_data)[legend_dim]) > 1)
     legend_dim <- legend_dim[legend_dim %in% dim_names[dim(raw_data) > 1]]
+  else if (length(legend_dim) > 1 && all(dim(raw_data)[legend_dim]) == 1)
+    legend_dim <- ifelse("band" %in% legend_dim, "band", legend_dim[1])
+
 
   # limit plot lines to maximum of 8
   legend_length <- dim(raw_data)[[legend_dim]] %>%
@@ -282,7 +288,6 @@ plot_by_band <- function(lpjml_data,
   raw_data <- subset_array(
     raw_data,
     as.list(stats::setNames(list(seq_len(legend_length)), legend_dim)),
-    force_idx = TRUE,
     drop = FALSE
   )
 
@@ -351,11 +356,9 @@ plot_by_band <- function(lpjml_data,
 
   # do.call for use of ellipsis via dots list
   #   subset_array for dynamic subsetting of flexible legend_dim
-  #   force_idx to use index instead of numeric year or lat, lon for subsetting
   do.call(graphics::plot,
           c(x = list(subset_array(raw_data,
-                                  as.list(stats::setNames(1, legend_dim)),
-                                  force_idx = TRUE)),
+                                  as.list(stats::setNames(1, legend_dim)))),
             col = cols[1],
             dots))
 
@@ -388,10 +391,8 @@ plot_by_band <- function(lpjml_data,
 
   for (i in cols[-1]) {
   # subset_array for dynamic subsetting of flexible legend_dim
-  #   force_idx to use index instead of numeric year or lat, lon for subsetting
     graphics::lines(subset_array(raw_data,
-                                 as.list(stats::setNames(i, legend_dim)),
-                                 force_idx = TRUE),
+                                 as.list(stats::setNames(i, legend_dim))),
                     col = cols[i],
                     type = dots$type)
   }

@@ -68,7 +68,7 @@ create_time_names <- function(
 split_time_names <- function(time_names) {
   # split time string "year-month-day" into year, month, day int vector
   time_split <- strsplit(time_names, "-") %>%
-    lapply(as.integer)
+    lapply(function(x) as.character(as.integer(x)))
 
   # create corresponding dimnames for disaggregated array by unique entry
   matrix(unlist(time_split),

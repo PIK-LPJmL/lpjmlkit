@@ -108,7 +108,7 @@ LPJmLData$set("private",
     } else {
       subset_space_dim <- NULL
     }
-    # assign subset_space_dim for fomrat "lat_lon"
+    # assign subset_space_dim for format "lat_lon"
     if (any(lon_lat %in% names(subset_list))) {
       subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
       # check if current space_format is "lat_lon"
@@ -145,6 +145,8 @@ LPJmLData$set("private",
       time_dimnames <- NULL
     }
 
+    year_dimnames <- create_year_dimnames(subset_list, self$data)
+
     if (any(c(lon_lat, "cell", coords) %in% names(subset_list))) {
       # if space dimensions are subsetted convert .__update_subset__ method
       #   in LPJmLMetaData needs to know the resulting number of cells
@@ -169,9 +171,12 @@ LPJmLData$set("private",
       subset_space_dim <- c("lon", "lat")
       subset_list[[coords]] <- NULL
     }
+    subset_list <- dimnames_year_as_character(subset_list,
+                                              self$dimnames())
     # update corresponding meta data for subsets
     self$meta$.__update_subset__(subset_list,
                                  time_dimnames,
+                                 year_dimnames,
                                  cell_dimnames)
     if (!is.null(self$grid)) {
       private$.grid$meta$.__update_subset__(subset_list[subset_space_dim],
@@ -181,3 +186,12 @@ LPJmLData$set("private",
     return(invisible(self))
   }
 )
+
+create_year_dimnames <- function(subset_list, data) {
+  if ("year" %in% names(subset_list) && is.numeric(subset_list[["year"]])) {
+    year_dimnames <- data$dimnames()$year
+  } else {
+    year_dimnames <- NULL
+  }
+  return(year_dimnames)
+}
