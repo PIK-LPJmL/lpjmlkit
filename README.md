@@ -26,7 +26,7 @@ A collection of base functions to facilitate the work with the
     - :scissors: [`subset()`](./vignettes/lpjml-data.md#4-pencil2-modify-lpjmldata-objects) the underlying data
     - :package: [`as_array()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects), [`as_tibble()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects) and [`as_raster()` / `as_terra()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects) to export into established data formats
 
-- [`read_meta()`](https://github.com/PIK-LPJmL/lpjmlkit/blob/metafile/vignettes/lpjml-data.md#miscellaneous) read meta or header files as [`LPJmLMetaData`](https://github.com/PIK-LPJmL/lpjmlkit/blob/metafile/vignettes/lpjml-data.md#miscellaneous) object
+- [`read_meta()`](./vignettes/lpjml-data.md#miscellaneous) read meta or header files as [`LPJmLMetaData`](./vignettes/lpjml-data.md#miscellaneous) object
 
 ### **miscellaneous**
 - functions to handle LPJmL file headers, `read_header()` read the header of LPJmL files, `get_headersize()` get the size of a file header or `create_header()` to create a header object for writing input files
