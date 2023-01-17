@@ -463,8 +463,8 @@ read_io_metadata_meta <- function(filename, file_type, band_names, subset,
   # Read meta data
   meta_data <- read_meta(filename)
 
-  # Check if user has tried overwriting any meta attributes which we do not
-  # allow for meta files.
+  # Check if user has tried overwriting any meta attributes which we are set
+  # already in the JSON. If so, give warning but still allow for meta files.
   set_args <- setdiff(
     names(formals()),
     c("filename", "file_type", "silent", "subset")
@@ -472,19 +472,24 @@ read_io_metadata_meta <- function(filename, file_type, band_names, subset,
   # Filter arguments that are NULL
   set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
 
-  # Only disallow arguments that are currently set in metadata.
+  # Only warn about arguments that are currently set in metadata.
   no_set_args <- intersect(
     set_args,
     names(which(!sapply(meta_data, is.null)))
   )
   if (length(no_set_args) > 0 && !silent) {
     warning(
-      "You cannot overwrite any of the following parameters for this file: ",
+      "You are trying to overwrite the following parameters, which are already",
+      " set for this file: ",
       toString(sQuote(no_set_args)),
       call. = FALSE
     )
   }
-  # Remove arguments that are not allowed from set_args
+  # Override attributes
+  for (att in no_set_args) {
+    meta_data$.__set_attribute__(paste0(".", att), get(att))
+  }
+  # Remove arguments that are set/updated already
   set_args <- setdiff(set_args, no_set_args)
 
   # If user wants band_names, check consistency with nbands
