@@ -296,7 +296,7 @@ LPJmLData <- R6::R6Class(
         if (self$meta$variable == "grid") {
           private$init_grid()
         } else if (self$meta$variable == "LPJGRID") {
-          private$.meta$.__set_attribute__(".variable", "grid")
+          private$.meta$.__set_attribute__("variable", "grid")
           private$init_grid()
         }
       }

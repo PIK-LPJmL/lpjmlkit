@@ -142,6 +142,9 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     #' @param time_dimnames optional - list of new time_dimnames of subset data
     #' to update meta data
     #'
+    #' @param year_dimnames optional - list of new year_dimnames of subset data
+    #' to update meta data
+    #'
     #' @param cell_dimnames optional - list of new cell_dimnames of subset data
     #' to update meta data
     .__update_subset__ = function(subset,
@@ -229,7 +232,7 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     #'
     #' @param value Value of the attribute, e.g. `"grid"`
     .__set_attribute__ = function(key, value) {
-      private[[key]] <- value
+      private[[paste0(".", key)]] <- value
     },
 
     #' @description

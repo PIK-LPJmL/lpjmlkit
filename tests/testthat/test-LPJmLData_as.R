@@ -115,13 +115,12 @@ test_that("raster export 3rd dim", {
       drop = FALSE
     )
 
-  tmp_grid <- as.character(output$grid$data)
   # add values of raster cells by corresponding coordinates (lon, lat)
   test_raster[
     raster::cellFromXY(
       test_raster,
-      cbind(subset_array(tmp_grid, list(band = "lon")),
-            subset_array(tmp_grid, list(band = "lat")))
+      cbind(subset_array(output$grid$data, list(band = "lon")),
+            subset_array(output$grid$data, list(band = "lat")))
     )
   ] <- test_data
 
@@ -192,13 +191,12 @@ test_that("terra export 3rd dim", {
       drop = FALSE
     )
 
-  tmp_grid <- as.character(output$grid$data)
   # add values of rast cells by corresponding coordinates (lon, lat)
   test_rast[
     terra::cellFromXY(
       test_rast,
-      cbind(subset_array(tmp_grid, list(band = "lon")),
-            subset_array(tmp_grid, list(band = "lat")))
+      cbind(subset_array(output$grid$data, list(band = "lon")),
+            subset_array(output$grid$data, list(band = "lat")))
     )
   ] <- test_data
 

@@ -184,6 +184,7 @@ relevant (\code{all = FALSE})}
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__update_subset__(
   subset,
   time_dimnames = NULL,
+  year_dimnames = NULL,
   cell_dimnames = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -194,6 +195,9 @@ relevant (\code{all = FALSE})}
 \item{\code{subset}}{list of subset arguments, see also \code{\link{subset}}.}
 
 \item{\code{time_dimnames}}{optional - list of new time_dimnames of subset data
+to update meta data}
+
+\item{\code{year_dimnames}}{optional - list of new year_dimnames of subset data
 to update meta data}
 
 \item{\code{cell_dimnames}}{optional - list of new cell_dimnames of subset data

@@ -131,9 +131,10 @@ The \code{file_type} determines which arguments are mandatory, optional,
 or not allowed. \code{filename} must always be provided. \code{file_type} is usually
 detected automatically. Supply only if detected \code{file_type} is incorrect.
 
-In case of \code{file_type = "meta"}, function arguments not listed as "mandatory"
-will be ignored if they are already set in the JSON file. Only meta
-attributes not set in the JSON file can be added.
+In case of \code{file_type = "meta"}, if any of the function arguments not listed
+as "mandatory" are provided and are already set in the JSON file, a warning
+is given, but they can still be overwritten. Normally, you would only set
+meta attributes not set in the JSON file.
 
 In case of \code{file_type = "clm"}, function arguments not listed as "optional"
 are normally determined automatically from the file header included in the
@@ -153,7 +154,9 @@ arguments not supplied by the user. For example, the default \code{firstyear} is
 names are "band", "cell", and "year".
 \itemize{
 \item "year" can be used to return data for a subset of one or several years
-included in the file.
+included in the file. Integer indices can be between 1 and \code{nyear}. If
+subsetting by actual calendar years (starting at \code{firstyear}) supply a
+character vector.
 \item "band" can be used to return data for a subset of one or several bands
 included in the file. These can be specified either as integer indices or as
 a character vector if bands are named.

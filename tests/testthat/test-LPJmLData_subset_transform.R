@@ -131,7 +131,7 @@ test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
   output$transform(to = c("year_month_day", "lon_lat"))
-  output$subset(year = 2005:2008,
+  output$subset(year = as.character(2005:2008),
                 month = 6:9,
                 lat = c("55.25", "55.75", "56.25", "56.75"))
   output$transform(to = "cell")

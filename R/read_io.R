@@ -494,7 +494,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names, subset,
   }
   # Override attributes
   for (att in no_set_args) {
-    meta_data$.__set_attribute__(paste0(".", att), get(att))
+    meta_data$.__set_attribute__(att, get(att))
   }
   # Remove arguments that are set/updated already
   set_args <- setdiff(set_args, no_set_args)
