@@ -163,6 +163,7 @@ LPJmLData$set("private",
     } else {
       cell_dimnames <- NULL
     }
+
     # workaround for coords - sufficient to pass corresponding lat, lon to
     #   to update subset in meta data
     if (coords %in% names(subset_list)) {
@@ -171,8 +172,7 @@ LPJmLData$set("private",
       subset_space_dim <- c("lon", "lat")
       subset_list[[coords]] <- NULL
     }
-    subset_list <- dimnames_year_as_character(subset_list,
-                                              self$dimnames())
+
     # update corresponding meta data for subsets
     self$meta$.__update_subset__(subset_list,
                                  time_dimnames,

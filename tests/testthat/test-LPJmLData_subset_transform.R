@@ -140,8 +140,8 @@ test_that("test transform (space) method", {
 
 
 # coordinates located within the last two cells
-coordinates <- tibble::tibble(lat = c(55.9, 63.7),
-                              lon = c(-87.3, -87.1))
+coordinates <- tibble::tibble(lat = c("55.9", "63.7"),
+                              lon = c("-87.3", "-87.1"))
 
 # test subset method for coordinates (pair)
 test_that("test transform (space) method", {

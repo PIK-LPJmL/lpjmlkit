@@ -306,9 +306,15 @@ read_io <- function(
   # Read data from binary file
   file_data <- read_io_data(filename, meta_data, subset)
 
+  if (!is.null(subset$year) && is.numeric(subset$year)) {
+    year_dimnames <- split_time_names(dimnames(file_data)[["time"]])$year
+  } else {
+    year_dimnames <- NULL
+  }
   # Update meta_data based on subset
   if (length(subset) > 0) {
-    meta_data$.__update_subset__(subset)
+    meta_data$.__update_subset__(subset,
+                                 year_dimnames = year_dimnames)
   }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))

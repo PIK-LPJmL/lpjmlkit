@@ -172,7 +172,10 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
       #   distinguished from years
       if (!is.null(subset[["time"]]) && !is.null(time_dimnames)) {
         year_dimnames <- split_time_names(time_dimnames)[["year"]]
+      } else if (!is.null(subset$year) && is.character(subset$year)) {
+        year_dimnames <- subset$year
       }
+
       if (!is.null(year_dimnames)) {
         private$.firstyear <- min(as.integer(year_dimnames))
         private$.lastyear <- max(as.integer(year_dimnames))
