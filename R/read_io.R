@@ -19,8 +19,8 @@
 #' is incorrect. Valid options:
 #' "raw", a binary file without header;
 #' "clm", a binary file with header;
-#' "meta", a meta-information JSON file complementing a raw or clm file.
-#' @param version Integer indicating CLM-file header version, currently supports
+#' "meta", a meta information JSON file complementing a raw or clm file.
+#' @param version Integer indicating clm file header version, currently supports
 #' one of 1, 2, 3 or 4.
 #' @param order Integer value or character string describing the order of data
 #' items in the file (default in input file: 1; in output file: 4). Valid values
@@ -28,7 +28,7 @@
 #' "cellseq" 4, although only options 1 and 4 are supported by this function.
 #' @param firstyear Integer providing first year of data in the file.
 #' @param nyear Integer providing number of years of data included in the file.
-#' These are  not consecutive in case of `timestep > 1`.
+#' These are not consecutive in case of `timestep > 1`.
 #' @param firstcell Integer providing cell index of first data item. 0 by
 #' default.
 #' @param ncell Integer providing number of data items per band.
@@ -48,8 +48,8 @@
 #' outputs over several years. Defaults to 1 if not read from file
 #' ("clm" or "meta" file) or provided by user.
 #' @param endian Endianness to use for file (either "big" or "little"). By
-#' default uses endianness set in file header or meta information or
-#' platform-specific endianness `.Platform$endian` if not set.
+#' default uses endianness determined from file header or set in meta
+#' information or the platform-specific endianness `.Platform$endian` if not set.
 #' @param variable Optional character string providing name of variable
 #' contained in file. Included in some JSON meta files. **Important:** If
 #' `"file_type" == "raw` and data should be recognized as a grid, prescribe
@@ -78,7 +78,7 @@
 #' # 1910-1920
 #' my_data_wheat <- read_io(
 #'   "my_file.json",
-#'   subset = list(band = "wheat", year = seq(1910, 1920))
+#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 #' )
 #'
 #' # Read data from CLM file. This includes a header describing the file
@@ -95,7 +95,7 @@
 #' my_data_wheat <- read_io(
 #'   "my_file.clm",
 #'   band_names = c("wheat", "rice"),
-#'   subset = list(band = "wheat", year = seq(1910, 1920))
+#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 #' )
 #'
 #' # Read data from raw binary file. Information about file structure needs to
@@ -107,7 +107,7 @@
 #' my_data_wheat <- read_io(
 #'   "my_file.bin",
 #'   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
-#'   subset = list(band = "wheat", year = seq(1910, 1920))
+#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 #'   nyear = 100,
 #'   nbands = 2,
 #' )
@@ -118,16 +118,16 @@
 #'
 #' In case of `file_type = "meta"`, if any of the function arguments not listed
 #' as "mandatory" are provided and are already set in the JSON file, a warning
-#' is given, but they can still be overwritten. Normally, you would only set
-#' meta attributes not set in the JSON file.
+#' is given, but they are still overwritten. Normally, you would only set meta
+#' attributes not set in the JSON file.
 #'
 #' In case of `file_type = "clm"`, function arguments not listed as "optional"
 #' are normally determined automatically from the file header included in the
 #' CLM file. Users may still provide any of these arguments to overwrite values
 #' read from the file header, e.g. when they know that the values in the file
 #' header are wrong. Also, CLM headers with versions < 4 do not contain all
-#' header attributes, with missing attributes filled by default values that may
-#' not be correct for all files.
+#' header attributes, with missing attributes filled with default values that
+#' may not be correct for all files.
 #'
 #' In case of `file_type = "raw"`, files do not contain any information about
 #' their structure. Users should provide all arguments not listed as "optional".
@@ -146,7 +146,7 @@
 #' a character vector if bands are named.
 #' * "cell" can be used to return data for a subset of cells. Note that integer
 #' indices start counting at 1, whereas character indices start counting at the
-#' "firstcell" parameter (usually 0).
+#' `firstcell` parameter (usually 0).
 #' @aliases read_input read_output
 #' @export
 read_io <- function(
@@ -215,7 +215,6 @@ read_io <- function(
     do.call(args = list(filename = filename,
                         file_type = file_type,
                         band_names = band_names,
-                        subset = subset,
                         version = version,
                         order = order,
                         firstyear = firstyear,
@@ -238,6 +237,36 @@ read_io <- function(
   # Offset at beginning of binary data file
   start_offset <- default(meta_data$offset, 0)
   
+  # Filter for NAs in subset
+  if (length(subset) > 0 && any(sapply(subset, anyNA))) {
+    before <- names(subset)
+    if (!silent) {
+      warning(
+        "Removing NA values from ",
+        paste(
+          "subset[[", dQuote(names(which(sapply(subset, anyNA)))), "]]",
+          sep = "", collapse = ", "
+        )
+      )
+    }
+    subset <- lapply(subset, na.omit)
+    if ("year" %in% names(subset) && length(subset$year) == 0) {
+      stop("subset[[\"year\"]] is empty after removal of NAs")
+    }
+    subset <- subset[which(sapply(subset, length) > 0)]
+    if (length(subset) < length(before) && !silent) {
+      warning(
+        paste(
+          "subset[[", dQuote(setdiff(before, names(subset))), "]]",
+          sep = "", collapse = ", "
+        ),
+        " empty after removal of NAs. ",
+        ifelse(length(before) - length(subset) > 1, "Dimensions", "Dimension"),
+        " not subsetted."
+      )
+    }
+  }
+
   # Check if subset contains valid year subset
   check_year_subset(subset, meta_data, silent)
 
@@ -312,10 +341,17 @@ read_io <- function(
   } else {
     year_dimnames <- NULL
   }
+  if (!is.null(subset$cell))  {
+    cell_dimnames <- dimnames(file_data)[["cell"]]
+  } else {
+    cell_dimnames <- NULL
+  }
   # Update meta_data based on subset
   if (length(subset) > 0) {
     meta_data$.__update_subset__(subset,
-                                 year_dimnames = year_dimnames)
+                                 year_dimnames = year_dimnames,
+                                 cell_dimnames = cell_dimnames,
+                                 silent)
   }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))
@@ -329,7 +365,7 @@ read_io <- function(
 }
 
 # read & assign metadata for binary file without a header
-read_io_metadata_raw <- function(filename, file_type, band_names, subset,
+read_io_metadata_raw <- function(filename, file_type, band_names,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
@@ -379,7 +415,7 @@ read_io_metadata_raw <- function(filename, file_type, band_names, subset,
 }
 
 # read & assign metadata for binary file with a header
-read_io_metadata_clm <- function(filename, file_type, band_names, subset,
+read_io_metadata_clm <- function(filename, file_type, band_names,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
@@ -462,7 +498,7 @@ read_io_metadata_clm <- function(filename, file_type, band_names, subset,
 
 # read & assign metadata for meta file type (binary file with associated
 # meta-data json file)
-read_io_metadata_meta <- function(filename, file_type, band_names, subset,
+read_io_metadata_meta <- function(filename, file_type, band_names,
                                   version, order, firstyear, nyear, firstcell,
                                   ncell, nbands, cellsize_lon, scalar,
                                   cellsize_lat, datatype, nstep, timestep,
@@ -474,7 +510,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names, subset,
   # already in the JSON. If so, give warning but still allow for meta files.
   set_args <- setdiff(
     names(formals()),
-    c("filename", "file_type", "silent", "subset")
+    c("filename", "file_type", "silent")
   )
   # Filter arguments that are NULL
   set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
@@ -598,6 +634,9 @@ read_io_data <- function(
 
   # Open binary file connection
   file_connection <- file(filename, "rb")
+  # Ensure that file connection is closed even if function is terminated with an
+  # error.
+  on.exit(if(exists("file_connection")) close(file_connection))
 
   # Dimension order during reading. Note: Must be 3 dimensions in total, with
   # "time" being last dimension for code below to work.
@@ -702,6 +741,7 @@ read_io_data <- function(
   }
   # Close binary file connection
   close(file_connection)
+  rm(file_connection)
 
   # Create and assign time dimension names
   time_dimnames <- create_time_names(

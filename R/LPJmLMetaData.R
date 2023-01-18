@@ -1,10 +1,10 @@
 #' @title LPJmL meta output class
 #'
 #' @description A meta data container for LPJmL input and output. Container -
-#' because a LPJmLMetaData object is a environment in which the meta data is
+#' because a LPJmLMetaData object is an environment in which the meta data is
 #' stored after [`read_meta`] (or [`read_io`]).
 #' Each attribute can be accessed via `$<attribute>`. To get an overview over
-#' available attributes, print the object or export is a list [`as_list`].
+#' available attributes, print the object or export it as a list [`as_list`].
 #' The enclosing environment is locked and cannot be altered.
 #'
 LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
@@ -147,10 +147,13 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     #'
     #' @param cell_dimnames optional - list of new cell_dimnames of subset data
     #' to update meta data
+    #'
+    #' @param silent optional - if TRUE, supress output of warning message
     .__update_subset__ = function(subset,
                                   time_dimnames = NULL,
                                   year_dimnames = NULL,
-                                  cell_dimnames = NULL) {
+                                  cell_dimnames = NULL,
+                                  silent = FALSE) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
@@ -161,20 +164,67 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
           if (is_sequential(cell_dimnames)) {
             private$.firstcell <- min(as.numeric(cell_dimnames))
           } else {
-            firstcell <- NULL
+            private$.firstcell <- NA
           }
           private$.ncell <- length(cell_dimnames)
+        } else if (!is.null(subset$cell)) {
+          if (is.character(subset$cell)) {
+            # Calculate firstcell and ncell from character subsets
+            firstcell <- private$.firstcell
+            ncell <- private$.ncell
+            # New firstcell is minimum of subset, but not smaller than current
+            # firstcell
+            if (is_sequential(subset$cell)) {
+              firstcell <- private$.firstcell <- max(
+                min(as.integer(subset$cell)),
+                max(private$.firstcell, 0)
+              )
+            } else {
+              firstcell <- max(
+                min(as.integer(subset$cell)),
+                max(private$.firstcell, 0)
+              )
+              # Set to NA to indicate that cells are not sequential
+              private$.firstcell <- NA
+            }
+            if (is.numeric(firstcell)) {
+              # ncell is number of cells in subset between new firstcell and old
+              # maximum cell index
+              private$.ncell <- length(
+                which(
+                  as.integer(subset$cell) >= firstcell &&
+                  as.integer(subset$cell) < firstcell + ncell
+                )
+              )
+            } else {
+              # Cannot automatically determine firstcell and ncell
+              stop("You must provide \"cell_dimnames\" to conduct this ",
+                   "character subset by cell or subset by integer index.")
+            }
+          } else if (is_sequential(subset$cell)) {
+            if (is.numeric(private$.firstcell)) {
+              # Determine new firstcell based on offset to old firstcell
+              private$.firstcell <- private$.firstcell +
+                min(as.integer(subset$cell)) - 1
+            }
+            private$.ncell <- length(subset$cell)
+          } else {
+            stop("You must provide \"cell_dimnames\" to conduct this subset by",
+                 " cell")
+          }
         } else {
+          # ncell should never be invalid so rather throw an error here than set
+          # to NA
+          stop("You must provide \"cell_dimnames\" if subsetting by ",
+               toString(dQuote(intersect(names(subset), c("lon", "lat")))))
           private$.firstcell <- NA
           private$.ncell <- NA
         }
         private$.subset <- TRUE
         private$.subset_space <- TRUE
       }
-      # for years using indices is forbidden because they cannot be properly
-      #   distinguished from years
-      if (!is.null(subset[["time"]]) && !is.null(time_dimnames)) {
-        year_dimnames <- split_time_names(time_dimnames)[["year"]]
+      if (!is.null(subset$time) && !is.null(time_dimnames)) {
+        year_dimnames <- split_time_names(time_dimnames)$year
       } else if (!is.null(subset$year) && is.character(subset$year)) {
         year_dimnames <- subset$year
       }
@@ -188,12 +238,12 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
       # band can be subsetted via indices or band_names - the latter is updated
       if (!is.null(subset$band)) {
         if (is.character(subset$band)) {
-          if (!all(subset$band %in% private$.band_names)) {
-            warning(paste0(
+          if (!all(subset$band %in% private$.band_names) && !silent) {
+            warning(
               "Not all subset bands are represented in the original data:",
               "\n- band_names provided to subset may be incorrect, or",
               "\n- new names have been provided by the user to band_names."
-            ))
+            )
           }
           private$.band_names <- private$.band_names[
             private$.band_names %in% subset$band

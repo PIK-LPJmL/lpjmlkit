@@ -55,9 +55,40 @@ asub <- function(x,
 
 subset_array <- function(x,
                          subset_list = NULL,
-                         drop = TRUE) {
+                         drop = TRUE,
+                         silent = FALSE) {
   if (is.null(subset_list)) {
     return(x)
+  }
+  # Filter for NAs in subset_list
+  if (length(subset_list) > 0 && any(sapply(subset_list, anyNA))) {
+    if (!silent) {
+      warning(
+        "Removing NA values from ",
+        paste(
+          "subset_list[[", dQuote(names(which(sapply(subset_list, anyNA)))),
+          "]]",
+          sep = "", collapse = ", "
+        )
+      )
+    }
+    subset_list <- lapply(subset_list, na.omit)
+    # Remove empty subsets
+    before <- names(subset_list)
+    subset_list <- subset_list[which(sapply(subset_list, length) > 0)]
+    if (length(subset_list) < length(before) && !silent) {
+      warning(
+        paste(
+          "subset_list[[", dQuote(setdiff(before, names(subset_list))), "]]",
+          sep = "", collapse = ", "
+        ),
+        " empty after removal of NAs. ",
+        ifelse(
+          length(before) - length(subset_list) > 1, "Dimensions", "Dimension"
+        ),
+        " not subsetted."
+      )
+    }
   }
   if (drop) {
     argum <- c(alist(x),
@@ -193,8 +224,8 @@ drop_omit <- function(x, omit_dim) {
 
 # check if indices exist in dimension of array
 check_index <- function(x, y, dim_name) {
-  if (any(abs(x) > length(y))) {
-    nonvalids <- which(abs(x) > length(y))
+  if (any(abs(x) > length(y) | x == 0)) {
+    nonvalids <- which(abs(x) > length(y) | x == 0)
     stop_subset(x, nonvalids, dim_name)
   }
 }
