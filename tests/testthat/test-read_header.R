@@ -7,8 +7,8 @@ test_that("read in LPJmL file header version 1", {
   expect_type(header, "list")
   # Test that header has all expected elements
   expect_named(header, c("name", "header", "endian"))
-  # Test that warning about default parameters is given
-  expect_warning(
+  # Test that message about default parameters is given
+  expect_message(
     read_header("../testdata/header_v1.clm"),
     "Type 1 header.*cellsize.*scalar"
   )
@@ -23,8 +23,8 @@ test_that("read in LPJmL file header version 2", {
   expect_type(header, "list")
   # Test that header has all expected elements
   expect_named(header, c("name", "header", "endian"))
-  # Test that warning about default parameters is given
-  expect_warning(
+  # Test that message about default parameters is given
+  expect_message(
     read_header("../testdata/header_v2.clm"),
     "Type 2 header.*datatype"
   )
@@ -39,8 +39,8 @@ test_that("read in LPJmL file header version 3", {
   expect_type(header, "list")
   # Test that header has all expected elements
   expect_named(header, c("name", "header", "endian"))
-  # Test that warning about default parameters is given
-  expect_warning(
+  # Test that message about default parameters is given
+  expect_message(
     read_header("../testdata/header_v3.clm"),
     "Type 3 header.*nstep"
   )
