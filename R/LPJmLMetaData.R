@@ -151,7 +151,6 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
                                   cell_dimnames = NULL,
                                   time_dimnames = NULL,
                                   year_dimnames = NULL) {
-      is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
       if (!is.null(subset$cell) ||
@@ -159,11 +158,7 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
         # subset of subset$cell, subset$lon or subset$lat always have to be
         #   accompanied by cell_dimnames
         if (!is.null(cell_dimnames)) {
-          if (is_sequential(cell_dimnames)) {
-            private$.firstcell <- min(as.numeric(cell_dimnames))
-          } else {
-            private$.firstcell <- NA
-          }
+          private$.firstcell <- min(as.numeric(cell_dimnames))
           private$.ncell <- length(cell_dimnames)
         }
         private$.subset <- TRUE
