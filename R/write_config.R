@@ -780,17 +780,17 @@ convert_integer <- function(x, check_value) {
 
 # function to get order if not specified
 get_order <- function(x) {
+  .data <- NULL
   get_order_each <- function(x, sim, depend) {
+    .data <- NULL
     order <- 1
     if (!is.na(depend)) {
-      depend_x <- dplyr::filter(x, sim_name == depend)
+      depend_x <- dplyr::filter(x, .data$sim_name == depend) # nolint
       order <- order + get_order_each(x, depend_x$sim_name, depend_x$dependency)
     }
     return(order)
   }
   dplyr::rowwise(x) %>%
-    dplyr::mutate(order = get_order_each(., sim_name, dependency)) %>%
+    dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
     return()
 }
-# avoid note for "."...
-utils::globalVariables("sim_name", "dependency") # nolintr:undesirable_function_linter
