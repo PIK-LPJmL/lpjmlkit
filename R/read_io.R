@@ -349,9 +349,9 @@ read_io <- function(
   # Update meta_data based on subset
   if (length(subset) > 0) {
     meta_data$.__update_subset__(subset,
-                                 year_dimnames = year_dimnames,
                                  cell_dimnames = cell_dimnames,
-                                 silent)
+                                 year_dimnames = year_dimnames,
+                                 silent = silent)
   }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))

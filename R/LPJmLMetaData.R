@@ -150,16 +150,17 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     #'
     #' @param silent optional - if TRUE, supress output of warning message
     .__update_subset__ = function(subset,
+                                  cell_dimnames = NULL,
                                   time_dimnames = NULL,
                                   year_dimnames = NULL,
-                                  cell_dimnames = NULL,
                                   silent = FALSE) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
       if (!is.null(subset$cell) ||
           !is.null(subset$lon) || !is.null(subset$lat)) {
-        # recalculate firstcell and ncell if subsetted by lat and/or lon
+        # subset of subset$cell, subset$lon or subset$lat always have to be
+        #   accompanied by cell_dimnames
         if (!is.null(cell_dimnames)) {
           if (is_sequential(cell_dimnames)) {
             private$.firstcell <- min(as.numeric(cell_dimnames))
@@ -167,58 +168,6 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
             private$.firstcell <- NA
           }
           private$.ncell <- length(cell_dimnames)
-        } else if (!is.null(subset$cell)) {
-          if (is.character(subset$cell)) {
-            # Calculate firstcell and ncell from character subsets
-            firstcell <- private$.firstcell
-            ncell <- private$.ncell
-            # New firstcell is minimum of subset, but not smaller than current
-            # firstcell
-            if (is_sequential(subset$cell)) {
-              firstcell <- private$.firstcell <- max(
-                min(as.integer(subset$cell)),
-                max(private$.firstcell, 0)
-              )
-            } else {
-              firstcell <- max(
-                min(as.integer(subset$cell)),
-                max(private$.firstcell, 0)
-              )
-              # Set to NA to indicate that cells are not sequential
-              private$.firstcell <- NA
-            }
-            if (is.numeric(firstcell)) {
-              # ncell is number of cells in subset between new firstcell and old
-              # maximum cell index
-              private$.ncell <- length(
-                which(
-                  as.integer(subset$cell) >= firstcell &&
-                  as.integer(subset$cell) < firstcell + ncell
-                )
-              )
-            } else {
-              # Cannot automatically determine firstcell and ncell
-              stop("You must provide \"cell_dimnames\" to conduct this ",
-                   "character subset by cell or subset by integer index.")
-            }
-          } else if (is_sequential(subset$cell)) {
-            if (is.numeric(private$.firstcell)) {
-              # Determine new firstcell based on offset to old firstcell
-              private$.firstcell <- private$.firstcell +
-                min(as.integer(subset$cell)) - 1
-            }
-            private$.ncell <- length(subset$cell)
-          } else {
-            stop("You must provide \"cell_dimnames\" to conduct this subset by",
-                 " cell")
-          }
-        } else {
-          # ncell should never be invalid so rather throw an error here than set
-          # to NA
-          stop("You must provide \"cell_dimnames\" if subsetting by ",
-               toString(dQuote(intersect(names(subset), c("lon", "lat")))))
-          private$.firstcell <- NA
-          private$.ncell <- NA
         }
         private$.subset <- TRUE
         private$.subset_space <- TRUE

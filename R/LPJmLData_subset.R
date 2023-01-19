@@ -175,9 +175,9 @@ LPJmLData$set("private",
 
     # update corresponding meta data for subsets
     private$.meta$.__update_subset__(subset_list,
-                                 time_dimnames = time_dimnames,
-                                 year_dimnames = year_dimnames,
-                                 cell_dimnames = cell_dimnames)
+                                     cell_dimnames = cell_dimnames,
+                                     time_dimnames = time_dimnames,
+                                     year_dimnames = year_dimnames)
     if (!is.null(private$.grid)) {
       private$.grid$meta$.__update_subset__(subset_list[subset_space_dim],
                                             cell_dimnames = cell_dimnames)
