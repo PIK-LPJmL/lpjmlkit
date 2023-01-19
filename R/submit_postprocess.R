@@ -112,8 +112,8 @@ submit_postprocess <- function(x = NULL,
                                memory = NULL,
                                modules = NULL,
                                no_submit = FALSE) {
-  # check if working in cluster environment (workaround by Ciaron)
-  if (!dir.exists("/p/system") && !no_submit) {
+  # check if slurm is available
+  if (!is_slurm_available() && !no_submit) {
     stop("submit_postprocess is only available on the PIK cluster environment")
   }
   if (!dir.exists(output_path)) {

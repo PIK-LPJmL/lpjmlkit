@@ -173,9 +173,10 @@ submit_lpjml <- function(x,
                          wtime = "",
                          blocking = "",
                          no_submit = FALSE) {
-  # check if working in cluster environment (workaround by Ciaron)
-  if (!dir.exists("/p/system") && !no_submit) {
-    stop("submit_lpjml is only available on the PIK cluster environment")
+  # check if slurm is available
+  if (!is_slurm_available() && !no_submit) {
+    stop("submit_lpjml is only available on HPC cluster environments providing
+          a SLURM workload manager")
   }
   # check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
@@ -381,4 +382,14 @@ submit_run <- function(sim_name,
     }
   })
   return(submit_status)
+}
+
+
+# function to check if slurm is available - if so return TRUE
+is_slurm_available <- function() {
+  processx::run(command = "sh",
+                args = c("-c", "sinfo"),
+                error_on_status = FALSE) %>%
+  .$status == 0 %>%
+    return()
 }
