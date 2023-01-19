@@ -73,7 +73,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
     # initiate clone to be returned on which following methods are executed
-    data_subset <- self$clone()
+    data_subset <- self$clone(deep = TRUE)
     `if`(!is.null(subset),
          do.call(data_subset$subset, args = subset),
          data_subset) %>%
@@ -428,26 +428,26 @@ LPJmLData$set("private",
                        subset = NULL,
                        aggregate = NULL,
                        ...) {
-    if (!is.null(self$meta$variable) &&
-        self$meta$variable == "grid" &&
-        self$meta$._space_format_ == "cell") {
-      stop(paste("not legit for variable", self$meta$variable))
+    if (!is.null(private$.meta$variable) &&
+        private$.meta$variable == "grid" &&
+        private$.meta$._space_format_ == "cell") {
+      stop(paste("not legit for variable", private$.meta$variable))
     }
 
     # support of lazy loading of grid for meta files else add explicitly
-    if (is.null(self$grid) &&
-        self$meta$._space_format_ == "cell") {
+    if (is.null(private$.grid) &&
+        private$.meta$._space_format_ == "cell") {
       self$add_grid()
     }
 
     # workflow adjusted for subsetted grid (via cell)
-    data_subset <- self$clone()
+    data_subset <- self$clone(deep = TRUE)
     if (!is.null(subset)) {
       do.call(data_subset$subset, args = subset)
     }
 
     if (!is.null(aggregate) &&
-        !any(names(aggregate) %in% strsplit(self$meta$._space_format_,"_")[[1]]) && # nolint
+        !any(names(aggregate) %in% strsplit(private$.meta$._space_format_,"_")[[1]]) && # nolint
         all(names(aggregate) %in% names(dim(self$data)))) {
       # not recommended for self, some meta data not valid for data_subset!
       data_subset$.__set_data__(

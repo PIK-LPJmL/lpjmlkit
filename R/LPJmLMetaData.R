@@ -237,7 +237,7 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
       }
       # band can be subsetted via indices or band_names - the latter is updated
       if (!is.null(subset$band)) {
-        if (is.character(subset$band)) {
+        if (is.character(subset$band) && !is.null(private$.band_names)) {
           if (!all(subset$band %in% private$.band_names) && !silent) {
             warning(
               "Not all subset bands are represented in the original data:",
@@ -251,7 +251,11 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
         } else {
           private$.band_names <- private$.band_names[subset$band]
         }
-        private$.nbands <- length(private$.band_names)
+        if (!is.null(private$.band_names)) {
+          private$.nbands <- length(private$.band_names)
+        } else {
+          private$.nbands <- length(seq_len(private$.nbands)[subset$band])
+        }
         private$.subset <- TRUE
       }
     },
@@ -290,19 +294,13 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     #'
     #' @param x `list` (not nested) with meta data
     #'
-    #' @param subset `list` of array dimension(s) as name/key and
-    #' corresponding subset vector as value, e.g.
-    #' `list(cell = c(27411:27415)`, more information at
-    #' [`subset.LPJmLData`].
-    #'
-    #' @param additional_data `list` of additional attributes to be set that
+    #' @param additional_attributes `list` of additional attributes to be set that
     #' are not included in file header. These are
     #' `c"(band_names", "variable", "descr", "unit")`
     #'
     #' @param data_dir Character string for data directory to "lazy load" grid
     initialize = function(x,
-                          subset = list(),
-                          additional_data = list(),
+                          additional_attributes = list(),
                           data_dir = NULL) {
       if (all(names(x) %in% c("name", "header", "endian"))) {
         header_to_meta <- as.list(x$header) %>%
@@ -327,12 +325,9 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
                       )
                      )
               )
-        private$init_list(header_to_meta, additional_data)
+        private$init_list(header_to_meta, additional_attributes)
       } else {
-        private$init_list(x, additional_data)
-      }
-      if (length(subset) > 0) {
-        self$.__update_subset__(subset)
+        private$init_list(x, additional_attributes)
       }
       # add data_dir for lazy loading of (e.g.) grid later
       if (!is.null(data_dir)) {
@@ -496,15 +491,15 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     }
   ),
   private = list(
-    init_list = function(x, additional_data = list()) {
+    init_list = function(x, additional_attributes = list()) {
       for (name_id in private$.name_order) {
         # if (!names(x[idx]) %in% names(LPJmLMetaData$public_fields)) {
         #   warning(paste0(names(x[idx]),
         #                  " may not be a valid LPJmLMetaData field."))
         # }
         if (is.null(x[[name_id]])) {
-          if (name_id %in% names(additional_data)) {
-            x[[name_id]] <- additional_data[[name_id]]
+          if (name_id %in% names(additional_attributes)) {
+            x[[name_id]] <- additional_attributes[[name_id]]
           } else {
             next
           }

@@ -74,10 +74,10 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        raster_extent = NULL,
                        ...) {
-  time_dims <- strsplit(self$meta$._time_format_, "_")[[1]]
-  space_dims <- strsplit(self$meta$._space_format_, "_")[[1]]
+  time_dims <- strsplit(private$.meta$._time_format_, "_")[[1]]
+  space_dims <- strsplit(private$.meta$._space_format_, "_")[[1]]
   # do subsetting first for better performance
-  data_subset <- self$clone()
+  data_subset <- self$clone(deep = TRUE)
   if (!is.null(subset)) {
     do.call(data_subset$subset, args = subset)
   }
@@ -118,16 +118,16 @@ LPJmLData$set("private",
     .[. %in% space_dims] %>%
     dim(data_subset)[.]
 
-  descr <- ifelse(is.null(self$meta$descr),
+  descr <- ifelse(is.null(private$.meta$descr),
                   "unknown variable",
-                  self$meta$descr)
-  unit <- ifelse(is.null(self$meta$unit),
+                  private$.meta$descr)
+  unit <- ifelse(is.null(private$.meta$unit),
                   "-",
-                  self$meta$unit)
+                  private$.meta$unit)
   # for spatial aggregation plot time series
   if (all(space_dims %in% names(aggregate)) ||
-      (self$meta$._space_format_ == "cell" && space_len <= 8) ||
-      (self$meta$._space_format_ == "lon_lat" && any(space_dims %in% names(aggregate)))) { # nolint
+      (private$.meta$._space_format_ == "cell" && space_len <= 8) ||
+      (private$.meta$._space_format_ == "lon_lat" && any(space_dims %in% names(aggregate)))) { # nolint
     #add default axes labels to plot.
     var_title <- paste0(descr, " [", unit, "]")
     if (is.null(dots$ylab)) {

@@ -26,14 +26,14 @@ LPJmLData <- R6::R6Class(
       # check for locked objects
       check_method_locked(self, "add_grid")
       # check if meta file for grid is located in output location
-      grid_file <- list.files(self$meta$._data_dir_,
+      grid_file <- list.files(private$.meta$._data_dir_,
                               pattern = "grid.bin.json")
       if (length(grid_file) == 1) {
         # if so get concatenate existing file and data_dir to read grid
-        filename <- paste(self$meta$._data_dir_, grid_file, sep = "/")
+        filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
-        if (self$meta$._subset_space_) {
+        if (private$.meta$._subset_space_) {
           self$.__set_grid__(
             read_io(
               filename = filename,
@@ -174,14 +174,14 @@ LPJmLData <- R6::R6Class(
       unset_col <- "\u001b[0m"
       # print meta data
       cat(paste0("\u001b[1m", blue_col, "$meta %>%", unset_col, "\n"))
-      self$meta$print(all = FALSE, spaces = "  .")
+      private$.meta$print(all = FALSE, spaces = "  .")
       # not all meta data are printed 
       cat(paste0("\u001b[33;3m",
                  "Note: not printing all meta data, use $meta to get all.",
                  unset_col,
                  "\n"))
       # print grid only if available
-      if (!is.null(self$grid)) {
+      if (!is.null(private$.grid)) {
         cat(paste0("\u001b[1m\u001b[31m",
                    "$grid",
                    unset_col,
@@ -222,8 +222,8 @@ LPJmLData <- R6::R6Class(
       # summary
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
-      if (is.null(self$meta$variable) ||
-      self$meta$variable != "grid") {
+      if (is.null(private$.meta$variable) ||
+      private$.meta$variable != "grid") {
         cat(paste0("\u001b[33;3m",
                    "Note: summary is not weighted by grid area.",
                    unset_col,
@@ -231,9 +231,9 @@ LPJmLData <- R6::R6Class(
         )
       } else {
         cat(paste0("\u001b[33;3m",
-                   ifelse(self$meta$._space_format_ == "cell",
-                          "Note: only min & max printed as equivalent to spatial extent.", #nolint
-                          "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), #nolint
+                   ifelse(private$.meta$._space_format_ == "cell",
+                          "Note: only min & max printed as equivalent to spatial extent.", # nolint
+                          "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), # nolint
                    unset_col,
                    "\n"))
       }
@@ -292,10 +292,10 @@ LPJmLData <- R6::R6Class(
         stop("Provide a LPJmLMetaData object for meta data.")
       }
       private$.data <- data
-      if (!is.null(self$meta$variable)) {
-        if (self$meta$variable == "grid") {
+      if (!is.null(private$.meta$variable)) {
+        if (private$.meta$variable == "grid") {
           private$init_grid()
-        } else if (self$meta$variable == "LPJGRID") {
+        } else if (private$.meta$variable == "LPJGRID") {
           private$.meta$.__set_attribute__("variable", "grid")
           private$init_grid()
         }
@@ -305,7 +305,9 @@ LPJmLData <- R6::R6Class(
   active = list(
     #' @field meta [`LPJmLMetaData`] object to store corresponding meta data
     meta = function() {
-      return(private$.meta)
+      # clone meta object so that if meta is changed outside of a LPJmLData
+      #   instance it will not change this instance
+      return(private$.meta$clone())
     },
     #' @field data \link[base]{array} containing the underlying data
     data = function() {
@@ -313,7 +315,18 @@ LPJmLData <- R6::R6Class(
     },
     #' @field grid *optional* - `LPJmLData` containing the underlying grid,
     grid = function() {
-      return(private$.grid)
+      if (!is.null(private$.grid)) {
+        # clone meta object so that if meta is changed outside of a LPJmLData
+        #   instance it will not change this instance - deep because grid
+        #   includes another R6 class object (meta) which is another environment
+        grid <- private$.grid$clone(deep = TRUE)
+        # allow using methods on grid outside of LPJmLData instance
+        grid$.__set_lock__(is_locked = FALSE)
+        return(grid)
+      } else {
+        # if NULL make sure NULL is returned directly and not tried to clone
+        return(private$.grid)
+      }
     },
     #' @field ._is_locked_ *internal* Logical. Is object locked (no method can
     #' be performed directly on the object)
@@ -330,7 +343,7 @@ LPJmLData <- R6::R6Class(
       self$.__set_data__(
         drop_omit(self$data, omit = "cell")
       )
-      self$meta$.__init_grid__()
+      private$.meta$.__init_grid__()
       return(invisible(self))
     },
     .meta = NULL,

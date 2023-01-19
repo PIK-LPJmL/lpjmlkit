@@ -107,8 +107,8 @@ LPJmLData$set("private",
         mat_sum[, seq_len(16)] %>%
           summary(...)
       } else {
-        if (!is.null(self$meta$variable) &&
-            self$meta$variable == "grid") {
+        if (!is.null(private$.meta$variable) &&
+            private$.meta$variable == "grid") {
 
           mat_sum %>%
               summary(...) %>%
@@ -120,12 +120,12 @@ LPJmLData$set("private",
       }
     } else {
       mat_sum <- summary(matrix(data), ...)
-      if (!is.null(self$meta$variable) &&
-          self$meta$variable == "grid") {
+      if (!is.null(private$.meta$variable) &&
+          private$.meta$variable == "grid") {
         var_name <- "cell"
         mat_sum <- mat_sum[c(1, 6), ]
       } else {
-        var_name <- default(self$meta$variable, "")
+        var_name <- default(private$.meta$variable, "")
       }
       space_len <- ifelse(nchar(var_name) > 8,
                           0,

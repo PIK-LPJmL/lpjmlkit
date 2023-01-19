@@ -341,7 +341,7 @@ read_io <- function(
   } else {
     year_dimnames <- NULL
   }
-  if (!is.null(subset$cell))  {
+  if (!is.null(subset$cell)) {
     cell_dimnames <- dimnames(file_data)[["cell"]]
   } else {
     cell_dimnames <- NULL
@@ -400,16 +400,16 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
                    band_names)
 
   # Prepare additional attributes to be added to meta information
-  additional_data <- list(band_names = band_names, variable = variable,
-                          descr = descr, unit = unit)
-  additional_data <- additional_data[which(!sapply(additional_data, is.null))]
+  additional_attributes <- list(band_names = band_names, variable = variable,
+                                descr = descr, unit = unit)
+  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))]
   # Use header name is a substitute for variable if variable is not set
-  if (is.null(additional_data[["variable"]])) {
-    additional_data[["variable"]] <- get_header_item(file_header, "name")
+  if (is.null(additional_attributes[["variable"]])) {
+    additional_attributes[["variable"]] <- get_header_item(file_header, "name")
   }
   # Generate meta_data
   meta_data <- LPJmLMetaData$new(x = file_header,
-                                 additional_data = additional_data,
+                                 additional_attributes = additional_attributes,
                                  data_dir = dirname(filename))
   return(meta_data)
 }
@@ -475,23 +475,23 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
                    band_names)
 
   # Prepare additional attributes to be added to meta information
-  additional_data <- list(band_names = band_names, variable = variable,
+  additional_attributes <- list(band_names = band_names, variable = variable,
                           descr = descr, unit = unit)
-  additional_data <- additional_data[which(!sapply(additional_data, is.null))]
+  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))]
   # Use header name is a substitute for variable if variable is not set. Here,
   # use name argument if supplied by user.
-  if (is.null(additional_data[["variable"]])) {
-    additional_data[["variable"]] <- as.character(
+  if (is.null(additional_attributes[["variable"]])) {
+    additional_attributes[["variable"]] <- as.character(
       default(name, get_header_item(file_header, "name"))[1]
     )
   }
 
   # Offset at the start of the file before values begin
-  additional_data[["offset"]] <- unname(get_headersize(file_header))
+  additional_attributes[["offset"]] <- unname(get_headersize(file_header))
 
   # Generate meta_data
   meta_data <- LPJmLMetaData$new(x = file_header,
-                                 additional_data = additional_data,
+                                 additional_attributes = additional_attributes,
                                  data_dir = dirname(filename))
   return(meta_data)
 }
@@ -596,11 +596,11 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
     }
   }
   # Prepare additional attributes to be added to metadata
-  additional_data <- sapply(set_args, function(x) get(x), simplify = FALSE)
+  additional_attributes <- sapply(set_args, function(x) get(x), simplify = FALSE) # nolint
 
   # Update meta_data
   meta_data$initialize(x = meta_data$as_list(),
-                       additional_data = additional_data)
+                       additional_attributes = additional_attributes)
 
   # Convert meta data into header
   file_header <- meta_data$as_header(silent)

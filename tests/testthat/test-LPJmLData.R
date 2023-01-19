@@ -72,7 +72,6 @@ test_that("test add_grid method", {
   output$add_grid()
   # read in grid directly
   grid <- read_io("../testdata/output/grid.bin.json")
-  grid$.__set_lock__(is_locked = TRUE)
   # check if added grid equals grid file (read in separately)
   expect_equal(output$grid, grid)
   # check grid cells with those of objects meta data
