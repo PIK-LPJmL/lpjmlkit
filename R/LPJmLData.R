@@ -427,4 +427,4 @@ check_method_locked <- function(x, method_name) {
 }
 
 # avoid note for "."...
-utils::globalVariables(".")
+utils::globalVariables(".") # nolintr:undesirable_function_linter

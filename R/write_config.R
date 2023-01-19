@@ -285,6 +285,10 @@ write_config <- function(params,
     showWarnings = FALSE
   )
 
+  if (!"order" %in% colnames(params)) {
+    params <- get_order(params)
+  }
+
   commit_hash <- get_git_urlhash(path = model_path, raise_error = FALSE)
 
   # call function rowwise on dataframe/tibble
@@ -772,3 +776,21 @@ convert_integer <- function(x, check_value) {
     }
   }
 }
+
+
+# function to get order if not specified
+get_order <- function(x) {
+  get_order_each <- function(x, sim, depend) {
+    order <- 1
+    if (!is.na(depend)) {
+      depend_x <- dplyr::filter(x, sim_name == depend)
+      order <- order + get_order_each(x, depend_x$sim_name, depend_x$dependency)
+    }
+    return(order)
+  }
+  dplyr::rowwise(x) %>%
+    dplyr::mutate(order = get_order_each(., sim_name, dependency)) %>%
+    return()
+}
+# avoid note for "."...
+utils::globalVariables("sim_name", "dependency") # nolintr:undesirable_function_linter

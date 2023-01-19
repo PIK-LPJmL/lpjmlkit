@@ -200,7 +200,7 @@ output_path <-"./my_runs"
 
 
 # basic usage
-my_params1 <- tibble(
+my_params <- tibble(
   sim_name = c("scen1", "scen2"),
   random_seed = c(12, 404),
   pftpar.1.name = c("first_tree", NA),
@@ -208,56 +208,34 @@ my_params1 <- tibble(
   new_phenology = c(TRUE, FALSE)
 )
 
-config_details1 <- write_config(
-  params = my_params1,
+config_details <- write_config(
+  params = my_params,
   model_path = model_path,
   output_path = output_path
 )
 
-config_details1
+config_details
 # A tibble: 2 x 1
 #   sim_name
 #   <chr>
 # 1 scen1
 # 2 scen2
 
-
-# usage with macro
-my_params2 <- tibble(
- sim_name = c("scen1_spinup", "scen1_transient"),
- random_seed = c(42, 404),
- `-DFROM_RESTART` = c(FALSE, TRUE)
-)
-
-config_details2 <- write_config(
-  params = my_params2,
-  model_path = model_path,
-  output_path = output_path
-)
-
-config_details2
-# A tibble: 2 x 1
-#   sim_name
-#   <chr>
-# 1 scen1_spinup
-# 2 scen1_transient
-
-
 # usage with dependency
-my_params3 <- tibble(
+my_params <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
  order = c(1, 2),
  dependency = c(NA, "scen1_spinup")
 )
 
-config_details3 <- write_config(
-  params = my_params3,
+config_details <- write_config(
+  params = my_params,
   model_path = model_path,
   output_path = output_path
 )
 
-config_details3
+config_details
 # A tibble: 2 x 3
 #   sim_name        order dependency
 #   <chr>           <dbl> <chr>
@@ -265,7 +243,7 @@ config_details3
 # 2 scen1_transient     2 scen1_spinup
 
 
-my_params4 <- tibble(
+my_params <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
  order = c(1, 2),
@@ -273,13 +251,13 @@ my_params4 <- tibble(
  wtime = c("8:00:00", "2:00:00")
 )
 
-config_details4 <- write_config(
-  params = my_params4,
+config_details <- write_config(
+  params = my_params,
   model_path = model_path,
   output_path = output_path
 )
 
-config_details4
+config_details
 # A tibble: 2 x 4
 #   sim_name        order dependency   wtime
 #   <chr>           <dbl> <chr>        <chr>
