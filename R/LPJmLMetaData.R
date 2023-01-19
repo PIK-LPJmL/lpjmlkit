@@ -187,13 +187,6 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
       # band can be subsetted via indices or band_names - the latter is updated
       if (!is.null(subset$band)) {
         if (is.character(subset$band) && !is.null(private$.band_names)) {
-          if (!all(subset$band %in% private$.band_names) && !silent) {
-            warning(
-              "Not all subset bands are represented in the original data:",
-              "\n- band_names provided to subset may be incorrect, or",
-              "\n- new names have been provided by the user to band_names."
-            )
-          }
           private$.band_names <- private$.band_names[
             private$.band_names %in% subset$band
           ]
