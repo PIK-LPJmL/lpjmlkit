@@ -72,7 +72,7 @@ subset_array <- function(x,
         )
       )
     }
-    subset_list <- lapply(subset_list, na.omit)
+    subset_list <- lapply(subset_list, stats::na.omit)
     # Remove empty subsets
     before <- names(subset_list)
     subset_list <- subset_list[which(sapply(subset_list, length) > 0)]

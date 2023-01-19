@@ -6,10 +6,9 @@
 #' single or multiple (dependent/subsequent) model runs.
 #'
 #' @param x \link[tibble]{tibble} with at least "sim_name" defined as columns.
-#' Runs as rows. Optional run parameters `"order"` and
-#' `"dependency"` used for subsequent runs (see details)
-#' \link[lpjmlkit]{write_config} returns a tibble in the required format.
-#' OR provide a character string (vector) with the file name of a or
+#' Runs as rows. Optional run parameters `"dependency"` used for subsequent runs
+#' (see details) \link[lpjmlkit]{write_config} returns a tibble in the required
+#' format. OR provide a character string (vector) with the file name of a or
 #' multiple generated ( \link[lpjmlkit]{write_config}) config file(s).
 #'
 #' @param model_path character string providing the path to LPJmL
@@ -51,14 +50,14 @@
 #' | scen1_spinup    |
 #' | scen2_transient |
 #'
-#' To perform subsequent or rather nested runs provide optional run parameters
-#' `"order"` and `"dependency"` to the initial \link[tibble]{tibble} supplied
-#' as `param` to \link[lpjmlkit]{write_config}
+#' To perform subsequent or rather nested runs provide optional run parameter
+#' `"dependency"` to the initial \link[tibble]{tibble} supplied as `param` to
+#' \link[lpjmlkit]{write_config}
 #'
-#' | **sim_name**    | **order** | **dependency** |
-#' |:--------------- | ---------:|:-------------- |
-#' | scen1_spinup    | 1         | NA             |
-#' | scen2_transient | 2         | scen1 _spinup  |
+#' | **sim_name**    | **dependency** |
+#' |:--------------- | :------------- |
+#' | scen1_spinup    | NA             |
+#' | scen2_transient | scen1 _spinup  |
 #'
 #' To use different slurm settings for each run the optional slurm options
 #' `"sclass"`, `"ntask"`, `"wtime"` or `"blocking"` can also be supplied to the
@@ -67,18 +66,16 @@
 #' arguments (`sclass`, `ntask`, `wtime` or `blocking`) supplied to
 #' `submit_lpjml`.
 #'
-#' | **sim_name**    | **order** | **dependency** | **wtime** |
-#' |:--------------- | ---------:|:-------------- |----------:|
-#' | scen1_spinup    | 1         | NA             | "8:00:00" |
-#' | scen2_transient | 2         | scen1 _spinup  | "2:00:00" |
+#' | **sim_name**    | **dependency** | **wtime** |
+#' |:--------------- |:-------------- |----------:|
+#' | scen1_spinup    | NA             | "8:00:00" |
+#' | scen2_transient | scen1 _spinup  | "2:00:00" |
 #'
 #' As a shortcut it is also possible to provide the config file
 #' `"config_*.json"` as a character string or multiple config files as a
 #' character string vector directly as `x` to `submit_lpjml`. \cr
 #' Of course run parameters or slurm options cannot be taken into account in
 #' this approach. \cr
-#' Also be aware that the order of the supplied config files is important
-#' (e.g. make sure the spin-up run is submitted before the transient one)
 #'
 #' @examples
 #'
@@ -91,7 +88,7 @@
 #'
 #'
 #' # basic usage
-#' my_params1 <- tibble(
+#' my_params <- tibble(
 #'  sim_name = c("scen1", "scen2"),
 #'  random_seed = as.integer(c(42, 404)),
 #'  pftpar.1.name = c("first_tree", NA),
@@ -99,34 +96,33 @@
 #'  new_phenology = c(TRUE, FALSE)
 #' )
 #'
-#' config_details1 <- write_config(my_params1, model_path, output_path)
+#' config_details <- write_config(my_params, model_path, output_path)
 #'
-#'  run_details1 <- submit_lpjml(
-#'   x = config_details1,
+#'  run_details <- submit_lpjml(
+#'   x = config_details,
 #'   model_path = model_path,
 #'   output_path = output_path
 #' )
 #'
-#' run_details2
+#' run_details
 #' #   sim_name      job_id   status
 #' #   <chr>           <int>  <chr>
 #' # 1 scen1        21235215  submitted
 #' # 2 scen2        21235216  submitted
 #'
 #'
-#' # with run parameters dependency, order and slurm option wtime being
+#' # with run parameter dependency and slurm option wtime being
 #' #   set (also less other parameters than in previous example)
-#' my_params2 <- tibble(
+#' my_params <- tibble(
 #'   sim_name = c("scen1", "scen2"),
 #'   random_seed = as.integer(c(42, 404)),
-#'   order = c(1, 2),
 #'   dependency = c(NA, "scen1_spinup"),
 #'   wtime = c("8:00:00", "4:00:00"),
 #' )
 #'
-#'  config_details2 <- write_config(my_params2, model_path, output_path)
+#' config_details2 <- write_config(my_params2, model_path, output_path)
 #'
-#'  run_details2 <- submit_lpjml(config_details2, model_path, output_path)
+#' run_details2 <- submit_lpjml(config_details2, model_path, output_path)
 #'
 #' run_details2
 #' #   sim_name        order dependency   wtime   type       job_id   status
@@ -136,10 +132,9 @@
 #'
 #'
 #' # same but by using the pipe operator
-#' run_details2 <- tibble(
+#' run_details <- tibble(
 #'   sim_name = c("scen1_spinup", "scen1_transient"),
 #'   random_seed = as.integer(c(1, 42)),
-#'   order = c(1, 2),
 #'   dependency = c(NA, "scen1_spinup"),
 #'   wtime = c("8:00:00", "4:00:00"),
 #' ) %>%
@@ -148,13 +143,13 @@
 #'
 #'
 #' # shortcut approaches
-#' run_details3 <- submit_lpjml(
+#' run_details <- submit_lpjml(
 #'   x = "./config_scen1_transient.json",
 #'   model_path = model_path,
 #'   output_path = output_path
 #' )
 #'
-#' run_details4 <- submit_lpjml(
+#' run_details <- submit_lpjml(
 #'   c("./config_scen1_spinup.json", "./config_scen1_transient.json"),
 #'   model_path,
 #'   output_path
@@ -173,9 +168,10 @@ submit_lpjml <- function(x,
                          wtime = "",
                          blocking = "",
                          no_submit = FALSE) {
-  # check if working in cluster environment (workaround by Ciaron)
-  if (!dir.exists("/p/system") && !no_submit) {
-    stop("submit_lpjml is only available on the PIK cluster environment")
+  # check if slurm is available
+  if (!is_slurm_available() && !no_submit) {
+    stop("submit_lpjml is only available on HPC cluster environments providing
+          a SLURM workload manager")
   }
   # check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
@@ -381,4 +377,14 @@ submit_run <- function(sim_name,
     }
   })
   return(submit_status)
+}
+
+
+# function to check if slurm is available - if so return TRUE
+is_slurm_available <- function() {
+  processx::run(command = "sh",
+                args = c("-c", "sinfo"),
+                error_on_status = FALSE) %>%
+  .$status == 0 %>%
+    return()
 }

@@ -259,11 +259,11 @@ do_run <- function(sim_name,
 # conduct sequential runs (no parallelization), also switch of MPI on login node
 do_sequential <- function(sim_names, model_path, output_path, write_stdout) {
   # tryCatch to unset and set MPI for function call outside of slurm job on
-  #   the PIK cluster even when function call is interrupted or has thrown
+  #   a HPC cluster even when function call is interrupted or has thrown
   #   an error
   tryCatch({
-    # workarounds by Ciaron
-    if (dir.exists("/p/system") && Sys.getenv("SLURM_JOB_ID") == "") {
+    # check if slurm is available
+    if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
       Sys.setenv(I_MPI_DAPL_UD = "disable",
                  I_MPI_FABRICS = "shm:shm",
                  I_MPI_DAPL_FABRIC = "shm:sh")
@@ -272,8 +272,8 @@ do_sequential <- function(sim_names, model_path, output_path, write_stdout) {
       do_run(sim_name, model_path, output_path, write_stdout)
     }
   }, finally = {
-    # workarounds by Ciaron
-    if (dir.exists("/p/system") && Sys.getenv("SLURM_JOB_ID") == "") {
+    # check if slurm is available
+    if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
       Sys.setenv(I_MPI_DAPL_UD = "enable",
                  I_MPI_FABRICS = "shm:dapl")
       Sys.unsetenv("I_MPI_DAPL_FABRIC")

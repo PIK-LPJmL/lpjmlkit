@@ -84,7 +84,7 @@ test_integrity <- function(output) {
     } else {
       # test to match data of grid (cell numbers) and cell numbers constructed
       #   by meta data of output
-      expect_true(all(as.vector(na.omit(output$grid$data)) %in%
+      expect_true(all(as.vector(stats::na.omit(output$grid$data)) %in%
                       seq(output$meta$firstcell, length.out = output$meta$ncell)) # nolint
                   )
     }

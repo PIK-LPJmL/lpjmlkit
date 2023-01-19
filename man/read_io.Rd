@@ -53,9 +53,9 @@ normally detected automatically but can be prescribed if automatic detection
 is incorrect. Valid options:
 "raw", a binary file without header;
 "clm", a binary file with header;
-"meta", a meta-information JSON file complementing a raw or clm file.}
+"meta", a meta information JSON file complementing a raw or clm file.}
 
-\item{version}{Integer indicating CLM-file header version, currently supports
+\item{version}{Integer indicating clm file header version, currently supports
 one of 1, 2, 3 or 4.}
 
 \item{order}{Integer value or character string describing the order of data
@@ -66,7 +66,7 @@ for LPJmL input/output files are "cellyear" 1, "yearcell" 2, "cellindex" 3,
 \item{firstyear}{Integer providing first year of data in the file.}
 
 \item{nyear}{Integer providing number of years of data included in the file.
-These are  not consecutive in case of \code{timestep > 1}.}
+These are not consecutive in case of \code{timestep > 1}.}
 
 \item{firstcell}{Integer providing cell index of first data item. 0 by
 default.}
@@ -96,8 +96,8 @@ outputs over several years. Defaults to 1 if not read from file
 ("clm" or "meta" file) or provided by user.}
 
 \item{endian}{Endianness to use for file (either "big" or "little"). By
-default uses endianness set in file header or meta information or
-platform-specific endianness \code{.Platform$endian} if not set.}
+default uses endianness determined from file header or set in meta
+information or the platform-specific endianness \code{.Platform$endian} if not set.}
 
 \item{variable}{Optional character string providing name of variable
 contained in file. Included in some JSON meta files. \strong{Important:} If
@@ -133,16 +133,16 @@ detected automatically. Supply only if detected \code{file_type} is incorrect.
 
 In case of \code{file_type = "meta"}, if any of the function arguments not listed
 as "mandatory" are provided and are already set in the JSON file, a warning
-is given, but they can still be overwritten. Normally, you would only set
-meta attributes not set in the JSON file.
+is given, but they are still overwritten. Normally, you would only set meta
+attributes not set in the JSON file.
 
 In case of \code{file_type = "clm"}, function arguments not listed as "optional"
 are normally determined automatically from the file header included in the
 CLM file. Users may still provide any of these arguments to overwrite values
 read from the file header, e.g. when they know that the values in the file
 header are wrong. Also, CLM headers with versions < 4 do not contain all
-header attributes, with missing attributes filled by default values that may
-not be correct for all files.
+header attributes, with missing attributes filled with default values that
+may not be correct for all files.
 
 In case of \code{file_type = "raw"}, files do not contain any information about
 their structure. Users should provide all arguments not listed as "optional".
@@ -162,7 +162,7 @@ included in the file. These can be specified either as integer indices or as
 a character vector if bands are named.
 \item "cell" can be used to return data for a subset of cells. Note that integer
 indices start counting at 1, whereas character indices start counting at the
-"firstcell" parameter (usually 0).
+\code{firstcell} parameter (usually 0).
 }
 }
 \examples{
@@ -178,7 +178,7 @@ my_data <- read_io("my_file.json")
 # 1910-1920
 my_data_wheat <- read_io(
   "my_file.json",
-  subset = list(band = "wheat", year = seq(1910, 1920))
+  subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 )
 
 # Read data from CLM file. This includes a header describing the file
@@ -195,7 +195,7 @@ my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
 my_data_wheat <- read_io(
   "my_file.clm",
   band_names = c("wheat", "rice"),
-  subset = list(band = "wheat", year = seq(1910, 1920))
+  subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 )
 
 # Read data from raw binary file. Information about file structure needs to
@@ -207,7 +207,7 @@ my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
 my_data_wheat <- read_io(
   "my_file.bin",
   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
-  subset = list(band = "wheat", year = seq(1910, 1920))
+  subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
   nyear = 100,
   nbands = 2,
 )

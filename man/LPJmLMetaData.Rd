@@ -5,10 +5,10 @@
 \title{LPJmL meta output class}
 \description{
 A meta data container for LPJmL input and output. Container -
-because a LPJmLMetaData object is a environment in which the meta data is
+because a LPJmLMetaData object is an environment in which the meta data is
 stored after \code{\link{read_meta}} (or \code{\link{read_io}}).
 Each attribute can be accessed via \verb{$<attribute>}. To get an overview over
-available attributes, print the object or export is a list \code{\link{as_list}}.
+available attributes, print the object or export it as a list \code{\link{as_list}}.
 The enclosing environment is locked and cannot be altered.
 }
 \section{Active bindings}{
@@ -183,9 +183,9 @@ relevant (\code{all = FALSE})}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$.__update_subset__(
   subset,
+  cell_dimnames = NULL,
   time_dimnames = NULL,
-  year_dimnames = NULL,
-  cell_dimnames = NULL
+  year_dimnames = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -194,14 +194,14 @@ relevant (\code{all = FALSE})}
 \describe{
 \item{\code{subset}}{list of subset arguments, see also \code{\link{subset}}.}
 
+\item{\code{cell_dimnames}}{optional - list of new cell_dimnames of subset data
+to update meta data, required if spatial dimensions are subsetted !}
+
 \item{\code{time_dimnames}}{optional - list of new time_dimnames of subset data
-to update meta data}
+to update meta data, required if time dimension is subsetted !}
 
 \item{\code{year_dimnames}}{optional - list of new year_dimnames of subset data
-to update meta data}
-
-\item{\code{cell_dimnames}}{optional - list of new cell_dimnames of subset data
-to update meta data}
+to update meta data, required if year dimension is subsetted !}
 }
 \if{html}{\out{</div>}}
 }
@@ -266,12 +266,7 @@ to update meta data}
 \subsection{Method \code{new()}}{
 Create a new LPJmLMetaData object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
-  x,
-  subset = list(),
-  additional_data = list(),
-  data_dir = NULL
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(x, additional_attributes = list(), data_dir = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -279,12 +274,7 @@ Create a new LPJmLMetaData object
 \describe{
 \item{\code{x}}{\code{list} (not nested) with meta data}
 
-\item{\code{subset}}{\code{list} of array dimension(s) as name/key and
-corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
-\code{\link{subset.LPJmLData}}.}
-
-\item{\code{additional_data}}{\code{list} of additional attributes to be set that
+\item{\code{additional_attributes}}{\code{list} of additional attributes to be set that
 are not included in file header. These are
 \verb{c"(band_names", "variable", "descr", "unit")}}
 

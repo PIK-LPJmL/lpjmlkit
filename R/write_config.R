@@ -186,7 +186,7 @@
 #'
 #'
 #' # basic usage
-#' my_params1 <- tibble(
+#' my_params <- tibble(
 #'   sim_name = c("scen1", "scen2"),
 #'   random_seed = c(12, 404),
 #'   pftpar.1.name = c("first_tree", NA),
@@ -194,56 +194,34 @@
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
-#' config_details1 <- write_config(
-#'   params = my_params1,
+#' config_details <- write_config(
+#'   params = my_params,
 #'   model_path = model_path,
 #'   output_path = output_path
 #' )
 #'
-#' config_details1
+#' config_details
 #' # A tibble: 2 x 1
 #' #   sim_name
 #' #   <chr>
 #' # 1 scen1
 #' # 2 scen2
 #'
-#'
-#' # usage with macro
-#' my_params2 <- tibble(
-#'  sim_name = c("scen1_spinup", "scen1_transient"),
-#'  random_seed = c(42, 404),
-#'  `-DFROM_RESTART` = c(FALSE, TRUE)
-#' )
-#'
-#' config_details2 <- write_config(
-#'   params = my_params2,
-#'   model_path = model_path,
-#'   output_path = output_path
-#' )
-#'
-#' config_details2
-#' # A tibble: 2 x 1
-#' #   sim_name
-#' #   <chr>
-#' # 1 scen1_spinup
-#' # 2 scen1_transient
-#'
-#'
 #' # usage with dependency
-#' my_params3 <- tibble(
+#' my_params <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
 #'  order = c(1, 2),
 #'  dependency = c(NA, "scen1_spinup")
 #' )
 #'
-#' config_details3 <- write_config(
-#'   params = my_params3,
+#' config_details <- write_config(
+#'   params = my_params,
 #'   model_path = model_path,
 #'   output_path = output_path
 #' )
 #'
-#' config_details3
+#' config_details
 #' # A tibble: 2 x 3
 #' #   sim_name        order dependency
 #' #   <chr>           <dbl> <chr>
@@ -252,7 +230,7 @@
 #'
 #'
 # usage with slurm option
-#' my_params4 <- tibble(
+#' my_params <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
 #'  order = c(1, 2),
@@ -260,13 +238,13 @@
 #'  wtime = c("8:00:00", "2:00:00")
 #' )
 #'
-#' config_details4 <- write_config(
-#'   params = my_params4,
+#' config_details <- write_config(
+#'   params = my_params,
 #'   model_path = model_path,
 #'   output_path = output_path
 #' )
 #'
-#' config_details4
+#' config_details
 #' # A tibble: 2 x 4
 #' #   sim_name        order dependency   wtime
 #' #   <chr>           <dbl> <chr>        <chr>
@@ -306,6 +284,10 @@ write_config <- function(params,
     recursive = TRUE,
     showWarnings = FALSE
   )
+
+  if (!"order" %in% colnames(params)) {
+    params <- get_order(params)
+  }
 
   commit_hash <- get_git_urlhash(path = model_path, raise_error = FALSE)
 
@@ -721,6 +703,7 @@ mutate_config_param <- function(x,
   # every column represents a key in config.json
   params[c("order", "dependency", slurm_args, exclude_macros)] <- NULL
   x[["sim_githash"]] <- commit_hash
+  all_names <- names(unlist(x))
 
   for (colname in colnames(params)) {
     # test if NA is supplied, then default value is used
@@ -729,14 +712,11 @@ mutate_config_param <- function(x,
 
     # split keys for each level
     keys <- strsplit(colname, "[.]")[[1]]
-
     # test for length and digits (indices) -> handle each case
     if (length(keys) > 1) {
       if (grepl("^[[:digit:]]+$", keys)[2]) {
         if (length(keys) > 2) {
-          if (is.null(x[[keys[1]]][[
-            as.integer(keys[2])
-          ]][[keys[3:length(keys)]]])) {
+          if (is.null(x[[keys[1]]][[as.integer(keys[2])]][[keys[3:length(keys)]]])) { # nolint
             stop(paste(colname, "is not legit!"))
           } else {
             x[[keys[1]]][[as.integer(keys[2])]][[
@@ -755,14 +735,16 @@ mutate_config_param <- function(x,
           }
         }
       } else {
-        if (is.null(x[[keys]])) {
+        if (!paste(keys, collapse = ".") %in% all_names ||
+            is.null(x[[keys]])) {
           stop(paste(colname, "is not legit!"))
         } else {
           x[[keys]] <- convert_integer(param_value, x[[keys]])
         }
       }
     } else {
-      if (is.null(x[[keys]])) {
+      if (!paste(keys, collapse = ".") %in% all_names ||
+          is.null(x[[keys]])) {
         stop(paste(colname, "is not legit!"))
       } else {
         x[[keys]] <- convert_integer(param_value, x[[keys]])
@@ -793,4 +775,22 @@ convert_integer <- function(x, check_value) {
       return(x)
     }
   }
+}
+
+
+# function to get order if not specified
+get_order <- function(x) {
+  .data <- NULL
+  get_order_each <- function(x, sim, depend) {
+    .data <- NULL
+    order <- 1
+    if (!is.na(depend)) {
+      depend_x <- dplyr::filter(x, .data$sim_name == depend) # nolint
+      order <- order + get_order_each(x, depend_x$sim_name, depend_x$dependency)
+    }
+    return(order)
+  }
+  dplyr::rowwise(x) %>%
+    dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
+    return()
 }

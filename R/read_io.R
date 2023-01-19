@@ -249,7 +249,7 @@ read_io <- function(
         )
       )
     }
-    subset <- lapply(subset, na.omit)
+    subset <- lapply(subset, stats::na.omit)
     if ("year" %in% names(subset) && length(subset$year) == 0) {
       stop("subset[[\"year\"]] is empty after removal of NAs")
     }

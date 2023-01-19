@@ -338,7 +338,11 @@ LPJmLData <- R6::R6Class(
     # init grid if variable == "grid"
     init_grid = function() {
       # update grid data
-      dimnames(private$.data)[["band"]] <- c("lon", "lat")
+      if (dim(private$.data)[["band"]] == 2) {
+        dimnames(private$.data)[["band"]] <- c("lon", "lat")
+      } else {
+        stop("Unknown number of bands for grid initialization.")
+      }
       # update grid meta data
       self$.__set_data__(
         drop_omit(self$data, omit = "cell")
@@ -406,13 +410,25 @@ aggregate_array <- function(x,
   data <- x$data
   if (!is.null(aggregate_list)) {
     for (idx in seq_along(aggregate_list)) {
+      idx_name <- names(aggregate_list)[idx]
+      dims <- dim(data)
       dim_names <- names(dim(data))
-      data <- apply(X = data,
-                    MARGIN = dim_names[
-                      !dim_names %in% names(aggregate_list)[idx]
-                    ],
-                    FUN = aggregate_list[[idx]],
-                    ...)
+      if (!idx_name %in% dim_names) {
+        warning(paste0("\u001b[0m",
+                       "Dimension ",
+                       "\u001b[34m",
+                       idx_name,
+                       "\u001b[0m",
+                       " does not exist."))
+        next
+      } else if (dims[idx_name] == 1) {
+        data <- abind::adrop(data, idx_name)
+      } else {
+        data <- apply(X = data,
+                      MARGIN = dim_names[!dim_names %in% idx_name],
+                      FUN = aggregate_list[[idx]],
+                      ...)
+      }
     }
   }
   return(data)
@@ -440,4 +456,4 @@ check_method_locked <- function(x, method_name) {
 }
 
 # avoid note for "."...
-utils::globalVariables(".")
+utils::globalVariables(".") # nolintr:undesirable_function_linter
