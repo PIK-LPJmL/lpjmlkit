@@ -139,21 +139,18 @@ LPJmLMetaData <- R6::R6Class( # nolint: object_name_linter
     #' !Internal method only to be used for package development!
     #' @param subset list of subset arguments, see also [`subset`].
     #'
+    #' @param cell_dimnames optional - list of new cell_dimnames of subset data
+    #' to update meta data, required if spatial dimensions are subsetted !
+    #'
     #' @param time_dimnames optional - list of new time_dimnames of subset data
-    #' to update meta data
+    #' to update meta data, required if time dimension is subsetted !
     #'
     #' @param year_dimnames optional - list of new year_dimnames of subset data
-    #' to update meta data
-    #'
-    #' @param cell_dimnames optional - list of new cell_dimnames of subset data
-    #' to update meta data
-    #'
-    #' @param silent optional - if TRUE, supress output of warning message
+    #' to update meta data, required if year dimension is subsetted !
     .__update_subset__ = function(subset,
                                   cell_dimnames = NULL,
                                   time_dimnames = NULL,
-                                  year_dimnames = NULL,
-                                  silent = FALSE) {
+                                  year_dimnames = NULL) {
       is_sequential <- function(x) all(diff(as.integer(x)) == 1)
       # update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0! and numeric/integer -> R index starting from 1 -> -1

@@ -334,7 +334,7 @@ read_io <- function(
   }
 
   # Read data from binary file
-  file_data <- read_io_data(filename, meta_data, subset)
+  file_data <- read_io_data(filename, meta_data, subset, silent)
 
   if (!is.null(subset$year) && is.numeric(subset$year)) {
     year_dimnames <- split_time_names(dimnames(file_data)[["time"]])$year
@@ -350,8 +350,7 @@ read_io <- function(
   if (length(subset) > 0) {
     meta_data$.__update_subset__(subset,
                                  cell_dimnames = cell_dimnames,
-                                 year_dimnames = year_dimnames,
-                                 silent = silent)
+                                 year_dimnames = year_dimnames)
   }
   # Adjust dimension order to dim_order
   if (!identical(dim_order, names(dim(file_data))))
@@ -615,7 +614,8 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
 read_io_data <- function(
   filename,
   meta_data,
-  subset
+  subset,
+  silent
 ) {
   # All years in the file
   years <- seq(
@@ -711,7 +711,8 @@ read_io_data <- function(
       # Apply any subsetting along bands or cells
       subset_array(
         subset[index],
-        drop = FALSE
+        drop = FALSE,
+        silent = silent
       )
 
     # Concatenate years together
