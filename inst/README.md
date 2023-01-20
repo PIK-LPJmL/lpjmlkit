@@ -15,7 +15,8 @@
 - [`read_meta()`](./vignettes/lpjml-data.md#miscellaneous) read meta or header files as [`LPJmLMetaData`](./vignettes/lpjml-data.md#miscellaneous) object
 
 ### **miscellaneous**
-- `calc_cellarea()` to calculate the cell area of LPJmLData objects or other objects latitudes
+- `calc_cellarea()` to calculate the area of LPJmLData objects underlying grid
+or for other objects latitudes
 - functions to handle LPJmL file headers, `read_header()` read the header of LPJmL files, `get_headersize()` get the size of a file header or `create_header()` to create a header object for writing input files
 - `get_datatype()` get information on the data type used in different LPJmL files
 - `asub()` functionality of the subset method to be used on a base array, also to replace data

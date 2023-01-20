@@ -30,8 +30,8 @@ areas.}
 are \code{"ha"} or \code{"km2"}}
 }
 \value{
-Either if x is an LPJmLData object a vector or array matching the
-space dimension(s) of this object or if x is a latitude vector a vector of
+Either if \code{x} is an LPJmLData object a vector or array matching the
+space dimension(s) of this object or if \code{x} is a latitude vector a vector of
 cell areas in \eqn{m^2} corresponding to cells in \code{lat} is returned.
 }
 \description{

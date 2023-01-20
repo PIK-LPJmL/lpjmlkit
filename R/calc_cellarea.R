@@ -15,8 +15,8 @@
 #'   areas.
 #' @param unit Character string, defaults to `"m2"`. Further available options
 #' are `"ha"` or `"km2"`
-#' @return Either if x is an LPJmLData object a vector or array matching the
-#' space dimension(s) of this object or if x is a latitude vector a vector of
+#' @return Either if `x` is an LPJmLData object a vector or array matching the
+#' space dimension(s) of this object or if `x` is a latitude vector a vector of
 #' cell areas in \eqn{m^2} corresponding to cells in `lat` is returned.
 #'
 #' @examples
