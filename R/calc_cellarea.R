@@ -5,19 +5,21 @@
 #' Uses a spherical representation of Earth.
 #'
 #' @param x `LPJmLData` object with `$grid` attribute, a LPJmLData object of
-#' variable `"grid"` (`"LPJ_GRID"`) or vector of cell-center latitude
+#' variable `"grid"` (`"LPJGRID"`) or vector of cell-center latitude
 #' coordinates in degrees.
 #' @param res_lon Grid resolution in longitude direction in degrees
-#'   (default: 0.5). If x LPJmLData` object it will be ignored if different.
+#'   (default: 0.5). If `x` is a LPJmLData object the resolution will be taken
+#'   from the meta data included in `x`.
 #' @param res_lat Grid resolution in latitude direction in degrees (default:
-#'   same as res_lon). If x LPJmLData` object it will be ignored if different.
+#'   same as res_lon). If `x` is a LPJmLData` object the resolution will be
+#'   taken from the meta data included in `x`.
 #' @param earth_radius Radius of sphere (in \eqn{m}) used to calculate cell
 #'   areas.
-#' @param unit Character string, defaults to `"m2"`. Further available options
-#' are `"ha"` or `"km2"`
-#' @return Either if `x` is an LPJmLData object a vector or array matching the
-#' space dimension(s) of this object or if `x` is a latitude vector a vector of
-#' cell areas in \eqn{m^2} corresponding to cells in `lat` is returned.
+#' @param return_unit Character string describing the area unit of the returned
+#'   cell areas. Defaults to `"m2"`, further options: `"ha"` or `"km2"`.
+#' @return A vector or array matching the space dimension(s) of `x` if `x` is a
+#'   LPJmLData object. A vector of the same length as `x` if `x` is a vector of
+#'   latitude coordinates. Cell areas are returned in the unit `return_unit`.
 #'
 #' @examples
 #' grid <- matrix(
@@ -33,9 +35,9 @@ calc_cellarea <- function(x,
                           res_lon = 0.5,
                           res_lat = res_lon,
                           earth_radius = 6371000.785,
-                          unit = "m2"
+                          return_unit = "m2"
                          ) {
-  # worklfow for LPJmLData objects
+  # workflow for LPJmLData objects
   if (methods::is(x, "LPJmLData")) {
     # check if grid is available as attribute
     if (!is.null(x$grid)) {
@@ -44,15 +46,15 @@ calc_cellarea <- function(x,
     } else if (!any(c("grid", "LPJGRID") %in% x$meta$variable)) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
-    if (res_lon != x$meta$cellsize_lon) {
+    if (!is.null(x$meta$cellsize_lon) && res_lon != x$meta$cellsize_lon) {
       res_lon <- x$meta$cellsize_lon
-      warning("res_lon is ignored, instead cellsize_lon of x$meta is used.")
+      warning("Using x$meta$cellsize_lon instead of supplied res_lon.")
     }
-    if (res_lat != x$meta$cellsize_lat) {
+    if (!is.null(x$meta$cellsize_lat) && res_lat != x$meta$cellsize_lat) {
       res_lat <- x$meta$cellsize_lat
-      warning("res_lat is ignored, instead cellsize_lat of x$meta is used.")
+      warning("Using x$meta$cellsize_lat instead of supplied res_lat.")
     }
-    # check for format of space dimensions apply different processing
+    # check for format of space dimensions, apply different processing
     if (x$meta$._space_format_ == "cell") {
       # for format "cell" latitudes are supplied as data in band dimension
       #   ("lat")
@@ -65,19 +67,19 @@ calc_cellarea <- function(x,
       x[is.na(check)] <- NA
     }
   } else {
-    # make sure supplied vector is numeric (lat dimnames of LPJmLData are
-    #   character string)
+    # make sure supplied vector is numeric
     x <- as.double(x)
   }
   cellwidth <- earth_radius * pi / 180
   if (any(x < -90 | x > 90, na.rm = TRUE)) {
-    stop("Invalid latitude values in lat. Values must be within +- 90 degrees")
+    stop("Invalid latitude values in 'x'. Values must be within +- 90 degrees")
   }
   cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
-    # for each unit possiblity apply conversion factor
-    switch(unit,
+    # apply conversion factor based on return_unit parameter
+    switch(return_unit,
            m2 = .,
            ha = . * 1e-4,
-           km2 = . * 1e-6) %>%
+           km2 = . * 1e-6,
+           stop("Unsupported return_unit ", dQuote(return_unit))) %>%
     return()
 }
