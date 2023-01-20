@@ -126,7 +126,9 @@ LPJmLData$set("private",
       # calculate dimnames for full 2 dimensional grid
       spatial_dimnames <- mapply(seq,
                                  rev(grid_extent[1, ]),
-                                 rev(grid_extent[2, ]),
+                                 rev(grid_extent[2, ]) +
+                                   c(private$.meta$cellsize_lat,
+                                     private$.meta$cellsize_lon) / 2,
                                  by = c(private$.meta$cellsize_lat,
                                         private$.meta$cellsize_lon),
                                  SIMPLIFY = FALSE)
@@ -135,10 +137,26 @@ LPJmLData$set("private",
                         dim = lapply(spatial_dimnames, length),
                         dimnames = spatial_dimnames)
       # get indices of lat and lon dimnames
-      ilon <- match(self$data[, 1],
-                    as.numeric(dimnames(grid_array)$lon))
-      ilat <- match(self$data[, 2],
-                    as.numeric(dimnames(grid_array)$lat))
+      ilon <- round((self$data[, "lon"] - min(grid_extent[, "lon"])) /
+        private$.meta$cellsize_lon) + 1
+      ilat <- round((self$data[, "lat"] - min(grid_extent[, "lat"])) /
+        private$.meta$cellsize_lat) + 1
+      # now set dimnames of grid_array to actual coordinates instead of dummy
+      # spatial_dimnames
+      coordlon <- self$data[match(seq_len(dim(grid_array)["lon"]), ilon), "lon"]
+      dimnames(grid_array)$lon <- ifelse(
+        is.na(coordlon),
+        dimnames(grid_array)$lon,
+        coordlon
+      )
+      rm(coordlon)
+      coordlat <- self$data[match(seq_len(dim(grid_array)["lat"]), ilat), "lat"]
+      dimnames(grid_array)$lat <- ifelse(
+        is.na(coordlat),
+        dimnames(grid_array)$lat,
+        coordlat
+      )
+      rm(coordlat)
       # replace cell of lon and lat by cell index
       grid_array[cbind(ilat, ilon)] <- as.integer(
         dimnames(self$data)$cell
