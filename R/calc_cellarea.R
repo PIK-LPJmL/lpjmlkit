@@ -11,6 +11,8 @@
 #'   (default: 0.5). If x LPJmLData` object it will be ignored if different.
 #' @param res_lat Grid resolution in latitude direction in degrees (default:
 #'   same as res_lon). If x LPJmLData` object it will be ignored if different.
+#' @param earth_radius Radius of sphere (in \eqn{m}) used to calculate cell
+#'   areas.
 #' @param unit Character string, defaults to `"m2"`. Further available options
 #' are `"ha"` or `"km2"`
 #' @return Either if x is an LPJmLData object a vector or array matching the

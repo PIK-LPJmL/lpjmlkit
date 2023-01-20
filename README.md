@@ -1,6 +1,6 @@
 # Toolkit for basic LPJmL handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
-R package **lpjmlkit**, version **0.5.9**
+R package **lpjmlkit**, version **0.5.10**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/workflows/check/badge.svg)](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/actions) [![codecov](https://codecov.io/gh/lpjml/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/lpjml/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
 
@@ -29,6 +29,7 @@ A collection of base functions to facilitate the work with the
 - [`read_meta()`](./vignettes/lpjml-data.md#miscellaneous) read meta or header files as [`LPJmLMetaData`](./vignettes/lpjml-data.md#miscellaneous) object
 
 ### **miscellaneous**
+- `calc_cellarea()` to calculate the cell area of LPJmLData objects or other objects latitudes
 - functions to handle LPJmL file headers, `read_header()` read the header of LPJmL files, `get_headersize()` get the size of a file header or `create_header()` to create a header object for writing input files
 - `get_datatype()` get information on the data type used in different LPJmL files
 - `asub()` functionality of the subset method to be used on a base array, also to replace data
@@ -72,7 +73,7 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.5.9.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.5.10.
 
 A BibTeX entry for LaTeX users is
 
@@ -81,6 +82,6 @@ A BibTeX entry for LaTeX users is
   title = {lpjmlkit: Toolkit for basic LPJmL handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Wirth and Sara Minoli and Fabian Stenzel and Christoph Mueller},
   year = {2023},
-  note = {R package version 0.5.9},
+  note = {R package version 0.5.10},
 }
 ```
