@@ -46,4 +46,4 @@ Suggests:
     reshape2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-01-19
+Date: 2023-01-20

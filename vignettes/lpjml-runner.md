@@ -75,7 +75,9 @@ lpjml_check(config_details, model_path, output_path)
 
   
 Run LPJmL for each Configuration locally via `run_lpjml` or submit as a
-batch job to SLURM (PIK Cluster) via `submit_lpjml`.  
+batch job to SLURM (PIK Cluster) via `submit_lpjml`. `run_lpjml` can
+also be utilized within slurm jobs to execute multiple single cell
+runs.  
 `?submit_lpjml` *or* `?run_lpjml` *for more information.*
 
 ``` r
@@ -136,13 +138,8 @@ params <- tibble(
   river_routing = c(FALSE, FALSE, FALSE),
   wateruse = c("no", "yes", "no"),
   const_deposition = c(FALSE, FALSE, TRUE),
-  # run parameter: order defines the execution order
-  #   (spinup is always 1 -> no -DFROM_RESTART),
-  #   could be followed by a historic (order=2) and a future run (order=3)
-  #   can be extended as far as required (order=n)
-  order = c(1, 2, 2),
   # run parameter: dependency sets the restart paths to the corresponding
-  #   restart_filename
+  #   restart_filename and calculates the execution order
   dependency = c(
     NA, "spinup", "spinup"
   )
@@ -200,7 +197,6 @@ params <- tibble(
   new_phenology = c(FALSE, TRUE, FALSE, TRUE, TRUE),
   startgrid = c(27410, 27410, 27410, 27410, 27410),
   river_routing = c(FALSE, FALSE, FALSE, FALSE, FALSE),
-  order = c(1, 1, 2, 2, 2),
   dependency = c(NA, NA, "spinup_oldphen", "spinup_newphen", "spinup_newphen")
 )
 
@@ -239,7 +235,6 @@ params <- tibble(
     NA,
     "input_toolbox_30arcmin/cftfrac_1500-2017_64bands_f2o.clm"
   ),
-  order = c(1, 2, 2),
   dependency = c(NA, "spinup", "spinup"),
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
@@ -301,6 +296,3 @@ run_details <- submit_lpjml(
     you can copy the file or create a symlink of the file to
     `"<output_path>/restart/<spinup_sim_name>/restart.lpj"`. Make sure
     the file/symlink is named `"restart.lpj"`
-
-4. `run_lpjml` can also be utilized within slurm jobs to execute multiple
-single cell runs (in parallel).

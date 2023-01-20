@@ -31,7 +31,7 @@ without having a big (bash) script overhead.
 \newline
 
 
-## Setup `r if (!knitr::is_latex_output()) {":gear:"}`
+## `r if (!knitr::is_latex_output()) {":gear:"}` Setup
 
 Please make sure to have set the
 [working environment for LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
