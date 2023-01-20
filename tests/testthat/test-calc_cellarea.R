@@ -12,11 +12,11 @@ test_that("Calculate cell area with LPJmLData object and grid attribute", {
   # perform adding a grid object
   output$add_grid()
   # calculate cell area for each cell
-  cell_area <- calc_cellarea(output, unit = "km2")
+  cell_area <- calc_cellarea(output, return_unit = "km2")
 
   # calculate cell area for lon_lat format
   output$transform(to = "lon_lat")
-  cell_area2 <- calc_cellarea(output, unit = "km2")
+  cell_area2 <- calc_cellarea(output, return_unit = "km2")
 
   testthat::expect_equal(as.vector(cell_area),
                          as.vector(na.omit(cell_area2)))
@@ -26,11 +26,11 @@ test_that("Calculate cell area with LPJmLData object of variable grid", {
   output <- read_io(filename = "../testdata/output/grid.bin.json")
 
   # calculate cell area for each cell
-  cell_area <- calc_cellarea(output, unit = "km2")
+  cell_area <- calc_cellarea(output, return_unit = "km2")
 
   # calculate cell area for lon_lat format
   output$transform(to = "lon_lat")
-  cell_area2 <- calc_cellarea(output, unit = "km2")
+  cell_area2 <- calc_cellarea(output, return_unit = "km2")
 
   testthat::expect_equal(as.vector(cell_area),
                          as.vector(na.omit(cell_area2)))

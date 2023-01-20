@@ -9,30 +9,31 @@ calc_cellarea(
   res_lon = 0.5,
   res_lat = res_lon,
   earth_radius = 6371000.785,
-  unit = "m2"
+  return_unit = "m2"
 )
 }
 \arguments{
 \item{x}{\code{LPJmLData} object with \verb{$grid} attribute, a LPJmLData object of
-variable \code{"grid"} (\code{"LPJ_GRID"}) or vector of cell-center latitude
+variable \code{"grid"} (\code{"LPJGRID"}) or vector of cell-center latitude
 coordinates in degrees.}
 
 \item{res_lon}{Grid resolution in longitude direction in degrees
-(default: 0.5). If x LPJmLData` object it will be ignored if different.}
+(default: 0.5). If \code{x} is a LPJmLData object the resolution will be taken
+from the meta data included in \code{x}.}
 
 \item{res_lat}{Grid resolution in latitude direction in degrees (default:
-same as res_lon). If x LPJmLData` object it will be ignored if different.}
+same as res_lon). If \code{x} is a LPJmLData\verb{object the resolution will be taken from the meta data included in}x`.}
 
 \item{earth_radius}{Radius of sphere (in \eqn{m}) used to calculate cell
 areas.}
 
-\item{unit}{Character string, defaults to \code{"m2"}. Further available options
-are \code{"ha"} or \code{"km2"}}
+\item{return_unit}{Character string describing the area unit of the returned
+cell areas. Defaults to \code{"m2"}, further options: \code{"ha"} or \code{"km2"}.}
 }
 \value{
-Either if \code{x} is an LPJmLData object a vector or array matching the
-space dimension(s) of this object or if \code{x} is a latitude vector a vector of
-cell areas in \eqn{m^2} corresponding to cells in \code{lat} is returned.
+A vector or array matching the space dimension(s) of \code{x} if \code{x} is a
+LPJmLData object. A vector of the same length as \code{x} if \code{x} is a vector of
+latitude coordinates. Cell areas are returned in the unit \code{return_unit}.
 }
 \description{
 Calculate cell area of LPJmL cells based on a LPJmLData object
