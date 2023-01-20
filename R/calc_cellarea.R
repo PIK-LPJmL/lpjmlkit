@@ -71,11 +71,11 @@ calc_cellarea <- function(x,
   if (any(x < -90 | x > 90, na.rm = TRUE)) {
     stop("Invalid latitude values in lat. Values must be within +- 90 degrees")
   }
-  y <- cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
+  cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
     # for each unit possiblity apply conversion factor
     switch(unit,
            m2 = .,
            ha = . * 1e-4,
-           km2 = . * 1e-6)
-    return(y)
+           km2 = . * 1e-6) %>%
+    return()
 }
