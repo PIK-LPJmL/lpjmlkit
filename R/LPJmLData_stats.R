@@ -90,11 +90,15 @@ LPJmLData$set("private",
                        subset = NULL,
                        cutoff = FALSE,
                        ...) {
+
     data <- subset_array(self$data, subset)
+
     if (dimension %in% names(dimnames(data)) &&
         length(which(dim(data) > 1)) > 1) {
+
       mat_sum <- data %>%
         apply(dimension, c)
+
       if (dim(mat_sum)[2] > 16 && cutoff) {
         cat(paste0(
           "\u001b[33;3m",
@@ -104,8 +108,10 @@ LPJmLData$set("private",
           "\u001b[0m",
           "\n")
         )
+
         mat_sum[, seq_len(16)] %>%
           summary(...)
+
       } else {
         if (!is.null(private$.meta$variable) &&
             private$.meta$variable == "grid") {
@@ -118,18 +124,23 @@ LPJmLData$set("private",
             summary(...)
         }
       }
+
     } else {
       mat_sum <- summary(matrix(data), ...)
+
       if (!is.null(private$.meta$variable) &&
           private$.meta$variable == "grid") {
         var_name <- "cell"
         mat_sum <- mat_sum[c(1, 6), ]
+
       } else {
         var_name <- default(private$.meta$variable, "")
       }
+
       space_len <- ifelse(nchar(var_name) > 8,
                           0,
                           4 - sqrt(nchar(var_name)))
+
       paste0(c(rep(" ", space_len), var_name, "\n")) %>%
         append(paste0(mat_sum, collapse = "\n ")) %>%
       cat()

@@ -17,7 +17,7 @@ detect_type <- function(filename) {
   }
   # Load at most the first 1024 bytes of the file for checking.
   file_check <- readBin(filename, raw(), n = min(file.size(filename), 1024))
-  on.exit(rm(file_check))
+  on.exit(rm(file_check)) # nolint:undesirable_function_linter.
   # First check for "clm". The file header should always start with "LPJ".
   if (all(
     rawToChar(utils::head(file_check, 3), multiple = TRUE) == c("L", "P", "J")

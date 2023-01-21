@@ -46,8 +46,10 @@ LPJmLMetaData$set(
   ".as_header",
   # as_header method roxygen documentation in LPJmlMetaData.R
   function(silent = TRUE) {
+
     invisible(
       capture.output(
+
         header <- create_header(
           name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),
           version = ifelse(is.null(private$.version), 4, private$.version),
@@ -68,6 +70,7 @@ LPJmLMetaData$set(
         )
       )
     )
+
     return(header)
   }
 )
@@ -124,7 +127,8 @@ LPJmLMetaData$set(
   # as_header method roxygen documentation in LPJmlMetaData.R
   function() {
     self$._fields_set_ %>%
-      sapply(function(x) do.call("$", list(self, x)), simplify = FALSE) %>%
+
+      sapply(function(x) do.call("$", list(self, x)), simplify = FALSE) %>% # nolint:undesirable_function_linter.
       return()
   }
 )

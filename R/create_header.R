@@ -90,7 +90,7 @@
 #' * [write_header()] for writing headers to files.
 #'
 #' @export
-create_header <- function(name = "LPJGRID",
+create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
                           version = 3,
                           order = 1,
                           firstyear = 1901,

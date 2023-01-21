@@ -50,8 +50,10 @@ subset.LPJmLData <- function(x, ...) {
 LPJmLData$set("private",
               ".subset",
               function(...) {
+
     # check for locked objects
     check_method_locked(self, "subset")
+
     # function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {
       stop(
@@ -76,14 +78,17 @@ LPJmLData$set("private",
 
     # if coords/coordinates are provided use subset pair function first
     if (any(c("coords", "coordinates") %in% names(subset_list))) {
+
       # get term beeing used for subsetting ("coords" or "coordinates" legit)
       coords <- c("coords", "coordinates")[
         c("coords", "coordinates") %in% names(subset_list)
       ]
+
       # check if current space_format is "lon_lat"
       if (private$.meta$._space_format_ != "lon_lat") {
         stop_format(coords, "lon_lat")
       }
+
       # subset pairs for both data and grid data
       self$.__set_data__(
         subset_array_pair(x = self$data,
@@ -93,6 +98,7 @@ LPJmLData$set("private",
         subset_array_pair(x = private$.grid$data,
                           pair = subset_list[[coords]])
       )
+
     } else {
       # to avoid errors when subsetting list with coords
       coords <- "none"
@@ -101,21 +107,27 @@ LPJmLData$set("private",
     # assign subset_space_dim for fomrat "cell"
     if ("cell" %in% names(subset_list)) {
       subset_space_dim <- "cell"
+
       # check if current space_format is "cell"
       if (private$.meta$._space_format_ != "cell") {
         stop_format(subset_space_dim, "cell")
       }
+
     } else {
       subset_space_dim <- NULL
     }
+
     # assign subset_space_dim for format "lat_lon"
     if (any(lon_lat %in% names(subset_list))) {
+
       subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
+
       # check if current space_format is "lat_lon"
       if (private$.meta$._space_format_ != "lon_lat") {
         stop_format(subset_space_dim, "lon_lat")
       }
     }
+
     # do subset without coords (if provided - done already in the beginning)
     self$.__set_data__(
       subset_array(self$data,
@@ -137,6 +149,7 @@ LPJmLData$set("private",
         # check if current time_format is "time"
         stop_format("time", "time")
       }
+
       # if time should be converted by time string, it has to be passed
       #   to .__update_subset__ method in LPJmLMetaData which does not have
       #   time strings of the data
@@ -148,11 +161,13 @@ LPJmLData$set("private",
     year_dimnames <- create_year_dimnames(subset_list, self$data)
 
     if (any(c(lon_lat, "cell", coords) %in% names(subset_list))) {
+
       # if space dimensions are subsetted convert .__update_subset__ method
       #   in LPJmLMetaData needs to know the resulting number of cells
       #   as well as the (new) firstcell - pass resulting cell_dimnames
       if (private$.meta$._space_format_ == "cell") {
         cell_dimnames <- self$dimnames()$cell
+
       } else {
         grid <- private$.grid$clone(deep = TRUE)
         grid$.__set_lock__(is_locked = FALSE)
@@ -160,6 +175,7 @@ LPJmLData$set("private",
           dimnames() %>%
           .$cell
       }
+
     } else {
       cell_dimnames <- NULL
     }
@@ -178,6 +194,8 @@ LPJmLData$set("private",
                                      cell_dimnames = cell_dimnames,
                                      time_dimnames = time_dimnames,
                                      year_dimnames = year_dimnames)
+
+    # update space subsets in grid
     if (!is.null(private$.grid)) {
       private$.grid$meta$.__update_subset__(subset_list[subset_space_dim],
                                             cell_dimnames = cell_dimnames)
@@ -188,10 +206,12 @@ LPJmLData$set("private",
 )
 
 create_year_dimnames <- function(subset_list, data) {
+
   if ("year" %in% names(subset_list) && is.numeric(subset_list[["year"]])) {
     year_dimnames <- data$dimnames()$year
   } else {
     year_dimnames <- NULL
   }
+
   return(year_dimnames)
 }

@@ -72,6 +72,7 @@ LPJmLData$set("private",
               function(subset = NULL,
                        aggregate = NULL,
                        ...) {
+
     # initiate clone to be returned on which following methods are executed
     data_subset <- self$clone(deep = TRUE)
     `if`(!is.null(subset),
@@ -149,6 +150,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        value_name = "value",
                        ...) {
+
     data <- self$as_array(subset, aggregate, ...)
 
     data %>%
@@ -230,7 +232,10 @@ LPJmLData$set("private",
               function(subset = NULL,
                        aggregate = NULL,
                        ...) {
+
     data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+
+    # create empty raster to use as base for assigning data
     tmp_raster <- create_tmp_raster(data_subset)
 
     # get dimensions larger 1 to check if raster or brick required
@@ -240,9 +245,14 @@ LPJmLData$set("private",
     # check for space_format == "lon_lat" if multiple bands/time convert
     #   to "cell" format, if larger stop
     if (data_subset$meta$._space_format_ == "lon_lat") {
+
+
       if (length(multi_dims) == 3) {
+
         data_subset$transform(to = "cell")
+
         multi_dims <- names(which(dim(data_subset$data) > 1))
+
       } else if (length(multi_dims) > 3) {
         stop(
           paste("Too many dimensions with length > 1.",
@@ -250,28 +260,36 @@ LPJmLData$set("private",
                 "argument.")
         )
       } else {
+
+        # assign data to tmp_raster
         tmp_raster <- data_subset$data %>%
           subset_array(
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
           ) %>%
           raster::raster(template = tmp_raster)
+
         names(tmp_raster) <- data_subset$meta$variable
       }
     }
 
     if (data_subset$meta$._space_format_ == "cell") {
+
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
                 "Reduce to max. two dimensions via $subset.")
         )
+
       } else if (length(multi_dims) == 2) {
+
         # get dimension with length > 1 which is not cell to use for
         #   layer naming
         multi_layer <- multi_dims[which(multi_dims != "cell")]
         tmp_raster <- raster::brick(tmp_raster,
                                     nl = dim(data_subset$data)[multi_layer])
+
         names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
+
       } else if (length(multi_dims) == 1) {
         # for single rasters use variable as layer name
         names(tmp_raster) <- data_subset$meta$variable
@@ -286,6 +304,7 @@ LPJmLData$set("private",
         )
       ] <- data_subset$data
     }
+
     return(tmp_raster)
   }
 )
@@ -350,7 +369,10 @@ LPJmLData$set("private",
               function(subset = NULL,
                        aggregate = NULL,
                        ...) {
+
     data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+
+    # create empty SpatRaster to use as base for assigning data
     tmp_rast <- create_tmp_raster(data_subset, is_terra = TRUE)
 
     # get dimensions larger 1 to check if raster or brick required
@@ -360,9 +382,13 @@ LPJmLData$set("private",
     # check for space_format == "lon_lat" if multiple bands/time convert
     #   to "cell" format, if larger stop
     if (data_subset$meta$._space_format_ == "lon_lat") {
+
       if (length(multi_dims) == 3) {
+
         data_subset$transform(to = "cell")
+
         multi_dims <- names(which(dim(data_subset$data) > 1))
+
       } else if (length(multi_dims) > 3) {
         stop(
           paste("Too many dimensions with length > 1.",
@@ -370,39 +396,55 @@ LPJmLData$set("private",
                 "argument.")
         )
       } else {
+
+        # assign data to tmp_raster
         tmp_rast <- data_subset$data %>%
           subset_array(
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
           ) %>%
           terra::rast(crs = terra::crs(tmp_rast),
                       extent = terra::ext(tmp_rast))
+
         names(tmp_rast) <- data_subset$meta$variable
       }
     }
 
     if (data_subset$meta$._space_format_ == "cell") {
+
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
                 "Reduce to max. two dimensions via $subset.")
         )
+
       } else if (length(multi_dims) == 2) {
+
         # get dimension with length > 1 which is not cell to use for
         #   layer naming
         multi_layer <- multi_dims[which(multi_dims != "cell")]
+
         tmp_rast <- terra::rast(tmp_rast,
                                 nl = dim(data_subset$data)[multi_layer])
+
         names(tmp_rast) <- dimnames(data_subset$data)[[multi_layer]]
+
         if (multi_layer == "time") {
+
+          # set time meta data
           terra::time(tmp_rast) <- as.Date(
             dimnames(data_subset$data)[[multi_layer]]
           )
+
         } else if (multi_layer %in% c("year", "month", "day")) {
+
+          # set time meta data as integer (year, month, day)
           terra::time(tmp_rast) <- as.integer(
             dimnames(data_subset$data)[[multi_layer]]
           )
         }
+
       } else if (length(multi_dims) == 1) {
+
         # for single rasters use variable as layer name
         names(tmp_rast) <- data_subset$meta$variable
       }
@@ -416,7 +458,10 @@ LPJmLData$set("private",
         )
       ] <- data_subset$data
     }
+
+    # assign units (meta data)
     terra::units(tmp_rast) <- data_subset$meta$unit
+
     return(tmp_rast)
   }
 )
@@ -428,6 +473,7 @@ LPJmLData$set("private",
                        subset = NULL,
                        aggregate = NULL,
                        ...) {
+
     if (!is.null(private$.meta$variable) &&
         private$.meta$variable == "grid" &&
         private$.meta$._space_format_ == "cell") {
@@ -449,12 +495,14 @@ LPJmLData$set("private",
     if (!is.null(aggregate) &&
         !any(names(aggregate) %in% strsplit(private$.meta$._space_format_,"_")[[1]]) && # nolint
         all(names(aggregate) %in% names(dim(self$data)))) {
+
       # not recommended for self, some meta data not valid for data_subset!
       data_subset$.__set_data__(
         aggregate_array(data_subset,
                         aggregate_list = aggregate,
                         ...)
       )
+
     } else if (!is.null(aggregate)) {
       stop(paste("Only non-spatial and existing dimensions are valid for",
                  "aggregate. Please adjust",
@@ -467,17 +515,20 @@ LPJmLData$set("private",
 
 
 create_tmp_raster <- function(data_subset, is_terra = FALSE) {
+
   # calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
     data_extent <- apply(data_subset$grid$data,
                          "band",
                          range)
+
   } else {
     data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint
                             range(as.numeric(dimnames(data_subset$data)[["lat"]]))), # nolint
                             nrow = 2,
                             ncol = 2)
   }
+
   grid_extent <- data_extent + matrix(
     # coordinates represent the centre of cell, for the extent borders
     #   are required, thus subtract/add half of resolution
@@ -488,6 +539,7 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
     nrow = 2,
     ncol = 2
   )
+
   if (is_terra) {
     tmp_raster <- terra::rast(
       res = c(data_subset$meta$cellsize_lon,
@@ -498,6 +550,7 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       ymax = grid_extent[2, 2],
       crs = "EPSG:4326"
     )
+
   } else {
     tmp_raster <- raster::raster(
       res = c(data_subset$meta$cellsize_lon,
@@ -509,5 +562,6 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       crs = "EPSG:4326"
     )
   }
+
   return(tmp_raster)
 }

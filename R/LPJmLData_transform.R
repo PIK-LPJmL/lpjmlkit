@@ -54,8 +54,11 @@ transform <- function(x,
 LPJmLData$set("private",
               ".transform",
               function(to) {
+
     # check for locked objects
     check_method_locked(self, "transform")
+
+    # transform time format
     if (any(to %in% private$.meta$._dimension_map_$time)) {
       private$transform_time(to = "time")
       to <- to[!to %in% private$.meta$._dimension_map_$time]
@@ -63,14 +66,16 @@ LPJmLData$set("private",
       private$transform_time(to = "year_month_day")
       to <- to[!to %in% private$.meta$._dimension_map_$year_month_day]
     }
+
+    # transform space format
     if (any(to %in% private$.meta$._dimension_map_$cell)) {
       private$transform_space(to = "cell")
       to <- to[!to %in% private$.meta$._dimension_map_$cell]
-
     } else if (any(to %in% private$.meta$._dimension_map_$lon_lat)) {
       private$transform_space(to = "lon_lat")
       to <- to[!to %in% private$.meta$._dimension_map_$lon_lat]
     }
+
     if (length(to) > 0) {
       stop(
         paste0(
@@ -92,12 +97,13 @@ LPJmLData$set("private",
         call. = FALSE
       )
     }
+
     return(invisible(self))
   }
 )
 
-# method to transform dimensions of grid array from "cell" to "lon_lat" or the other
-#   way around
+# method to transform dimensions of grid array from "cell" to "lon_lat" or the
+#   other way around
 LPJmLData$set("private",
               ".transform_grid",
               function(to = NULL) {
@@ -105,6 +111,7 @@ LPJmLData$set("private",
         private$.meta$variable != "grid") {
       stop(paste("not legit for variable", private$.meta$variable))
     }
+
     # convenience function - if null automatically switch to other to
     if (is.null(to)) {
       if (private$.meta$._space_format_ == "cell") {
@@ -117,14 +124,16 @@ LPJmLData$set("private",
     # case for transform from cell dimension to lon, lat dimensions
     if (private$.meta$._space_format_ == "cell" &&
         to == "lon_lat") {
+
       # calculate grid extent from range to span raster
       grid_extent <- apply(
           self$data,
           "band",
           range
       )
+
       # calculate dimnames for full 2 dimensional grid
-      spatial_dimnames <- mapply(seq,
+      spatial_dimnames <- mapply(seq, # nolint:undesirable_function_linter.
                                  rev(grid_extent[1, ]),
                                  rev(grid_extent[2, ]) +
                                    c(private$.meta$cellsize_lat,
@@ -132,15 +141,18 @@ LPJmLData$set("private",
                                  by = c(private$.meta$cellsize_lat,
                                         private$.meta$cellsize_lon),
                                  SIMPLIFY = FALSE)
+
       # init grid array
       grid_array <- array(NA,
                         dim = lapply(spatial_dimnames, length),
                         dimnames = spatial_dimnames)
+
       # get indices of lat and lon dimnames
       ilon <- round((self$data[, "lon"] - min(grid_extent[, "lon"])) /
         private$.meta$cellsize_lon) + 1
       ilat <- round((self$data[, "lat"] - min(grid_extent[, "lat"])) /
         private$.meta$cellsize_lat) + 1
+
       # now set dimnames of grid_array to actual coordinates instead of dummy
       # spatial_dimnames
       coordlon <- self$data[match(seq_len(dim(grid_array)["lon"]), ilon), "lon"]
@@ -149,14 +161,13 @@ LPJmLData$set("private",
         dimnames(grid_array)$lon,
         coordlon
       )
-      rm(coordlon)
       coordlat <- self$data[match(seq_len(dim(grid_array)["lat"]), ilat), "lat"]
       dimnames(grid_array)$lat <- ifelse(
         is.na(coordlat),
         dimnames(grid_array)$lat,
         coordlat
       )
-      rm(coordlat)
+
       # replace cell of lon and lat by cell index
       grid_array[cbind(ilat, ilon)] <- as.integer(
         dimnames(self$data)$cell
@@ -167,9 +178,11 @@ LPJmLData$set("private",
     # case for transform from lon, lat dimensions to cell dimension
     } else if (private$.meta$._space_format_ == "lon_lat" &&
         to == "cell") {
+
       # get indices of actual cells
       grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
       grid_dimnames <- lapply(dimnames(self$data), as.numeric)
+
       # select actual cells latitude and longitude and set cells as dimnames
       self$.__set_data__(
         array(
@@ -187,6 +200,7 @@ LPJmLData$set("private",
                           band = c("lon", "lat"))
         )
       )
+
       private$.meta$.__transform_space_format__("cell")
     }
 
@@ -207,8 +221,10 @@ LPJmLData$set("private",
       self$.__transform_grid__(to = to)
       return(invisible(self))
     }
+
     # check for locked objects
     check_method_locked(self, "transform_space")
+
     # if to is not specified switch to avail other format else if to equals
     #   current format return directly
     if (is.null(to)) {
@@ -222,10 +238,12 @@ LPJmLData$set("private",
         return(invisible(self))
       }
     }
+
     # support of lazy loading of grid for meta files else add explicitly
     if (is.null(private$.grid)) {
       self$add_grid()
     }
+
     # create new data array based on disaggregated time dimension
     other_dimnames <- dimnames(self$data) %>%
       `[<-`(unlist(strsplit(private$.meta$._space_format_, "_")), NULL)
@@ -235,7 +253,10 @@ LPJmLData$set("private",
     # case for transform from cell dimension to lon, lat dimensions
     if (private$.meta$._space_format_ == "cell" &&
         to == "lon_lat") {
+
       private$.grid$.__transform_grid__(to = to)
+
+      # assign data to transformed array by grid
       data_array <- array(
         private$.grid$data,
         dim = c(dim(private$.grid$data), other_dims),
@@ -244,16 +265,22 @@ LPJmLData$set("private",
                                     other_dimnames))
       )
       data_array[!is.na(data_array)] <- self$data
+
       # set corresponding meta data entry
       private$.meta$.__transform_space_format__("lon_lat")
 
     # ref between lon, lat dimensions and single cell dimension
     } else if (private$.meta$._space_format_ == "lon_lat" &&
         to == "cell") {
+
+      # array for masking data
       mask_array <- array(private$.grid$data,
                           dim = dim(self$data),
                           dimnames = dimnames(self$data))
+
       private$.grid$.__transform_grid__(to = to)
+
+      # assign data to transformed array by grid
       data_array <- array(
         NA,
         dim = c(dim(private$.grid$data)["cell"], other_dims),
@@ -286,13 +313,16 @@ LPJmLData$set("private",
 LPJmLData$set("private",
               "transform_time",
               function(to = NULL) {
+
     # check if grid then use .transform_grid method
     if (!is.null(private$.meta$variable) &&
         private$.meta$variable == "grid") {
       stop(paste("not legit for variable", private$.meta$variable))
     }
+
     # check for locked objects
     check_method_locked(self, "transform_time")
+
     # if to is not specified switch to avail other format else if to equals
     #   current format return directly
     if (is.null(to)) {
@@ -306,12 +336,15 @@ LPJmLData$set("private",
         return(invisible(self))
       }
     }
+
     # case for transform from "time" dimensions to year, month, day
     #   dimensions (if available)
     if (private$.meta$._time_format_ == "time" &&
         to == "year_month_day") {
+
       # possible ndays of months
       ndays_in_month <- c(31, 30, 28)
+
       # split time string "year-month-day" into year, month, day int vector
       #   reverse it to get it into the right order for array conversion
       time_dimnames <- split_time_names(self$dimnames()[["time"]]) %>% rev()
@@ -320,17 +353,21 @@ LPJmLData$set("private",
       if (all(time_dimnames[["day"]] %in% ndays_in_month)) {
         time_dimnames[["day"]] <- NULL
       }
+
       # assume no monthly data - remove month dimension
       if (length(time_dimnames$month) == 1 &&
           is.null(time_dimnames[["day"]])) {
         time_dimnames[["month"]] <- NULL
       }
+
       private$.meta$.__transform_time_format__("year_month_day")
 
     # case for transform from dimensions year, month, day (if available) to
     #   time dimension
     } else if (private$.meta$._time_format_ == "year_month_day" &&
                to == "time") {
+
+      # convert time dimnames back to time
       pre_dimnames <- self$dimnames() %>%
         lapply(as.integer) %>%
         suppressWarnings()
@@ -340,13 +377,16 @@ LPJmLData$set("private",
                                  months = pre_dimnames$month,
                                  days = pre_dimnames$day)
       )
+
       private$.meta$.__transform_time_format__("time")
+
     # else return without execution
     } else {
       return(invisible(self))
     }
 
     spatial_dims <- unlist(strsplit(private$.meta$._space_format_, "_"))
+
     # create new data array based on disaggregated time dimension
     time_dims <- lapply(time_dimnames, length)
     self$.__set_data__(
@@ -361,6 +401,7 @@ LPJmLData$set("private",
                                     dimnames(self$data)["band"]))
       )
     )
+
     return(invisible(self))
   }
 )

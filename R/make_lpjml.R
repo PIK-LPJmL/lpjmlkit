@@ -25,8 +25,9 @@ make_lpjml <- function(model_path = ".",
                       make_clean = FALSE,
                       throw_error = TRUE,
                       debug = FALSE) {
+
   # take precompiled config.json as proxy if LPJmL was already configured
-  if (file.exists(paste0(model_path, "/bin/lpjml"))) {
+  if (file.exists(paste0(model_path, "/bin/lpjml"))) {  # nolint:absolute_path_linter.
     init <- processx::run(command = "sh",
                           args = c("-c",
                                    paste0(ifelse(make_clean,
@@ -41,11 +42,12 @@ make_lpjml <- function(model_path = ".",
                           error_on_status = throw_error,
                           wd = model_path,
                           echo = TRUE)
+
   } else {
     init <- processx::run(command = "sh",
                           args = c("-c",
                                    paste0("./configure.sh;",
-                                          ifelse(debug, "-debug", ""),
+                                          ifelse(debug, "-debug", ""), # nolint:undesirable_function_linter.
                                           "make ",
                                           ifelse(make_fast, "-j16", ""),
                                           " all;")),
@@ -54,5 +56,6 @@ make_lpjml <- function(model_path = ".",
                           wd = model_path,
                           echo = TRUE)
   }
+
   return(init)
 }

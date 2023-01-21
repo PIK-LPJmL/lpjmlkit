@@ -34,11 +34,11 @@ folder are created}
 submitted. Default is \code{"lpjml"}}
 
 \item{sclass}{character string, define the job classification, for more
-information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5}{here}.
+information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5}{here}. # nolint
 Defaults to \code{"short"}}
 
 \item{ntasks}{integer, define the number of tasks/threads, for more
-information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}{here}.
+information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}{here}. # nolint
 Defaults to 256.}
 
 \item{wtime}{character string, defining the time limit which can be an

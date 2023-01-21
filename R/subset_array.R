@@ -57,25 +57,30 @@ subset_array <- function(x,
                          subset_list = NULL,
                          drop = TRUE,
                          silent = FALSE) {
+
   if (is.null(subset_list)) {
     return(x)
   }
+
   # Filter for NAs in subset_list
-  if (length(subset_list) > 0 && any(sapply(subset_list, anyNA))) {
+  if (length(subset_list) > 0 && any(sapply(subset_list, anyNA))) { # nolint:undesirable_function_linter.
     if (!silent) {
       warning(
         "Removing NA values from ",
         paste(
-          "subset_list[[", dQuote(names(which(sapply(subset_list, anyNA)))),
+          "subset_list[[", dQuote(names(which(sapply(subset_list, anyNA)))), # nolint:undesirable_function_linter.
           "]]",
           sep = "", collapse = ", "
         )
       )
     }
+
     subset_list <- lapply(subset_list, stats::na.omit)
+
     # Remove empty subsets
     before <- names(subset_list)
-    subset_list <- subset_list[which(sapply(subset_list, length) > 0)]
+    subset_list <- subset_list[which(sapply(subset_list, length) > 0)] # nolint:undesirable_function_linter.
+
     if (length(subset_list) < length(before) && !silent) {
       warning(
         paste(
@@ -90,14 +95,17 @@ subset_array <- function(x,
       )
     }
   }
+
   if (drop) {
     argum <- c(alist(x),
                subarray_argument(x, subset_list))
+
   } else {
     argum <- c(alist(x),
                subarray_argument(x, subset_list),
                drop = FALSE)
   }
+
   do.call("[", argum) %>%
     return()
 }
@@ -105,6 +113,7 @@ subset_array <- function(x,
 
 # https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically # nolint
 subarray_argument <- function(x, subset_list) {
+
   # DRY
   dim_names <- names(dimnames(x))
   subset_names <- names(subset_list)
@@ -115,6 +124,7 @@ subarray_argument <- function(x, subset_list) {
 
   # check for non matching dimensions
   valids <- subset_names %in% dim_names
+
   if (!all(valids)) {
     nonvalids <- which(!valids)
     stop(
@@ -132,13 +142,17 @@ subarray_argument <- function(x, subset_list) {
       call. = FALSE
     )
   }
-  subset_list <- mapply(  # nolint: undesirable_function_linter.
+
+  subset_list <- mapply(  # nolint:undesirable_function_linter.
+
     function(x, y, dim_name) {
       # for lon, lat calculate nearest neighbor for each provided value if not
       #   character
+
       if (dim_name %in% c("lon", "lat") && is.character(x)) {
+
         return(
-          sapply(x, # nolint: undesirable_function_linter.
+          sapply(x, # nolint:undesirable_function_linter.
             function(x, y) {
                 which.min(abs(as.numeric(y) - as.numeric(x)))
               },
@@ -146,42 +160,54 @@ subarray_argument <- function(x, subset_list) {
               unique()
         )
       }
+
       # subsetting with character strings (directly dimnames)
       if (is.character(x)) {
+
         # get valid subsets - non valids are NA
         valid_sub <- match(tolower(x), tolower(y))
+
         # check if it contains NA - if so stop and print non valid subsets
         check_string_index(x, valid_sub, dim_name)
         return(valid_sub)
+
       } else {
         # check if indices are valid - if not stop and print non valid indices
         check_index(x, y, dim_name)
+
         return(x)
       }
     },
+
     subset_list[match_subset],
     dimnames(x)[match_x],
     dim_names[match_x],
     SIMPLIFY = FALSE
   )
+
   argument <- rep(list(bquote()), length(dim(x)))
+
   # insert the wanted dimension slices
   argument[match_x] <- subset_list
+
  return(argument)
 }
 
 
 subset_array_pair <- function(x,
                               pair = NULL) {
+
   # get pair in the same order as dimensions
   pair <- pair[stats::na.omit(match(names(dimnames(x)), names(pair)))]
   pair_names <- names(pair)
 
   # look up/match vector of dimnames of x (for performance in loop)
   idim1_table <- as.numeric(dimnames(x)[[pair_names[1]]])
+
   # match first dim of pair against dimnames of x
   idim1 <- match(as.numeric(pair[[1]]),
                  idim1_table)
+
   # for NAs (non matches) find nearest dimname values
   #   - the more the longer the iteration
   for (isna in which(is.na(idim1))) {
@@ -192,6 +218,7 @@ subset_array_pair <- function(x,
   idim2_table <- as.numeric(dimnames(x)[[pair_names[2]]])
   idim2 <- match(as.numeric(pair[[2]]),
                  idim2_table)
+
   for (isna in which(is.na(idim2))) {
     idim2[isna] <- which.min(abs(idim2_table - as.numeric(pair[[2]])[isna]))
   }
@@ -199,6 +226,7 @@ subset_array_pair <- function(x,
   # index vectors to 2 column matrix for pair subsetting
   idims <- cbind(idim1, idim2) %>%
     `colnames<-`(pair_names)
+
   # create mask from dimension name pair
   subset_mask <- array(NA,
                     dim = dim(x)[pair_names],
@@ -208,6 +236,7 @@ subset_array_pair <- function(x,
     subset_array(as.list(pair), drop = FALSE)
 
   y <- subset_array(x, as.list(pair), drop = FALSE)
+
     # get dim & dimnames of dimensions not matching pair
   y[is.na(subset_mask)] <- NA
 
@@ -219,6 +248,7 @@ subset_array_pair <- function(x,
 drop_omit <- function(x, omit_dim) {
   dims <- dim(x)
   dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
+
   return(abind::adrop(x, dims_check))
 }
 
@@ -245,6 +275,7 @@ stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
   } else {
     x_nonvalid <- paste0(x[nonvalids], collapse = ", ")
   }
+
   stop(
     paste0(
       "For dimension ",

@@ -149,7 +149,7 @@
 #' `firstcell` parameter (usually 0).
 #' @aliases read_input read_output
 #' @export
-read_io <- function(
+read_io <- function( # nolint:cyclocomp_linter.
   filename,
   subset  = list(),
   band_names   = NULL,
@@ -176,8 +176,8 @@ read_io <- function(
   silent       = FALSE
 ) {
   # Switch off fancy quotes
-  quotes_option <- options(useFancyQuotes = FALSE)
-  on.exit(options(quotes_option))
+  quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.
+  on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
   # Detect file_type if not provided by user
   if (is.null(file_type)) {
     file_type <- detect_type(filename)
@@ -236,15 +236,15 @@ read_io <- function(
                         silent = silent))
   # Offset at beginning of binary data file
   start_offset <- default(meta_data$offset, 0)
-  
+
   # Filter for NAs in subset
-  if (length(subset) > 0 && any(sapply(subset, anyNA))) {
+  if (length(subset) > 0 && any(sapply(subset, anyNA))) { # nolint:undesirable_function_linter.
     before <- names(subset)
     if (!silent) {
       warning(
         "Removing NA values from ",
         paste(
-          "subset[[", dQuote(names(which(sapply(subset, anyNA)))), "]]",
+          "subset[[", dQuote(names(which(sapply(subset, anyNA)))), "]]", # nolint:undesirable_function_linter.
           sep = "", collapse = ", "
         )
       )
@@ -253,7 +253,7 @@ read_io <- function(
     if ("year" %in% names(subset) && length(subset$year) == 0) {
       stop("subset[[\"year\"]] is empty after removal of NAs")
     }
-    subset <- subset[which(sapply(subset, length) > 0)]
+    subset <- subset[which(sapply(subset, length) > 0)] # nolint:undesirable_function_linter.
     if (length(subset) < length(before) && !silent) {
       warning(
         paste(
@@ -282,13 +282,13 @@ read_io <- function(
       # Save current working directory
       wd <- getwd()
       # Reset working directory if function exits (breaks, fails, etc.)
-      on.exit(setwd(wd))
+      on.exit(setwd(wd)) # nolint:undesirable_function_linter.
       # Set working directory to path of filename
-      setwd(dirname(filename))
+      setwd(dirname(filename)) # nolint:undesirable_function_linter.
       # Relative path can be parsed now.
       filename <- normalizePath(meta_data$filename)
       # Reset working directory
-      setwd(wd)
+      setwd(wd) # nolint:undesirable_function_linter.
     }
   }
   # Derive file_header from meta_data. Set silent = TRUE here because any
@@ -401,7 +401,7 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
   # Prepare additional attributes to be added to meta information
   additional_attributes <- list(band_names = band_names, variable = variable,
                                 descr = descr, unit = unit)
-  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))]
+  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
   # Use header name is a substitute for variable if variable is not set
   if (is.null(additional_attributes[["variable"]])) {
     additional_attributes[["variable"]] <- get_header_item(file_header, "name")
@@ -434,8 +434,8 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
   verbose <- verbose && !silent
 
   # Some existing LPJmL input files use order = 0, which is not a valid order
-  # value (1, 2, 3, 4 or corresponding string options). Reset order = 0 to
-  # order = 1.
+  #   value (1, 2, 3, 4 or corresponding string options). Reset order = 0 to
+  #   order = 1. # nolint:commented_code_linter.
   if (get_header_item(file_header, "order") == 0 && is.null(order)) {
     if (!silent)
       warning(
@@ -476,7 +476,7 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
   # Prepare additional attributes to be added to meta information
   additional_attributes <- list(band_names = band_names, variable = variable,
                           descr = descr, unit = unit)
-  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))]
+  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
   # Use header name is a substitute for variable if variable is not set. Here,
   # use name argument if supplied by user.
   if (is.null(additional_attributes[["variable"]])) {
@@ -512,12 +512,12 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
     c("filename", "file_type", "silent")
   )
   # Filter arguments that are NULL
-  set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))]
+  set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))] # nolint:undesirable_function_linter.
 
   # Only warn about arguments that are currently set in metadata.
   no_set_args <- intersect(
     set_args,
-    names(which(!sapply(meta_data, is.null)))
+    names(which(!sapply(meta_data, is.null))) # nolint:undesirable_function_linter.
   )
   if (length(no_set_args) > 0 && !silent) {
     warning(
@@ -636,7 +636,7 @@ read_io_data <- function(
   file_connection <- file(filename, "rb")
   # Ensure that file connection is closed even if function is terminated with an
   # error.
-  on.exit(if(exists("file_connection")) close(file_connection))
+  on.exit(if (exists("file_connection")) close(file_connection)) # nolint:undesirable_function_linter.
 
   # Dimension order during reading. Note: Must be 3 dimensions in total, with
   # "time" being last dimension for code below to work.
@@ -831,7 +831,7 @@ check_year_subset <- function(subset, meta_data, silent = FALSE) {
     }
     if (length(unique(subset[["year"]])) != length(subset[["year"]]) && !silent) {
       warning(
-        "Removing ", 
+        "Removing ",
         length(subset[["year"]]) - length(unique(subset[["year"]])),
         " duplicate ",
         ifelse(length(subset[["year"]]) - length(unique(subset[["year"]])) > 1,

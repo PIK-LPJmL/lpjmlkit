@@ -39,42 +39,53 @@ calc_cellarea <- function(x,
                          ) {
   # workflow for LPJmLData objects
   if (methods::is(x, "LPJmLData")) {
+
     # check if grid is available as attribute
     if (!is.null(x$grid)) {
       x <- x$grid
+
     # check if LPJmLData object is of variable grid or LPJ_GRID (header file)
     } else if (!any(c("grid", "LPJGRID") %in% x$meta$variable)) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
+
     if (!is.null(x$meta$cellsize_lon) && res_lon != x$meta$cellsize_lon) {
       res_lon <- x$meta$cellsize_lon
       warning("Using x$meta$cellsize_lon instead of supplied res_lon.")
     }
+
     if (!is.null(x$meta$cellsize_lat) && res_lat != x$meta$cellsize_lat) {
       res_lat <- x$meta$cellsize_lat
       warning("Using x$meta$cellsize_lat instead of supplied res_lat.")
     }
+
     # check for format of space dimensions, apply different processing
     if (x$meta$._space_format_ == "cell") {
       # for format "cell" latitudes are supplied as data in band dimension
       #   ("lat")
       x <- asub(x$data, band = "lat")
     } else {
+
       # for format "lon_lat" latitudes are supplied by dimnames, for calculation
       #   original array is overwritten with corresponding latitudes
       x <- check <- x$data
       asub(x, lat = dimnames(x)$lat) <- as.numeric(dimnames(x)$lat)
       x[is.na(check)] <- NA
     }
+
   } else {
     # make sure supplied vector is numeric
     x <- as.double(x)
   }
+
   cellwidth <- earth_radius * pi / 180
+
   if (any(x < -90 | x > 90, na.rm = TRUE)) {
     stop("Invalid latitude values in 'x'. Values must be within +- 90 degrees")
   }
+
   cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
+
     # apply conversion factor based on return_unit parameter
     switch(return_unit,
            m2 = .,

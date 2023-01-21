@@ -11,9 +11,12 @@
 #' [`plot.LPJmLData`] to get insights and export methods like [`as_tibble`] or
 #' [`as_raster`] to export it into common working formats.
 #'
-LPJmLData <- R6::R6Class(
+LPJmLData <- R6::R6Class( # nolint:object_name_linter
+
   classname = "LPJmLData",
+
   lock_objects = TRUE,
+
   public = list(
     # modify methods --------------------------------------------------------- #
 
@@ -23,14 +26,19 @@ LPJmLData <- R6::R6Class(
     #'
     #' @param ... See [`add_grid`]
     add_grid = function(...) {
+
       # check for locked objects
       check_method_locked(self, "add_grid")
+
       # check if meta file for grid is located in output location
       grid_file <- list.files(private$.meta$._data_dir_,
                               pattern = "grid.bin.json")
+
       if (length(grid_file) == 1) {
+
         # if so get concatenate existing file and data_dir to read grid
         filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
+
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
         if (private$.meta$._subset_space_) {
@@ -45,7 +53,9 @@ LPJmLData <- R6::R6Class(
             read_io(filename = filename)
           )
         }
+
       } else {
+
         # all arguments have to be provided manually via read_io args
         #   ellipsis (...) does that
         # check if arguments are provided
@@ -53,13 +63,16 @@ LPJmLData <- R6::R6Class(
           self$.__set_grid__(
             read_io(...)
           )
+
         } else {
           stop(paste("If no meta file is available $add_grid",
                      "has to be called explicitly with args as read_io."))
         }
       }
+
       private$.grid$.__set_lock__(is_locked = TRUE)
     },
+
 
     #' @description
     #' Method to use dimension names of `LPJmLData`
@@ -71,6 +84,7 @@ LPJmLData <- R6::R6Class(
       private$.subset(...)
     },
 
+
     #' @description
     #' Method to transform inner `LPJmLData` array
     #' into another space or another time format.
@@ -79,6 +93,7 @@ LPJmLData <- R6::R6Class(
     transform = function(...) {
       private$.transform(...)
     },
+
 
     # export methods --------------------------------------------------------- #
 
@@ -91,6 +106,7 @@ LPJmLData <- R6::R6Class(
       private$.as_array(...)
     },
 
+
     #' @description
     #' Method to coerce (convert) a `LPJmLData` object into a
     #' \link[tibble]{tibble} (modern \link[base]{data.frame}).
@@ -99,6 +115,7 @@ LPJmLData <- R6::R6Class(
     as_tibble = function(...) {
       private$.as_tibble(...)
     },
+
 
     #' @description
     #' Method to coerce (convert) a `LPJmLData` object into a
@@ -110,6 +127,7 @@ LPJmLData <- R6::R6Class(
       private$.as_raster(...)
     },
 
+
     #' @description
     #' Method to coerce (convert) a `LPJmLData` object into a
     #' \link[terra]{rast}, that opens the space for any GIS based raster
@@ -120,6 +138,7 @@ LPJmLData <- R6::R6Class(
       private$.as_terra(...)
     },
 
+
     #' @description
     #' Method to plot a time-series or raster map of a `LPJmLData`
     #' object.
@@ -128,6 +147,7 @@ LPJmLData <- R6::R6Class(
     plot = function(...) {
       private$.plot(...)
     },
+
 
     # stats methods ---------------------------------------------------------- #
 
@@ -139,6 +159,7 @@ LPJmLData <- R6::R6Class(
       private$.length()
     },
 
+
     #' @description
     #' Method to get the dimension names and lengths of the array of a
     #' `LPJmLData` object. \cr
@@ -146,6 +167,7 @@ LPJmLData <- R6::R6Class(
     dim = function() {
       private$.dim()
     },
+
 
     #' @description
     #' Method to get the dimensions (list) of the array of a
@@ -156,6 +178,7 @@ LPJmLData <- R6::R6Class(
       private$.dimnames(...)
     },
 
+
     #' @description
     #' Method to get the summary of the array of a
     #' `LPJmLData` object.
@@ -165,21 +188,26 @@ LPJmLData <- R6::R6Class(
       private$.summary(...)
     },
 
+
     #' @description
     #' Method to print the `LPJmLData`. \cr
     #' See also \link[base]{print}
     print = function() {
+
       # set colour higlighting
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
+
       # print meta data
       cat(paste0("\u001b[1m", blue_col, "$meta %>%", unset_col, "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
-      # not all meta data are printed 
+
+      # not all meta data are printed
       cat(paste0("\u001b[33;3m",
                  "Note: not printing all meta data, use $meta to get all.",
                  unset_col,
                  "\n"))
+
       # print grid only if available
       if (!is.null(private$.grid)) {
         cat(paste0("\u001b[1m\u001b[31m",
@@ -190,17 +218,21 @@ LPJmLData <- R6::R6Class(
                    unset_col,
                    "\n"))
       }
+
       # print data attribute
       cat(paste0("\u001b[1m",
                  blue_col,
                  "$data %>%",
                  unset_col,
                  "\n"))
+
       # dimnames
       dim_names <- self$dimnames()
       cat(paste0(blue_col, "  dimnames() %>%", unset_col, "\n"))
+
       for (sub in seq_along(dim_names)) {
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
+
         if (length(dim_names[[sub]]) > 6) {
           abbr_dim_names <- paste0(c(paste0(to_char2,
                                             dim_names[[sub]][1:4],
@@ -209,9 +241,11 @@ LPJmLData <- R6::R6Class(
                                    paste0(to_char2,
                                           utils::tail(dim_names[[sub]], n = 1),
                                           to_char2)))
+
         } else {
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
         }
+
         cat("  ",
             blue_col,
             paste0(".$", names(dim_names[sub])),
@@ -219,9 +253,11 @@ LPJmLData <- R6::R6Class(
             abbr_dim_names)
         cat("\n")
       }
+
       # summary
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
+
       if (is.null(private$.meta$variable) ||
       private$.meta$variable != "grid") {
         cat(paste0("\u001b[33;3m",
@@ -229,6 +265,7 @@ LPJmLData <- R6::R6Class(
                    unset_col,
                    "\n")
         )
+
       } else {
         cat(paste0("\u001b[33;3m",
                    ifelse(private$.meta$._space_format_ == "cell",
@@ -239,6 +276,7 @@ LPJmLData <- R6::R6Class(
       }
     },
 
+
     #' @description
     #' Internal method only to be used for package development.
     #'
@@ -246,6 +284,7 @@ LPJmLData <- R6::R6Class(
     .__transform_grid__ = function(...) {
       private$.transform_grid(...)
     },
+
 
     # set data attribute only to be used internally or explicitly
     #   on purpose
@@ -257,6 +296,7 @@ LPJmLData <- R6::R6Class(
       private$.data <- data
     },
 
+
     # set grid attribute only to be used internally or explicitly
     #   on purpose
     #' @description
@@ -266,6 +306,7 @@ LPJmLData <- R6::R6Class(
     .__set_grid__ = function(grid) {
       private$.grid <- grid
     },
+
 
     # set is_locked attribute only to be used internally or explicitly
     #   on purpose
@@ -277,6 +318,7 @@ LPJmLData <- R6::R6Class(
       private$.is_locked <- is_locked
     },
 
+
     # Create a new LPJmLData object only to be used internally or explicitly
     #' @description
     #' !Internal method only to be used for package development!
@@ -285,16 +327,21 @@ LPJmLData <- R6::R6Class(
     #'
     #' @param meta_data meta_data `LPJmLMetaData` Object
     initialize = function(data, meta_data = NULL) {
+
       if (methods::is(meta_data, "LPJmLMetaData") |
           methods::is(meta_data, "NULL")) {
         private$.meta <- meta_data
       } else {
         stop("Provide a LPJmLMetaData object for meta data.")
       }
+
       private$.data <- data
+
       if (!is.null(private$.meta$variable)) {
+
         if (private$.meta$variable == "grid") {
           private$init_grid()
+
         } else if (private$.meta$variable == "LPJGRID") {
           private$.meta$.__set_attribute__("variable", "grid")
           private$init_grid()
@@ -302,57 +349,80 @@ LPJmLData <- R6::R6Class(
       }
     }
   ),
+
+
+  # active bindings
   active = list(
+
     #' @field meta [`LPJmLMetaData`] object to store corresponding meta data
     meta = function() {
       # clone meta object so that if meta is changed outside of a LPJmLData
       #   instance it will not change this instance
       return(private$.meta$clone())
     },
+
     #' @field data \link[base]{array} containing the underlying data
     data = function() {
       return(private$.data)
     },
+
     #' @field grid *optional* - `LPJmLData` containing the underlying grid,
     grid = function() {
+
       if (!is.null(private$.grid)) {
+
         # clone meta object so that if meta is changed outside of a LPJmLData
         #   instance it will not change this instance - deep because grid
         #   includes another R6 class object (meta) which is another environment
         grid <- private$.grid$clone(deep = TRUE)
+
         # allow using methods on grid outside of LPJmLData instance
         grid$.__set_lock__(is_locked = FALSE)
+
         return(grid)
+
       } else {
         # if NULL make sure NULL is returned directly and not tried to clone
         return(private$.grid)
       }
     },
+
     #' @field ._is_locked_ *internal* Logical. Is object locked (no method can
     #' be performed directly on the object)
     ._is_locked_ = function() {
       return(private$.is_locked)
     }
   ),
+
+
   private = list(
+
     # init grid if variable == "grid"
     init_grid = function() {
+
       # update grid data
       if (dim(private$.data)[["band"]] == 2) {
         dimnames(private$.data)[["band"]] <- c("lon", "lat")
       } else {
         stop("Unknown number of bands for grid initialization.")
       }
+
       # update grid meta data
       self$.__set_data__(
         drop_omit(self$data, omit = "cell")
       )
+
       private$.meta$.__init_grid__()
+
       return(invisible(self))
     },
+
     .meta = NULL,
+
     .data = NULL,
+
     .grid = NULL,
+
     .is_locked = FALSE
   )
 )
@@ -407,12 +477,16 @@ add_grid <- function(x, ...) {
 aggregate_array <- function(x,
                             aggregate_list = NULL,
                             ...) {
+
   data <- x$data
+
   if (!is.null(aggregate_list)) {
+
     for (idx in seq_along(aggregate_list)) {
       idx_name <- names(aggregate_list)[idx]
       dims <- dim(data)
       dim_names <- names(dim(data))
+
       if (!idx_name %in% dim_names) {
         warning(paste0("\u001b[0m",
                        "Dimension ",
@@ -421,8 +495,10 @@ aggregate_array <- function(x,
                        "\u001b[0m",
                        " does not exist."))
         next
+
       } else if (dims[idx_name] == 1) {
         data <- abind::adrop(data, idx_name)
+
       } else {
         data <- apply(X = data,
                       MARGIN = dim_names[!dim_names %in% idx_name],
@@ -456,4 +532,4 @@ check_method_locked <- function(x, method_name) {
 }
 
 # avoid note for "."...
-utils::globalVariables(".") # nolintr:undesirable_function_linter
+utils::globalVariables(".") # nolint:undesirable_function_linter

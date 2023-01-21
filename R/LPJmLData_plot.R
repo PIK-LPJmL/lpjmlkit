@@ -74,13 +74,16 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        raster_extent = NULL,
                        ...) {
+
   time_dims <- strsplit(private$.meta$._time_format_, "_")[[1]]
   space_dims <- strsplit(private$.meta$._space_format_, "_")[[1]]
+
   # do subsetting first for better performance
   data_subset <- self$clone(deep = TRUE)
   if (!is.null(subset)) {
     do.call(data_subset$subset, args = subset)
   }
+
   # extract ellipsis to later check for passed arguments
   dots <- list(...)
 
@@ -121,25 +124,32 @@ LPJmLData$set("private",
   descr <- ifelse(is.null(private$.meta$descr),
                   "unknown variable",
                   private$.meta$descr)
+
   unit <- ifelse(is.null(private$.meta$unit),
                   "-",
                   private$.meta$unit)
+
   # for spatial aggregation plot time series
   if (all(space_dims %in% names(aggregate)) ||
       (private$.meta$._space_format_ == "cell" && space_len <= 8) ||
       (private$.meta$._space_format_ == "lon_lat" && any(space_dims %in% names(aggregate)))) { # nolint
+
     #add default axes labels to plot.
     var_title <- paste0(descr, " [", unit, "]")
+
     if (is.null(dots$ylab)) {
       dots$ylab <- ifelse(is.null(dots$main), "", var_title)
     }
+
     if (is.null(dots$main)) {
       dots$main <- ifelse(is.null(dots$main), var_title, dots$main)
     }
+
     # perform aggregation and plot
     data_only <- aggregate_array(data_subset,
                                  aggregate_list = aggregate,
                                  na.rm = TRUE)
+
     plot_by_band(lpjml_data = data_subset,
                  raw_data = data_only,
                  aggregate = aggregate,
@@ -151,8 +161,10 @@ LPJmLData$set("private",
         "\u001b[0m"
       )
     )
+
   # for temporal or aggregation by band plot a maps
   } else {
+
     # get name of z dimension (layers)
     z_dim <- names(dim(data_subset))[dim(data_subset) >= 1] %>%
       .[!(. %in% names(aggregate))] %>%
@@ -170,6 +182,7 @@ LPJmLData$set("private",
       stop("Too many dimensions. Please reduce via subset or
            aggregate.")
     }
+
     # subset first 9 (later) raster layers (only 9 can be visualized well)
     #   for performance reasons already here
     if (dim(data_subset)[z_dim] > 9) {
@@ -199,6 +212,7 @@ LPJmLData$set("private",
     data_ras <- data_subset %>%
       as_raster() %>%
       `if`(!is.null(raster_extent), raster::crop(., y = raster_extent), .)
+
     # do.call to use dots list as ellipsis, addfun is a workaround to use
     #   country map overlay for every plot
     do.call(raster::plot,
@@ -211,8 +225,8 @@ LPJmLData$set("private",
 
 
 # helper function to draw time series plots
-#   TODO: requires refactoring
-plot_by_band <- function(lpjml_data,
+#   TODO: requires refactoring # nolint
+plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
                          raw_data,
                          aggregate,
                          dots) {
@@ -295,6 +309,7 @@ plot_by_band <- function(lpjml_data,
   if (is.null(dots$ylim)) {
     dots$ylim <- range(raw_data, na.rm = TRUE, finite = TRUE)
   }
+
   if (!is.null(dots$col)) {
     cols <- dots$col
     dots <- dots[names(dots) != "col"]
@@ -302,6 +317,7 @@ plot_by_band <- function(lpjml_data,
     # use default colours
     cols <- seq_len(legend_length)
   }
+
   if (is.null(dots$type)) {
     dots$type <- "l"
   }
@@ -324,7 +340,6 @@ plot_by_band <- function(lpjml_data,
         "\u001b[0m",
         " supplied.\nMust be one of ",
         "\u001b[34m",
-
         "p",
         "\u001b[0m",
         ", ",
@@ -352,7 +367,7 @@ plot_by_band <- function(lpjml_data,
     ))
   }
 
-  opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE)
+  opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.
 
   # do.call for use of ellipsis via dots list
   #   subset_array for dynamic subsetting of flexible legend_dim
@@ -384,32 +399,36 @@ plot_by_band <- function(lpjml_data,
     at_ticks <- seq(1,
                     lpjml_data$meta$nyear * nstep,
                     by = brks * nstep)
+
     graphics::axis(side = 1,
                    at = at_ticks,
                    labels = dimnames(raw_data)[[x_dim]][at_ticks])
   }
 
   for (i in cols[-1]) {
+
   # subset_array for dynamic subsetting of flexible legend_dim
     graphics::lines(subset_array(raw_data,
                                  as.list(stats::setNames(i, legend_dim))),
                     col = cols[i],
                     type = dots$type)
   }
+
   # calculate length of longest string in legend to not overlap
   char_len <- dimnames(raw_data)[[legend_dim]] %>%
     .[which.max(nchar(.))]
 
   # legend at the bottom left side of the graphic device.
   #   calculations ensure placement within margins.
+  # TODO: replace with withr::with_par for temporarily changing pars # nolint
   graphics::legend(
-    x = graphics::par("usr")[1],
-    y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] *
-      graphics::par("plt")[3] *
-      ((graphics::par("usr")[4] - graphics::par("usr")[3]) /
+    x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
+    y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
+      graphics::par("plt")[3] * # nolint:undesirable_function_linter.
+      ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
          (
-           grDevices::dev.size("px")[2] * (graphics::par("plt")[4] -
-                                             graphics::par("plt")[3])
+           grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
+                                             graphics::par("plt")[3]) # nolint:undesirable_function_linter.
          )
       ),
     y.intersp = 1.5,
@@ -427,13 +446,14 @@ plot_by_band <- function(lpjml_data,
     legend = dimnames(raw_data)[[legend_dim]][cols],
     bty = "n"
   )
-  graphics::par(opar) %>% invisible()
+  graphics::par(opar) %>% invisible() # nolint:undesirable_function_linter.
+
   # create grid, special case for time, year because of specified x axis
   if (x_dim %in% c("time", "year")) {
     graphics::abline(v = at_ticks,
                      col = "lightgray",
                      lty = "dotted",
-                     lwd = graphics::par("lwd"))
+                     lwd = graphics::par("lwd")) # nolint:undesirable_function_linter.
     graphics::grid(nx = NA, ny = NULL)
   } else {
     graphics::grid()

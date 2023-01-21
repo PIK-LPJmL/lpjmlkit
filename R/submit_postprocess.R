@@ -38,11 +38,11 @@
 #' submitted. Default is "lpjml"
 #'
 #' @param sclass character string, define the job classification, for more
-#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5).
+#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5). # nolint
 #' Defaults to "short".
 #'
 #' @param ntasks integer, define the number of tasks/threads, for more
-#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18).
+#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18). # nolint
 #' Defaults to 1.
 #'
 #' @param return_output boolean. If `TRUE` output of function is saved as *RDS*
@@ -88,8 +88,8 @@
 #'                      args = list())
 #'
 #' job_details
-#' #   sim_name        fun_file                 order dependency        job_id status  
-#' #   <chr>           <chr>                    <dbl> <chr>              <dbl> <chr>   
+#' #   sim_name        fun_file                 order dependency        job_id status
+#' #   <chr>           <chr>                    <dbl> <chr>              <dbl> <chr>
 #' # 1 scen1_spinup    NA                           1 NA               2123724 submitted
 #' # 2 scen1_transient NA                           2 scen1_spinup     2123725 submitted
 #' # 3 scen1_transient print                        3 scen1_spinup (2) 2123726 submitted
@@ -112,10 +112,12 @@ submit_postprocess <- function(x = NULL,
                                memory = NULL,
                                modules = NULL,
                                no_submit = FALSE) {
+
   # check if slurm is available
   if (!is_slurm_available() && !no_submit) {
     stop("submit_postprocess is only available on the PIK cluster environment")
   }
+
   if (!dir.exists(output_path)) {
     if (output_path != "TEST/PATH") {
       stop(
@@ -123,6 +125,7 @@ submit_postprocess <- function(x = NULL,
       )
     }
   }
+
   # temporarily save function to be called
   fun_file <- tempfile(fileext = ".rds")
   saveRDS(fun, fun_file)
@@ -135,23 +138,29 @@ submit_postprocess <- function(x = NULL,
   fun_name <- as.character(substitute(fun))
 
   # case for tibble returned by submit_lpjml
-  if (any(c("tbl_df", "tbl") %in% class(x)) &
+  if (any(c("tbl_df", "tbl") %in% class(x)) &&
       "lpjml" %in% attr(x, "stages")) {
+
     sim_names <- unique(x$sim_name)
+
     # to be used in lpjml pipe context
     is_pipe <- TRUE
+
     # check if columns exist otherwise create and assign adequate values
     if (!("fun_name" %in% colnames(x))) x$fun_name <- NA
     if (!("dependency" %in% colnames(x))) x$dependency <- NA
     if (!("order" %in% colnames(x))) x$order <- 1
+
   # case for character vector to list sim_names (here output folder)
   } else if ("character" %in% class(x)) {
     sim_names <- x
     is_pipe <- FALSE
+
   # if nothing is provided output_path is assumed to be location of output files
   } else if ("NULL" %in% class(x)) {
     sim_names <- ""
     is_pipe <- FALSE
+
   } else {
     stop(paste0("x does not have a valid format. ",
                 "Use returned object by submit_lpjml or provide ",
@@ -161,16 +170,19 @@ submit_postprocess <- function(x = NULL,
 
   # iterate to enable multiple job submits
   for (sim_name in sim_names) {
+
     # exclude sim_names that are not included in select_sim
     if (!is.null(select_sim)) {
       if (!(sim_name %in% select_sim)) {
         next
       }
     }
+
     if (is_pipe) {
       which_sim <- which(x$sim_name == sim_name)
       dep_id <- which_sim[which.max(x$order[which_sim])]
     }
+
     job <- submit_process(sim_name,
                           output_path,
                           fun_file,
@@ -187,7 +199,9 @@ submit_postprocess <- function(x = NULL,
                           memory,
                           modules,
                           no_submit)
+
     if (is_pipe) {
+
       # add new row to be adjusted by job status (job_id, status)
       x <- tibble::add_row(x,
                            sim_name = sim_name,
@@ -202,20 +216,26 @@ submit_postprocess <- function(x = NULL,
                            ),
                            job_id = NA,
                            status = "failed")
+
       # index = last/number of row
       idx <- nrow(x)
+
       # get job status
       if (job$status == 0) {
         x$job_id[idx] <- strsplit(job$stdout, "\n")[[1]][1]
         x$status[idx] <- "submitted"
+
       } else if (job$status == 501) {
         x$status[idx] <- "not submitted"
+
       } else {
         x$status[idx] <- "failed"
       }
+
       attr(x, "stages") <- append(attr(x, "stages"), fun_name)
     }
   }
+
   return(x)
 }
 
@@ -245,6 +265,7 @@ submit_process <- function(x,
   if (output_path != "TEST/PATH") {
     dir.create(postdir, recursive = TRUE, showWarnings = FALSE)
   }
+
   # create output_file name to save output in postprocess postdir if required
   if (return_output) {
     output_file <- paste0(postdir, "/", fun_name, "_", timestamp, ".rds")
@@ -254,11 +275,13 @@ submit_process <- function(x,
 
   # temporarily save function call file called by bash sh script
   funcall_file <- tempfile(fileext = ".R")
+
   # concatenate R file template with <<tags>> to be replaced
   readLines(system.file(
       "templates/postprocess_r.txt",
       package = utils::packageName()
     )) %>%
+
       replace_template_tags(
         list(package_names = ifelse(!is.null(package_names),
                               paste0("c(",
@@ -279,6 +302,7 @@ submit_process <- function(x,
              sim_name_arg = sim_name_arg,
              output_file = paste0("\"", output_file, "\""))
       ) %>%
+
     writeLines(
       con = funcall_file)
 
@@ -290,6 +314,7 @@ submit_process <- function(x,
       "templates/postprocess_sh.txt",
       package = utils::packageName()
     )) %>%
+
       # replace tags in template with arguments supplied to replace function
       replace_template_tags(
         list(ntasks = ntasks,
@@ -326,19 +351,25 @@ submit_process <- function(x,
              rscript_file = paste0("\"", funcall_file, "\""),
              sbatch_file = paste0("\"", sbatch_file, "\""))
       ) %>%
+
       # write temporary sbatch sh file for slurm job submission
       writeLines(con = sbatch_file)
+
   if (!no_submit) {
+
     # submit with processx to end all subprocesses at end and return parasble
     submit_status <- processx::run(command = "sh",
                                    args = c("-c",
                                             paste("sbatch --parsable ",
                                                   sbatch_file)),
                                    cleanup_tree = TRUE)
+
   } else {
+
     # object only for no_submit check
     submit_status <- list(status = 501)
   }
+
   return(submit_status)
 }
 
@@ -348,12 +379,15 @@ submit_process <- function(x,
 #   x has to be a character (vector) and tags a list with named tag replacements
 replace_template_tags <- function(x, tags) {
   . <- NULL
+
   x <- tags[1] %>%
     gsub(pattern = paste0("<<", names(.), ">>"),
          replacement = .,
          x = x)
+
   if (length(tags) > 1) {
     return(replace_template_tags(x, tags[c(-1)]))
+
   } else {
     return(x)
   }

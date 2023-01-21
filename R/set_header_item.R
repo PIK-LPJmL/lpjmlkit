@@ -39,7 +39,7 @@ set_header_item <- function(header, ...) {
     )
   }
   # Expect only a single "name" and "endian"
-  if (any(sapply(header[c("name", "endian")], length) != 1)) {
+  if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
   # Expect header$header to have 13 values (some of which may be defaults)
@@ -91,11 +91,11 @@ set_header_item <- function(header, ...) {
     )
   }
   # Check that each argument has a length of one
-  if (any(sapply(args, length) != 1)) {
+  if (any(sapply(args, length) != 1)) { # nolint:undesirable_function_linter.
     stop(
       paste(
         "The following item(s) contain(s) more than one value:",
-        toString(sQuote(names(which(sapply(args, length) != 1)))), "\n",
+        toString(sQuote(names(which(sapply(args, length) != 1)))), "\n", # nolint:undesirable_function_linter.
         "You can only provide one value for each header item."
       )
     )
@@ -103,7 +103,7 @@ set_header_item <- function(header, ...) {
   # Switch on verbose output in create_header if setting name, version or
   # datatype (these parameters can cause warnings/info prints). Otherwise,
   # suppress output of these messages
-  if (any(!sapply(args[c("name", "version", "datatype")], is.null))) {
+  if (any(!sapply(args[c("name", "version", "datatype")], is.null))) { # nolint:undesirable_function_linter.
     verbose <- TRUE
   } else {
     verbose <- FALSE

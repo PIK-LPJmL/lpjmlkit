@@ -56,11 +56,11 @@ this way to the \code{sim_name_arg}. Defaults to \code{FALSE}.}
 submitted. Default is "lpjml"}
 
 \item{sclass}{character string, define the job classification, for more
-information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5}{here}.
+information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5}{here}. # nolint
 Defaults to "short".}
 
 \item{ntasks}{integer, define the number of tasks/threads, for more
-information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}{here}.
+information have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}{here}. # nolint
 Defaults to 1.}
 
 \item{return_output}{boolean. If \code{TRUE} output of function is saved as \emph{RDS}
@@ -113,8 +113,8 @@ job_details <- tibble(
                      args = list())
 
 job_details
-#   sim_name        fun_file                 order dependency        job_id status  
-#   <chr>           <chr>                    <dbl> <chr>              <dbl> <chr>   
+#   sim_name        fun_file                 order dependency        job_id status
+#   <chr>           <chr>                    <dbl> <chr>              <dbl> <chr>
 # 1 scen1_spinup    NA                           1 NA               2123724 submitted
 # 2 scen1_transient NA                           2 scen1_spinup     2123725 submitted
 # 3 scen1_transient print                        3 scen1_spinup (2) 2123726 submitted

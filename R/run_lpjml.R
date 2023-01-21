@@ -158,7 +158,7 @@ run_lpjml <- function(x,
 
   # case if character vector with file names is supplied instead of tibble
   if (methods::is(x, "character")) {
-    x <- tibble::tibble(sim_name = sapply(
+    x <- tibble::tibble(sim_name = sapply( # nolint:undesirable_function_linter.
       x,
       function(x) {
         strsplit(
@@ -168,13 +168,16 @@ run_lpjml <- function(x,
       }
     ))
   }
+
   x$type <- "simulation"
   x$job_id <- NA
   x$status <- "failed"
 
   if ("order" %in% colnames(x)) {
+
     for (order in unique(sort(x$order))) {
       sim_names <- x$sim_name[which(x$order == order)]
+
       if (parallel_cores == 1) {
         do_sequential(sim_names, model_path, output_path, write_stdout)
       } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
@@ -185,6 +188,7 @@ run_lpjml <- function(x,
                     " parallel) and n parallel cores/nodes."))
       }
     }
+
   } else {
     if (parallel_cores == 1) {
       do_sequential(x$sim_name, model_path, output_path, write_stdout)
@@ -196,6 +200,7 @@ run_lpjml <- function(x,
                   " parallel) and n parallel cores/nodes."))
     }
   }
+
   x$status[x$type == "simulation"] <- "run"
 }
 
@@ -205,22 +210,27 @@ do_run <- function(sim_name,
                    model_path,
                    output_path,
                    write_stdout) {
+
   config_file <- paste0("config_",
                         sim_name,
                         ".json")
+
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
+
   if (Sys.getenv("SLURM_JOB_ID") != "") {
     write_stdout <- TRUE
   }
+
   # when running inside a slurm job it ensures to propagate ressources
   inner_command <-  paste0(ifelse(Sys.getenv("SLURM_JOB_ID") == "",
                                   "",
                                   "srun --propagate "),
                            model_path,
-                           "/bin/lpjml ",
+                           "/bin/lpjml ", # nolint:absolute_path_linter.
                            output_path,
                            "/configurations/",
                            config_file)
+
   stdout_file <- ifelse(write_stdout,
                         paste0(output_path,
                                "/output/",
@@ -232,9 +242,11 @@ do_run <- function(sim_name,
                         "|")
 
   cat(paste0("\nRunning LPJmL for config: ", config_file, "...\n"))
+
   if (write_stdout) {
     cat(paste0("View output at \"", stdout_file, "\"\n"))
   }
+
   processx::run(command = "sh",
                 args = c("-c", inner_command),
                 stdout = stdout_file,
@@ -258,13 +270,15 @@ do_run <- function(sim_name,
 
 # conduct sequential runs (no parallelization), also switch of MPI on login node
 do_sequential <- function(sim_names, model_path, output_path, write_stdout) {
+
   # tryCatch to unset and set MPI for function call outside of slurm job on
   #   a HPC cluster even when function call is interrupted or has thrown
   #   an error
   tryCatch({
+
     # check if slurm is available
     if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
-      Sys.setenv(I_MPI_DAPL_UD = "disable",
+      Sys.setenv(I_MPI_DAPL_UD = "disable", # nolint:undesirable_function_linter.
                  I_MPI_FABRICS = "shm:shm",
                  I_MPI_DAPL_FABRIC = "shm:sh")
     }
@@ -274,7 +288,7 @@ do_sequential <- function(sim_names, model_path, output_path, write_stdout) {
   }, finally = {
     # check if slurm is available
     if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
-      Sys.setenv(I_MPI_DAPL_UD = "enable",
+      Sys.setenv(I_MPI_DAPL_UD = "enable", # nolint:undesirable_function_linter.
                  I_MPI_FABRICS = "shm:dapl")
       Sys.unsetenv("I_MPI_DAPL_FABRIC")
     }
@@ -284,23 +298,30 @@ do_sequential <- function(sim_names, model_path, output_path, write_stdout) {
 
 # conduct parallel runs
 do_parallel <- function(sim_names, model_path, output_path, parallel_cores) {
+
   # create temporary file to store stdout and stderr within parallel mode
   error_file <- tempfile(fileext = ".txt")
+
   # create and register cluster based on available CPU cores/nodes
   cl <- parallel::makeCluster(parallel_cores, outfile = error_file)
   doParallel::registerDoParallel(cl)
   sim_name <- NULL
+
   # parallel foreach sim_name
-  job_details <- foreach::foreach(sim_name = sim_names,
+  job_details <- foreach::foreach(sim_name = sim_names, # nolint:object_usage_linter.
                                   .errorhandling = "stop"
   ) %dopar% {
+
     # write single call
     tryCatch({
       do_run(sim_name, model_path, output_path, write_stdout = TRUE)
+
     # stop when error occures
     }, error = function(e) {
+
       # check if error is returned
       if (e != "") {
+
         # error with hint to deactivate parallelization
         stop(paste0(e,
                     " - Please set parallel_cores=1 for traceback ",
@@ -308,6 +329,7 @@ do_parallel <- function(sim_names, model_path, output_path, parallel_cores) {
                     " parallelization)",
                     call. = FALSE))
       } else {
+
         # hint to deactivate parallelization
         stop(paste0("This is not a common error,",
                     " please set parallel_cores=1 for traceback ",
@@ -316,6 +338,7 @@ do_parallel <- function(sim_names, model_path, output_path, parallel_cores) {
       }
     })
   }
+
   # close cluster
   parallel::stopCluster(cl)
 }

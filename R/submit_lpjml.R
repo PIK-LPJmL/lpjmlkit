@@ -22,11 +22,11 @@
 #' submitted. Default is `"lpjml"`
 #'
 #' @param sclass character string, define the job classification, for more
-#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5).
+#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5). # nolint
 #' Defaults to `"short"`
 #'
 #' @param ntasks integer, define the number of tasks/threads, for more
-#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18).
+#' information have a look [here](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18). # nolint
 #' Defaults to 256.
 #'
 #' @param wtime character string, defining the time limit which can be an
@@ -159,7 +159,7 @@
 #'
 #' @md
 #' @export
-submit_lpjml <- function(x,
+submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          model_path,
                          output_path = NULL,
                          group = "lpjml",
@@ -168,11 +168,13 @@ submit_lpjml <- function(x,
                          wtime = "",
                          blocking = "",
                          no_submit = FALSE) {
+
   # check if slurm is available
   if (!is_slurm_available() && !no_submit) {
     stop("submit_lpjml is only available on HPC cluster environments providing
           a SLURM workload manager")
   }
+
   # check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
     if (model_path != "TEST/PATH") {
@@ -181,11 +183,12 @@ submit_lpjml <- function(x,
       )
     }
   }
+
   if (is.null(output_path)) output_path <- model_path
 
   # case if character vector with file names is supplied instead of tibble
   if (methods::is(x, "character")) {
-    x <- tibble::tibble(sim_name = sapply(
+    x <- tibble::tibble(sim_name = sapply( # nolint:undesirable_function_linter.
       x,
       function(x) {
         strsplit(
@@ -195,29 +198,36 @@ submit_lpjml <- function(x,
       }
     ))
   }
+
   x$type <- "simulation"
   x$job_id <- NA
   x$status <- "failed"
   slurm_args <- c("sclass", "ntask", "wtime", "blocking")
 
   if ("order" %in% colnames(x)) {
+
     for (order in unique(sort(x$order))) {
       sim_names <- x$sim_name[
         which(x$order == order)
       ]
+
       for (sim_name in sim_names) {
+
         sim_idx <- which(x$sim_name == sim_name)
+
         # get dependency by sim_id
         dependency <- ifelse(!is.na(x$dependency[sim_idx]),
                              x$job_id[x$sim_name == x$dependency[sim_idx]],
                              NA)
+
         # extract slurm arguments and overwrite functions slurm arguments by
         #   mapply call
         slurm_param <- (
           x[slurm_args[slurm_args %in% colnames(x)]][
               sim_idx, ]
         )
-        mapply(
+
+        mapply( # nolint:undesirable_function_linter.
           function(x, xn) {
             if (!is.na(x)) {
               assign(xn, x, envir = parent.frame(n = 2))
@@ -226,6 +236,7 @@ submit_lpjml <- function(x,
           x = slurm_param,
           xn = colnames(slurm_param)
         )
+
         # no submit option for testing
         if (!no_submit) {
           job <- submit_run(sim_name,
@@ -237,28 +248,36 @@ submit_lpjml <- function(x,
                             wtime,
                             blocking,
                             dependency)
+
           if (job$status == 0) {
             x$job_id[sim_idx] <- strsplit(
               strsplit(job$stdout, "Submitted batch job ")[[1]][2], "\n"
             )[[1]][1]
+
             x$status[sim_idx] <- "submitted"
           }
+
         } else {
           x$job_id[sim_idx] <- NA
           x$status[sim_idx] <- "not submitted"
         }
       }
     }
+
   } else {
+
     for (sim_name in x$sim_name) {
+
       sim_idx <- which(x$sim_name == sim_name)
+
       # extract slurm arguments and overwrite functions slurm arguments by
       #   mapply call
       slurm_param <- (
         x[slurm_args[slurm_args %in% colnames(x)]][
             sim_idx, ]
       )
-      mapply(
+
+      mapply( # nolint:undesirable_function_linter.
         function(x, xn) {
           if (!is.na(x)) {
             assign(xn, x, envir = parent.frame(n = 2))
@@ -267,6 +286,7 @@ submit_lpjml <- function(x,
         x = slurm_param,
         xn = colnames(slurm_param)
       )
+
       if (!no_submit) {
         job <- submit_run(sim_name,
                           model_path,
@@ -277,20 +297,25 @@ submit_lpjml <- function(x,
                           wtime,
                           blocking,
                           dependency = NA)
+
         if (job$status == 0) {
           x$job_id[sim_idx] <- strsplit(
             strsplit(job$stdout, "Submitted batch job ")[[1]][2], "\n"
           )[[1]][1]
+
           x$status[sim_idx] <- "submitted"
+
         } else {
           x$status[sim_idx] <- "failed"
         }
+
       } else {
         x$job_id[sim_idx] <- NA
         x$status[sim_idx] <- "not submitted"
       }
     }
   }
+
   attr(x, "stages") <- append(attr(x, "stages"), "lpjml")
   return(x)
 }
@@ -306,11 +331,13 @@ submit_run <- function(sim_name,
                        wtime,
                        blocking,
                        dependency) {
+
   config_file <- paste0("config_",
                         sim_name,
                         ".json")
 
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
+
   stdout <- paste0(output_path,
                   "/output/",
                   sim_name,
@@ -318,6 +345,7 @@ submit_run <- function(sim_name,
                   "outfile_",
                   timestamp,
                   ".out")
+
   stderr <- paste0(output_path,
                   "/output/",
                   sim_name,
@@ -325,6 +353,7 @@ submit_run <- function(sim_name,
                   "errfile_",
                   timestamp,
                   ".err")
+
   output_config <- paste0(output_path,
                   "/output/",
                   sim_name,
@@ -332,7 +361,8 @@ submit_run <- function(sim_name,
                   "config_",
                   timestamp,
                   ".json")
-  inner_command <-  paste0(model_path, "/bin/lpjsubmit",
+
+  inner_command <-  paste0(model_path, "/bin/lpjsubmit", # nolint:absolute_path_linter.
                            " -nocheck",
                            " -class ", sclass,
                            " -group ", group,
@@ -353,29 +383,39 @@ submit_run <- function(sim_name,
                            output_path,
                            "/configurations/",
                            config_file)
+
   # get LPJROOT variable and set according to model_path
   pre_lpjroot <- Sys.getenv("LPJROOT")
+
   # tryCatch to be able to set it back to its original value in case sth fails
   tryCatch({
-    Sys.setenv(LPJROOT = model_path)
+
+    Sys.setenv(LPJROOT = model_path) # nolint:undesirable_function_linter.
+
     # run lpjsubmit
     submit_status <- processx::run(command = "sh",
                                    args = c("-c", inner_command),
                                    cleanup_tree = TRUE)
-    copied <- file.copy(from = paste(output_path,
+
+    copied <- file.copy(from = paste(output_path, # nolint:object_usage_linter.
                                      "configurations",
                                      config_file,
                                      sep = "/"),
                         to = output_config)
+
   }, finally = {
+
     if (pre_lpjroot == "") {
+
       # "" meaning it was not defined before thus unset
-      Sys.unsetenv("LPJROOT")
+      Sys.unsetenv("LPJROOT") # nolint:undesirable_function_linter.
     } else {
+
       # set back to its original value
-      Sys.setenv(LPJROOT = pre_lpjroot)
+      Sys.setenv(LPJROOT = pre_lpjroot) # nolint:undesirable_function_linter.
     }
   })
+
   return(submit_status)
 }
 
