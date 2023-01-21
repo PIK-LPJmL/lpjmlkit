@@ -54,7 +54,7 @@ LPJmLMetaData$set(
           order = ifelse(is.null(self$order), 1, self$order),
           firstyear = ifelse(is.null(self$firstyear), 1901, self$firstyear),
           firstcell = self$firstcell,
-          nyear = self$nyear,
+          nyear = ifelse(is.null(self$nyear), 1, self$nyear),
           ncell = self$ncell,
           nbands = self$nbands,
           cellsize_lon = self$cellsize_lon,
