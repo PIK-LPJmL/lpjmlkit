@@ -169,7 +169,13 @@ LPJmLData$set("private",
         cell_dimnames <- self$dimnames()$cell
 
       } else {
-        grid <- private$.grid$clone(deep = TRUE)
+
+        # proxy to check if grid is an attribute or instance itself is a grid
+        if (!is.null(private$.grid)) {
+          grid <- private$.grid$clone(deep = TRUE)
+        } else {
+          grid <- self$clone(deep = TRUE)
+        }
         grid$.__set_lock__(is_locked = FALSE)
         cell_dimnames <- transform(grid, to = "cell") %>%
           dimnames() %>%
