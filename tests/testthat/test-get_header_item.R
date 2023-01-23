@@ -12,6 +12,8 @@ h1 <- list(
     cellsize_lon = 0.5,
     scalar = 1,
     cellsize_lat = 0.25,
+    nstep = 12,
+    timestep = 10,
     datatype = 3
   ),
   endian = .Platform$endian
@@ -30,6 +32,8 @@ test_that("get header item", {
   expect_equal(get_header_item(h1, "scalar"), c(scalar = 1.0))
   expect_equal(get_header_item(h1, "cellsize_lat"), c(cellsize_lat= 0.25))
   expect_equal(get_header_item(h1, "datatype"), c(datatype = 3))
+  expect_equal(get_header_item(h1, "nstep"), c(nstep = 12))
+  expect_equal(get_header_item(h1, "timestep"), c(timestep = 10))
   expect_equal(get_header_item(h1, "endian"), c(endian = .Platform$endian))
 })
 

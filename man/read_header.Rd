@@ -4,7 +4,7 @@
 \alias{read_header}
 \title{Read header (any version) from LPJmL file}
 \usage{
-read_header(filename, force_version = NULL)
+read_header(filename, force_version = NULL, verbose = TRUE)
 }
 \arguments{
 \item{filename}{Filename to read header from.}
@@ -12,6 +12,10 @@ read_header(filename, force_version = NULL)
 \item{force_version}{Manually set clm version (default value 'NULL' means
 that version is determined automatically from header; set only if version
 number in file is incorrect).}
+
+\item{verbose}{If TRUE (the default), function provides some feedback when
+using default values for missing parameters. If FALSE, only errors are
+reported.}
 }
 \value{
 The function returns a list with 3 components:
@@ -19,8 +23,8 @@ The function returns a list with 3 components:
 \item name: Header name, e.g. "LPJGRID"; describes the type of data in file.
 \item header: Vector of header values ('version', 'order', 'firstyear',
 'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-'cellsize_lat', 'datatype') describing the file structure. If header
-version is <3, partially filled with default values.
+'cellsize_lat', 'datatype', 'nstep', 'timestep') describing the file
+structure. If header version is <4, partially filled with default values.
 \item endian: Endianness of file ("little" or "big").
 }
 }

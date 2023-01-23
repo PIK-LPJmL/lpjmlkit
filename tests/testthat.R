@@ -1,4 +1,4 @@
 library(testthat)
-library(lpjmlKit)
+library(lpjmlkit)
 
-test_check("lpjmlKit")
+test_check("lpjmlkit")

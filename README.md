@@ -1,129 +1,88 @@
-# lpjmlKit  <a href=''><img src='./inst/img/logo.png' align="right" height="139" /></a>
+# Toolkit for basic LPJmL handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
-_A kit of R-functions to work with inputs, outputs and configuration files of the LPJmL model_
+R package **lpjmlkit**, version **0.5.11**
 
+[![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/workflows/check/badge.svg)](https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/actions) [![codecov](https://codecov.io/gh/lpjml/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/lpjml/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
+
+## Purpose and Functionality
+
+A collection of base functions to facilitate the work with the
+    Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land
+    (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK).
+    It provides functions for performing LPJmL simulations, as well as reading,
+    processing and writing model-related data such as inputs and outputs or
+    configuration files.
 ## Overview
 
-This project contains reading, writing, plotting or processing functions that are related to the DGVM LPJmL hosted at the Potsdam Institute for Climate Impact Research. 
-It further provides functions to run the LPJmL model, as well as to process model-related data such as In- and Outputs. It comes in the [R package format](https://r-pkgs.org/intro.html).
+### **[LPJmL Runner :runner:](./vignettes/lpjml-runner.md)**  to perform LPJmL simulations <sub><sup>[**PDF**](./vignettes/lpjml-runner.pdf)</sup></sub>
+- :writing_hand: [`write_config()`](./vignettes/lpjml-runner.md#1-clipboard-define-a-table-of-modified-configuration-parameters) write config.json files using a tibble with parameters to be changed and a base lpjml.js file
+- :mag: [`check_config()`](./vignettes/lpjml-runner.md#2-writing_hand-create-corresponding-configuration-files) check if generated config.json files are valid for LPJmL simulations
+- :arrow_forward: [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or :rocket: [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)
 
-[[_TOC_]]
+### **[LPJmL Data :floppy_disk: ](./vignettes/lpjml-data.md)** for reading and processing LPJmL data <sub><sup>[**PDF**](./vignettes/lpjml-data.pdf)</sup></sub>
+- [`read_io()`](./vignettes/lpjml-data.md#1-book-data-reading-function-read_io) read LPJmL input and output as an [`LPJmLData`](/vignettes/lpjml-data.md#2-file_folder-data-class-lpjmldata) object, containing the data array and LPJmLMetaData
+    - :chart_with_upwards_trend: [`plot()`](./vignettes/lpjml-data.md#3-chart_with_upwards_trend-base-stats-of-lpjmldata-objects) the data or get insights via [`summary()`](./vignettes/lpjml-data.md#3-chart_with_upwards_trend-base-stats-of-lpjmldata-objects) and other base stats
+    - :repeat: [`transform()`](./vignettes/lpjml-data.md#4-pencil2-modify-lpjmldata-objects) it to other time and space formats
+    - :scissors: [`subset()`](./vignettes/lpjml-data.md#4-pencil2-modify-lpjmldata-objects) the underlying data
+    - :package: [`as_array()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects), [`as_tibble()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects) and [`as_raster()` / `as_terra()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects) to export into common R data formats
+
+- [`read_meta()`](./vignettes/lpjml-data.md#miscellaneous) read meta or header files as [`LPJmLMetaData`](./vignettes/lpjml-data.md#miscellaneous) object
+
+### **miscellaneous**
+- `calc_cellarea()` to calculate the area of LPJmLData objects underlying grid
+or for other objects latitudes
+- functions to handle LPJmL file headers, `read_header()` read the header of LPJmL files, `get_headersize()` get the size of a file header or `create_header()` to create a header object for writing input files
+- `get_datatype()` get information on the data type used in different LPJmL files
+- `asub()` functionality of the subset method to be used on a base array, also to replace data
+- ... *more functions via `library(help = "lpjmlkit")`*
 
 ## Installation
 
-**Clone & Pull**
+For installation of the most recent package version an additional repository has to be added in R:
 
-First of all, clone the project to your location of choice.
+```r
+options(repos = c(CRAN = "@CRAN@", pik = "https://rse.pik-potsdam.de/r/packages"))
+```
+The additional repository can be made available permanently by adding the line above to a file called `.Rprofile` stored in the home folder of your system (`Sys.glob("~")` in R returns the home directory).
 
-```bash
-git clone https://gitlab.pik-potsdam.de/lpjml/lpjmlkit.git <path_to_lpjmlkit>
+After that the most recent version of the package can be installed using `install.packages`:
+
+```r 
+install.packages("lpjmlkit")
 ```
 
-Then, pull to update the code to the most recent changes
+Package updates can be installed using `update.packages` (make sure that the additional repository has been added before running that command):
 
-```bash
-cd <path_to_lpjmlkit>
-git pull origin master
+```r 
+update.packages()
 ```
 
-**Windows users only:**
-- If you do not have `Rtools` yet, you will need to install it: download Rtools from here https://cran.rstudio.com/bin/windows/Rtools/ (e.g. `rtools40v2-x86_64.exe`)
+## Tutorial
 
-**Build & Install in Rstudio (any OS)**
+The package comes with vignettes describing the basic functionality of the package and how to use it. You can load them with the following command (the package needs to be installed):
 
-- Open .RProj file with RStudio
-- Build -> More -> Build source package (for Linux)
-- Build -> More -> Build binary package (for Windows)
-- This creates a compressed file (e.g. `.tar.gz` or `.zip`) in the package folder.
-- Use the [`devtools`](https://rawgit.com/rstudio/cheatsheets/master/package-development.pdf) library to install lpjmlkit.
-
-```R
-devtools::install("<path_to_lpjmlkit>/lpjmlkit")
+```r
+vignette("lpjml-data")   # LPJmL Data
+vignette("lpjml-runner") # LPJmL Runner
 ```
 
-**Build & Install from the Command Line (Linux)**
+## Questions / Problems
 
-```bash
-cd <path_to_lpjmlkit>
-R CMD build lpjmlKit
-R CMD INSTALL lpjmlKit_<version_nr>.tar.gz
+In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsdam.de>.
+
+## Citation
+
+To cite package **lpjmlkit** in publications use:
+
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.5.11.
+
+A BibTeX entry for LaTeX users is
+
+ ```latex
+@Manual{,
+  title = {lpjmlkit: Toolkit for basic LPJmL handling},
+  author = {Jannes Breier and Sebastian Ostberg and Stephen Wirth and Sara Minoli and Fabian Stenzel and Christoph Mueller},
+  year = {2023},
+  note = {R package version 0.5.11},
+}
 ```
-[Go to Top](#)
-
-## Usage
-
-After the installation, you can use `lpjmlKit` as any other R package.
-
-```R
-# Load lpjmlKit
-library(lpjmlKit)
-```
-To get an overview of all functions included you can use:
-```R
-library(help = "lpjmlKit")
-```
-
-- In `lpjmlKit` there are functions to handle LPJmL file headers (mostly used in input files), e.g.:
-  - `read_header` *read the header of LPJmL files*
-  - `get_headersize` *to get the size of a file header*
-  - `get_datatype` *get information on the data type used in different LPJmL files*
-- If you want to use the [LPJmL Runner](./vignettes/lpjml-runner.pdf):
-  - `write_config` *write* `"\*_config.json"` *file(s) based on a parameters tibble and a (precompiled) lpjml.js. `read_config` later or `view_config`*
-  - `make_lpjml` *compile LPJmL* and `check_lpjml`
-  - `run_lpjml`, `submit_lpjml` *run or submit LPJmL (to Slurm) with \*_config.json*
-
-
-[Go to Top](#)
-
-## Contribute
-
-If you want to contribute to further develop `lpjmlKit`, by modifying or adding new functions, please follow the guidelines here below.
-
-**Required libraries**
-
-```R
-# For generating automated documentation
-library(roxygen2)
-library(devtools)
-# For testing the functions and catching errors
-library(testthat)
-# For complying with the coding style standards
-library(lintr)
-```
-
-**Note on the structure of the lpjmlKit repository**
-
-The `lpjmlKit` repository include the following branches:
-
-- `master`: this is the clean version of the package. Note: **this branch is protected**, direct push is not allowed, changes to `master` are possible only via 'Merge Requests'.
-- `your_temporary_branch`:  The branch you create whenever you want to make a new development. **Please, delete it when you are done.**
-- `development`: this is a lose collection of un-cleaned functions. **This branch should NOT be merged with the master!** Here you can find / add useful code that can serve as an inspiration to develop new  functions, or that can be useful to make accessible to other colleagues.
-
-**How to add a new function**
-
-Note: To be done for every new development that should go to master.
- 
-1. Create `your_temporary_branch` branch from `master`
-1. Manually copy the functions you want to clean from the `development` to `your_temporary_branch` branch, or write a new function from scratch
-1. Clean the function and coding style (`lintr::lint("R/my_function.R")`)
-1. Add documentation and examples. In Rstudio: `Code -> Insert roxygen skeleton` or by `Ctrl + Alt + Shift + R`
-1. Add tests in the `tests/testthat` folder. Small sample data can be added in `tests/testdata`, if needed
-1. Test if the new functions compile well with the rest of the package
-1. If you are ready to merge your changes to the `master`, see below how to make a merge request
-
-**How to Create a Merge Request to the `master`**
-
-1. Increase version number in `DESCRIPTION` file (follow `MajorVersionNumber.MinorVersionNumber.PatchNumber`)
-1. Run roxygen2 and update the descriptions `roxygen2::roxygenise()` or `CTRL + Shift + D`
-1. Make a merge request
-1. Apply the 4-eyes principles
-1. Delete `your_temporary_branch` branch
-1. Ask for feedback and help if you have any questions!
-
-[Go to Top](#)
-
-## Contacts
-
-If you have any questions please contact [Fabian Stenzel](mailto:stenzel@pik-potsdam.de), [Sara Minoli](mailto:minoli@pik-potsdam.de), [Stephen Wirth](mailto:wirth@pik-potsdam.de), [Sebastian Ostberg](mailto:ostberg@pik-potsdam.de) or [Jannes Breier](mailto:jannesbr@pik-potsdam.de).
-
-

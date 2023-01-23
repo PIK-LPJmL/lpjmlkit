@@ -1,17 +1,25 @@
 #' @title Calculate cell area of LPJmL cells
 #'
-#' @description Calculate cell area of LPJmL cells based on cell
-#'   coordinates and grid resolution. Uses a spherical representation of Earth.
+#' @description Calculate cell area of LPJmL cells based on a LPJmLData object
+#' or cell coordinates and grid resolution.
+#' Uses a spherical representation of Earth.
 #'
-#' @param lat Vector of cell-center latitude coordinates in degrees.
+#' @param x `LPJmLData` object with `$grid` attribute, a LPJmLData object of
+#' variable `"grid"` (`"LPJGRID"`) or vector of cell-center latitude
+#' coordinates in degrees.
 #' @param res_lon Grid resolution in longitude direction in degrees
-#'   (default: 0.5).
+#'   (default: 0.5). If `x` is a LPJmLData object the resolution will be taken
+#'   from the meta data included in `x`.
 #' @param res_lat Grid resolution in latitude direction in degrees (default:
-#'   same as res_lon).
+#'   same as res_lon). If `x` is a LPJmLData object the resolution will be
+#'   taken from the meta data included in `x`.
 #' @param earth_radius Radius of sphere (in \eqn{m}) used to calculate cell
 #'   areas.
-#'
-#' @return Vector of cell areas in \eqn{m^2} corresponding to cells in `lat`.
+#' @param return_unit Character string describing the area unit of the returned
+#'   cell areas. Defaults to `"m2"`, further options: `"ha"` or `"km2"`.
+#' @return A vector or array matching the space dimension(s) of `x` if `x` is a
+#'   LPJmLData object. A vector of the same length as `x` if `x` is a vector of
+#'   latitude coordinates. Cell areas are returned in the unit `return_unit`.
 #'
 #' @examples
 #' grid <- matrix(
@@ -23,15 +31,85 @@
 #' gridarea <- calc_cellarea(grid[,"lat"])
 #'
 #' @export
-calc_cellarea <- function(lat,
+calc_cellarea <- function(x,
                           res_lon = 0.5,
                           res_lat = res_lon,
-                          earth_radius = 6371000.785
+                          earth_radius = 6371000.785,
+                          return_unit = "m2"
                          ) {
-  cellwidth <- earth_radius * pi / 180
-  if (any(lat < -90 | lat > 90, na.rm = TRUE)) {
-    stop("Invalid latitude values in lat. Values must be within +- 90 degrees")
+  # Workflow for LPJmLData objects
+  if (methods::is(x, "LPJmLData")) {
+
+    # Check if grid is available as attribute.
+    if (!is.null(x$grid)) {
+      x <- x$grid
+
+    # Check if LPJmLData object is of variable grid or LPJGRID (header file).
+    } else if (!any(c("grid", "LPJGRID") %in% x$meta$variable)) {
+      stop("Grid attribute is missing. Use method add_grid() to add it.")
+    }
+
+    if (!is.null(x$meta$cellsize_lon) && any(res_lon != x$meta$cellsize_lon)) {
+      res_lon <- x$meta$cellsize_lon
+      warning("Using x$meta$cellsize_lon instead of supplied res_lon.")
+    }
+
+    if (!is.null(x$meta$cellsize_lat) && any(res_lat != x$meta$cellsize_lat)) {
+      res_lat <- x$meta$cellsize_lat
+      warning("Using x$meta$cellsize_lat instead of supplied res_lat.")
+    }
+
+    # Check for format of space dimensions, apply different processing.
+    if (x$meta$._space_format_ == "cell") {
+      # For format "cell" latitudes are supplied as data in band dimension
+      #   ("lat").
+      x <- asub(x$data, band = "lat")
+    } else {
+
+      # For format "lon_lat" latitudes are supplied by dimnames. For calculation
+      #   original array is overwritten with corresponding latitudes.
+      x <- check <- x$data
+      asub(x, lat = dimnames(x)$lat) <- as.numeric(dimnames(x)$lat)
+      x[is.na(check)] <- NA
+    }
+
+  } else {
+    # Make sure supplied vector is numeric.
+    x <- as.double(x)
   }
-  as.double(cellwidth * res_lon) * as.double(cellwidth * res_lat) *
-    as.double(cos(lat / 180 * pi))
+  
+  # Check for irregular grid resolution arguments.
+  if (length(res_lon) > 1) {
+    warning("res_lon has length ", length(res_lon), ". Using first element.")
+    res_lon <- res_lon[1]
+  }
+  if (length(res_lon) == 0 || is.na(res_lon)) {
+    stop("Invalid longitude grid resolution 'res_lon'")
+  }
+  res_lon <- as.double(res_lon)
+  if (length(res_lat) > 1) {
+    warning("res_lat has length ", length(res_lat), ". Using first element.")
+    res_lat <- res_lat[1]
+  }
+  if (length(res_lat) == 0 || is.na(res_lat)) {
+    stop("Invalid latitude grid resolution 'res_lat'")
+  }
+  res_lat <- as.double(res_lat)
+
+  # Check for irregular latitude coordinates.
+  if (any(x < -90 | x > 90, na.rm = TRUE)) {
+    stop("Invalid latitude values in 'x'. Values must be within +- 90 degrees")
+  }
+
+  cellwidth <- earth_radius * pi / 180
+
+  cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
+
+    # Apply conversion factor based on return_unit parameter.
+    switch(return_unit,
+           m2 = .,
+           ha = . * 1e-4,
+           km2 = . * 1e-6,
+           stop("Unsupported return_unit ", dQuote(return_unit))) %>%
+    return()
 }

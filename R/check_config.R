@@ -1,9 +1,9 @@
 #' Check LPJmL config JSON files using lpjcheck
 #'
-#' Check if created LPJmL config JSON files (\link[lpjmlKit]{write_config}) are
+#' Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
 #' valid.
 #'
-#' @param x job_details object returned by \link[lpjmlKit]{write_config} or
+#' @param x job_details object returned by \link[lpjmlkit]{write_config} or
 #' character vector providing the config file names
 #' (hint: returns x as a list entry)
 #'
@@ -28,8 +28,8 @@ check_config <- function(x,
   if (is.null(output_path)) output_path <- model_path
 
   # check if x is character (vector) if so convert to tibble for the following
-  if ("character" %in% class(x)) {
-    x <- tibble::tibble(sim_name = sapply(
+  if (methods::is(x, "character")) {
+    x <- tibble::tibble(sim_name = sapply( # nolint:undesirable_function_linter.
       x,
       function(x) {
         strsplit(
@@ -47,6 +47,7 @@ check_config <- function(x,
                       "/configurations/",
                       config_files,
                       collapse = " ")
+
       # for loop in bash -> background: process limit on the cluster
       inner_command <- paste0("files=( ",
                               paste("\"", files, "\"", collapse = " "),
@@ -55,22 +56,24 @@ check_config <- function(x,
                               "do echo '\n'$ff: >&2;",
                               "echo '\n'$ff: ;",
                               model_path,
-                              "/bin/lpjcheck",
+                              "/bin/lpjcheck", # nolint:absolute_path_linter.
                               " $ff; done;")
 
   } else {
     inner_command <- paste0(model_path,
-                      "/bin/lpjcheck ",
+                      "/bin/lpjcheck ", # nolint:absolute_path_linter.
                       output_path,
                       "/configurations/",
                       config_files)
   }
+
   # call sh command via processx to kill any subprocesses after
   #   background: process limit on the cluster
   check <- processx::run(command = "sh",
                          args = c("-c", inner_command),
                          error_on_status = FALSE,
                          cleanup_tree = TRUE)
+
   if (!return_output) {
     return(
       cat(check$stdout,
@@ -81,6 +84,7 @@ check_config <- function(x,
           "\n",
           check$stderr)
     )
+
   } else {
     return(check)
   }

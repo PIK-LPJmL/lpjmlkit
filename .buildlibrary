@@ -1,0 +1,9 @@
+ValidationKey: '9903180'
+AutocreateReadme: yes
+AcceptedWarnings:
+- 'Warning: package ''.*'' was built under R version'
+- 'Warning: namespace ''.*'' is not available and has been replaced'
+AcceptedNotes: ~
+allowLinterWarnings: no
+AddInReadme: inst/README.md
+AddLogoReadme: inst/img/logo.png

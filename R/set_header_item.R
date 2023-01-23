@@ -6,9 +6,10 @@
 #'
 #' @param header LPJmL file header as returned by `read_header()` or
 #'   `create_header()`.
-#' @param ... Header items to set. Can be one or several of 'name', 'version', 'order', 'firstyear',
-#'   'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-#'   'cellsize_lat', 'datatype", "endian".
+#' @param ... Header items to set. Can be one or several of 'name', 'version',
+#'   'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
+#'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
+#'   'endian'.
 #'
 #' @return Header 'header' where items included in parameters have been changed.
 #' @seealso
@@ -38,17 +39,18 @@ set_header_item <- function(header, ...) {
     )
   }
   # Expect only a single "name" and "endian"
-  if (any(sapply(header[c("name", "endian")], length) != 1)) {
+  if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
-  # Expect header$header to have 11 values (some of which may be defaults)
-  if (length(header$header) != 11) {
+  # Expect header$header to have 13 values (some of which may be defaults)
+  if (length(header$header) != 13) {
     stop("Header has invalid structure. Invalid header$header")
   }
   # Valid items that can be set in header
   valid_items <- c(
     "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
-    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "endian"
+    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
+    "timestep", "endian"
   )
   # Check that all items are present in header or header$header
   if (any(!setdiff(valid_items, names(header)) %in% names(header$header))) {
@@ -89,11 +91,11 @@ set_header_item <- function(header, ...) {
     )
   }
   # Check that each argument has a length of one
-  if (any(sapply(args, length) != 1)) {
+  if (any(sapply(args, length) != 1)) { # nolint:undesirable_function_linter.
     stop(
       paste(
         "The following item(s) contain(s) more than one value:",
-        toString(sQuote(names(which(sapply(args, length) != 1)))), "\n",
+        toString(sQuote(names(which(sapply(args, length) != 1)))), "\n", # nolint:undesirable_function_linter.
         "You can only provide one value for each header item."
       )
     )
@@ -101,7 +103,7 @@ set_header_item <- function(header, ...) {
   # Switch on verbose output in create_header if setting name, version or
   # datatype (these parameters can cause warnings/info prints). Otherwise,
   # suppress output of these messages
-  if (any(!sapply(args[c("name", "version", "datatype")], is.null))) {
+  if (any(!sapply(args[c("name", "version", "datatype")], is.null))) { # nolint:undesirable_function_linter.
     verbose <- TRUE
   } else {
     verbose <- FALSE
@@ -162,6 +164,16 @@ set_header_item <- function(header, ...) {
       is.null(args[["datatype"]]),
       header$header["datatype"],
       args[["datatype"]]
+    ),
+    nstep = ifelse(
+      is.null(args[["nstep"]]),
+      header$header["nstep"],
+      args[["nstep"]]
+    ),
+    timestep = ifelse(
+      is.null(args[["timestep"]]),
+      header$header["timestep"],
+      args[["timestep"]]
     ),
     endian = ifelse(is.null(args[["endian"]]), header$endian, args[["endian"]]),
     verbose = verbose
