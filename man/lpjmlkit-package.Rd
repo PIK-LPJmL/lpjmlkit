@@ -11,6 +11,7 @@ A collection of base functions to facilitate the work with the Dynamic Global Ve
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://github.com/PIK-LPJmL/lpjmlkit}
   \item Report bugs at \url{https://github.com/PIK-LPJmL/lpjmlkit/issues, https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues}
 }
 
