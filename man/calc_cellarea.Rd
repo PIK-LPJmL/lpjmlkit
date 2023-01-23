@@ -22,7 +22,8 @@ coordinates in degrees.}
 from the meta data included in \code{x}.}
 
 \item{res_lat}{Grid resolution in latitude direction in degrees (default:
-same as res_lon). If \code{x} is a LPJmLData\verb{object the resolution will be taken from the meta data included in}x`.}
+same as res_lon). If \code{x} is a LPJmLData object the resolution will be
+taken from the meta data included in \code{x}.}
 
 \item{earth_radius}{Radius of sphere (in \eqn{m}) used to calculate cell
 areas.}
