@@ -94,6 +94,23 @@ subset_array <- function(x,
         " not subsetted."
       )
     }
+  } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { 
+    # Remove empty subsets
+    before <- names(subset_list)
+    subset_list <- subset_list[which(sapply(subset_list, length) > 0)] # nolint:undesirable_function_linter.
+    if (length(subset_list) < length(before) && !silent) {
+      warning(
+        paste(
+          "subset_list[[", dQuote(setdiff(before, names(subset_list))), "]]",
+          sep = "", collapse = ", "
+        ),
+        " empty. ",
+        ifelse(
+          length(before) - length(subset_list) > 1, "Dimensions", "Dimension"
+        ),
+        " not subsetted."
+      )
+    }
   }
 
   if (drop) {
