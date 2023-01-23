@@ -31,9 +31,9 @@ get_headersize <- function(header) {
   if (!("name" %in% names(header)) || !("version" %in% names(header$header))) {
     stop("Header list must contain a 'name' and a 'header' element.")
   }
-  if (header$header["version"] < 1 || header$header["version"] > 3) {
-    stop("Invalid header version. Expecting value between 1 and 3.")
+  if (header$header["version"] < 1 || header$header["version"] > 4) {
+    stop("Invalid header version. Expecting value between 1 and 4.")
   }
   return(nchar(header$name) +
-    switch(as.integer(header$header["version"]), 7, 9, 11) * 4)
+    switch(as.integer(header$header["version"]), 7, 9, 11, 13) * 4)
 }

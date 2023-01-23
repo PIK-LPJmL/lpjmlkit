@@ -10,7 +10,7 @@
 #SBATCH --error=<<stderr>>
 #SBATCH --workdir=<<workdir>>
 #SBATCH --mail-type=END
-#SBATCH --job-name=lpjmlKit
+#SBATCH --job-name=lpjmlkit
 <<dependency>>
 <<memory_alloc>>
 

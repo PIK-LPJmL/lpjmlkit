@@ -7,7 +7,7 @@
 check_config(x, model_path, output_path = NULL, return_output = FALSE)
 }
 \arguments{
-\item{x}{job_details object returned by \link[lpjmlKit]{write_config} or
+\item{x}{job_details object returned by \link[lpjmlkit]{write_config} or
 character vector providing the config file names
 (hint: returns x as a list entry)}
 
@@ -25,6 +25,6 @@ Defaults to FALSE}
 see \code{pretty_print}
 }
 \description{
-Check if created LPJmL config JSON files (\link[lpjmlKit]{write_config}) are
+Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
 valid.
 }

@@ -7,13 +7,16 @@
 #' @param force_version Manually set clm version (default value 'NULL' means
 #'   that version is determined automatically from header; set only if version
 #'   number in file is incorrect).
+#' @param verbose If TRUE (the default), function provides some feedback when
+#'   using default values for missing parameters. If FALSE, only errors are
+#'   reported.
 #'
 #' @return The function returns a list with 3 components:
 #' * name: Header name, e.g. "LPJGRID"; describes the type of data in file.
 #' * header: Vector of header values ('version', 'order', 'firstyear',
 #'     'nyear', 'firstcell', 'ncell', 'nbands', 'cellsize_lon', 'scalar',
-#'     'cellsize_lat', 'datatype') describing the file structure. If header
-#'     version is <3, partially filled with default values.
+#'     'cellsize_lat', 'datatype', 'nstep', 'timestep') describing the file
+#'     structure. If header version is <4, partially filled with default values.
 #' * endian: Endianness of file ("little" or "big").
 #'
 #' @examples
@@ -27,7 +30,7 @@
 #' * [write_header()] for writing headers to files.
 #'
 #' @export
-read_header <- function(filename, force_version = NULL) {
+read_header <- function(filename, force_version = NULL, verbose = TRUE) {
   if (!file.exists(filename)) {
     stop(paste(filename, "does not exist"))
   }
@@ -67,7 +70,7 @@ read_header <- function(filename, force_version = NULL) {
   }
   # Version usually determined from file header, but can also be forced
   if (!is.null(force_version)) {
-    print(paste("Forcing header version to", force_version))
+    if (verbose) message("Forcing header version to ", force_version)
     version <- force_version
   }
   # Read main header data that is included in all header versions
@@ -88,7 +91,7 @@ read_header <- function(filename, force_version = NULL) {
     )
     names(headerdata) <- c(names(headerdata[1:6]), "cellsize_lon", "scalar")
   }
-  if (version == 3) {
+  if (version >= 3) {
     # Header version 3 added two more parameters on top of parameters added
     # in version 2
     headerdata <- c(
@@ -106,6 +109,18 @@ read_header <- function(filename, force_version = NULL) {
       "cellsize_lat",
       "datatype"
     )
+  }
+  if (version == 4) {
+    # Header version 4 added new parameters on top of parameters added in
+    # version 3
+    headerdata <- c(
+      headerdata,
+      nstep = readBin(zz, integer(), size = 4, n = 1, endian = endian)
+    )
+    headerdata <- c(
+      headerdata,
+      timestep = readBin(zz, integer(), size = 4, n = 1, endian = endian)
+    )
   } else {
     # Add default values for parameters not included in header version 1
     if (length(headerdata) == 6) {
@@ -114,29 +129,45 @@ read_header <- function(filename, force_version = NULL) {
         cellsize_lon = 0.5,
         scalar = 1,
         cellsize_lat = 0.5,
-        datatype = 1
+        datatype = 1,
+        nstep = 1,
+        timestep = 1
       )
-      warning(
-        paste(
-          "Type 1 header. Adding default values for cellsize, scalar",
-          "and datatype which may not be correct in all cases"
+      if (verbose)
+        message(
+          "Note: Type 1 header. Adding default values for cellsize, scalar, ",
+          "datatype, nstep and timestep which may not be correct in all cases."
         )
-      )
     }
     # Add default values for parameters not included in header version 2
     if (length(headerdata) == 8) {
       headerdata <- c(
         headerdata,
         cellsize_lat = as.double(headerdata["cellsize_lon"]),
-        datatype = 1
+        datatype = 1,
+        nstep = 1,
+        timestep = 1
       )
-      warning(
-        paste(
-          "Type 2 header. Adding default value for datatype which",
-          "may not be correct in all cases"
+      if (verbose)
+        message(
+          "Note: Type 2 header. Adding default values for datatype, nstep and ",
+          "timestep which may not be correct in all cases."
         )
+    }
+    if (length(headerdata) == 10) {
+      headerdata <- c(headerdata, nstep = 1, timestep = 1)
+      if (verbose)
+        message(
+          "Note: Type 3 header. Adding default values for nstep and timestep which ",
+          "may not be correct in all cases."
       )
     }
+  }
+  if (verbose && is.null(get_datatype(headerdata, fail = FALSE))) {
+    warning(
+      "Invalid datatype ", sQuote(headerdata["datatype"]),
+      " in header read from ", filename
+    )
   }
   close(zz)
   list(

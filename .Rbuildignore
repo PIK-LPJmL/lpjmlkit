@@ -1,3 +1,14 @@
-^lpjmlKit\.Rproj$
+^lpjmlkit\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^CONTRIBUTING\.md$
+^INSTALL\.md$
+^\.github$
+^\.buildlibrary$
+^\.pre-commit-config\.yaml$
+^Makefile$
+^workflow$
+^.lintr$
+^tests/.lintr$
+^vignettes/.lintr$
+^.*\.zenodo.json$

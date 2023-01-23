@@ -1,31 +1,49 @@
-Package: lpjmlKit
+Package: lpjmlkit
 Type: Package
-Title: Function kit for handling and processing LPJmL related stuff, such as input, output, plotting, aggregation
-Version: 0.3.2
-Author: LPJmL Team at PIK Potsdam
-Maintainer: 
-    Christoph Mueller <cmueller@pik-potsdam.de>,
-    Fabian Stenzel <stenzel@pik-potsdam.de>,
-    Sara Minoli <minoli@pik-potsdam.de>,
-    Jannes Breier <jannesbr@pik-potsdam.de>,
-    Sebastian Ostberg <ostberg@pik-potsdam.de>,
-    Stephen Wirth <wirth@pik-potsdam.de>
-Description: Function kit for handling and processing LPJmL related stuff, 
-    such as input, output, plotting, aggregation.
+Title: Toolkit for basic LPJmL handling
+Version: 0.5.11
+Authors@R: c(
+    person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
+    person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
+    person("Stephen", "Wirth", , "wirth@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0003-3090-3318")),
+    person("Sara","Minoli", , "minoli@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0001-7920-3107")),
+    person("Fabian", "Stenzel", , "stenzel@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-5109-0048")),
+    person("Christoph", "Mueller", , "cmueller@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-9491-3550"))
+  )
+Description: A collection of base functions to facilitate the work with the
+    Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land
+    (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK).
+    It provides functions for performing LPJmL simulations, as well as reading,
+    processing and writing model-related data such as inputs and outputs or
+    configuration files.
 License: GPL-3
 LazyData: true
-RoxygenNote: 7.1.2
-Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE,
+              r6 = TRUE)
+Encoding: UTF-8
+Depends:
+    R (>= 3.5.0)
+BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues,
+    https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues
 Imports:
     magrittr,
+    dplyr,
     processx,
     tibble,
     jsonlite,
     doParallel,
-    foreach
-Suggests: 
+    foreach,
+    utils,
+    methods,
+    abind
+Suggests:
     rmarkdown,
     knitr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    terra,
+    raster,
+    reshape2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Date: 2023-01-23

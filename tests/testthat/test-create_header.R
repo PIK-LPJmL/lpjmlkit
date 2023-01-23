@@ -12,6 +12,8 @@ h1 <- create_header(
   scalar = 1,
   cellsize_lat = 0.5,
   datatype = 1,
+  nstep = 1,
+  timestep = 1,
   endian = .Platform$endian,
   verbose = FALSE
 )
@@ -19,6 +21,6 @@ h1 <- create_header(
 expect_type(h1, "list")
 expect_named(h1, c("name", "header", "endian"))
 expect_length(h1$name, 1)
-expect_length(h1$header, 11)
+expect_length(h1$header, 13)
 expect_length(h1$endian, 1)
 })

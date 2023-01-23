@@ -8,7 +8,8 @@
 #'   `create_header()`.
 #' @param item Header information item to retrieve. One of `c("name", "version",
 #'   "order", "firstyear", "nyear", "firstcell", "ncell", "nbands",
-#'   "cellsize_lon", "scalar", "cellsize_lat", "datatype", "endian")`.
+#'   "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep", "timestep",
+#'   "endian")`.
 #'
 #' @return Requested header item. Character string in case of "name" and
 #'  "endian", otherwise numeric value.
@@ -43,14 +44,15 @@ get_header_item <- function(header, item) {
   if (any(sapply(header[c("name", "endian")], length) != 1)) {
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
-  # Expect header$header to have 11 values (some of which may be defaults)
-  if (length(header$header) != 11) {
+  # Expect header$header to have 13 values (some of which may be defaults)
+  if (length(header$header) != 13) {
     stop("Header has invalid structure. Invalid header$header")
   }
   # Valid items that can be queried from a header
   valid_items <- c(
     "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
-    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "endian"
+    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
+    "timestep", "endian"
   )
   # Check that user provided valid item (and no more than one item)
   if (length(item) != 1 || any(!item %in% valid_items)) {
