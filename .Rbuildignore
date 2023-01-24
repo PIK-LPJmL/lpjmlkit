@@ -12,3 +12,4 @@
 ^tests/.lintr$
 ^vignettes/.lintr$
 ^.*\.zenodo.json$
+^codecov\.yml$

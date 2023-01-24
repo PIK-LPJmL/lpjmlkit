@@ -4,7 +4,7 @@ author: "Jannes Breier"
 date: "`r Sys.Date()`"
 output:
   html_document: default
-  pdf_document: default
+  # pdf_document: default
   md_document:
     variant: gfm
 knit: (function(inputFile, encoding){
@@ -177,7 +177,7 @@ config_details <- write_config(
 
 # read and view config
 config_lu <- read_config(
-  filename = paste0(output_path,"/configurations/config_lu.json")
+  filename = paste0(output_path, "/configurations/config_lu.json") # nolint:absolute_path_linter.
 )
 View(config_lu)
 
@@ -274,8 +274,7 @@ config_details <- write_config(
   model_path = model_path,
   output_path = output_path,
   output_list = c("vegc", "soilc", "cftfrac", "pft_harvestc", "irrig"),
-  output_list_timestep = c("annual","annual", "annual", "annual", "monthly"),
-  # output_list_timestep = "annual",
+  output_list_timestep = c("annual", "annual", "annual", "annual", "monthly"),
   output_format = "clm"
 )
 
@@ -303,11 +302,11 @@ for a rerun or resubmission next time ...
 
     ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
     saveRDS(config_details,
-            paste0(output_path, "/configurations/config_details.rds"))
+            paste0(output_path, "/configurations/config_details.rds")) # nolint:absolute_path_linter.
 
     # next time ...
-    config_details <- readRDS(paste0(output_path, 
-                                "/configurations/config_details.rds"))
+    config_details <- readRDS(paste0(output_path,
+                                "/configurations/config_details.rds")) # nolint:absolute_path_linter.
     ```
 
 2. Also if you want do not want to submit all runs you can ...
@@ -319,7 +318,7 @@ for a rerun or resubmission next time ...
       x = config_details[2:3, ],
       model_path = model_path,
       output_path = output_path,
-      group = "open")
+      group = "open") # nolint
     ```
 
 3. *a bit dirty though* If you want to reuse an old spinup simulation, you can copy the file or

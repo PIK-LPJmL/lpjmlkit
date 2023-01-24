@@ -4,7 +4,7 @@ author: "Jannes Breier"
 date: "`r Sys.Date()`"
 output:
   html_document: default
-  pdf_document: default
+  # pdf_document: default
   md_document:
     variant: gfm
 knit: (function(inputFile, encoding){
@@ -67,7 +67,7 @@ common data formats can be exported (5).
                    # not mandatory but useful information
                    variable = "runoff",
                    descr = "monthly runoff",
-                   unit= "mm/month")
+                   unit = "mm/month")
   ```
 
 * **"raw"** - *not recommended to use (for LPJmL)*.  
@@ -91,7 +91,7 @@ common data formats can be exported (5).
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
   runoff$data
   #     , , band = 1
-  # 
+  #
   #          time
   # cell       1901-01-31    1901-02-28    1901-03-31    1901-04-30
   #   0      2.427786e+02  1.265680e+02  2.279087e+02  2.027685e+02
@@ -336,18 +336,18 @@ plot(runoff)
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
   # export first time step as raster
   as_raster(runoff, subset = list(time = 1))
-  # class      : RasterLayer 
+  # class      : RasterLayer
   # dimensions : 280, 720, 201600  (nrow, ncol, ncell)
   # resolution : 0.5, 0.5  (x, y)
   # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # crs        : +proj=longlat +datum=WGS84 +no_defs 
+  # crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
   # source     : memory
-  # names      : runoff 
+  # names      : runoff
   # values     : -1.682581e-13, 671.8747  (min, max)
 
   # export first time step as terra SpatRaster
   as_terra(runoff, subset = list(time = 1))
-  # class       : SpatRaster 
+  # class       : SpatRaster
   # dimensions  : 280, 720, 1  (nrow, ncol, nlyr)
   # resolution  : 0.5, 0.5  (x, y)
   # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
@@ -356,7 +356,7 @@ plot(runoff)
   # name        :        runoff
   # min value   : -1.682581e-13
   # max value   :  6.718747e+02
-  # unit        :      mm/month
+  # unit        :      mm/month # nolint:commented_code_linter.
 
   # export first 4 time step as raster brick
   as_raster(runoff, subset = list(time = 1:4))
@@ -364,7 +364,7 @@ plot(runoff)
   # dimensions : 280, 720, 201600, 4  (nrow, ncol, ncell, nlayers)
   # resolution : 0.5, 0.5  (x, y)
   # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # crs        : +proj=longlat +datum=WGS84 +no_defs 
+  # crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
   # source     : memory
   # names      :   X1901.01.31,   X1901.02.28,   X1901.03.31,   X1901.04.30
   # min values : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
@@ -372,17 +372,17 @@ plot(runoff)
 
   # export first 4 time step as terra SpatRaster
   as_terra(runoff, subset = list(time = 1:4))
-  # class       : SpatRaster 
+  # class       : SpatRaster
   # dimensions  : 280, 720, 4  (nrow, ncol, nlyr)
   # resolution  : 0.5, 0.5  (x, y)
   # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-  # source      : memory 
-  # names       :    1901-01-31,    1901-02-28,    1901-03-31,    1901-04-30 
-  # min values  : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13 
-  # max values  :  6.718747e+02,  7.852363e+02,  8.282853e+02,  9.874359e+02 
-  # unit        :      mm/month,      mm/month,      mm/month,      mm/month 
-  # time (days) : 1901-01-31 to 1901-04-30 
+  # coord. ref. : lon/lat WGS 84 (EPSG:4326)
+  # source      : memory
+  # names       :    1901-01-31,    1901-02-28,    1901-03-31,    1901-04-30
+  # min values  : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
+  # max values  :  6.718747e+02,  7.852363e+02,  8.282853e+02,  9.874359e+02
+  # unit        :      mm/month,      mm/month,      mm/month,      mm/month
+  # time (days) : 1901-01-31 to 1901-04-30
   ```
 &nbsp;
 
@@ -442,7 +442,7 @@ runoff <- read_io(filename = "./output/runoff.bin.json",
 runoff %>%
   # transform time and space dimensions
   transform(to = c("year_month_day", "lon_lat")) %>%
-  # ... to subset summer month as well as northern hemisphere (positive) 
+  # ... to subset summer month as well as northern hemisphere (positive)
   #   latitudes
   subset(month = 6:9,
          lat = seq(0.25, 83.75, by = 0.5)) %>%
