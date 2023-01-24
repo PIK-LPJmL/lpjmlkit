@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-**LPJmL Data** `r if(!knitr::is_latex_output()){":floppy_disk:"}` is a lpjmlkit
+**LPJmL Data** `r if(!knitr::is_latex_output()){"&#128190;"}` is a lpjmlkit
 module that groups around the data class `LPJmLData` and aims to facilitate the
 reading and processing of LPJmL inputs and outputs by combining the raw data
 with available meta data (meta files, header files or manually) to avoid a large
@@ -40,7 +40,7 @@ the read_io function (1). The returned object is of class LPJmLData (2) for
 which base stats can be calculated (3), the inner data can be modified (4) or
 common data formats can be exported (5).
 
-#### **1. `r if (!knitr::is_latex_output()) {":book:"}` Data reading function read_io**\
+#### **1. `r if (!knitr::is_latex_output()) {"&#128214;"}` Data reading function read_io**\
   \
   The generic function to read LPJmL input and output, currently supported are
   three different file formats, "meta", "clm" and "raw":
@@ -81,7 +81,7 @@ common data formats can be exported (5).
 
 &nbsp;
 
-#### **2. `r if (!knitr::is_latex_output()) {":file_folder:"}` Data class LPJmLData**\
+#### **2. `r if (!knitr::is_latex_output()) {"&#128193;"}` Data class LPJmLData**\
   \
   read_io returns an object of a R6 class `LPJmLData` with two main attributes,
   `$data` and `$meta`:
@@ -130,7 +130,7 @@ common data formats can be exported (5).
   ```
 &nbsp;
 
-#### **3. `r if (!knitr::is_latex_output()) {":chart_with_upwards_trend:"}` Base stats of LPJmLData objects**\
+#### **3. `r if (!knitr::is_latex_output()) {"&#128200;"}` Base stats of LPJmLData objects**\
   \
   To get an overview of the data, `LPJmLData` offers support
   for various base functions: `length()`, `dim()`, `dimension()`, `summary()` and
@@ -179,12 +179,12 @@ plot(runoff)
 
 &nbsp;
 
-#### **4. `r if (!knitr::is_latex_output()) {":pencil2:"}` Modify LPJmLData objects**\
+#### **4. `r if (!knitr::is_latex_output()) {"&#9999;"}` Modify LPJmLData objects**\
   \
   LPJmLData objects come with a bundle of methods to modify its state: 
   `add_grid()`, `transform()` and `subset()`.
 
-* **`r if (!knitr::is_latex_output()) {":round_pushpin:"}` `add_grid()`** Add a **$grid** attribute (as LPJmLData object) to the
+* **`r if (!knitr::is_latex_output()) {"&#128205;"}` `add_grid()`** Add a **$grid** attribute (as LPJmLData object) to the
   object, providing the spatial reference (longitude and latitude) for every
   cell.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
@@ -198,7 +198,7 @@ plot(runoff)
   runoff <- add_grid(runoff, "./output/grid.clm")
   ```
 
-* **`r if (!knitr::is_latex_output()) {":repeat:"}` `transform()`** the `$data` dimensions.  
+* **`r if (!knitr::is_latex_output()) {"&#128257;"}` `transform()`** the `$data` dimensions.  
   Either the cell dimension into two "lon" (longitude) and "lat" (latitude) 
   dimensions or the time into "year", "month" and "day" dimension 
   (if available) - combinations and back transformations are also possible. 
@@ -243,7 +243,7 @@ plot(runoff)
   # [...]
   ```
 
-* **`r if (!knitr::is_latex_output()) {":scissors:"}` `subset()`** the `$data`.  
+* **`r if (!knitr::is_latex_output()) {"&#9986;"}` `subset()`** the `$data`.  
   Use `$data` dimensions as key and dimension names or indices as value to
   subset `$data`. `$meta` is adjusted according to the subset.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
@@ -281,7 +281,7 @@ plot(runoff)
   ```
 &nbsp;
 
-#### **5. `r if (!knitr::is_latex_output()) {":package:"}` Export LPJmLData objects**\
+#### **5. `r if (!knitr::is_latex_output()) {"&#128230;"}` Export LPJmLData objects**\
   \
   Finally LPJmLData objects can be exported into common R data
   formats: `array`, `tibble`, `raster` and `terra`.  
@@ -329,7 +329,7 @@ plot(runoff)
   # # … with 404,510 more rows
   ```
 
-* **`r if (!knitr::is_latex_output()) {":globe_with_meridians:"}` `as_raster()`** / **`as_terra()`** Export `$data` as a
+* **`r if (!knitr::is_latex_output()) {"&#127760;"}` `as_raster()`** / **`as_terra()`** Export `$data` as a
   [`raster`](https://rspatial.github.io/raster/reference/raster-package.html)
   or a [`terra`](https://rspatial.org/) object (successor of
   raster), providing the same further functionality as as_array.
@@ -520,4 +520,3 @@ read_io(
 4. When comparing old (< LPJmL version 5.3) data with LPJmL 5.3 data it can
   be useful to combine meta (`"output_metafile" : true`) with the header file
   format (`"fmt": "clm"`) for simplification of process pipelines.
-

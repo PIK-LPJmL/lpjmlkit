@@ -60,9 +60,17 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   ellipsis (...) does that
         # check if arguments are provided
         if (length(as.list(match.call())) > 1) {
-          self$.__set_grid__(
-            read_io(...)
-          )
+
+          if (private$.meta$._subset_space_) {
+            self$.__set_grid__(
+              read_io(...,
+                      subset = list(cell = self$dimnames()[["cell"]]))
+            )
+          } else {
+            self$.__set_grid__(
+              read_io(...)
+            )
+          }
 
         } else {
           stop(paste("If no meta file is available $add_grid",
@@ -436,13 +444,15 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 #' Add grid to LPJmLData object
 #'
-#' Function to add a grid to an [`LPJmLData`]. The function acts
+#' Function to add a grid to a [`LPJmLData`]. The function acts
 #' as a [`read_io`] function for the grid file and adds it as an
 #' `LPJmLData` object itself to the the main object as an attribute `$grid`
 #'
 #' @details
-#' **Important:** If "file_type" == "raw` and data should be recognized as a
+#' **Important:**
+#' * If `"file_type" == "raw"` and data should be recognized as a
 #' grid, prescribe `variable = "grid"`!
+#' * Do not use read_io argument subset!
 #' @param x [LPJmLData] object
 #'
 #' @param ... arguments passed to [`read_io`] if no grid file and or meta

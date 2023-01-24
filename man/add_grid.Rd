@@ -16,12 +16,17 @@ file in corresponding output directory available.}
 \code{\link{LPJmLData}} object in selected format
 }
 \description{
-Function to add a grid to an \code{\link{LPJmLData}}. The function acts
+Function to add a grid to a \code{\link{LPJmLData}}. The function acts
 as a \code{\link{read_io}} function for the grid file and adds it as an
 \code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}
 }
 \details{
-\strong{Important:} If "file_type" == "raw\verb{and data should be recognized as a grid, prescribe}variable = "grid"`!
+\strong{Important:}
+\itemize{
+\item If \code{"file_type" == "raw"} and data should be recognized as a
+grid, prescribe \code{variable = "grid"}!
+\item Do not use read_io argument subset!
+}
 }
 \examples{
 \dontrun{
