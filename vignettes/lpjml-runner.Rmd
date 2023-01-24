@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-**LPJmL Runner** `r if (!knitr::is_latex_output()) {":runner:"}`
+**LPJmL Runner** `r if (!knitr::is_latex_output()) {"&#127939;"}`
 is a lpjmlkit module of functions that have the goal to
 simplify the execution of simulations with LPJmL and further to execute
 complex, nested and multiple simulation sequences fast and less error prone
@@ -31,7 +31,7 @@ without having a big (bash) script overhead.
 \newline
 
 
-## `r if (!knitr::is_latex_output()) {":gear:"}` Setup
+## `r if (!knitr::is_latex_output()) {"&#9881"}` Setup
 
 Please make sure to have set the
 [working environment for LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
@@ -53,7 +53,7 @@ Define a modified parameter table (1), create the corresponding configuration
 files (2), check if the these are valid for LPJmL (3 - optional) and
 run or submit LPJmL with each configurations (4).
 
-#### **1. `r if (!knitr::is_latex_output()) {":clipboard:"}` Define a table of modified configuration parameters**\
+#### **1. `r if (!knitr::is_latex_output()) {"&#128203;"}` Define a table of modified configuration parameters**\
   \
   Define what LPJmL parameters/settings (here all referred to as parameters) 
   to be changed. They can be changed directly in the corresponding `"js"` file
@@ -73,7 +73,7 @@ run or submit LPJmL with each configurations (4).
 
 \newpage
 
-#### **2. `r if (!knitr::is_latex_output()) {":writing_hand:"}` Create corresponding Configuration files**\
+#### **2. `r if (!knitr::is_latex_output()) {"&#9997;"}` Create corresponding Configuration files**\
   \
   Now the central function is `write_config`, create and write
   LPJmL Configuration (Config) file(s) `"config_*.json"` from a table
@@ -84,7 +84,7 @@ run or submit LPJmL with each configurations (4).
   config_details <- write_config(my_params, model_path, output_path)
   ```
 
-#### **3. `r if (!knitr::is_latex_output()) {":mag:"}` Check validity of Configurations**\
+#### **3. `r if (!knitr::is_latex_output()) {"&#128269;"}` Check validity of Configurations**\
   \
   Check whether your Config(s) are valid for LPJmL by passing the returned
   `tibble` to `check_lpjml`. It won't raise an error (dependencies might not be
@@ -94,7 +94,7 @@ run or submit LPJmL with each configurations (4).
   lpjml_check(config_details, model_path, output_path)
   ```
 
-#### **4. `r if (!knitr::is_latex_output()) {":arrow_forward:"}` Run or `r if (!knitr::is_latex_output()) {":rocket:"}` submit LPJmL**\
+#### **4. `r if (!knitr::is_latex_output()) {"&#9654;"}` Run or `r if (!knitr::is_latex_output()) {"&#128640;"}` submit LPJmL**\
   \
   Run LPJmL for each Configuration locally via `run_lpjml` or submit as a 
   batch job to SLURM (PIK Cluster) via `submit_lpjml`. `run_lpjml` can also be
@@ -318,7 +318,7 @@ for a rerun or resubmission next time ...
       x = config_details[2:3, ],
       model_path = model_path,
       output_path = output_path,
-      group = "open") # nolint
+      group = "open")
     ```
 
 3. *a bit dirty though* If you want to reuse an old spinup simulation, you can copy the file or

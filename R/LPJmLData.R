@@ -60,9 +60,17 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   ellipsis (...) does that
         # check if arguments are provided
         if (length(as.list(match.call())) > 1) {
-          self$.__set_grid__(
-            read_io(...)
-          )
+
+          if (private$.meta$._subset_space_) {
+            self$.__set_grid__(
+              read_io(...,
+                      subset = list(cell = self$dimnames()[["cell"]]))
+            )
+          } else {
+            self$.__set_grid__(
+              read_io(...)
+            )
+          }
 
         } else {
           stop(paste("If no meta file is available $add_grid",

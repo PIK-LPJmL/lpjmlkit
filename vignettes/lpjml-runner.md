@@ -1,9 +1,9 @@
-**LPJmL Runner** :runner: is a lpjmlkit module of functions that have
-the goal to simplify the execution of simulations with LPJmL and further
-to execute complex, nested and multiple simulation sequences fast and
-less error prone without having a big (bash) script overhead.
+**LPJmL Runner** 🏃 is a lpjmlkit module of functions that have the goal
+to simplify the execution of simulations with LPJmL and further to
+execute complex, nested and multiple simulation sequences fast and less
+error prone without having a big (bash) script overhead.
 
-## :gear: Setup
+## &#9881 Setup
 
 Please make sure to have set the [working environment for
 LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
@@ -27,7 +27,7 @@ modified parameter table (1), create the corresponding configuration
 files (2), check if the these are valid for LPJmL (3 - optional) and run
 or submit LPJmL with each configurations (4).
 
-#### **1. :clipboard: Define a table of modified configuration parameters** 
+#### **1. 📋 Define a table of modified configuration parameters** 
 
   
 Define what LPJmL parameters/settings (here all referred to as
@@ -47,7 +47,7 @@ my_params <- tibble(
 )
 ```
 
-#### **2. :writing_hand: Create corresponding Configuration files** 
+#### **2. ✍ Create corresponding Configuration files** 
 
   
 Now the central function is `write_config`, create and write LPJmL
@@ -59,7 +59,7 @@ with the parameters of a base `"lpjml.js"` file to be changed.
 config_details <- write_config(my_params, model_path, output_path)
 ```
 
-#### **3. :mag: Check validity of Configurations** 
+#### **3. 🔍 Check validity of Configurations** 
 
   
 Check whether your Config(s) are valid for LPJmL by passing the returned
@@ -71,7 +71,7 @@ not be satisfied yet) but will print/return the information of
 lpjml_check(config_details, model_path, output_path)
 ```
 
-#### **4. :arrow_forward: Run or :rocket: submit LPJmL** 
+#### **4. ▶ Run or 🚀 submit LPJmL** 
 
   
 Run LPJmL for each Configuration locally via `run_lpjml` or submit as a
@@ -248,8 +248,7 @@ config_details <- write_config(
   model_path = model_path,
   output_path = output_path,
   output_list = c("vegc", "soilc", "cftfrac", "pft_harvestc", "irrig"),
-  output_list_timestep = c("annual","annual", "annual", "annual", "monthly"),
-  # output_list_timestep = "annual",
+  output_list_timestep = c("annual", "annual", "annual", "annual", "monthly"),
   output_format = "clm"
 )
 
@@ -276,8 +275,8 @@ run_details <- submit_lpjml(
             paste0(output_path, "/configurations/config_details.rds"))
 
     # next time ...
-    config_details <- readRDS(paste0(output_path, 
-                                "/configurations/config_details.rds"))
+    config_details <- readRDS(paste0(output_path,
+                                "/configurations/config_details.rds")) # nolint:absolute_path_linter.
     ```
 
 2.  Also if you want do not want to submit all runs you can …
