@@ -1,10 +1,10 @@
-**LPJmL Data** :floppy_disk: is a lpjmlkit module that groups around the
-data class `LPJmLData` and aims to facilitate the reading and processing
-of LPJmL inputs and outputs by combining the raw data with available
-meta data (meta files, header files or manually) to avoid a large
-overhead. It further enables easy subsetting, transformations and basic
-statistics of the data and allows export to common data formats. All in
-all, with only a few lines of code.
+**LPJmL Data** 💾 is a lpjmlkit module that groups around the data class
+`LPJmLData` and aims to facilitate the reading and processing of LPJmL
+inputs and outputs by combining the raw data with available meta data
+(meta files, header files or manually) to avoid a large overhead. It
+further enables easy subsetting, transformations and basic statistics of
+the data and allows export to common data formats. All in all, with only
+a few lines of code.
 
  
 
@@ -15,7 +15,7 @@ applying the read_io function (1). The returned object is of class
 LPJmLData (2) for which base stats can be calculated (3), the inner data
 can be modified (4) or common data formats can be exported (5).
 
-#### **1. :book: Data reading function read_io** 
+#### **1. 📖 Data reading function read_io** 
 
   
 The generic function to read LPJmL input and output, currently supported
@@ -45,7 +45,7 @@ are three different file formats, “meta”, “clm” and “raw”:
                      # not mandatory but useful information
                      variable = "runoff",
                      descr = "monthly runoff",
-                     unit= "mm/month")
+                     unit = "mm/month")
     ```
 
 -   **“raw”** - *not recommended to use (for LPJmL)*.  
@@ -60,7 +60,7 @@ are three different file formats, “meta”, “clm” and “raw”:
 
  
 
-#### **2. :file_folder: Data class LPJmLData** 
+#### **2. 📁 Data class LPJmLData** 
 
   
 read_io returns an object of a R6 class `LPJmLData` with two main
@@ -72,7 +72,7 @@ attributes, `$data` and `$meta`:
     ``` r
     runoff$data
     #     , , band = 1
-    # 
+    #
     #          time
     # cell       1901-01-31    1901-02-28    1901-03-31    1901-04-30
     #   0      2.427786e+02  1.265680e+02  2.279087e+02  2.027685e+02
@@ -114,7 +114,7 @@ attributes, `$data` and `$meta`:
 
      
 
-#### **3. :chart_with_upwards_trend: Base stats of LPJmLData objects** 
+#### **3. 📈 Base stats of LPJmLData objects** 
 
   
 To get an overview of the data, `LPJmLData` offers support for various
@@ -164,15 +164,15 @@ plot(runoff)
 
  
 
-#### **4. :pencil2: Modify LPJmLData objects** 
+#### **4. ✏ Modify LPJmLData objects** 
 
   
 LPJmLData objects come with a bundle of methods to modify its state:
 `add_grid()`, `transform()` and `subset()`.
 
--   **:round_pushpin: `add_grid()`** Add a **$grid** attribute (as
-    LPJmLData object) to the object, providing the spatial reference
-    (longitude and latitude) for every cell.
+-   **📍 `add_grid()`** Add a **$grid** attribute (as LPJmLData object)
+    to the object, providing the spatial reference (longitude and
+    latitude) for every cell.
 
     ``` r
     # object oriented (R6 class) notation (assigning grid directly to runoff)
@@ -185,7 +185,7 @@ LPJmLData objects come with a bundle of methods to modify its state:
     runoff <- add_grid(runoff, "./output/grid.clm")
     ```
 
--   **:repeat: `transform()`** the `$data` dimensions.  
+-   **🔁 `transform()`** the `$data` dimensions.  
     Either the cell dimension into two “lon” (longitude) and “lat”
     (latitude) dimensions or the time into “year”, “month” and “day”
     dimension (if available) - combinations and back transformations are
@@ -231,7 +231,7 @@ LPJmLData objects come with a bundle of methods to modify its state:
     # [...]
     ```
 
--   **:scissors: `subset()`** the `$data`.  
+-   **✂ `subset()`** the `$data`.  
     Use `$data` dimensions as key and dimension names or indices as
     value to subset `$data`. `$meta` is adjusted according to the
     subset.
@@ -272,7 +272,7 @@ LPJmLData objects come with a bundle of methods to modify its state:
 
      
 
-#### **5. :package: Export LPJmLData objects** 
+#### **5. 📦 Export LPJmLData objects** 
 
   
 Finally LPJmLData objects can be exported into common R data formats:
@@ -324,8 +324,7 @@ Finally LPJmLData objects can be exported into common R data formats:
     # # … with 404,510 more rows
     ```
 
--   **:globe_with_meridians: `as_raster()`** / **`as_terra()`** Export
-    `$data` as a
+-   **🌐 `as_raster()`** / **`as_terra()`** Export `$data` as a
     [`raster`](https://rspatial.github.io/raster/reference/raster-package.html)
     or a [`terra`](https://rspatial.org/) object (successor of raster),
     providing the same further functionality as as_array.
@@ -333,18 +332,18 @@ Finally LPJmLData objects can be exported into common R data formats:
     ``` r
     # export first time step as raster
     as_raster(runoff, subset = list(time = 1))
-    # class      : RasterLayer 
+    # class      : RasterLayer
     # dimensions : 280, 720, 201600  (nrow, ncol, ncell)
     # resolution : 0.5, 0.5  (x, y)
     # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-    # crs        : +proj=longlat +datum=WGS84 +no_defs 
+    # crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
     # source     : memory
-    # names      : runoff 
+    # names      : runoff
     # values     : -1.682581e-13, 671.8747  (min, max)
 
     # export first time step as terra SpatRaster
     as_terra(runoff, subset = list(time = 1))
-    # class       : SpatRaster 
+    # class       : SpatRaster
     # dimensions  : 280, 720, 1  (nrow, ncol, nlyr)
     # resolution  : 0.5, 0.5  (x, y)
     # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
@@ -353,7 +352,7 @@ Finally LPJmLData objects can be exported into common R data formats:
     # name        :        runoff
     # min value   : -1.682581e-13
     # max value   :  6.718747e+02
-    # unit        :      mm/month
+    # unit        :      mm/month # nolint:commented_code_linter.
 
     # export first 4 time step as raster brick
     as_raster(runoff, subset = list(time = 1:4))
@@ -361,7 +360,7 @@ Finally LPJmLData objects can be exported into common R data formats:
     # dimensions : 280, 720, 201600, 4  (nrow, ncol, ncell, nlayers)
     # resolution : 0.5, 0.5  (x, y)
     # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-    # crs        : +proj=longlat +datum=WGS84 +no_defs 
+    # crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
     # source     : memory
     # names      :   X1901.01.31,   X1901.02.28,   X1901.03.31,   X1901.04.30
     # min values : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
@@ -369,17 +368,17 @@ Finally LPJmLData objects can be exported into common R data formats:
 
     # export first 4 time step as terra SpatRaster
     as_terra(runoff, subset = list(time = 1:4))
-    # class       : SpatRaster 
+    # class       : SpatRaster
     # dimensions  : 280, 720, 4  (nrow, ncol, nlyr)
     # resolution  : 0.5, 0.5  (x, y)
     # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-    # coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    # source      : memory 
-    # names       :    1901-01-31,    1901-02-28,    1901-03-31,    1901-04-30 
-    # min values  : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13 
-    # max values  :  6.718747e+02,  7.852363e+02,  8.282853e+02,  9.874359e+02 
-    # unit        :      mm/month,      mm/month,      mm/month,      mm/month 
-    # time (days) : 1901-01-31 to 1901-04-30 
+    # coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    # source      : memory
+    # names       :    1901-01-31,    1901-02-28,    1901-03-31,    1901-04-30
+    # min values  : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
+    # max values  :  6.718747e+02,  7.852363e+02,  8.282853e+02,  9.874359e+02
+    # unit        :      mm/month,      mm/month,      mm/month,      mm/month
+    # time (days) : 1901-01-31 to 1901-04-30
     ```
 
      
@@ -436,7 +435,7 @@ runoff <- read_io(filename = "./output/runoff.bin.json",
 runoff %>%
   # transform time and space dimensions
   transform(to = c("year_month_day", "lon_lat")) %>%
-  # ... to subset summer month as well as northern hemisphere (positive) 
+  # ... to subset summer month as well as northern hemisphere (positive)
   #   latitudes
   subset(month = 6:9,
          lat = seq(0.25, 83.75, by = 0.5)) %>%
