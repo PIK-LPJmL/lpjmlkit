@@ -1,6 +1,6 @@
 {
   "title": "lpjmlkit: Toolkit for basic LPJmL handling",
-  "version": "0.5.17",
+  "version": "0.5.18",
   "description": "<p>A collection of basic functions to facilitate the work with the\n    Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land\n    (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK).\n    It provides functions for performing LPJmL simulations, as well as reading,\n    processing and writing model-related data such as inputs and outputs or\n    configuration files.<\/p>",
   "creators": [
     {
@@ -10,7 +10,7 @@
       "name": "Ostberg, Sebastian"
     },
     {
-      "name": "Wirth, Stephen"
+      "name": "Wirth, Stephen Bjoern"
     },
     {
       "name": "Minoli, Sara"
