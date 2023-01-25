@@ -2,7 +2,7 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{dim.LPJmLData}
 \alias{dim.LPJmLData}
-\title{Get dimension names and lengths of LPJmLData's data array
+\title{Dimensions of a LPJmLData's data array
 Function to get the dimension names and lengths of the array of a LPJmLData
 object}
 \usage{
@@ -12,7 +12,7 @@ object}
 \item{x}{\link{LPJmLData} object}
 }
 \description{
-Get dimension names and lengths of LPJmLData's data array
+Dimensions of a LPJmLData's data array
 Function to get the dimension names and lengths of the array of a LPJmLData
 object
 }

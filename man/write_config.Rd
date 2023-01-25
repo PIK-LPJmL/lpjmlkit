@@ -90,49 +90,20 @@ my_params1
 # 1 scenario1         42 first_tree           NA    TRUE
 # 2 scenario2        404 NA                    0.03 FALSE
 }\if{html}{\out{</div>}}
+\subsection{Simulation sequences}{
 
-To set a macro (e.g. "FROM_RESTART" or "CHECKPOINT") provide it as you would
-do it beeing a flag in shell: \code{"-DFROM_RESTART"} \code{"-DCHECKPOINT"}. \cr
-Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
-raise an error, as starting an object definition with \code{"-"} is not allowed in
-\emph{R}.
-
-\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params2 <- tibble(
-  sim_name = c("scen1_spinup", "scen1_transient"),
-  random_seed = c(42, 404),
-  `-DFROM_RESTART` = c(TRUE, FALSE),
-)
-
-my_params2
-# A tibble: 2 x 3
-#   sim_name        random_seed `-DFROM_RESTART`
-#   <chr>                 <int> <lgl>
-# 1 scen1_spinup             42 TRUE
-# 2 scen1_transient         404 FALSE
-}\if{html}{\out{</div>}}
-
-A better approach, at least for setting spin-up and transient runs, would be
-to set two available run parameters (\code{"order"}, \code{"dependency"}) that link
-runs with each other. \cr
-The macro "-DFROM_RESTART" is not (!) required here and is
-instead automatically set internally for precompiling. In addition the
-restart paths for each config are set accordingly. \cr
-\code{"order"} is used to set the order for the execution or a type of run level,
-spin-up runs are always \code{order=1}, i.e. historic runs would be \code{order=2} and a
-future run would be \code{order=3}. Multiple runs can be performed at each
-order/level, e.g. spin-up or transient runs for different scenarios. \cr
-\code{"dependency"} determines which run to be used to restart from and also if
-the run is submitted to slurm, for which run to wait until it can be started.
-In the example above \code{"scen1_spinup"} would be a dependency of run
-\code{"scen1_transient"}. \cr
-This way, all conceivable scenario ensembles can be simulated in a quasi
-arbitrarily nested and complicated manner.
+To set up spin-up and transient runs, where transient runs are dependent on
+the spin-up(s), would be a run parameter \code{"dependency"}  has to be defined
+that link runs with each other using the \code{"sim_name"}. \cr
+Do not use "-DFROM_RESTART" when using \code{"dependency"}. Same applies for
+config settings \verb{"restart", }"write_restart", \verb{"write_restart_filename", "restart_filename" and restart}, which is set automatically.
+This way multiple runs can be performed in succession and and in a
+conceivably unlimited nesting.
 
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{# with dependent runs
 my_params3 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
- order = c(FALSE, TRUE),
  dependency = c(NA, "scen1_spinup")
 )
 my_params3
@@ -142,6 +113,9 @@ my_params3
 # 1 scen1_spinup             42 FALSE NA
 # 2 scen1_transient         404 TRUE  scen1_spinup
 }\if{html}{\out{</div>}}
+}
+
+\subsection{SLURM options}{
 
 Another feature is to define slurm options for each run (row) separately.
 E.g. you may want to allocate more time for the spin-up run but less for the
@@ -154,7 +128,6 @@ in \link[lpjmlkit]{submit_lpjml}.
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params4 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
- order = c(FALSE, TRUE),
  dependency = c(NA, "scen1_spinup"),
  wtime = c("8:00:00", "2:00:00")
 )
@@ -166,6 +139,31 @@ my_params4
 # 1 scen1_spinup             42 FALSE NA           8:00:00
 # 2 scen1_transient         404 TRUE  scen1_spinup 2:00:00
 }\if{html}{\out{</div>}}
+}
+
+\subsection{Use of macros}{
+
+To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as you would
+do it beeing a flag in shell: \code{"-DMY_MACRO"} \code{"-DCHECKPOINT"}. \cr
+Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
+raise an error, as starting an object definition with \code{"-"} is not allowed in
+\emph{R}.
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params2 <- tibble(
+  sim_name = c("scen1_spinup", "scen1_transient"),
+  random_seed = c(42, 404),
+  `-DMY_MACRO` = c(TRUE, FALSE),
+)
+
+my_params2
+# A tibble: 2 x 3
+#   sim_name        random_seed `-DMY_MACRO`
+#   <chr>                 <int> <lgl>
+# 1 scen1_spinup             42 TRUE
+# 2 scen1_transient         404 FALSE
+}\if{html}{\out{</div>}}
+}
+
 \subsection{in short}{
 \itemize{
 \item \code{write_config} creates subdirectories within the \code{output_path} directory
@@ -179,9 +177,8 @@ my_params4
 \item use the "." syntax (e.g. \code{"pftpar.1.name"}) to create column names and thus
 keys for accessing the config json values
 \item the column \code{"sim_name"} is mandatory (used as identifier)
-\item run parameters (\code{"order"}, \code{"dependency"}) are
-optional but lay the basis for subsequent runs using
-\link[lpjmlkit]{submit_lpjml}
+\item run parameter \code{"dependency"} is optional but lay the basis for subsequent
+runs using \link[lpjmlkit]{submit_lpjml}
 \item specify slurm options in \code{param} if you want to differentiate between the
 runs
 \item if \code{NA} is specified as cell value the original value is used
@@ -225,7 +222,6 @@ config_details
 my_params <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
- order = c(1, 2),
  dependency = c(NA, "scen1_spinup")
 )
 
@@ -246,7 +242,6 @@ config_details
 my_params <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
- order = c(1, 2),
  dependency = c(NA, "scen1_spinup"),
  wtime = c("8:00:00", "2:00:00")
 )

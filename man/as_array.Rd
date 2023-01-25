@@ -22,7 +22,7 @@ corresponding aggregation function as value, e.g.
 \code{na.rm = TRUE}.}
 }
 \value{
-a \link[base]{array} with dimensions of objects \verb{$data} with
+an \link[base]{array} with dimensions of objects \verb{$data} with
 applied \code{\link{subset}} and \code{\link{aggregate}} functionality as well as \code{dim} and
 \code{dimnames} from the \code{\link{LPJmLData}} object.
 }

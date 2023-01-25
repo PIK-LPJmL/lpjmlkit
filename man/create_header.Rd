@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_header.R
 \name{create_header}
 \alias{create_header}
-\title{Create new LPJmL file header from scratch.}
+\title{Create new LPJmL file header}
 \usage{
 create_header(
   name = "LPJGRID",
@@ -75,7 +75,8 @@ The function returns a list with 3 components:
 }
 }
 \description{
-Create a header in the format required by \code{write_header()}.
+Create a header from scratch in the format required by
+\code{write_header()}.
 }
 \details{
 File headers in input files are used by LPJmL to determine the

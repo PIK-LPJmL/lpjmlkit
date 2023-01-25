@@ -28,7 +28,7 @@ If \code{fail = FALSE}, the function returns NULL if an invalid datatype is
 provided.
 }
 \description{
-Provide information on the data type used in an LPJmL file
+Provide information on the data type used in a LPJmL file
 based on the 'datatype' attribute included in the file header.
 }
 \examples{

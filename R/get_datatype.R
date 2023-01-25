@@ -1,6 +1,6 @@
 #' @title Data type and size
 #'
-#' @description Provide information on the data type used in an LPJmL file
+#' @description Provide information on the data type used in a LPJmL file
 #'   based on the 'datatype' attribute included in the file header.
 #'
 #' @param header Header list object as returned by read_header() or
@@ -15,7 +15,7 @@
 #' * size: size of data type; can be used with 'size' parameter of `readBin()`.
 #' * signed: whether or not the data type is signed; can be used with 'signed'
 #'   parameter of `readBin()`.
-#' 
+#'
 #' If `fail = FALSE`, the function returns NULL if an invalid datatype is
 #' provided.
 #'

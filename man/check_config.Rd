@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_config.R
 \name{check_config}
 \alias{check_config}
-\title{Check LPJmL config JSON files using lpjcheck}
+\title{Check validity of LPJmL config JSON files}
 \usage{
 check_config(x, model_path, output_path = NULL, return_output = FALSE)
 }
@@ -26,5 +26,5 @@ see \code{pretty_print}
 }
 \description{
 Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
-valid.
+valid using lpjcheck for multiple files.
 }
