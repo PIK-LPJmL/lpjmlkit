@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_lpjml.R
 \name{make_lpjml}
 \alias{make_lpjml}
-\title{Make all (compile, link, etc.) LPJmL}
+\title{Compile LPJmL model}
 \usage{
 make_lpjml(
   model_path = ".",

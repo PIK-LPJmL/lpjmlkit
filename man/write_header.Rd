@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_header.R
 \name{write_header}
 \alias{write_header}
-\title{Write header (any version) to LPJmL file}
+\title{Write LPJmL header object to a LPJmL input (or output) file}
 \usage{
 write_header(filename, header, overwrite = FALSE)
 }
@@ -17,7 +17,7 @@ write_header(filename, header, overwrite = FALSE)
 None
 }
 \description{
-Write an LPJmL clm header to a file. The header has to be as list
+Write a LPJmL clm header to a file. The header has to be as list
 following the structure returned by \code{read_header()} or \code{create_header()}.
 The function will fail if the output file exists already unless 'overwrite'
 is set to TRUE.

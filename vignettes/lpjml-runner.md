@@ -7,7 +7,7 @@ error prone without having a big (bash) script overhead.
 
 Please make sure to have set the [working environment for
 LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
-correctly if you are not working on the PIK cluster (with [Slurm
+correctly if you are not working on the PIK cluster (with [SLURM
 Workload
 Manager](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm)).
 On the PIK cluster please load the lpjml module (below) or add it to
@@ -84,7 +84,7 @@ runs.
 # run interactively
 run_details <- run_lpjml(config_details, model_path, output_path)
 
-# OR submit to Slurm
+# OR submit to SLURM
 submit_details <- submit_lpjml(config_details, model_path, output_path)
 ```
 

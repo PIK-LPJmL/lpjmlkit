@@ -1,7 +1,7 @@
 Package: lpjmlkit
 Type: Package
 Title: Toolkit for basic LPJmL handling
-Version: 0.5.15
+Version: 0.5.16
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
@@ -10,7 +10,7 @@ Authors@R: c(
     person("Fabian", "Stenzel", , "stenzel@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-5109-0048")),
     person("Christoph", "Mueller", , "cmueller@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-9491-3550"))
   )
-Description: A collection of base functions to facilitate the work with the
+Description: A collection of basic functions to facilitate the work with the
     Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land
     (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK).
     It provides functions for performing LPJmL simulations, as well as reading,
@@ -25,8 +25,7 @@ Encoding: UTF-8
 Depends:
     R (>= 3.5.0)
 URL: https://github.com/PIK-LPJmL/lpjmlkit
-BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues,
-    https://gitlab.pik-potsdam.de/lpjml/lpjmlkit/issues
+BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues
 Imports:
     magrittr,
     dplyr,
@@ -47,4 +46,4 @@ Suggests:
     reshape2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-01-24
+Date: 2023-01-25

@@ -2,7 +2,7 @@
 % Please edit documentation in R/LPJmLData_subset.R
 \name{subset.LPJmLData}
 \alias{subset.LPJmLData}
-\title{Subset LPJmLData object}
+\title{Subset a LPJmLData object}
 \usage{
 \method{subset}{LPJmLData}(x, ...)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/LPJmLData_plot.R
 \name{plot.LPJmLData}
 \alias{plot.LPJmLData}
-\title{Plot LPJmLData class}
+\title{Plot a LPJmLData object}
 \usage{
 \method{plot}{LPJmLData}(x, subset = NULL, aggregate = NULL, raster_extent = NULL, ...)
 }

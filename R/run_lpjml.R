@@ -1,4 +1,4 @@
-#' Run LPJmL
+#' Run LPJmL model
 #'
 #' LPJmL is run using `"config_*.json"` files written by
 #' \link[lpjmlkit]{write_config}. \link[lpjmlkit]{write_config} returns a tibble
@@ -25,7 +25,7 @@
 #' interactive runs
 #'
 #' @param write_stdout logical. If TRUE `stdout` as well as `stderr` files are
-#' written instead of printing it. Within a Slurm Job `write_stdout` is
+#' written instead of printing it. Within a SLURM Job `write_stdout` is
 #' automatically set to `TRUE`. Default is `FALSE`
 #'
 #' @return see `x`, extended with columns `"type"`, `"job_id"` and `"status"`

@@ -2,7 +2,7 @@
 % Please edit documentation in R/submit_lpjml.R
 \name{submit_lpjml}
 \alias{submit_lpjml}
-\title{Submit LPJmL}
+\title{Submit LPJmL model to SLURM}
 \usage{
 submit_lpjml(
   x,
@@ -55,7 +55,7 @@ have a look \href{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/
 see \code{x}, extended with columns \code{"type"}, \code{"job_id"} and \code{"status"}.
 }
 \description{
-LPJmL runs are submitted to Slurm using \code{"config*.json"} files written by
+LPJmL runs are submitted to SLURM using \code{"config*.json"} files written by
 \link[lpjmlkit]{write_config}. \link[lpjmlkit]{write_config} returns a tibble
 that can be used as an input (see \code{x}). It serves the details to submit
 single or multiple (dependent/subsequent) model runs.
