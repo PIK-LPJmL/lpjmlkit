@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_header.R
 \name{create_header}
 \alias{create_header}
-\title{Create new LPJmL file header}
+\title{Create a new LPJmL input (or output) file header}
 \usage{
 create_header(
   name = "LPJGRID",

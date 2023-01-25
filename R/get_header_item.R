@@ -41,7 +41,7 @@ get_header_item <- function(header, item) {
     )
   }
   # Expect only a single "name" and "endian"
-  if (any(sapply(header[c("name", "endian")], length) != 1)) {
+  if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
   # Expect header$header to have 13 values (some of which may be defaults)

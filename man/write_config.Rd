@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_config.R
 \name{write_config}
 \alias{write_config}
-\title{Write a LPJmL config JSON file}
+\title{Write LPJmL config files (JSON)}
 \usage{
 write_config(
   params,

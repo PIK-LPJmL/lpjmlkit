@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_datatype.R
 \name{get_datatype}
 \alias{get_datatype}
-\title{Data type and size}
+\title{Data type and size of a LPJmL input/output file header}
 \usage{
 get_datatype(header, fail = TRUE)
 }

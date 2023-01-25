@@ -2,7 +2,8 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{summary.LPJmLData}
 \alias{summary.LPJmLData}
-\title{Function to get the summary of the array of a \code{LPJmLData} object.
+\title{LPJmLData object summary
+Function to get the summary of the array of a \code{LPJmLData} object.
 See also \link[base]{summary}}
 \usage{
 \method{summary}{LPJmLData}(object, ...)
@@ -22,6 +23,7 @@ cut off.
 Or arguments to be passed on to \link[base]{summary}}
 }
 \description{
+LPJmLData object summary
 Function to get the summary of the array of a \code{LPJmLData} object.
 See also \link[base]{summary}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/submit_postprocess.R
 \name{submit_postprocess}
 \alias{submit_postprocess}
-\title{Submit postprocess}
+\title{Submit a post model process to SLURM}
 \usage{
 submit_postprocess(
   x = NULL,
@@ -77,7 +77,7 @@ package::function annotation. Defaults to NULL}
 mind that \verb{module purge} is executed before modules are loaded. Defaults to
 NULL}
 
-\item{no_submit}{boolean. If TRUE job is not submitted to Slurm - feature is
+\item{no_submit}{boolean. If TRUE job is not submitted to SLURM - feature is
 mostly for testing purpose.}
 }
 \value{
@@ -85,7 +85,7 @@ see \code{x}, extended with columns fun_name and dependence, order if
 missing.
 }
 \description{
-postprocess functions are submitted to Slurm based on submitted LPJmL runs
+Postprocess functions are submitted to SLURM based on submitted LPJmL runs
 \link[lpjmlkit]{submit_lpjml}. \code{submit_lpjml} returns a tibble that can be
 used as an input (see \code{x}). It serves the details to submit single
 or multiple (dependent/subsequent) postprocess runs.

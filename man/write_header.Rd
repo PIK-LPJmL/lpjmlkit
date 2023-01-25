@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_header.R
 \name{write_header}
 \alias{write_header}
-\title{Write header to a LPJmL input/output file}
+\title{Write LPJmL header object to a LPJmL input (or output) file}
 \usage{
 write_header(filename, header, overwrite = FALSE)
 }

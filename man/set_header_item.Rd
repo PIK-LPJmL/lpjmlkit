@@ -2,7 +2,7 @@
 % Please edit documentation in R/set_header_item.R
 \name{set_header_item}
 \alias{set_header_item}
-\title{Set information in a LPJmL file header}
+\title{Set information in a LPJmL input (or output) file header}
 \usage{
 set_header_item(header, ...)
 }

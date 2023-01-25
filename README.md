@@ -1,12 +1,12 @@
 # Toolkit for basic LPJmL handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
-R package **lpjmlkit**, version **0.5.15**
+R package **lpjmlkit**, version **0.5.16**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/ui#builds)
 
 ## Purpose and Functionality
 
-A collection of base functions to facilitate the work with the
+A collection of basic functions to facilitate the work with the
     Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land
     (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK).
     It provides functions for performing LPJmL simulations, as well as reading,
@@ -74,7 +74,7 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.5.15, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Mueller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.5.16, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
 
 A BibTeX entry for LaTeX users is
 
@@ -83,7 +83,7 @@ A BibTeX entry for LaTeX users is
   title = {lpjmlkit: Toolkit for basic LPJmL handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Wirth and Sara Minoli and Fabian Stenzel and Christoph Mueller},
   year = {2023},
-  note = {R package version 0.5.15},
+  note = {R package version 0.5.16},
   url = {https://github.com/PIK-LPJmL/lpjmlkit},
 }
 ```

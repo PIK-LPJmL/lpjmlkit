@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_headersize.R
 \name{get_headersize}
 \alias{get_headersize}
-\title{Determine the size of a file header}
+\title{Determine the size of a LPJmL input/output file header}
 \usage{
 get_headersize(header)
 }

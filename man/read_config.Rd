@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_config.R
 \name{read_config}
 \alias{read_config}
-\title{Read a LPJmL config JSON file}
+\title{Read a LPJmL config file (JSON)}
 \usage{
 read_config(filename)
 }
@@ -14,7 +14,7 @@ read_config(filename)
 nested list object representing the structure of \code{config_*.json}
 }
 \description{
-Reads a JSON file (not \code{lpjml.js}!, but its precompiled version
+Reads a config JSON file (not \code{lpjml.js}!, but its precompiled version
 using \code{parse_config} and turns it into a nested list object.
 }
 \examples{

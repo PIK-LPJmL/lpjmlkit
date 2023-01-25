@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_lpjml.R
 \name{run_lpjml}
 \alias{run_lpjml}
-\title{Run LPJmL}
+\title{Run LPJmL model}
 \usage{
 run_lpjml(
   x,
@@ -33,7 +33,7 @@ note that parallelization is only supported for slurm jobs and not for
 interactive runs}
 
 \item{write_stdout}{logical. If TRUE \code{stdout} as well as \code{stderr} files are
-written instead of printing it. Within a Slurm Job \code{write_stdout} is
+written instead of printing it. Within a SLURM Job \code{write_stdout} is
 automatically set to \code{TRUE}. Default is \code{FALSE}}
 }
 \value{

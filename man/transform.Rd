@@ -2,7 +2,7 @@
 % Please edit documentation in R/LPJmLData_transform.R
 \name{transform}
 \alias{transform}
-\title{Transform LPJmLData object}
+\title{Transform a LPJmLData object}
 \usage{
 transform(x, to)
 }
