@@ -1,4 +1,4 @@
-#' Plot LPJmLData class
+#' Plot a LPJmLData object
 #'
 #' Function to plot a time-series or raster map of a [`LPJmLData`]
 #' object. *The intent is to provide a quick overview of the data,

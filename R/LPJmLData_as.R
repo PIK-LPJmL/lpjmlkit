@@ -19,7 +19,7 @@
 #' @param ... arguments forwarded to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
-#' @return a \link[base]{array} with dimensions of objects `$data` with
+#' @return an \link[base]{array} with dimensions of objects `$data` with
 #' applied [`subset`] and [`aggregate`] functionality as well as `dim` and
 #' `dimnames` from the [`LPJmLData`] object.
 #'

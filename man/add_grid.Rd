@@ -25,7 +25,7 @@ as a \code{\link{read_io}} function for the grid file and adds it as an
 \itemize{
 \item If \code{"file_type" == "raw"} and data should be recognized as a
 grid, prescribe \code{variable = "grid"}!
-\item Do not use read_io argument subset!
+\item Do not use \link{read_io} argument \code{subset} here!
 }
 }
 \examples{

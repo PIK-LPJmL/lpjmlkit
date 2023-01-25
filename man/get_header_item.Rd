@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_header_item.R
 \name{get_header_item}
 \alias{get_header_item}
-\title{Retrieve information from LPJmL file header}
+\title{Retrieve information from LPJmL input/output file header}
 \usage{
 get_header_item(header, item)
 }

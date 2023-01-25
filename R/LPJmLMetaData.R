@@ -1,4 +1,4 @@
-#' @title LPJmL meta output class
+#' @title LPJmL meta data class
 #'
 #' @description A meta data container for LPJmL input and output. Container -
 #' because a LPJmLMetaData object is an environment in which the meta data is

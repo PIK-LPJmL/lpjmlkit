@@ -452,7 +452,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #' **Important:**
 #' * If `"file_type" == "raw"` and data should be recognized as a
 #' grid, prescribe `variable = "grid"`!
-#' * Do not use read_io argument subset!
+#' * Do not use [read_io] argument `subset` here!
 #' @param x [LPJmLData] object
 #'
 #' @param ... arguments passed to [`read_io`] if no grid file and or meta

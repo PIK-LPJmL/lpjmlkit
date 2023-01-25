@@ -1,4 +1,4 @@
-#' Get length of LPJmLData's data array
+#' Length of a LPJmLData's data array
 # '
 #' Function to get the length of the array of a LPJmLData object
 #'
@@ -17,7 +17,7 @@ LPJmLData$set("private",
 )
 
 
-#' Get dimension names and lengths of LPJmLData's data array
+#' Dimensions of a LPJmLData's data array
 # '
 #' Function to get the dimension names and lengths of the array of a LPJmLData
 #' object
@@ -37,7 +37,7 @@ LPJmLData$set("private",
 )
 
 
-#' Get dimensions of LPJmLData's data array
+#' Dimnames of a LPJmLData's data array
 # '
 #' Function to get the dimensions (list) of the array of a
 #' `LPJmLData` object.
@@ -59,6 +59,8 @@ LPJmLData$set("private",
 )
 
 
+#' LPJmLData object summary
+# '
 #' Function to get the summary of the array of a `LPJmLData` object.
 #' See also \link[base]{summary}
 #'

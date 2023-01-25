@@ -1,6 +1,6 @@
-#' Submit postprocess
+#' Submit a post model process to SLURM
 #'
-#' postprocess functions are submitted to Slurm based on submitted LPJmL runs
+#' Postprocess functions are submitted to SLURM based on submitted LPJmL runs
 #' \link[lpjmlkit]{submit_lpjml}. `submit_lpjml` returns a tibble that can be
 #' used as an input (see `x`). It serves the details to submit single
 #' or multiple (dependent/subsequent) postprocess runs.
@@ -59,7 +59,7 @@
 #' mind that `module purge` is executed before modules are loaded. Defaults to
 #' NULL
 #'
-#' @param no_submit boolean. If TRUE job is not submitted to Slurm - feature is
+#' @param no_submit boolean. If TRUE job is not submitted to SLURM - feature is
 #' mostly for testing purpose.
 #'
 #' @return see `x`, extended with columns fun_name and dependence, order if

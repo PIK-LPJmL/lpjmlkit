@@ -1,6 +1,7 @@
-#' @title Create new LPJmL file header from scratch.
+#' @title Create a new LPJmL input (or output) file header
 #'
-#' @description Create a header in the format required by `write_header()`.
+#' @description Create a header from scratch in the format required by
+#' `write_header()`.
 #'
 #' @param name Header name attribute (default: "LPJGRID").
 #' @param version CLM version to use (default: 3).

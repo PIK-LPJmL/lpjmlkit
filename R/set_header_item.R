@@ -1,4 +1,4 @@
-#' @title Set information in an LPJmL file header
+#' @title Set information in a LPJmL input (or output) file header
 #'
 #' @description Convenience function to set information in a header object as
 #' returned by `read_header()` or `create_header()`. You can set one or several

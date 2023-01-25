@@ -1,4 +1,4 @@
-#' Write a LPJmL config JSON file
+#' Write LPJmL config files (JSON)
 #'
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 #' specific format (see details & examples) to write model configuration files
@@ -75,51 +75,21 @@
 #' ```
 #'
 #'
-#' To set a macro (e.g. "FROM_RESTART" or "CHECKPOINT") provide it as you would
-#' do it beeing a flag in shell: `"-DFROM_RESTART"` `"-DCHECKPOINT"`. \cr
-#' Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
-#' raise an error, as starting an object definition with `"-"` is not allowed in
-#' *R*.
-#'
-#' ```R
-#' my_params2 <- tibble(
-#'   sim_name = c("scen1_spinup", "scen1_transient"),
-#'   random_seed = c(42, 404),
-#'   `-DFROM_RESTART` = c(TRUE, FALSE),
-#' )
-#'
-#' my_params2
-#' # A tibble: 2 x 3
-#' #   sim_name        random_seed `-DFROM_RESTART`
-#' #   <chr>                 <int> <lgl>
-#' # 1 scen1_spinup             42 TRUE
-#' # 2 scen1_transient         404 FALSE
-#' ```
-#'
-#'
-#' A better approach, at least for setting spin-up and transient runs, would be
-#' to set two available run parameters (`"order"`, `"dependency"`) that link
-#' runs with each other. \cr
-#' The macro "-DFROM_RESTART" is not (!) required here and is
-#' instead automatically set internally for precompiling. In addition the
-#' restart paths for each config are set accordingly. \cr
-#' `"order"` is used to set the order for the execution or a type of run level,
-#' spin-up runs are always `order=1`, i.e. historic runs would be `order=2` and a
-#' future run would be `order=3`. Multiple runs can be performed at each
-#' order/level, e.g. spin-up or transient runs for different scenarios. \cr
-#' `"dependency"` determines which run to be used to restart from and also if
-#' the run is submitted to slurm, for which run to wait until it can be started.
-#' In the example above `"scen1_spinup"` would be a dependency of run
-#' `"scen1_transient"`. \cr
-#' This way, all conceivable scenario ensembles can be simulated in a quasi
-#' arbitrarily nested and complicated manner.
+#' ### Simulation sequences
+#' To set up spin-up and transient runs, where transient runs are dependent on
+#' the spin-up(s), would be a run parameter `"dependency"`  has to be defined
+#' that link runs with each other using the `"sim_name"`. \cr
+#' Do not use "-DFROM_RESTART" when using `"dependency"`. Same applies for
+#' config settings `"restart", `"write_restart", `"write_restart_filename",
+#' "restart_filename" and restart`, which is set automatically.
+#' This way multiple runs can be performed in succession and and in a
+#' conceivably unlimited nesting.
 #'
 #' ```R
 #' # with dependent runs
 #' my_params3 <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
-#'  order = c(FALSE, TRUE),
 #'  dependency = c(NA, "scen1_spinup")
 #' )
 #' my_params3
@@ -131,6 +101,7 @@
 #' ```
 #'
 #'
+#' ### SLURM options
 #' Another feature is to define slurm options for each run (row) separately.
 #' E.g. you may want to allocate more time for the spin-up run but less for the
 #' transient to get a better position in the slurm queue. This can be achieved
@@ -143,7 +114,6 @@
 #' my_params4 <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
-#'  order = c(FALSE, TRUE),
 #'  dependency = c(NA, "scen1_spinup"),
 #'  wtime = c("8:00:00", "2:00:00")
 #' )
@@ -157,6 +127,28 @@
 #' ```
 #'
 #'
+#' ### Use of macros
+#' To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as you would
+#' do it beeing a flag in shell: `"-DMY_MACRO"` `"-DCHECKPOINT"`. \cr
+#' Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
+#' raise an error, as starting an object definition with `"-"` is not allowed in
+#' *R*.
+#'
+#' ```R
+#' my_params2 <- tibble(
+#'   sim_name = c("scen1_spinup", "scen1_transient"),
+#'   random_seed = c(42, 404),
+#'   `-DMY_MACRO` = c(TRUE, FALSE),
+#' )
+#'
+#' my_params2
+#' # A tibble: 2 x 3
+#' #   sim_name        random_seed `-DMY_MACRO`
+#' #   <chr>                 <int> <lgl>
+#' # 1 scen1_spinup             42 TRUE
+#' # 2 scen1_transient         404 FALSE
+#' ```
+#'
 #' ### in short
 #' * `write_config` creates subdirectories within the `output_path` directory
 #'    * `"./configurations"` to store the config files
@@ -167,9 +159,8 @@
 #' * use the "." syntax (e.g. `"pftpar.1.name"`) to create column names and thus
 #'   keys for accessing the config json values
 #' * the column `"sim_name"` is mandatory (used as identifier)
-#' * run parameters (`"order"`, `"dependency"`) are
-#'   optional but lay the basis for subsequent runs using
-#'   \link[lpjmlkit]{submit_lpjml}
+#' * run parameter `"dependency"` is optional but lay the basis for subsequent
+#'   runs using \link[lpjmlkit]{submit_lpjml}
 #' * specify slurm options in `param` if you want to differentiate between the
 #'   runs
 #' * if `NA` is specified as cell value the original value is used
@@ -211,7 +202,6 @@
 #' my_params <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
-#'  order = c(1, 2),
 #'  dependency = c(NA, "scen1_spinup")
 #' )
 #'
@@ -233,7 +223,6 @@
 #' my_params <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
-#'  order = c(1, 2),
 #'  dependency = c(NA, "scen1_spinup"),
 #'  wtime = c("8:00:00", "2:00:00")
 #' )

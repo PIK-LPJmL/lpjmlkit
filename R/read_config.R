@@ -1,6 +1,6 @@
-#' Read a LPJmL config JSON file
+#' Read a LPJmL config file (JSON)
 #'
-#' Reads a JSON file (not `lpjml.js`!, but its precompiled version
+#' Reads a config JSON file (not `lpjml.js`!, but its precompiled version
 #' using `parse_config` and turns it into a nested list object.
 #'
 #' @param filename character string representing path

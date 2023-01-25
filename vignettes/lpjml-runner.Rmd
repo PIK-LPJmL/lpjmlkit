@@ -31,12 +31,12 @@ without having a big (bash) script overhead.
 \newline
 
 
-## `r if (!knitr::is_latex_output()) {"&#9881"}` Setup
+## `r if (!knitr::is_latex_output()) {"&#9881;"}` Setup
 
 Please make sure to have set the
 [working environment for LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
 correctly if you are not working on the PIK cluster
-(with [Slurm Workload Manager](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm)).
+(with [SLURM Workload Manager](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm)).
 On the PIK cluster please load the lpjml module (below) or add it to your `".profile"`.
 \newline
 
@@ -105,7 +105,7 @@ run or submit LPJmL with each configurations (4).
   # run interactively
   run_details <- run_lpjml(config_details, model_path, output_path)
 
-  # OR submit to Slurm
+  # OR submit to SLURM
   submit_details <- submit_lpjml(config_details, model_path, output_path)
   ```
 

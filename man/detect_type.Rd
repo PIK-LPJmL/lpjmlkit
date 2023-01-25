@@ -2,7 +2,7 @@
 % Please edit documentation in R/detect_type.R
 \name{detect_type}
 \alias{detect_type}
-\title{Detect file type of an LPJmL file}
+\title{Detect file type of a LPJmL file}
 \usage{
 detect_type(filename)
 }
@@ -14,7 +14,7 @@ character vector of length 1 giving the file type:
 \itemize{
 \item "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format)
 \item "clm" for a binary LPJmL file with header
-\item "meta" for a JSON meta file describing an LPJmL binary file
+\item "meta" for a JSON meta file describing a LPJmL binary file
 \item "raw" for a binary LPJmL file without header
 \item "text" for any type of text-only file, e.g. \code{.txt} or \code{.csv}
 }
