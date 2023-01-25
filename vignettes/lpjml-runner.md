@@ -3,7 +3,7 @@ to simplify the execution of simulations with LPJmL and further to
 execute complex, nested and multiple simulation sequences fast and less
 error prone without having a big (bash) script overhead.
 
-## &#9881 Setup
+## ⚙ Setup
 
 Please make sure to have set the [working environment for
 LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
@@ -155,7 +155,7 @@ config_details <- write_config(
 
 # read and view config
 config_lu <- read_config(
-  filename = paste0(output_path,"/configurations/config_lu.json")
+  filename = paste0(output_path, "/configurations/config_lu.json") # nolint:absolute_path_linter.
 )
 View(config_lu)
 
@@ -272,7 +272,7 @@ run_details <- submit_lpjml(
 
     ``` r
     saveRDS(config_details,
-            paste0(output_path, "/configurations/config_details.rds"))
+            paste0(output_path, "/configurations/config_details.rds")) # nolint:absolute_path_linter.
 
     # next time ...
     config_details <- readRDS(paste0(output_path,
