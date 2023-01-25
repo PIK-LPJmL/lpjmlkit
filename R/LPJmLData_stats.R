@@ -59,6 +59,8 @@ LPJmLData$set("private",
 )
 
 
+#' LPJmLData object summary
+# '
 #' Function to get the summary of the array of a `LPJmLData` object.
 #' See also \link[base]{summary}
 #'

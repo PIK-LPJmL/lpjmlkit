@@ -1,4 +1,4 @@
-#' Write a LPJmL config JSON file
+#' Write LPJmL config files (JSON)
 #'
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 #' specific format (see details & examples) to write model configuration files

@@ -1,6 +1,6 @@
-#' Submit LPJmL
+#' Submit LPJmL model to SLURM
 #'
-#' LPJmL runs are submitted to Slurm using `"config*.json"` files written by
+#' LPJmL runs are submitted to SLURM using `"config*.json"` files written by
 #' \link[lpjmlkit]{write_config}. \link[lpjmlkit]{write_config} returns a tibble
 #' that can be used as an input (see `x`). It serves the details to submit
 #' single or multiple (dependent/subsequent) model runs.

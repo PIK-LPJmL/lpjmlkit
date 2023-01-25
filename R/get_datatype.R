@@ -1,4 +1,4 @@
-#' @title Data type and size
+#' @title Data type and size of a LPJmL input/output file header
 #'
 #' @description Provide information on the data type used in a LPJmL file
 #'   based on the 'datatype' attribute included in the file header.

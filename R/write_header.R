@@ -1,4 +1,4 @@
-#' @title Write header to a LPJmL input/output file
+#' @title Write LPJmL header object to a LPJmL input (or output) file
 #'
 #' @description
 #' Write a LPJmL clm header to a file. The header has to be as list

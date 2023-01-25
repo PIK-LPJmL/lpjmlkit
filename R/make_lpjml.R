@@ -1,4 +1,4 @@
-#' Make all (compile, link, etc.) LPJmL
+#' Compile LPJmL model
 #'
 #' Compiles LPJmL and create executables by internally executing make all.
 #'

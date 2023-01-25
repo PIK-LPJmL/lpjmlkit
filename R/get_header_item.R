@@ -1,4 +1,4 @@
-#' @title Retrieve information from LPJmL file header
+#' @title Retrieve information from LPJmL input/output file header
 #'
 #' @description Convenience function to extract information from a header object
 #' as returned by `read_header()` or `create_header()`. Returns one item per

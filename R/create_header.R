@@ -1,4 +1,4 @@
-#' @title Create new LPJmL file header
+#' @title Create a new LPJmL input (or output) file header
 #'
 #' @description Create a header from scratch in the format required by
 #' `write_header()`.
