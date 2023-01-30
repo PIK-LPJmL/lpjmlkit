@@ -60,7 +60,7 @@ or common data formats can be exported (5).
   information about file structure is derived automatically from the file header.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
   # Read monthly runoff data with header.
-  runoff <- read_i0("./output/mrunoff.clm",
+  runoff <- read_io("./output/mrunoff.clm",
                    # If the clm version is lower than 4 set nbands and nstep
                    # manually so that month dimension is recognized correctly.
                    nbands = 1,
