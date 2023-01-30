@@ -1,24 +1,26 @@
 #' Subset an LPJmLData object
 #'
-#' Function to use dimension names of [`LPJmLData`] array directly
-#' to subset each by simply using supplying vectors.
+#' Function to extract a subset of the full data in an LPJmLData object by
+#' applying selections along one or several of its dimensions.
 #'
 #' @param x [LPJmLData] object
 #'
-#' @param ... Provide dimension to be used to subset `LPJmLData` objects
-#' underlying data array in combination with indices vectors,
-#' e.g. `cell = c(27411:27416)`, or `band = -c(14:16, 19:32)` or subset
-#' using a "character" vector like `band = c("rainfed rice","rainfed maize")`.
+#' @param ... Provide key-value combinations where keys represent the dimension
+#' names and values represent the requested elements along these dimensions.
+#' Subsets may either specify integer indices, e.g. `cell = c(27411:27416)`,
+#' `band = -c(14:16, 19:32)`, or character vectors if the dimension has
+#' a dimnames attribute, e.g. `band = c("rainfed rice", "rainfed maize")`.
 #'
-#' @return [`LPJmLData`] object with/without subset cell of dimension
+#' @return [`LPJmLData`] object with dimensions resulting from the selection in
+#' 'subset'. Meta data are updated as well.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # subset cells by index
-#' subset(vegc, cell = c(27409, 27415))
+#' # Subset cells by index.
+#' subset(vegc, cell = seq(27410, 27415))
 #' # [...]
 #' # $data %>%
 #' #   dimnames() %>%
@@ -27,8 +29,8 @@
 #' #     .$band  "1"
 #' # [...]
 #'
-#' #' # subset time by character vector
-#' subset(vegc, cell = c("2001-12-31", "2002-12-31", "2003-12-31"))
+#' # Subset time by character vector.
+#' subset(vegc, time = c("2001-12-31", "2002-12-31", "2003-12-31"))
 #' # [...]
 #' # $data %>%
 #' #   dimnames() %>%

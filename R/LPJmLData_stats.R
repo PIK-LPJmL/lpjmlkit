@@ -1,6 +1,6 @@
-#' Length of an LPJmLData's data array
-# '
-#' Function to get the length of the array of an LPJmLData object.
+#' Length of an LPJmLData data array
+#'
+#' Function to get the length of the data array of an LPJmLData object.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -17,10 +17,9 @@ LPJmLData$set("private",
 )
 
 
-#' Dimensions of an LPJmLData's data array
+#' Dimensions of an LPJmLData data array
 # '
-#' Function to get the dimension names and lengths of the array of an LPJmLData
-#' object.
+#' Function to get the dimensions of the data array of an LPJmLData object.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -39,12 +38,11 @@ LPJmLData$set("private",
 
 #' Dimnames of an LPJmLData data array
 # '
-#' Function to get the dimensions (list) of the array of an
-#' `LPJmLData` object.
+#' Function to get the dimnames (list) of the data array of an LPJmLData object.
 #'
 #' @param x [LPJmLData] object
 #'
-#' @param ... further arguments to be passed on to \link[base]{dimnames}
+#' @param ... Further arguments to be passed on to \link[base]{dimnames}
 #'
 #' @md
 #' @export
@@ -61,21 +59,21 @@ LPJmLData$set("private",
 
 #' LPJmLData object summary
 # '
-#' Function to get the summary of the array of an `LPJmLData` object.
+#' Function to get the summary of the data array of an LPJmLData object.
 #' See also \link[base]{summary}
 #'
 #' @param object [LPJmLData] object
 #'
 #' @param ... Further arguments:
-#' `dimension` for which a summary is printed for every element
+#' * `dimension` for which a summary is printed for every element
 #' (in style of matrix summary). Default is `dimension = band"`. Choose from
 #' available dimensions like `"time"` or `"cell"`.
-#' `subset` list of array dimension(s) as name/key and corresponding subset
-#' vector as value, e.g. `list(cell = c(27411:27415)`, more information at
+#' * `subset` list of array dimension(s) as name/key and corresponding subset
+#' vector as value, e.g. `list(cell = c(27411:27415)`. More information at
 #' [`subset.LPJmLData`].
-#' `cutoff` (logical) If `TRUE` summary for dimension elements > 16 are
+#' * `cutoff` (logical) If `TRUE` summary for dimension elements > 16 are
 #' cut off.
-#' Or arguments to be passed on to \link[base]{summary}
+#' * Additional arguments to be passed on to \link[base]{summary}
 #'
 #' @md
 #' @export

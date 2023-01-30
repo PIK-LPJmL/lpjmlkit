@@ -1,23 +1,24 @@
 #' Transform an LPJmLData object
 #'
-#' Function to transform inner [`LPJmLData`] array into another
+#' Function to transform an LPJmLData data array into another
 #' space or another time format. Combinations are also possible.
 #'
 #' @param x [LPJmLData] object
 #'
-#' @param to character vector defining space and/or time format into which
+#' @param to Character vector defining space and/or time format into which
 #' corresponding data dimensions should be transformed. Choose from space
 #' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
 #'
-#' @return [`LPJmLData`] object in selected format
+#' @return [`LPJmLData`] object in selected format.
 #'
 #' @examples
 #' \dontrun{
 #'
-#' runoff <- read_io(filename = glue("{output_path}/runoff.bin.json"),
+#' runoff <- read_io(filename = "runoff.bin.json"),
 #'                   subset = list(year = 1991:2000))
 #'
-#' # transform into space format "lon_lat"
+#' # Transform into space format "lon_lat". This assumes a "grid.bin.json" file
+#' # is present in the same directory as "runoff.bin.json".
 #' transform(runoff, to = "lon_lat")
 #' # [...]
 #' # $data %>%
@@ -28,7 +29,9 @@
 #' #     .$band  "1"
 #' # [...]
 #'
-#' # transform -> split time format into years, months (, days)
+#' # Transform time format from a single time dimension into separate dimensions
+#' # for years, months, and days. Dimensions for time steps not present in the
+#' # data are ommitted, i.e. no "day" dimension for monthly data.
 #' transform(runoff, to = "year_month_day")
 #' # [...]
 #' # $data %>%
