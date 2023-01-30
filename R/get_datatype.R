@@ -1,12 +1,13 @@
-#' @title Data type and size of an LPJmL input/output file header
+#' @title Data type and size of an LPJmL input/output file
 #'
-#' @description Provides information on the data type used in an LPJmL file
-#'   based on the 'datatype' attribute included in the file header.
+#' @description Provides information on the data type used in an LPJmL
+#'   input/output file based on the 'datatype' attribute included in the file
+#'   header.
 #'
 #' @param header Header list object as returned by read_header() or
 #'   create_header(). Alternatively, can be a single integer just giving the
 #'   data type code or a single character string giving one of the LPJmL type
-#'   names c("byte", "short", "int", "float", "double").
+#'   names `c("byte", "short", "int", "float", "double")`.
 #' @param fail Whether function should fail if datatype is invalid. Default: TRUE.
 #'   If set to FALSE, function returns NULL if datatype is invalid.
 #'
@@ -42,7 +43,7 @@
 #' }
 #'
 #' @seealso
-#' * [read_header()] for reading headers from LPJmL files.
+#' * [read_header()] for reading headers from LPJmL input/output files.
 #' * [create_header()] for creating headers from scratch.
 #' * [get_headersize()] for determining the size of file headers.
 #'

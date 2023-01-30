@@ -21,7 +21,7 @@
 #' # Add code to read data from file
 #' }
 #' @seealso
-#' * [read_header()] for reading a header from an LPJmL file.
+#' * [read_header()] for reading a header from an LPJmL input/output file.
 #' * [create_header()] for creating a header from scratch.
 #' @export
 get_headersize <- function(header) {
