@@ -1,4 +1,4 @@
-#' Subset a LPJmLData object
+#' Subset an LPJmLData object
 #'
 #' Function to use dimension names of [`LPJmLData`] array directly
 #' to subset each by simply using supplying vectors.

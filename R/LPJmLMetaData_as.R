@@ -1,6 +1,6 @@
-#' Coerce LPJmLMetaData to a LPJmL header object
+#' Coerce LPJmLMetaData to an LPJmL header object
 #'
-#' Function to coerce (convert) a `LPJmLMetaData` object into a
+#' Function to coerce (convert) an `LPJmLMetaData` object into an
 #' LPJmL header object, more information at [`create_header`].
 #'
 #' @param x [LPJmLMetaData] object
@@ -8,7 +8,7 @@
 #' @param silent Logical. Whether to suppress notifications from header
 #' conversion/initialization.
 #'
-#' @return a LPJmL header object, more information at [`create_header`]
+#' @return an LPJmL header object, more information at [`create_header`]
 #'
 #' @examples
 #' \dontrun{
@@ -78,7 +78,7 @@ LPJmLMetaData$set(
 
 #' Coerce LPJmLMetaData to a list
 #'
-#' Function to coerce (convert) a `LPJmLMetaData` object into a
+#' Function to coerce (convert) an `LPJmLMetaData` object into a
 #' \link[base]{list}.
 #'
 #' @param x [LPJmLMetaData] object

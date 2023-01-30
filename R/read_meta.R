@@ -1,6 +1,6 @@
-#' Read a LPJmL meta or header file
+#' Read an LPJmL meta or header file
 #'
-#' Reads a meta JSON file or a LPJmL input or output that includes a file
+#' Reads a meta JSON file or an LPJmL input or output that includes a file
 #' header.
 #'
 #' @param filename character string representing path

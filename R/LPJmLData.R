@@ -1,7 +1,7 @@
 #' @title LPJmL data class
 #'
 #' @description A data container for LPJmL input and output. Container - because
-#' a LPJmLData object is a environment in which the data array as well as the
+#' an LPJmLData object is a environment in which the data array as well as the
 #' meta data are stored after [`read_io`].
 #' The data array can be accessed via `$data`, the meta data via `$meta`.
 #' The enclosing environment is locked and cannot be altered by any
@@ -21,7 +21,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     # modify methods --------------------------------------------------------- #
 
     #' @description
-    #' Method to add a grid to a `LPJmLData`.
+    #' Method to add a grid to an `LPJmLData`.
     #' See also [`add_grid`]
     #'
     #' @param ... See [`add_grid`]
@@ -84,8 +84,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
     #' @description
     #' Method to use dimension names of `LPJmLData`
-    #' array directly to subset each by simply using supplying
-    #' vectors.
+    #' array directly to subset each dimension to match the supplied vectors.
     #'
     #' @param ... See [`subset.LPJmLData`]
     subset = function(...) {
@@ -106,7 +105,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     # export methods --------------------------------------------------------- #
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' Method to coerce (convert) an `LPJmLData` object into a
     #' \link[base]{array}.
     #'
     #' @param ... See [`as_array`]
@@ -116,7 +115,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' Method to coerce (convert) an `LPJmLData` object into a
     #' \link[tibble]{tibble} (modern \link[base]{data.frame}).
     #'
     #' @param ... See [`as_tibble`]
@@ -126,7 +125,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' Method to coerce (convert) an `LPJmLData` object into a
     #' \link[raster]{raster} or \link[raster]{brick} object, that opens the
     #' space for any GIS based raster operations.
     #'
@@ -137,7 +136,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' Method to coerce (convert) an `LPJmLData` object into a
     #' \link[terra]{rast}, that opens the space for any GIS based raster
     #' operations.
     #'
@@ -148,7 +147,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to plot a time-series or raster map of a `LPJmLData`
+    #' Method to plot a time-series or raster map of an `LPJmLData`
     #' object.
     #'
     #' @param ... See [`plot.LPJmLData`]
@@ -160,7 +159,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     # stats methods ---------------------------------------------------------- #
 
     #' @description
-    #' Method to get the length of the array of a `LPJmLData`
+    #' Method to get the length of the array of an `LPJmLData`
     #' object. \cr
     #' See also \link[base]{length}
     length = function() {
@@ -169,7 +168,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to get the dimension names and lengths of the array of a
+    #' Method to get the dimension names and lengths of the array of an
     #' `LPJmLData` object. \cr
     #' See also \link[base]{dim}
     dim = function() {
@@ -178,7 +177,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to get the dimensions (list) of the array of a
+    #' Method to get the dimensions (list) of the array of an
     #' `LPJmLData` object.
     #'
     #' @param ... See [dimnames.LPJmLData]
@@ -188,7 +187,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to get the summary of the array of a
+    #' Method to get the summary of the array of an
     #' `LPJmLData` object.
     #'
     #' @param ... See [summary.LPJmLData]
@@ -340,7 +339,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
           methods::is(meta_data, "NULL")) {
         private$.meta <- meta_data
       } else {
-        stop("Provide a LPJmLMetaData object for meta data.")
+        stop("Provide an LPJmLMetaData object for meta data.")
       }
 
       private$.data <- data
@@ -364,7 +363,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
     #' @field meta [`LPJmLMetaData`] object to store corresponding meta data
     meta = function() {
-      # clone meta object so that if meta is changed outside of a LPJmLData
+      # clone meta object so that if meta is changed outside of an LPJmLData
       #   instance it will not change this instance
       return(private$.meta$clone())
     },
@@ -379,7 +378,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
       if (!is.null(private$.grid)) {
 
-        # clone meta object so that if meta is changed outside of a LPJmLData
+        # clone meta object so that if meta is changed outside of an LPJmLData
         #   instance it will not change this instance - deep because grid
         #   includes another R6 class object (meta) which is another environment
         grid <- private$.grid$clone(deep = TRUE)
@@ -456,7 +455,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #' @param x [LPJmLData] object
 #'
 #' @param ... arguments passed to [`read_io`] if no grid file and or meta
-#' file in corresponding output directory available.
+#' file are available in the corresponding output directory.
 #'
 #' @return [`LPJmLData`] object in selected format
 #'

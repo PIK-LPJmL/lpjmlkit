@@ -1,7 +1,7 @@
 #' @title LPJmL meta data class
 #'
 #' @description A meta data container for LPJmL input and output. Container -
-#' because a LPJmLMetaData object is an environment in which the meta data is
+#' because an LPJmLMetaData object is an environment in which the meta data is
 #' stored after [`read_meta`] (or [`read_io`]).
 #' Each attribute can be accessed via `$<attribute>`. To get an overview over
 #' available attributes, print the object or export it as a list [`as_list`].
@@ -19,7 +19,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
     # export methods --------------------------------------------------------- #
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLMetaData` object into a
+    #' Method to coerce (convert) an `LPJmLMetaData` object into a
     #' \link[base]{list}. \cr
     #' See also [`as_list`]
     as_list = function() {
@@ -28,7 +28,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLMetaData` object into a LPJmL input
+    #' Method to coerce (convert) an `LPJmLMetaData` object into an LPJmL input
     #' header (more info at [`create_header`]). \cr
     #'
     #' @param ... See [`as_header`]
@@ -38,7 +38,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
 
     #' @description
-    #' Method to print a `LPJmLMetaData` object.
+    #' Method to print an `LPJmLMetaData` object.
     #' See also \link[base]{print}
     #'
     #' @param all Logical. Should all attributes be printed or only the most
@@ -275,7 +275,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
         header_to_meta <- as.list(x$header) %>%
           append(list(
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
-            # "descr" = tolower(x$name),
+            # "descr" = tolower(x$name), # nolint
             "lastyear" = x$header[["firstyear"]] +
                          x$header[["timestep"]] *
                          (x$header[["nyear"]] - 1),

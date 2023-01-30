@@ -44,7 +44,7 @@
 #' @details
 #'
 #' Supply a \link[tibble]{tibble} for `params`, in which each row represents
-#' a configuration (config) for a LPJmL run. \cr
+#' a configuration (config) for an LPJmL run. \cr
 #' Here a config is referred to as the precompiled `"lpjml.js"` file (or if you
 #' name it differently, use the `js_filename` argument) which links to all other
 #' mandatory `"js"` files. The precompilation is done internally by

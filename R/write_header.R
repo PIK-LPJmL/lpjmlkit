@@ -1,7 +1,7 @@
-#' @title Write LPJmL header object to a LPJmL input (or output) file
+#' @title Write LPJmL header object to an LPJmL input (or output) file
 #'
 #' @description
-#' Write a LPJmL clm header to a file. The header has to be as list
+#' Write an LPJmL clm header to a file. The header has to be as list
 #' following the structure returned by `read_header()` or `create_header()`.
 #' The function will fail if the output file exists already unless 'overwrite'
 #' is set to TRUE.

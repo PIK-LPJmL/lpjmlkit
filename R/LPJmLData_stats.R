@@ -1,6 +1,6 @@
-#' Length of a LPJmLData's data array
+#' Length of an LPJmLData's data array
 # '
-#' Function to get the length of the array of a LPJmLData object
+#' Function to get the length of the array of an LPJmLData object.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -8,7 +8,7 @@
 #' @export
 length.LPJmLData <- function(x) x$length()
 
-# length of the array of a LPJmLData
+# length of the array of an LPJmLData
 LPJmLData$set("private",
               ".length",
               function() {
@@ -17,10 +17,10 @@ LPJmLData$set("private",
 )
 
 
-#' Dimensions of a LPJmLData's data array
+#' Dimensions of an LPJmLData's data array
 # '
-#' Function to get the dimension names and lengths of the array of a LPJmLData
-#' object
+#' Function to get the dimension names and lengths of the array of an LPJmLData
+#' object.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -28,7 +28,7 @@ LPJmLData$set("private",
 #' @export
 dim.LPJmLData <- function(x) x$dim()
 
-# dimension names and lengths of the array of a LPJmLData
+# dimension names and lengths of the array of an LPJmLData object.
 LPJmLData$set("private",
               ".dim",
               function() {
@@ -37,9 +37,9 @@ LPJmLData$set("private",
 )
 
 
-#' Dimnames of a LPJmLData's data array
+#' Dimnames of an LPJmLData data array
 # '
-#' Function to get the dimensions (list) of the array of a
+#' Function to get the dimensions (list) of the array of an
 #' `LPJmLData` object.
 #'
 #' @param x [LPJmLData] object
@@ -50,7 +50,7 @@ LPJmLData$set("private",
 #' @export
 dimnames.LPJmLData <- function(x, ...) x$dimnames(...)
 
-# dimensions (list) of the array of a LPJmLData object.
+# dimensions (list) of the array of an LPJmLData object.
 LPJmLData$set("private",
               ".dimnames",
               function(...) {
@@ -61,7 +61,7 @@ LPJmLData$set("private",
 
 #' LPJmLData object summary
 # '
-#' Function to get the summary of the array of a `LPJmLData` object.
+#' Function to get the summary of the array of an `LPJmLData` object.
 #' See also \link[base]{summary}
 #'
 #' @param object [LPJmLData] object
@@ -85,7 +85,7 @@ summary.LPJmLData <- function(object,
 }
 
 
-# summary of the array of the array of a LPJmLData object
+# summary of the array of the array of an LPJmLData object.
 LPJmLData$set("private",
               ".summary",
               function(dimension = "band",

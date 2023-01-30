@@ -1,4 +1,4 @@
-#' @title Detect file type of a LPJmL file
+#' @title Detect file type of an LPJmL file
 #' @description This utility function tries to detect automatically if a
 #' provided file is of "clm", "meta", or "raw" file type. NetCDFs and simple
 #' text formats such as `.txt` or `.csv` are also detected.
@@ -7,7 +7,7 @@
 #' @return character vector of length 1 giving the file type:
 #' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format)
 #' * "clm" for a binary LPJmL file with header
-#' * "meta" for a JSON meta file describing a LPJmL binary file
+#' * "meta" for a JSON meta file describing an LPJmL binary file
 #' * "raw" for a binary LPJmL file without header
 #' * "text" for any type of text-only file, e.g. `.txt` or `.csv`
 #' @export

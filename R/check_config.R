@@ -1,7 +1,8 @@
 #' Check validity of LPJmL config JSON files
 #'
 #' Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
-#' valid using lpjcheck for multiple files.
+#' valid and are ready to be used for simulations using lpjcheck for multiple
+#' files.
 #'
 #' @param x job_details object returned by \link[lpjmlkit]{write_config} or
 #' character vector providing the config file names

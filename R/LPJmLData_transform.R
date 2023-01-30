@@ -1,4 +1,4 @@
-#' Transform a LPJmLData object
+#' Transform an LPJmLData object
 #'
 #' Function to transform inner [`LPJmLData`] array into another
 #' space or another time format. Combinations are also possible.

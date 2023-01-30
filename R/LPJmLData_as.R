@@ -102,14 +102,14 @@ LPJmLData$set("private",
 #' corresponding aggregation function as value, e.g.
 #' `list(band = sum)`.
 #'
-#' @param value_name rename value column in  returned `tibble`. Defaults to
+#' @param value_name Name of value column in returned `tibble`. Defaults to
 #' `"value"`.
 #'
 #' @param ... arguments forwarded to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
 #' @return a \link[tibble]{tibble} with columns corresponding to dimension
-#' naming of `LPJmLData$data` array and values in value column.
+#' naming of `LPJmLData$data` array and values in one value column.
 #'
 #' @examples
 #' \dontrun{
@@ -165,8 +165,8 @@ LPJmLData$set("private",
 #' Coerce LPJmLData to a raster object
 #'
 #' Function to coerce (convert) a [`LPJmLData`] object into a
-#' \link[raster]{raster} or \link[raster]{brick} object, that opens the space
-#' for any GIS based raster operations. Read more
+#' \link[raster]{raster} or \link[raster]{brick} object, that allows for any
+#' GIS based raster operations. Read more
 #' [here](https://rspatial.github.io/raster/reference/raster-package.html). The
 #' successor package of raster is [terra](https://rspatial.org/).
 #'
@@ -313,7 +313,7 @@ LPJmLData$set("private",
 #' Coerce LPJmLData to a terra object
 #'
 #' Function to coerce (convert) a [`LPJmLData`] object into a
-#' \link[terra]{rast}, that opens the space for any GIS based raster operations.
+#' \link[terra]{rast}, that allows GIS based raster operations.
 #' Read more [here](https://rspatial.org/).
 #'
 #' @param x [LPJmLData] object
