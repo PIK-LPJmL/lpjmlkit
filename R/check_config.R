@@ -20,7 +20,7 @@
 #'
 #' @return see `pretty_print`
 #'
-#' @export
+#' @examples
 #' \dontrun{
 #' library(tibble)
 #' library(lpjmlkit)
@@ -50,6 +50,7 @@
 #'   return_output = FALSE
 #' )
 #' }
+#' @export
 check_config <- function(x,
                          model_path,
                          output_path = NULL,
