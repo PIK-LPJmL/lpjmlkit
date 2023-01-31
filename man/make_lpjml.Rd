@@ -13,24 +13,32 @@ make_lpjml(
 )
 }
 \arguments{
-\item{model_path}{character string providing the path to LPJmL
+\item{model_path}{Character string providing the path to LPJmL
 (equal to LPJROOT)}
 
-\item{make_fast}{logical - if TRUE \verb{make -j16 all} is executed.
-Defaults to TRUE}
+\item{make_fast}{Logical - if TRUE \verb{make -j16 all} is executed which uses 16
+processors for compilation in parallel mode. Defaults to TRUE}
 
-\item{make_clean}{logical - if TRUE execute make clean first.
-Defaults to FALSE}
+\item{make_clean}{Logical - if TRUE execute make clean first to remove
+previous installation. Defaults to FALSE}
 
-\item{throw_error}{logical - if \code{FALSE} does not throw an error if sub
+\item{throw_error}{Logical - if \code{FALSE} does not throw an error if sub
 process has non-zero exit status, hence if compilation fails in first
 attempt. Defaults to TRUE}
 
-\item{debug}{logical - if \code{TRUE}LPJmL is compiled with flag \code{-debug}}
+\item{debug}{Logical - if \code{TRUE}LPJmL is compiled with flag \code{-debug}}
 }
 \value{
-a list with process status, see \link[processx]{run}
+A list with process status, see \link[processx]{run}
 }
 \description{
-Compiles LPJmL and create executables by internally executing make all.
+Compiles the LPJmL source code and creates an executable by internally
+executing make all.
+}
+\examples{
+\dontrun{
+model_path <- "./LPJmL_internal"
+make_lpjml(model_path = model_path)
+}
+
 }

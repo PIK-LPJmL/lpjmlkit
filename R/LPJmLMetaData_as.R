@@ -1,21 +1,21 @@
 #' Coerce LPJmLMetaData to an LPJmL header object
 #'
-#' Function to coerce (convert) an `LPJmLMetaData` object into an
+#' Function to coerce (convert) an [`LPJmLMetaData`] object into an
 #' LPJmL header object, more information at [`create_header`].
 #'
-#' @param x [LPJmLMetaData] object
+#' @param x An [LPJmLMetaData] object
 #'
 #' @param silent Logical. Whether to suppress notifications from header
 #' conversion/initialization.
 #'
-#' @return an LPJmL header object, more information at [`create_header`]
+#' @return An LPJmL header object, more information at [`create_header`]
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc_meta <- read_meta(filename = "./vegc.bin.json")
 #'
-#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' # Returns one dimensional array with timeseries for cells `27410:27415`
 #' as_header(vegc_meta)
 #' # $name
 #' # [1] "LPJDUMMY"
@@ -78,19 +78,19 @@ LPJmLMetaData$set(
 
 #' Coerce LPJmLMetaData to a list
 #'
-#' Function to coerce (convert) an `LPJmLMetaData` object into a
+#' Function to coerce (convert) an [`LPJmLMetaData`] object into a
 #' \link[base]{list}.
 #'
-#' @param x [LPJmLMetaData] object
+#' @param x An [LPJmLMetaData] object
 #'
-#' @return a \link[base]{list}
+#' @return A \link[base]{list}
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc_meta <- read_meta(filename = "./vegc.bin.json")
 #'
-#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' # Returns one dimensional array with timeseries for cells `27410:27415`
 #' as_list(vegc_meta)
 #' # $sim_name
 #' # [1] "lu_cf"

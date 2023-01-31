@@ -7,16 +7,16 @@
 as_header(x, silent = TRUE)
 }
 \arguments{
-\item{x}{\link{LPJmLMetaData} object}
+\item{x}{An \link{LPJmLMetaData} object}
 
 \item{silent}{Logical. Whether to suppress notifications from header
 conversion/initialization.}
 }
 \value{
-an LPJmL header object, more information at \code{\link{create_header}}
+An LPJmL header object, more information at \code{\link{create_header}}
 }
 \description{
-Function to coerce (convert) an \code{LPJmLMetaData} object into an
+Function to coerce (convert) an \code{\link{LPJmLMetaData}} object into an
 LPJmL header object, more information at \code{\link{create_header}}.
 }
 \examples{
@@ -24,7 +24,7 @@ LPJmL header object, more information at \code{\link{create_header}}.
 
 vegc_meta <- read_meta(filename = "./vegc.bin.json")
 
-# returns one dimensional array with timeseries for cells `27410:27415`
+# Returns one dimensional array with timeseries for cells `27410:27415`
 as_header(vegc_meta)
 # $name
 # [1] "LPJDUMMY"

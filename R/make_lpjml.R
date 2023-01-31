@@ -1,23 +1,30 @@
 #' Compile LPJmL model
 #'
-#' Compiles LPJmL and create executables by internally executing make all.
+#' Compiles the LPJmL source code and creates an executable by internally
+#' executing make all.
 #'
-#' @param model_path character string providing the path to LPJmL
+#' @param model_path Character string providing the path to LPJmL
 #' (equal to LPJROOT)
 #'
-#' @param make_fast logical - if TRUE `make -j16 all` is executed.
-#' Defaults to TRUE
+#' @param make_fast Logical - if TRUE `make -j16 all` is executed which uses 16
+#' processors for compilation in parallel mode. Defaults to TRUE
 #'
-#' @param make_clean logical - if TRUE execute make clean first.
-#' Defaults to FALSE
+#' @param make_clean Logical - if TRUE execute make clean first to remove
+#' previous installation. Defaults to FALSE
 #'
-#' @param throw_error logical - if `FALSE` does not throw an error if sub
+#' @param throw_error Logical - if `FALSE` does not throw an error if sub
 #' process has non-zero exit status, hence if compilation fails in first
 #' attempt. Defaults to TRUE
 #'
-#'@param debug logical - if `TRUE`LPJmL is compiled with flag `-debug`
+#'@param debug Logical - if `TRUE`LPJmL is compiled with flag `-debug`
 #'
-#' @return a list with process status, see \link[processx]{run}
+#' @return A list with process status, see \link[processx]{run}
+#'
+#' @examples
+#' \dontrun{
+#' model_path <- "./LPJmL_internal"
+#' make_lpjml(model_path = model_path)
+#' }
 #'
 #' @export
 make_lpjml <- function(model_path = ".",
