@@ -11,6 +11,11 @@
 #' * "raw" for a binary LPJmL input/output file without header
 #' * "text" for any type of text-only file, e.g. `.txt` or `.csv`
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' detect_type(filename = "filename.clm")
+#' }
 detect_type <- function(filename) {
   if (!file.exists(filename)) {
     stop("File ", filename, " does not exist.")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_meta.R
 \name{read_meta}
 \alias{read_meta}
-\title{Read a LPJmL meta or header file}
+\title{Read an LPJmL meta or header file}
 \usage{
 read_meta(filename, ...)
 }
@@ -16,7 +16,7 @@ read_meta(filename, ...)
 LPJmLMetaData object
 }
 \description{
-Reads a meta JSON file or a LPJmL input or output that includes a file
+Reads a meta JSON file or an LPJmL input or output that includes a file
 header.
 }
 \examples{

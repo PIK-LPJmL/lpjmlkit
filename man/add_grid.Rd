@@ -2,21 +2,21 @@
 % Please edit documentation in R/LPJmLData.R
 \name{add_grid}
 \alias{add_grid}
-\title{Add grid to LPJmLData object}
+\title{Add grid to an LPJmLData object}
 \usage{
 add_grid(x, ...)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{x}{\link{LPJmLData} object.}
 
-\item{...}{arguments passed to \code{\link{read_io}} if no grid file and or meta
-file in corresponding output directory available.}
+\item{...}{Arguments passed to \code{\link{read_io}} if no grid file and/or meta
+file are available in the corresponding output directory.}
 }
 \value{
 \code{\link{LPJmLData}} object in selected format
 }
 \description{
-Function to add a grid to a \code{\link{LPJmLData}}. The function acts
+Function to add a grid to an \code{\link{LPJmLData}} object. The function acts
 as a \code{\link{read_io}} function for the grid file and adds it as an
 \code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}
 }
@@ -25,7 +25,8 @@ as a \code{\link{read_io}} function for the grid file and adds it as an
 \itemize{
 \item If \code{"file_type" == "raw"} and data should be recognized as a
 grid, prescribe \code{variable = "grid"}!
-\item Do not use \link{read_io} argument \code{subset} here!
+\item Do not use \link{read_io} argument \code{subset} here! \code{add_grid} will use the subset
+of the parent \link{LPJmLData} object \code{x}.
 }
 }
 \examples{

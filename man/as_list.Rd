@@ -13,7 +13,7 @@ as_list(x)
 a \link[base]{list}
 }
 \description{
-Function to coerce (convert) a \code{LPJmLMetaData} object into a
+Function to coerce (convert) an \code{LPJmLMetaData} object into a
 \link[base]{list}.
 }
 \examples{

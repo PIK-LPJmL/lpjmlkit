@@ -29,7 +29,7 @@ structure. If header version is <4, partially filled with default values.
 }
 }
 \description{
-Reads a header from a LPJmL clm file. CLM is the default
+Reads a header from an LPJmL clm file. CLM is the default
 format used for LPJmL input files and can also be used for output files.
 }
 \examples{

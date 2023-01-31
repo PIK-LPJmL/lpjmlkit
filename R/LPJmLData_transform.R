@@ -1,15 +1,16 @@
 #' Transform an LPJmLData object
 #'
-#' Function to transform an LPJmLData data array into another
-#' space or another time format. Combinations are also possible.
+#' Function to transform an [`LPJmLData`] data object into another
+#' space or another time format. Combinations of space and time formats are also
+#' possible.
 #'
-#' @param x [LPJmLData] object
+#' @param x An [LPJmLData] object
 #'
-#' @param to Character vector defining space and/or time format into which
-#' corresponding data dimensions should be transformed. Choose from space
+#' @param to A Character vector defining space and/or time format into which
+#' the corresponding data dimensions should be transformed. Choose from space
 #' formats `c("cell", "lon_lat")` and time formats `c("time","year_month_day")`.
 #'
-#' @return [`LPJmLData`] object in selected format.
+#' @return An [`LPJmLData`] object in the selected format.
 #'
 #' @examples
 #' \dontrun{

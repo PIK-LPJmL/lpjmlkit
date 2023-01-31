@@ -21,10 +21,17 @@ Convenience function to extract information from a header object
 as returned by \code{read_header()} or \code{create_header()}. Returns one item per
 call.
 }
+\examples{
+\dontrun{
+# Read file header
+header <- read_header("filename.clm")
+nyear <- get_header_item(header = header, item = "nyear")
+}
+}
 \seealso{
 \itemize{
 \item \code{\link[=create_header]{create_header()}} for creating headers from scratch and for a more
 detailed description of the LPJmL header format.
-\item \code{\link[=read_header]{read_header()}} for reading headers from files.
+\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL input/output files.
 }
 }

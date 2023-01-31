@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_datatype.R
 \name{get_datatype}
 \alias{get_datatype}
-\title{Data type and size of a LPJmL input/output file header}
+\title{Data type and size of an LPJmL input/output file}
 \usage{
 get_datatype(header, fail = TRUE)
 }
@@ -10,7 +10,7 @@ get_datatype(header, fail = TRUE)
 \item{header}{Header list object as returned by read_header() or
 create_header(). Alternatively, can be a single integer just giving the
 data type code or a single character string giving one of the LPJmL type
-names c("byte", "short", "int", "float", "double").}
+names \code{c("byte", "short", "int", "float", "double")}.}
 
 \item{fail}{Whether function should fail if datatype is invalid. Default: TRUE.
 If set to FALSE, function returns NULL if datatype is invalid.}
@@ -28,8 +28,9 @@ If \code{fail = FALSE}, the function returns NULL if an invalid datatype is
 provided.
 }
 \description{
-Provide information on the data type used in a LPJmL file
-based on the 'datatype' attribute included in the file header.
+Provides information on the data type used in an LPJmL
+input/output file based on the 'datatype' attribute included in the file
+header.
 }
 \examples{
 \dontrun{
@@ -56,7 +57,7 @@ close(fp)
 }
 \seealso{
 \itemize{
-\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL files.
+\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL input/output files.
 \item \code{\link[=create_header]{create_header()}} for creating headers from scratch.
 \item \code{\link[=get_headersize]{get_headersize()}} for determining the size of file headers.
 }

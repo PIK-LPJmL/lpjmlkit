@@ -21,6 +21,35 @@
 #' @return see `pretty_print`
 #'
 #' @export
+#' \dontrun{
+#' library(tibble)
+#' library(lpjmlkit)
+#'
+#' model_path <- "./LPJmL_internal"
+#' output_path <-"./my_runs"
+#'
+#'
+#' # basic usage
+#' my_params <- tibble(
+#'   sim_name = c("scen1", "scen2"),
+#'   random_seed = c(12, 404),
+#'   pftpar.1.name = c("first_tree", NA),
+#'   param.k_temp = c(NA, 0.03),
+#'   new_phenology = c(TRUE, FALSE)
+#' )
+#'
+#' config_details <- write_config(
+#'   params = my_params,
+#'   model_path = model_path,
+#'   output_path = output_path
+#' )
+#'
+#' check_config(x = config_details,
+#'   model_path = model_path,
+#'   output_path = output_path,
+#'   return_output = FALSE
+#' )
+#' }
 check_config <- function(x,
                          model_path,
                          output_path = NULL,

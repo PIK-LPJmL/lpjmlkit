@@ -26,5 +26,6 @@ see \code{pretty_print}
 }
 \description{
 Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
-valid using lpjcheck for multiple files.
+valid and are ready to be used for simulations using lpjcheck for multiple
+files.
 }

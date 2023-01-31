@@ -2,23 +2,23 @@
 % Please edit documentation in R/LPJmLData_as.R
 \name{as_array}
 \alias{as_array}
-\title{Coerce LPJmLData to an array}
+\title{Coerce an LPJmLData object to an array}
 \usage{
 as_array(x, subset = NULL, aggregate = NULL, ...)
 }
 \arguments{
 \item{x}{\link{LPJmLData} object}
 
-\item{subset}{list of array dimension(s) as name/key and
+\item{subset}{List of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
+\verb{list(cell = c(27411:27415)}. More information at
 \code{\link{subset.LPJmLData}}.}
 
-\item{aggregate}{list of array dimension(s) as name/key and
+\item{aggregate}{List of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
 
-\item{...}{arguments forwarded to the aggregate function(s), e.g.
+\item{...}{Arguments passed to the aggregate function(s), e.g.
 \code{na.rm = TRUE}.}
 }
 \value{
@@ -27,17 +27,18 @@ applied \code{\link{subset}} and \code{\link{aggregate}} functionality as well a
 \code{dimnames} from the \code{\link{LPJmLData}} object.
 }
 \description{
-Function to coerce (convert) a \code{\link{LPJmLData}} object into a pure
+Function to coerce (convert) an \code{\link{LPJmLData}} object into a pure
 \link[base]{array}. Pure - because LPJmLData stores the data already as
 an \code{array} which can be accessed via \verb{$data}.
-\code{as_array} provides further functionality to subset or aggregate the \code{array}.
+\code{as_array} provides additional functionality to subset or aggregate the
+\code{array}.
 }
 \examples{
 \dontrun{
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# returns array attribute of LPJmLData object directly
+# Returns array attribute of LPJmLData object directly.
 vegc$data
 #        time
 # cell      1901-12-31   1902-12-31   1903-12-31   1904-12-31   1905-12-31
@@ -48,7 +49,8 @@ vegc$data
 #   4     7.592700e+01 7.821202e+01 6.798551e+01 6.632317e+01 5.691082e+01
 #   5     1.106748e+01 1.137272e+01 1.196524e+01 1.131316e+01 9.924266e+0
 
-# returns one dimensional array with timeseries for cells `27410:27415`
+# Returns two-dimensional array with timeseries for the mean across cells
+  `27410:27415`
 as_array(vegc,
          subset = list(cell = 27410:27415),
          aggregate = list(cell = mean))

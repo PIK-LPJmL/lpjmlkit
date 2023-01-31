@@ -2,8 +2,7 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{length.LPJmLData}
 \alias{length.LPJmLData}
-\title{Length of a LPJmLData's data array
-Function to get the length of the array of a LPJmLData object}
+\title{Length of an LPJmLData data array}
 \usage{
 \method{length}{LPJmLData}(x)
 }
@@ -11,6 +10,5 @@ Function to get the length of the array of a LPJmLData object}
 \item{x}{\link{LPJmLData} object}
 }
 \description{
-Length of a LPJmLData's data array
-Function to get the length of the array of a LPJmLData object
+Function to get the length of the data array of an LPJmLData object.
 }

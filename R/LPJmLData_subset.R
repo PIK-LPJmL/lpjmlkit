@@ -1,17 +1,18 @@
 #' Subset an LPJmLData object
 #'
-#' Function to extract a subset of the full data in an LPJmLData object by
+#' Function to extract a subset of the full data in an [`LPJmLData`] object by
 #' applying selections along one or several of its dimensions.
 #'
-#' @param x [LPJmLData] object
+#' @param x An [LPJmLData] object
 #'
-#' @param ... Provide key-value combinations where keys represent the dimension
-#' names and values represent the requested elements along these dimensions.
-#' Subsets may either specify integer indices, e.g. `cell = c(27411:27416)`,
-#' `band = -c(14:16, 19:32)`, or character vectors if the dimension has
-#' a dimnames attribute, e.g. `band = c("rainfed rice", "rainfed maize")`.
+#' @param ... One or several key-value combinations where keys represent the
+#' dimension names and values represent the requested elements along these
+#' dimensions. Subsets may either specify integer indices, e.g.
+#' `cell = c(27411:27416)`, `band = -c(14:16, 19:32)`, or character vectors if
+#' the dimension has a dimnames attribute, e.g.
+#' `band = c("rainfed rice", "rainfed maize")`.
 #'
-#' @return [`LPJmLData`] object with dimensions resulting from the selection in
+#' @return An [`LPJmLData`] object with dimensions resulting from the selection in
 #' 'subset'. Meta data are updated as well.
 #'
 #' @examples

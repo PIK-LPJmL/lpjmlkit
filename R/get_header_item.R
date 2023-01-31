@@ -20,6 +20,13 @@
 #' * [read_header()] for reading headers from LPJmL input/output files.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Read file header
+#' header <- read_header("filename.clm")
+#' nyear <- get_header_item(header = header, item = "nyear")
+#' }
 get_header_item <- function(header, item) {
   # Check header structure.
   # Expect a list with elements "name", "header" and "endian".

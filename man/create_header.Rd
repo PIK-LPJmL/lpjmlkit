@@ -54,8 +54,8 @@ codes; default: 3).}
 \item{nstep}{Number of time steps per year, added in header version 4 to
 separate time bands from content bands (default: 1).}
 
-\item{timestep}{If larger than 1, outputs are every over timestep years and
-only written once every timestep years (default: 1).}
+\item{timestep}{If larger than 1, outputs are averaged over timestep years
+and only written once every timestep years (default: 1).}
 
 \item{endian}{Endianness to use for file (either "big" or "little", by
 default uses platform-specific endianness \code{.Platform$endian}).}
@@ -100,7 +100,7 @@ files which also use 1.
 
 By default, input files contain data for all cells, indicated by setting
 the 'firstcell' index to 0. If 'firstcell' > 0, LPJmL assumes the first
-'firstcell' cells to be missing in data.
+'firstcell' cells to be missing in the data.
 
 Valid codes for the 'datatype' attribute and the corresponding LPJmL data
 types are: 0 (LPJ_BYTE), 1 (LPJ_SHORT), 2 (LPJ_INT), 3 (LPJ_FLOAT),
@@ -120,9 +120,9 @@ header <- create_header(
   ncell = 67420,
   nbands = 2,
   cellsize_lon = 0.5,
-  scalar = 0.01,
+  scalar = 1.0,
   cellsize_lat = 0.5,
-  datatype = 1,
+  datatype = 3,
   nstep = 1,
   timestep = 1,
   endian = .Platform$endian,
@@ -132,7 +132,7 @@ header <- create_header(
 }
 \seealso{
 \itemize{
-\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL files.
+\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL input/output files.
 \item \code{\link[=write_header]{write_header()}} for writing headers to files.
 }
 }

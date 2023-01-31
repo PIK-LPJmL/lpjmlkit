@@ -31,9 +31,9 @@ Subset an array with supplied dimnames and - if defined - replace it.
 }
 \section{Functions}{
 \itemize{
-\item \code{asub(x, ...) <- value}: replace an array subset
-
+\item \code{asub<-}: replace an array subset
 }}
+
 \examples{
 my_array <- array(1,
                   dim=c(cell = 67, month=12, band = 3),

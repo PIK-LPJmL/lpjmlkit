@@ -2,7 +2,7 @@
 % Please edit documentation in R/LPJmLMetaData_as.R
 \name{as_header}
 \alias{as_header}
-\title{Coerce LPJmLMetaData to a LPJmL header object}
+\title{Coerce LPJmLMetaData to an LPJmL header object}
 \usage{
 as_header(x, silent = TRUE)
 }
@@ -13,10 +13,10 @@ as_header(x, silent = TRUE)
 conversion/initialization.}
 }
 \value{
-a LPJmL header object, more information at \code{\link{create_header}}
+an LPJmL header object, more information at \code{\link{create_header}}
 }
 \description{
-Function to coerce (convert) a \code{LPJmLMetaData} object into a
+Function to coerce (convert) an \code{LPJmLMetaData} object into an
 LPJmL header object, more information at \code{\link{create_header}}.
 }
 \examples{

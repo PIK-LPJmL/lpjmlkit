@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_config.R
 \name{read_config}
 \alias{read_config}
-\title{Read a LPJmL config file (JSON)}
+\title{Read an LPJmL config file (JSON)}
 \usage{
 read_config(filename)
 }

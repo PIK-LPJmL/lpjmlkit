@@ -2,31 +2,33 @@
 % Please edit documentation in R/LPJmLData_transform.R
 \name{transform}
 \alias{transform}
-\title{Transform a LPJmLData object}
+\title{Transform an LPJmLData object}
 \usage{
 transform(x, to)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{x}{An \link{LPJmLData} object}
 
-\item{to}{character vector defining space and/or time format into which
-corresponding data dimensions should be transformed. Choose from space
+\item{to}{A Character vector defining space and/or time format into which
+the corresponding data dimensions should be transformed. Choose from space
 formats \code{c("cell", "lon_lat")} and time formats \code{c("time","year_month_day")}.}
 }
 \value{
-\code{\link{LPJmLData}} object in selected format
+An \code{\link{LPJmLData}} object in the selected format.
 }
 \description{
-Function to transform inner \code{\link{LPJmLData}} array into another
-space or another time format. Combinations are also possible.
+Function to transform an \code{\link{LPJmLData}} data object into another
+space or another time format. Combinations of space and time formats are also
+possible.
 }
 \examples{
 \dontrun{
 
-runoff <- read_io(filename = glue("{output_path}/runoff.bin.json"),
+runoff <- read_io(filename = "runoff.bin.json"),
                   subset = list(year = 1991:2000))
 
-# transform into space format "lon_lat"
+# Transform into space format "lon_lat". This assumes a "grid.bin.json" file
+# is present in the same directory as "runoff.bin.json".
 transform(runoff, to = "lon_lat")
 # [...]
 # $data \%>\%
@@ -37,7 +39,9 @@ transform(runoff, to = "lon_lat")
 #     .$band  "1"
 # [...]
 
-# transform -> split time format into years, months (, days)
+# Transform time format from a single time dimension into separate dimensions
+# for years, months, and days. Dimensions for time steps not present in the
+# data are ommitted, i.e. no "day" dimension for monthly data.
 transform(runoff, to = "year_month_day")
 # [...]
 # $data \%>\%

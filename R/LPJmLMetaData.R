@@ -1,10 +1,10 @@
 #' @title LPJmL meta data class
 #'
-#' @description A meta data container for LPJmL input and output. Container -
-#' because an LPJmLMetaData object is an environment in which the meta data is
-#' stored after [`read_meta`] (or [`read_io`]).
+#' @description A meta data container for LPJmL input and output meta data.
+#' Container - because an [`LPJmLMetaData`] object is an environment in which
+#' the meta data is stored after [`read_meta`] (or [`read_io`]).
 #' Each attribute can be accessed via `$<attribute>`. To get an overview over
-#' available attributes, print the object or export it as a list [`as_list`].
+#' available attributes, [`print`] the object or export it as a list [`as_list`].
 #' The enclosing environment is locked and cannot be altered.
 #'
 LPJmLMetaData <- R6::R6Class( # nolint
@@ -28,7 +28,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
 
     #' @description
-    #' Method to coerce (convert) an `LPJmLMetaData` object into an LPJmL input
+    #' Method to coerce (convert) an `LPJmLMetaData` object into an LPJmL (input)
     #' header (more info at [`create_header`]). \cr
     #'
     #' @param ... See [`as_header`]
@@ -54,7 +54,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
         print_fields <- self$._fields_set_
       }
 
-      # colorize self print
+      # Colorize self print.
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
 
@@ -85,17 +85,17 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
                  if (length(x) > 1) {
 
-                   # print vectors as output not as c(...)
+                   # Print vectors as output not as c(...).
                    if (length(x) > 6 && is.character(x)) {
-                     # shorten character vectors
+                     # Shorten character vectors.
                      x <- c(x[1:4], "...", tail(x, n = 1))
                    }
 
                    if (is.character(x)) {
-                     # quotes only around each element not around vector
+                     # Quotes only around each element not around vector.
                      return(noquote(paste(dQuote(x), collapse = " ")))
                    } else {
-                     # no quotes for numeric vectors
+                     # No quotes for numeric vectors.
                      return(noquote(paste(x, collapse = " ")))
                    }
 
@@ -111,12 +111,12 @@ LPJmLMetaData <- R6::R6Class( # nolint
       cat(
         paste0(
           spaces,
-          # color red if subset
+          # Color red if subset.
           blue_col,
           "$subset",
           unset_col,
           " ",
-          # color red if subset
+          # Color red if subset.
           ifelse(self$subset, "\u001b[31m", ""),
           self$subset,
           ifelse(self$subset, unset_col, ""),
@@ -136,14 +136,14 @@ LPJmLMetaData <- R6::R6Class( # nolint
         stop(paste("Only valid for variable", sQuote("grid"), "."))
       }
 
-      # set all time fields to NULL
+      # Set all time fields to NULL.
       private$.nyear <- NULL
       private$.firstyear <- NULL
       private$.lastyear <- NULL
       private$.nstep <- NULL
       private$.timestep <- NULL
 
-      # update fields_set
+      # Update fields_set.
       private$.fields_set <- private$.fields_set[
         -na.omit(match(c("nyear",
                          "firstyear",
@@ -154,32 +154,32 @@ LPJmLMetaData <- R6::R6Class( # nolint
       ]
     },
 
-    # update supplied subset in self.subset
+    # Update supplied subset in self.subset
     #   (!only in conjunction with LPJmLData!)
     #' @description
     #' !Internal method only to be used for package development!
-    #' @param subset list of subset arguments, see also [`subset`].
+    #' @param subset List of subset arguments, see also [`subset`].
     #'
-    #' @param cell_dimnames optional - list of new cell_dimnames of subset data
+    #' @param cell_dimnames Optional - list of new cell_dimnames of subset data
     #' to update meta data, required if spatial dimensions are subsetted !
     #'
-    #' @param time_dimnames optional - list of new time_dimnames of subset data
+    #' @param time_dimnames Optional - list of new time_dimnames of subset data
     #' to update meta data, required if time dimension is subsetted !
     #'
-    #' @param year_dimnames optional - list of new year_dimnames of subset data
+    #' @param year_dimnames Optional - list of new year_dimnames of subset data
     #' to update meta data, required if year dimension is subsetted !
     .__update_subset__ = function(subset,
                                   cell_dimnames = NULL,
                                   time_dimnames = NULL,
                                   year_dimnames = NULL) {
 
-      # update cell fields - distinguish between character -> LPJmL C index
-      #   starting from 0! and numeric/integer -> R index starting from 1 -> -1
+      # Update cell fields - distinguish between character -> LPJmL C index
+      #   starting from 0! and numeric/integer -> R index starting from 1 -> -1.
       if (!is.null(subset$cell) ||
           !is.null(subset$lon) || !is.null(subset$lat)) {
 
-        # subset of subset$cell, subset$lon or subset$lat always have to be
-        #   accompanied by cell_dimnames
+        # Subset of subset$cell, subset$lon or subset$lat always have to be
+        #   accompanied by cell_dimnames.
         if (!is.null(cell_dimnames)) {
           private$.firstcell <- min(as.numeric(cell_dimnames))
           private$.ncell <- length(cell_dimnames)
@@ -225,7 +225,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
     },
 
 
-    # set new time format
+    # Set new time format
     #' @description
     #' !Internal method only to be used for package development!
     #'
@@ -236,7 +236,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
     },
 
 
-    # set new space format
+    # Set new space format
     #' @description
     #' !Internal method only to be used for package development!
     #'
@@ -246,7 +246,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
     },
 
 
-    # set attribute
+    # Set attribute
     #' @description
     #' !Internal method only to be used for package development!
     #' @param key Character. Name of the attribute, e.g. `"variable"`
@@ -260,13 +260,13 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #' @description
     #' Create a new LPJmLMetaData object
     #'
-    #' @param x `list` (not nested) with meta data
+    #' @param x A `list` (not nested) with meta data
     #'
-    #' @param additional_attributes `list` of additional attributes to be set that
-    #' are not included in file header. These are
+    #' @param additional_attributes A `list` of additional attributes to be set
+    #' that are not included in file header. These are
     #' `c"(band_names", "variable", "descr", "unit")`
     #'
-    #' @param data_dir Character string for data directory to "lazy load" grid
+    #' @param data_dir A Character string for data directory to "lazy load" grid
     initialize = function(x,
                           additional_attributes = list(),
                           data_dir = NULL) {
@@ -300,7 +300,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
         private$init_list(x, additional_attributes)
       }
 
-      # add data_dir for lazy loading of (e.g.) grid later
+      # Add data_dir for lazy loading of (e.g.) grid later.
       if (!is.null(data_dir)) {
         private$.data_dir <- data_dir
       }
@@ -308,10 +308,10 @@ LPJmLMetaData <- R6::R6Class( # nolint
   ),
 
 
-  # active bindings
+  # Active bindings
   active = list(
 
-    #' @field sim_name simulation name (workds as identifier in LPJmL Runner)
+    #' @field sim_name Simulation name (workds as identifier in LPJmL Runner)
     sim_name = function() {
       return(private$.sim_name)
     },
@@ -423,7 +423,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
       return(private$.offset)
     },
 
-    #' @field bigendian (logical) Endianness refers to the order in which bytes
+    #' @field bigendian (Logical) endianness refers to the order in which bytes
     #' are stored in a multi-byte value, with big-endian storing the most
     #' significant byte at the lowest address and little-endian storing the
     #' least significant byte at the lowest address.
@@ -451,12 +451,12 @@ LPJmLMetaData <- R6::R6Class( # nolint
       }
     },
 
-    #' @field map for inputs
+    #' @field map For inputs
     map = function() {
       return(private$.map)
     },
 
-    #' @field version version of file
+    #' @field version Version of file
     version = function() {
       return(private$.version)
     },
@@ -530,7 +530,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
     exclude_print = function() {
 
-      # exclude entries from self print (for LPJmLData class)
+      # Exclude entries from self print (for LPJmLData class).
       to_exclude <- c(
         "band_names",
         "firstyear",
@@ -545,7 +545,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
         "filename"
       ) %>%
 
-      # only append scalar if != 1
+      # Only append scalar if != 1
       append(
         ifelse(
           !is.null(private$.scalar),
@@ -554,7 +554,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
         )
       ) %>%
 
-      # workaround to deal with NAs (NULL not possible in ifelse)
+      # Workaround to deal with NAs (NULL not possible in ifelse)
       stats::na.omit() %>%
       as.vector() %>%
       return()
