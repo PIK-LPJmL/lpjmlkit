@@ -10,35 +10,35 @@ the data and allows export to common data formats.
 ## Overview
 
 LPJmL Data first requires reading LPJmL input or output data into R by
-applying the read\_io function (1). The returned object is of class
+applying the read_io function (1). The returned object is of class
 LPJmLData (2), for which basic statistics can be calculated (3), the
 inner data can be modified (4), or common data formats can be exported
 (5).
 
-#### **1. 📖 Read function read\_io**  
+#### **1. 📖 Read function read_io** 
 
   
-read\_io is a generic function to read LPJmL input and output files. It
+read_io is a generic function to read LPJmL input and output files. It
 currently supports three different file formats, “meta”, “clm” and
 “raw”:
 
-  - **“meta”** - *strongly recommended for highest ease of use*.  
+-   **“meta”** - *strongly recommended for highest ease of use*.  
     Set `"output_metafile" : true` in your LPJmL run configuration to
     generate output files in “meta” format. LPJmL input files can also
     be created in “meta” format.
-    
+
     ``` r
     # Read monthly runoff with meta file.
     runoff <- read_io("./output/mrunoff.bin.json")
     ```
 
-  - **“clm”** - *use if “meta” is not available or in combination*.  
+-   **“clm”** - *use if “meta” is not available or in combination*.  
     Most LPJmL input files use “clm” format. To write output files in
     “clm” format set `"fmt" : "clm"` in your LPJmL run configuration.
     Some optional meta data (e.g. `band_names`) need to be specified
     manually while the basic information about file structure is derived
     automatically from the file header.
-    
+
     ``` r
     # Read monthly runoff data with header.
     runoff <- read_io("./output/mrunoff.clm",
@@ -52,15 +52,15 @@ currently supports three different file formats, “meta”, “clm” and
                      unit = "mm/month")
     ```
 
-  - **“raw”** - *not recommended for use (with lpjmlkit)*.  
-    By default, LPJmL output files are written as “raw” files (`"fmt" :
-    "raw"` in your LPJmL run configuration). These files include no meta
-    data about their structure or contents and should therefore be
-    combined with the `"output_metafile" : true` setting to generate a
-    corresponding “meta” file. Otherwise, all meta data need to be
-    specified by the user. Historically, some LPJmL input files use
-    “raw” format.
-    
+-   **“raw”** - *not recommended for use (with lpjmlkit)*.  
+    By default, LPJmL output files are written as “raw” files
+    (`"fmt" : "raw"` in your LPJmL run configuration). These files
+    include no meta data about their structure or contents and should
+    therefore be combined with the `"output_metafile" : true` setting to
+    generate a corresponding “meta” file. Otherwise, all meta data need
+    to be specified by the user. Historically, some LPJmL input files
+    use “raw” format.
+
     ``` r
     # Read monthly runoff raw data.
     runoff <- read_io("./output/mrunoff.bin",
@@ -71,15 +71,15 @@ currently supports three different file formats, “meta”, “clm” and
 
  
 
-#### **2. 📁 Data class LPJmLData**  
+#### **2. 📁 Data class LPJmLData** 
 
   
-read\_io returns an object of a R6 class `LPJmLData` with two main
+read_io returns an object of a R6 class `LPJmLData` with two main
 attributes, `$data` and `$meta`:
 
-  - **$data** `class base::array` - returns the data array with default
+-   **$data** `class base::array` - returns the data array with default
     dimensions “cell”, “time” and “band”
-    
+
     ``` r
     runoff$data
     #     , , band = 1
@@ -94,9 +94,9 @@ attributes, `$data` and `$meta`:
     #   5      0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
     ```
 
-  - **$meta** Meta data of class `LPJmLMetaData` - returns the
+-   **$meta** Meta data of class `LPJmLMetaData` - returns the
     corresponding meta data (e.g. `runoff$meta$unit`)
-    
+
     ``` r
     runoff$meta
     # $sim_name "lu_cf"
@@ -122,10 +122,10 @@ attributes, `$data` and `$meta`:
     # $format "raw"
     # $filename "runoff.bin"
     ```
-    
+
      
 
-#### **3. 📈 Basic statistics of LPJmLData objects**  
+#### **3. 📈 Basic statistics of LPJmLData objects** 
 
   
 To get an overview of the data, `LPJmLData` offers support for various
@@ -175,36 +175,35 @@ plot(runoff)
 
  
 
-#### **4. ✏ Modify LPJmLData objects**  
+#### **4. ✏ Modify LPJmLData objects** 
 
   
 Each LPJmLData object comes with a bundle of methods to modify its
 state: `add_grid()`, `transform()` and `subset()`.
 
-  - **📍 `add_grid()`** Add a **$grid** attribute (as LPJmLData object)
+-   **📍 `add_grid()`** Add a **$grid** attribute (as LPJmLData object)
     to the object, providing the spatial reference (longitude and
     latitude) for each cell.
-    
+
     ``` r
     # Object- oriented (R6 class) notation (assigning grid directly to runoff)
     runoff$add_grid()
-    
+
     # Common R notation (overwriting the original object)
     runoff <- add_grid(runoff)
-    
+
     # Use read_io arguments if grid file is not detected automatically.
     runoff <- add_grid(runoff, "./output/grid.clm")
     ```
 
-  - **🔁 `transform()`** the `$data` dimensions.  
+-   **🔁 `transform()`** the `$data` dimensions.  
     Transform spatial dimension from “cell” to “lon” (longitude) and
-    “lat” (latitude) or temporal dimension “time” into separate
-    “year”, “month”, and “day”. Combinations and back
-    transformations are also possible. Transformation into format
-    “lon\_lat” requires a `$grid` attribute (see `add_grid` above).
-    Transformation does not change the contents of the data, only the
-    structure.
-    
+    “lat” (latitude) or temporal dimension “time” into separate “year”,
+    “month”, and “day”. Combinations and back transformations are also
+    possible. Transformation into format “lon_lat” requires a `$grid`
+    attribute (see `add_grid` above). Transformation does not change the
+    contents of the data, only the structure.
+
     ``` r
     # Transform into lon and lat dimensions. If add_grid has not been executed
     #   before it is called implicitly.
@@ -218,7 +217,7 @@ state: `add_grid()`, `transform()` and `subset()`.
     #     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2011-12-31"
     #     .$band  "1"
     # [...]
-    
+
     # Transform into year and month dimension (day not available for montly
     #   runoff)
     runoff <- transform(runoff, to = "year_month_day")
@@ -232,7 +231,7 @@ state: `add_grid()`, `transform()` and `subset()`.
     #     .$year  "1901" "1902" "1903" "1904" ... "2011"
     #     .$band  "1"
     # [...]
-    
+
     # Transform back to original dimensions.
     runoff <- transform(runoff, to = c("cell", "time"))
     runoff
@@ -245,12 +244,12 @@ state: `add_grid()`, `transform()` and `subset()`.
     # [...]
     ```
 
-  - **✂ `subset()`** the `$data`.  
+-   **✂ `subset()`** the `$data`.  
     Use `$data` dimensions as key and names or indices as value to
     subset `$data`. `$meta` data are adjusted according to the subset.
     Applying a subset changes the contents of the data and cannot be
     reversed.
-    
+
     ``` r
     # Subset by dimnames (character string).
     runoff <- subset(runoff, time = "1991-05-31")
@@ -267,7 +266,7 @@ state: `add_grid()`, `transform()` and `subset()`.
     #     .$time  "1991-05-31"
     #     .$band  "1"
     # [...]
-    
+
     # Subset by indices
     runoff <- subset(runoff, cell = 28697:28700)
     runoff
@@ -284,21 +283,21 @@ state: `add_grid()`, `transform()` and `subset()`.
     #     .$band  "1"
     # [...]
     ```
-    
+
      
 
-#### **5. 📦 Export LPJmLData objects**  
+#### **5. 📦 Export LPJmLData objects** 
 
   
 Finally, LPJmLData objects can be exported into common R data formats:
 `array`, `tibble`, `raster` and `terra`.  
 *More export methods can be added in the future.*
 
-  - **`as_array()`** Export `$data` as an array. Beyond simply returning
-    the `$data` element of an `LPJmLData` object, as\_array provides
+-   **`as_array()`** Export `$data` as an array. Beyond simply returning
+    the `$data` element of an `LPJmLData` object, as_array provides
     additional functionality to subset and aggregate `$data`. Subsetting
     is conducted before aggregation.
-    
+
     ``` r
     # Export as an array with subset of first 6 time steps and aggregation along
     #   dimension cell (mean).
@@ -315,10 +314,10 @@ Finally, LPJmLData objects can be exported into common R data formats:
     #   1901-06-30 32.80252
     ```
 
-  - **`as_tibble()`** Export `$data` as a
+-   **`as_tibble()`** Export `$data` as a
     [`tibble`](https://tibble.tidyverse.org/) object, providing the same
-    additional subsetting and aggregation functionality as as\_array.
-    
+    additional subsetting and aggregation functionality as as_array.
+
     ``` r
     # Export as a tibble with subset of first 6 time steps
     as_tibble(runoff, subset = list(time = 1:6))
@@ -338,14 +337,14 @@ Finally, LPJmLData objects can be exported into common R data formats:
     # # … with 404,510 more rows
     ```
 
-  - **🌐 `as_raster()`** / **`as_terra()`** Export `$data` as a
+-   **🌐 `as_raster()`** / **`as_terra()`** Export `$data` as a
     [`raster`](https://rspatial.github.io/raster/reference/raster-package.html)
     or a [`terra`](https://rspatial.org/) object (successor of raster),
     providing the same additional subsetting and aggregation
-    functionality as `as_array()`. as\_raster() returns a RasterLayer
-    for a single data field and a RasterBrick if the result contains
-    more than one band or more than one time step.
-    
+    functionality as `as_array()`. as_raster() returns a RasterLayer for
+    a single data field and a RasterBrick if the result contains more
+    than one band or more than one time step.
+
     ``` r
     # Export the first time step as a RasterLayer from the raster package.
     as_raster(runoff, subset = list(time = 1))
@@ -357,7 +356,7 @@ Finally, LPJmLData objects can be exported into common R data formats:
     # source     : memory
     # names      : runoff
     # values     : -1.682581e-13, 671.8747  (min, max)
-    
+
     # Export the first time step as terra SpatRaster.
     as_terra(runoff, subset = list(time = 1))
     # class       : SpatRaster
@@ -370,7 +369,7 @@ Finally, LPJmLData objects can be exported into common R data formats:
     # min value   : -1.682581e-13
     # max value   :  6.718747e+02
     # unit        :      mm/month # nolint:commented_code_linter.
-    
+
     # Export the first 4 times step as a RasterBrick.
     as_raster(runoff, subset = list(time = 1:4))
     # class      : RasterBrick
@@ -382,7 +381,7 @@ Finally, LPJmLData objects can be exported into common R data formats:
     # names      :   X1901.01.31,   X1901.02.28,   X1901.03.31,   X1901.04.30
     # min values : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
     # max values :      671.8747,      785.2363,      828.2853,      987.4359
-    
+
     # Export the first 4 time steps as terra SpatRaster.
     as_terra(runoff, subset = list(time = 1:4))
     # class       : SpatRaster
@@ -397,23 +396,23 @@ Finally, LPJmLData objects can be exported into common R data formats:
     # unit        :      mm/month,      mm/month,      mm/month,      mm/month
     # time (days) : 1901-01-31 to 1901-04-30
     ```
-    
+
      
 
-#### **Miscellaneous**  
+#### **Miscellaneous** 
 
   
 More helpful functionality included with LPJmL Data:
 
-  - `read_meta()` to read meta information from meta and header files as
+-   `read_meta()` to read meta information from meta and header files as
     `LPJmLMetaData` objects. `LPJmLMetaData` are usually attached to an
     `LPJmLData` object but can also be used to gain information about an
     LPJmL input or output file without reading the whole data.
 
-  - `LPJmLMetaData` objects can be exported as `as_list` and `as_header`
+-   `LPJmLMetaData` objects can be exported as `as_list` and `as_header`
     to use for creating header objects or write header files.
 
-  - `read_header()`, `write_header()`, `get_headersize()`,
+-   `read_header()`, `write_header()`, `get_headersize()`,
     `get_datatype()` provide low-level interaction with LPJmL input and
     output files primarily in “clm” format.
 
@@ -510,13 +509,13 @@ read_io(
 1.  `LPJmLData` and `LPJmLMetaData` objects are closed environments,
     each of an R6 class, that function as a data container.  
     Do not replicate R6 objects like
-    
+
     ``` r
       my_copy <- lpjml_data
       # Instead use:
       my_copy <- lpjml_data$clone(deep = TRUE)
     ```
-    
+
     Otherwise, `my_copy` and `lpjml_data` point to the same environment,
     and any subsetting or transformation methods applied to `my_copy`
     will also affect `lpjml_data`.
@@ -534,7 +533,7 @@ read_io(
 
 4.  The “meta” format is supported only by recent LPJmL versions. When
     comparing older (\< LPJmL version 5.3) output data with LPJmL 5.3
-    output data it can be useful to combine meta (`"output_metafile" :
-    true`) with the header file format (`"fmt": "clm"`), which has been
-    supported since LPJmL version 4, for simplification of process
-    pipelines.
+    output data it can be useful to combine meta
+    (`"output_metafile" : true`) with the header file format
+    (`"fmt": "clm"`), which has been supported since LPJmL version 4,
+    for simplification of process pipelines.
