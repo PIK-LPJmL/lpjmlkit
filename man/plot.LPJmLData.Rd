@@ -27,8 +27,26 @@ extracted. Not relevant if \code{aggregate} includes spatial dimension.}
 }
 \description{
 Function to plot a time-series or raster map of an \code{\link{LPJmLData}}
-object. \emph{The intent is to provide a quick overview of the data,
-not to create publication-ready graphs.}
+object.
+}
+\details{
+Depending on the dimensions of the \link{LPJmLData} objects internal data array the
+plot will be a ...
+\itemize{
+\item single map plot: more than 8 \code{"cell"}s or \code{"lat"} & \code{"lon"} dimensions
+available)
+\item multiple maps plot: length of one time (e.g.\code{"time"}, \code{"year"},
+\code{"month"}) or \code{"band"} dimension > 1.
+\item time series plot: less than 9 \code{"cell"}s
+\item lat/lon plot: a subsetted/aggregated \code{"lat"} or \code{"lon"} dimension
+}
+
+The plotting can only handle 2-3 dimensions, use arguments \code{subset} and
+\code{aggregate} to get the desired outcome. If more dimensions have length > 1,
+plot will return an error by suggesting to reduce number of dimensions
+
+\emph{Note that the plot function aims to provide a quick overview of the data,
+rather than create publication-ready graphs.}
 }
 \examples{
 \dontrun{

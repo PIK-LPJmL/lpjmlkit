@@ -1,8 +1,7 @@
 #' Plot an LPJmLData object
 #'
 #' Function to plot a time-series or raster map of an [`LPJmLData`]
-#' object. *The intent is to provide a quick overview of the data,
-#' not to create publication-ready graphs.*
+#' object.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -21,6 +20,23 @@
 #'
 #' @param ... Arguments forwarded to \link[graphics]{plot} and
 #' \link[raster]{plot}
+#'
+#'@details
+#'Depending on the dimensions of the [LPJmLData] objects internal data array the
+#' plot will be a ...
+#' * single map plot: more than 8 `"cell"`s or `"lat"` & `"lon"` dimensions
+#'   available)
+#' * multiple maps plot: length of one time (e.g.`"time"`, `"year"`,
+#'   `"month"`) or `"band"` dimension > 1.
+#' * time series plot: less than 9 `"cell"`s
+#' * lat/lon plot: a subsetted/aggregated `"lat"` or `"lon"` dimension
+#'
+#' The plotting can only handle 2-3 dimensions, use arguments `subset` and
+#' `aggregate` to get the desired outcome. If more dimensions have length > 1,
+#' plot will return an error by suggesting to reduce number of dimensions
+#'
+#' *Note that the plot function aims to provide a quick overview of the data,
+#' rather than create publication-ready graphs.*
 #'
 #' @examples
 #' \dontrun{
@@ -111,7 +127,7 @@ LPJmLData$set("private",
     )
   }
 
-  # check for non aggregated space dimension <= 8 -> time series plots
+  # check for non aggregated space dimension (<= 8 -> time series plots)
   space_len <- names(dim(data_subset)) %>%
     .[!(. %in% names(aggregate))] %>%
     .[. %in% space_dims] %>%
