@@ -197,7 +197,7 @@ LPJmLData$set("private",
 
     # subset first 9 (later) raster layers (only 9 can be visualized well)
     #   for performance reasons already here
-    if (dim(data_subset)[z_dim] > 9) {
+    if (length(z_dim) > 0 && dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
         subset_array(data_subset$data,
                      as.list(stats::setNames(list(seq_len(9)), z_dim)))
