@@ -1,8 +1,8 @@
 #' @title Read LPJmL input and output files
 #'
 #' @description Generic function to read LPJmL input & output files in different
-#' formats. Depending on the format, arguments can be automatically detected,
-#' or have to be passed on as individual arguments.
+#' formats. Depending on the format, arguments can be automatically detected
+#' or have to be passed as individual arguments.
 #'
 #' @param filename Mandatory character string giving the file name to read,
 #' including its path and extension.
@@ -21,22 +21,23 @@
 #' "clm", a binary file with header;
 #' "meta", a meta information JSON file complementing a raw or clm file.
 #' @param version Integer indicating clm file header version, currently supports
-#' one of 1, 2, 3 or 4.
+#' one of 1, 2, 3, or 4.
 #' @param order Integer value or character string describing the order of data
 #' items in the file (default in input file: 1; in output file: 4). Valid values
 #' for LPJmL input/output files are "cellyear" 1, "yearcell" 2, "cellindex" 3,
 #' "cellseq" 4, although only options 1 and 4 are supported by this function.
-#' @param firstyear Integer providing first year of data in the file.
-#' @param nyear Integer providing number of years of data included in the file.
-#' These are not consecutive in case of `timestep > 1`.
-#' @param firstcell Integer providing cell index of the first data item. 0 by
-#' default.
-#' @param ncell Integer providing number of data items per band.
-#' @param nbands Integer providing number of bands per time step of data.
-#' @param cellsize_lon Numeric value providing longitude cell size in degrees.
-#' @param scalar Numeric value providing conversion factor that needs to be
-#' applied to raw data when reading it from the file to derive final values.
-#' @param cellsize_lat Numeric value providing latitude cell size in degrees.
+#' @param firstyear Integer providing the first year of data in the file.
+#' @param nyear Integer providing the number of years of data included in the
+#' file. These are not consecutive in case of `timestep > 1`.
+#' @param firstcell Integer providing the cell index of the first data item.
+#' 0 by default.
+#' @param ncell Integer providing the number of data items per band.
+#' @param nbands Integer providing the number of bands per time step of data.
+#' @param cellsize_lon Numeric value providing the longitude cell size in
+#' degrees.
+#' @param scalar Numeric value providing a conversion factor that needs to be
+#' applied to raw data when reading it from file to derive final values.
+#' @param cellsize_lat Numeric value providing the latitude cell size in degrees.
 #' @param datatype Integer value or character string describing the LPJmL data
 #' type stored in the file. Supported options: "byte" 0, "short" 1, "int" 2,
 #' "float" 3, "double" 4.
@@ -53,13 +54,13 @@
 #' @param variable Optional character string providing the name of the variable
 #' contained in the file. Included in some JSON meta files. **Important:** If
 #' `"file_type" == "raw` and data should be recognized as a grid, prescribe
-#' `variable = "grid"`!
+#' `variable = "grid"`.
 #' @param descr Optional character string providing a more detailed description
 #' of the variable contained in the file. Included in some JSON meta files.
-#' @param unit Optional character string providing unit of the data in the file.
-#' Included in some JSON meta files.
-#' @param name Optional character string specifying a header name. This is
-#' usually read from CLM headers for `file_type = "clm"` but can be specified
+#' @param unit Optional character string providing the unit of the data in the
+#' file. Included in some JSON meta files.
+#' @param name Optional character string specifying the header name. This is
+#' usually read from clm headers for `file_type = "clm"` but can be specified
 #' for the other `file_type` options.
 #' @param silent If set to TRUE, suppresses most warnings or messages. Use only
 #' after testing that `read_io` works as expected with the files it is being
@@ -81,7 +82,7 @@
 #'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 #' )
 #'
-#' # Read data from CLM file. This includes a header describing the file
+#' # Read data from clm file. This includes a header describing the file
 #' # structure.
 #' my_data_clm <- read_io("my_file.clm")
 #'
@@ -98,8 +99,8 @@
 #'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 #' )
 #'
-#' # Read data from raw binary file. Information about file structure needs to
-#' # be supplied. Use default values except for `nyear` (1 by default), and
+#' # Read data from raw binary file. All information about file structure needs
+#' # to be supplied. Use default values except for `nyear` (1 by default), and
 #' # `nbands` (also 1 by default).
 #' my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
 #'
@@ -112,10 +113,9 @@
 #'   nbands = 2,
 #' )
 #' }
-#' @details The `file_type` determines which arguments are mandatory, optional,
-#' or not allowed. `filename` must always be provided. `file_type` is usually
-#' detected automatically and must only be supplied if the detected `file_type`
-#' is incorrect.
+#' @details The `file_type` determines which arguments are mandatory or
+#' optional. `filename` must always be provided. `file_type` is usually
+#' detected automatically. Supply only if detected `file_type` is incorrect.
 #'
 #' In case of `file_type = "meta"`, if any of the function arguments not listed
 #' as "mandatory" are provided and are already set in the JSON file, a warning
@@ -124,9 +124,9 @@
 #'
 #' In case of `file_type = "clm"`, function arguments not listed as "optional"
 #' are usually determined automatically from the file header included in the
-#' CLM file. Users may still provide any of these arguments to overwrite values
+#' clm file. Users may still provide any of these arguments to overwrite values
 #' read from the file header, e.g. when they know that the values in the file
-#' header are wrong. Also, CLM headers with versions < 4 do not contain all
+#' header are wrong. Also, clm headers with versions < 4 do not contain all
 #' header attributes, with missing attributes filled with default values that
 #' may not be correct for all files.
 #'
@@ -176,7 +176,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   name         = NULL,
   silent       = FALSE
 ) {
-  # Switch off fancy quotes.
+  # Switch off fancy quotes but revert setting when leaving the function.
   quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.
   on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
   # Detect file_type if not provided by user.
@@ -190,7 +190,7 @@ read_io <- function( # nolint:cyclocomp_linter.
       "This function can read files of type ", toString(dQuote(supported_types))
     )
   }
-  # Check valid dim_order
+  # Check valid dim_order.
   valid_dim_names <- c("cell", "time", "band")
   if (!all(dim_order %in% valid_dim_names)) {
     stop(
@@ -209,7 +209,7 @@ read_io <- function( # nolint:cyclocomp_linter.
     )
   }
 
-  # Construct meta data from JSON, CLM header, and/or provided function
+  # Construct meta data from JSON, clm header, and/or provided function
   # arguments.
   meta_data <- match.arg(file_type, supported_types) %>%
     paste("read_io_metadata", ., sep = "_") %>%
@@ -238,7 +238,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   # Offset at beginning of binary data file.
   start_offset <- default(meta_data$offset, 0)
 
-  # Filter for NAs in subset
+  # Filter for NAs in subset.
   if (length(subset) > 0 && any(sapply(subset, anyNA))) { # nolint:undesirable_function_linter.
     before <- names(subset)
     if (!silent) {
@@ -284,11 +284,11 @@ read_io <- function( # nolint:cyclocomp_linter.
       wd <- getwd()
       # Reset working directory if function exits (breaks, fails, etc.).
       on.exit(setwd(wd)) # nolint:undesirable_function_linter.
-      # Set working directory to path of filename
+      # Set working directory to path of filename.
       setwd(dirname(filename)) # nolint:undesirable_function_linter.
       # Relative path can be parsed now.
       filename <- normalizePath(meta_data$filename)
-      # Reset working directory
+      # Reset working directory.
       setwd(wd) # nolint:undesirable_function_linter.
     }
   }
@@ -328,6 +328,10 @@ read_io <- function( # nolint:cyclocomp_linter.
       "\" to allow correct setting of the time axis."
     )
   }
+
+  # Check if file is an LPJDAMS input file, which has a different format that is
+  # not supported by this function. TODO: Implement drop-in function for LPJDAMS
+  # input.
   if (get_header_item(file_header, "name") == "LPJDAMS") {
     stop(
       "This function currently does not support reading LPJDAMS input files."
@@ -337,6 +341,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   # Read data from binary file.
   file_data <- read_io_data(filename, meta_data, subset, silent)
 
+  # Update meta_data based on subset.
   if (!is.null(subset$year) && is.numeric(subset$year)) {
     year_dimnames <- split_time_names(dimnames(file_data)[["time"]])$year
   } else {
@@ -347,7 +352,6 @@ read_io <- function( # nolint:cyclocomp_linter.
   } else {
     cell_dimnames <- NULL
   }
-  # Update meta_data based on subset.
   if (length(subset) > 0) {
     meta_data$.__update_subset__(subset,
                                  cell_dimnames = cell_dimnames,
@@ -357,20 +361,20 @@ read_io <- function( # nolint:cyclocomp_linter.
   if (!identical(dim_order, names(dim(file_data))))
     file_data <- aperm(file_data, perm = dim_order)
 
-  # Create LPJmLData object and bring together data and meta_data.
+  # Create LPJmLData object and combine data and meta_data.
   lpjml_data <- LPJmLData$new(data = file_data,
                               meta_data = meta_data)
   rm(file_data, meta_data)
   return(lpjml_data)
 }
 
-# read & assign metadata for binary file without a header.
+# Read & assign metadata for binary file without a header.
 read_io_metadata_raw <- function(filename, file_type, band_names,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
                                  endian, variable, descr, unit, name, silent) {
-  # Create a dummy header with the info passed as arguments.
+  # Create a dummy header with the information passed as arguments.
   verbose <- (!is.null(version) && version < 4)
   verbose <- verbose && !silent
   file_header <- create_header(
@@ -396,14 +400,15 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
     verbose = verbose
   )
 
-  # Check validity of band_names
+  # Check validity of band_names.
   check_band_names(get_header_item(file_header, "nbands"),
                    band_names)
 
   # Prepare additional attributes to be added to meta information.
   additional_attributes <- list(band_names = band_names, variable = variable,
                                 descr = descr, unit = unit)
-  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
+  additional_attributes <-
+    additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
   # Use header name is a substitute for variable if variable is not set.
   if (is.null(additional_attributes[["variable"]])) {
     additional_attributes[["variable"]] <- get_header_item(file_header, "name")
@@ -415,17 +420,17 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
   return(meta_data)
 }
 
-# read & assign metadata for binary file with a header.
+# Read & assign metadata for binary file with a header.
 read_io_metadata_clm <- function(filename, file_type, band_names,
                                  version, order, firstyear, nyear, firstcell,
                                  ncell, nbands, cellsize_lon, scalar,
                                  cellsize_lat, datatype, nstep, timestep,
                                  endian, variable, descr, unit, name, silent) {
-  # Read file_header
+  # Read file_header.
   file_header <- read_header(filename, version, !silent)
 
-  # Update header with the info passed as arguments (especially for version 1
-  # and 2 headers values may need to be overwritten).
+  # Update header with the information passed as arguments (especially for
+  # version 1 and 2 headers default values may need to be overwritten).
   if (get_header_item(file_header, "version") > 3 && is.null(version)) {
     verbose <- FALSE
   } else if (!is.null(version) && version > 3) {
@@ -448,8 +453,11 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
     file_header <- set_header_item(file_header, order = 1)
   }
 
-  # Do not allow overwriting name attribute in header because it may change
+  # Do not allow overwriting name attribute in header because it may change the
   # header length, which needs to be skipped when reading data from file.
+  if (!silent && !is.null(name)) {
+    warning("You cannot overwrite the header name in clm files.")
+  }
   file_header <- create_header(
     name = get_header_item(file_header, "name"),
     version = default(version, get_header_item(file_header, "version")),
@@ -477,9 +485,10 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
 
   # Prepare additional attributes to be added to meta information.
   additional_attributes <- list(band_names = band_names, variable = variable,
-                          descr = descr, unit = unit)
-  additional_attributes <- additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
-  # Use header name is a substitute for variable if variable is not set. Here,
+                                descr = descr, unit = unit)
+  additional_attributes <-
+    additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
+  # Use header name as a substitute for variable if variable is not set. Here,
   # use name argument if supplied by user.
   if (is.null(additional_attributes[["variable"]])) {
     additional_attributes[["variable"]] <- as.character(
@@ -497,17 +506,17 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
   return(meta_data)
 }
 
-# read & assign metadata for meta file type (binary file with associated
+# Read & assign metadata for meta file type (binary file with associated
 # meta-data json file).
 read_io_metadata_meta <- function(filename, file_type, band_names,
                                   version, order, firstyear, nyear, firstcell,
                                   ncell, nbands, cellsize_lon, scalar,
                                   cellsize_lat, datatype, nstep, timestep,
                                   endian, variable, descr, unit, name, silent) {
-  # Read meta data
+  # Read meta data.
   meta_data <- read_meta(filename)
 
-  # Check if user has tried overwriting any meta attributes which we are set
+  # Check if user has tried overwriting any meta attributes which are set
   # already in the JSON. If so, give warning but still allow for meta files.
   set_args <- setdiff(
     names(formals()),
@@ -517,26 +526,26 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   set_args <- set_args[which(!sapply(set_args, function(x) is.null(get(x))))] # nolint:undesirable_function_linter.
 
   # Only warn about arguments that are currently set in metadata.
-  no_set_args <- intersect(
+  overwrite_set_args <- intersect(
     set_args,
     names(which(!sapply(meta_data, is.null))) # nolint:undesirable_function_linter.
   )
-  if (length(no_set_args) > 0 && !silent) {
+  if (length(overwrite_set_args) > 0 && !silent) {
     warning(
       "You are trying to overwrite the following parameters, which are already",
       " set for this file: ",
-      toString(sQuote(no_set_args)),
+      toString(sQuote(overwrite_set_args)),
       call. = FALSE
     )
   }
   # Override attributes.
-  for (att in no_set_args) {
+  for (att in overwrite_set_args) {
     meta_data$.__set_attribute__(att, get(att))
   }
   # Remove arguments that are set/updated already.
-  set_args <- setdiff(set_args, no_set_args)
+  set_args <- setdiff(set_args, overwrite_set_args)
 
-  # If user wants band_names, check consistency with nbands.
+  # If user wants band_names check consistency with nbands.
   if (!"nbands" %in% set_args) {
     nbands <- default(meta_data$nbands, 1)
   }
@@ -606,20 +615,21 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   # Convert meta data into header.
   file_header <- meta_data$as_header(silent)
 
-  # Check validity of band_names
+  # Check validity of band_names.
   check_band_names(get_header_item(file_header, "nbands"),
                    meta_data$band_names)
 
   return(meta_data)
 }
 
+# Read data (instead of meta data) from file.
 read_io_data <- function(
   filename,
   meta_data,
   subset,
   silent
 ) {
-  # All years in the file.
+  # Determine all years in the file.
   years <- seq(
     from       = default(meta_data$firstyear, 1901),
     by         = default(meta_data$timestep, 1),
@@ -744,6 +754,7 @@ read_io_data <- function(
   }
   # Close binary file connection.
   close(file_connection)
+  # Delete file_connection to prevent triggering on.exit expression.
   rm(file_connection)
 
   # Create and assign time dimension names.
@@ -757,7 +768,7 @@ read_io_data <- function(
 }
 
 
-# Function to read LPJmL binary files.
+# Function to read values from LPJmL binary files.
 read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
   seek(con = file_connection, where = data_offset)
   file_data <- readBin(

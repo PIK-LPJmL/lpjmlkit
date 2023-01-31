@@ -1,12 +1,11 @@
-#' Read an LPJmL meta or header file
+#' Read an LPJmL meta file or binary file header
 #'
-#' Reads a meta JSON file or an LPJmL input or output file that includes a file
-#' header.
+#' Reads a meta JSON file or the header of a binary LPJmL input or output file.
 #'
 #' @param filename Character string representing path
 #' (if different from current working directory) and filename.
 #'
-#' @param ... Further arguments passed to [`read_header`] if header file is
+#' @param ... Additional arguments passed to [`read_header`] if header file is
 #' read.
 #'
 #' @return An [`LPJmLMetaData`] object
@@ -28,23 +27,23 @@
 #' @md
 #' @export
 read_meta <- function(filename, ...) {
-  # get and provide data path for lazy data purposes (e.g. load grid later).
+  # Get and provide data path for lazy data purposes (e.g. load grid later).
   pathname <- dirname(filename)
 
-  # detect LPJmL file types - "meta", "clm" or other.
+  # Detect LPJmL file types - "meta", "clm" or other.
   file_type <- detect_type(filename)
 
-  # meta (JSON) file handling.
+  # Meta (JSON) file handling.
   if (file_type == "meta") {
     meta_object <- jsonlite::read_json(path = filename, simplify = TRUE) %>%
       LPJmLMetaData$new(data_dir = pathname)
 
-  # input output data containing a header handling.
+  # Handling of input or output file containing a header.
   } else if (file_type == "clm") {
     meta_object <- read_header(filename, ...) %>%
       LPJmLMetaData$new(data_dir = pathname)
 
-  # other formats are not supported yet.
+  # Other formats are not supported yet.
   } else {
     stop("Non readable (meta) file format.")
   }

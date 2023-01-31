@@ -159,8 +159,8 @@ read_header <- function(filename, force_version = NULL, verbose = TRUE) {
       headerdata <- c(headerdata, nstep = 1, timestep = 1)
       if (verbose)
         message(
-          "Note: Type 3 header. Adding default values for nstep and timestep which ",
-          "may not be correct in all cases."
+          "Note: Type 3 header. Adding default values for nstep and timestep ",
+          "which may not be correct in all cases."
       )
     }
   }

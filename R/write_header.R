@@ -1,14 +1,14 @@
 #' @title Write LPJmL header object to an LPJmL input (or output) file
 #'
 #' @description
-#' Write an LPJmL clm header to a file. The header has to be as list
+#' Write an LPJmL clm header to a file. The header has to be a list
 #' following the structure returned by `read_header()` or `create_header()`.
 #' The function will fail if the output file exists already unless 'overwrite'
 #' is set to TRUE.
 #'
-#' @param filename Filename to write header into
-#' @param header The header to be written
-#' @param overwrite Whether to overwrite an existing output file (default FALSE)
+#' @param filename Filename to write header into.
+#' @param header The header to be written.
+#' @param overwrite Whether to overwrite an existing output file (default FALSE).
 #'
 #' @return None
 #'
@@ -29,7 +29,7 @@
 #'
 #' @export
 write_header <- function(filename, header, overwrite = FALSE) {
-  # check that header is valid
+  # Check that header is valid.
   if (!is.list(header)) {
     stop("Header must be a list() object")
   }
@@ -98,7 +98,7 @@ write_header <- function(filename, header, overwrite = FALSE) {
       )
     }
   }
-  # if output file exists already
+  # Check whether output file exists already.
   if (file.exists(filename)) {
     if (!overwrite) {
       stop(
@@ -111,35 +111,35 @@ write_header <- function(filename, header, overwrite = FALSE) {
     }
     warning(paste(filename, "exists already and will be overwritten"))
   }
-  # write header to file
-  zz <- file(filename, "wb")
-  writeBin(charToRaw(header$name), zz)
+  # Write header to file.
+  fp <- file(filename, "wb")
+  writeBin(charToRaw(header$name), fp)
   writeBin(
-    as.integer(header$header[header_elements]), zz,
+    as.integer(header$header[header_elements]), fp,
     size = 4, endian = header$endian
   )
   if (header$header["version"] > 1) {
     writeBin(
-      as.double(header$header[c("cellsize_lon", "scalar")]), zz,
+      as.double(header$header[c("cellsize_lon", "scalar")]), fp,
       size = 4, endian = header$endian
     )
   }
   if (header$header["version"] > 2) {
     writeBin(
-      as.double(header$header["cellsize_lat"]), zz,
+      as.double(header$header["cellsize_lat"]), fp,
       size = 4, endian = header$endian
     )
     writeBin(
-      as.integer(header$header["datatype"]), zz,
+      as.integer(header$header["datatype"]), fp,
       size = 4, endian = header$endian
     )
   }
   if (header$header["version"] > 3) {
     writeBin(
-      as.integer(header$header[c("nstep", "timestep")]), zz,
+      as.integer(header$header[c("nstep", "timestep")]), fp,
       size = 4, endian = header$endian
     )
   }
-  close(zz)
+  close(fp)
   invisible(filename)
 }

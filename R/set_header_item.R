@@ -6,7 +6,7 @@
 #'
 #' @param header An LPJmL file header as returned by `read_header()` or
 #'   `create_header()`.
-#' @param ... Header items to set. Can be one or several of 'name', 'version',
+#' @param ... Named header items to set. Can be one or several of 'name', 'version',
 #'   'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 #'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
 #'   'endian'.
@@ -127,7 +127,7 @@ set_header_item <- function(header, ...) {
       )
     )
   }
-  # Switch on verbose output in create_header if setting name, version or
+  # Switch on verbose output in create_header if setting name, version, or
   # datatype (these parameters can cause warnings/info prints). Otherwise,
   # suppress output of these messages.
   if (any(!sapply(args[c("name", "version", "datatype")], is.null))) { # nolint:undesirable_function_linter.
