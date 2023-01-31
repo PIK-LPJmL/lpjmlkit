@@ -22,7 +22,7 @@ Useful links:
 Authors:
 \itemize{
   \item Sebastian Ostberg \email{ostberg@pik-potsdam.de} (\href{https://orcid.org/0000-0002-2368-7015}{ORCID})
-  \item Stephen Bjoern Wirth \email{wirth@pik-potsdam.de} (\href{https://orcid.org/0000-0003-3090-3318}{ORCID})
+  \item Stephen Björn Wirth \email{wirth@pik-potsdam.de} (\href{https://orcid.org/0000-0003-3090-3318}{ORCID})
   \item Sara Minoli \email{minoli@pik-potsdam.de} (\href{https://orcid.org/0000-0001-7920-3107}{ORCID})
   \item Fabian Stenzel \email{stenzel@pik-potsdam.de} (\href{https://orcid.org/0000-0002-5109-0048}{ORCID})
   \item Christoph Müller \email{cmueller@pik-potsdam.de} (\href{https://orcid.org/0000-0002-9491-3550}{ORCID})

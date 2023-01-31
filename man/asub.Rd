@@ -10,24 +10,24 @@ asub(x, ..., drop = TRUE)
 asub(x, ...) <- value
 }
 \arguments{
-\item{x}{array with named dimensions}
+\item{x}{An array with named dimensions}
 
 \item{...}{Provide dimension names to be used to subset an \link[base]{array}
 in combination with indices vectors, e.g. \code{cell = c(27411:27416)}, or
 \code{band = -c(14:16, 19:32)} or subset using a "character" vector like
 \code{band = c("rainfed rice","rainfed maize")}.}
 
-\item{drop}{logical. If TRUE (default), dimensions are dropped when dimension
+\item{drop}{Logical. If TRUE (default), dimensions are dropped when dimension
 has length == 1, else dimension is kept.}
 
-\item{value}{array/vector of the same dimension as referred to by dimension
-and subset vector (\code{...})}
+\item{value}{Array/vector of the same dimension as referred to by dimension
+and subset vector (\code{...}).}
 }
 \value{
-array or vector (if \code{drop=TRUE} and one only dimension left)
+Array or vector (if \code{drop=TRUE} and one only one dimension is left)
 }
 \description{
-Subset an array with supplied dimnames and - if defined - replace it.
+Subset an array with the supplied dimnames and - if defined - replace values.
 }
 \section{Functions}{
 \itemize{

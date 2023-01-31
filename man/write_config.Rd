@@ -17,52 +17,53 @@ write_config(
 )
 }
 \arguments{
-\item{params}{a tibble in a defined format (see details)}
+\item{params}{A tibble in a defined format (see details).}
 
-\item{model_path}{character string providing the path to LPJmL
-(equal to LPJROOT)}
+\item{model_path}{Character string providing the path to LPJmL
+(equal to LPJROOT).}
 
-\item{output_path}{character string - if \code{output_path} should differ from
+\item{output_path}{Character string - if \code{output_path} differs from
 \code{model_path} - provide a path where an output, a restart and a configuration
-folder that will be containing each files are created}
+folder are created to store respective data.}
 
-\item{output_list}{character vector containing the \code{"id"} of outputvars.
-If defined only these defined outputs will be written. Defaults to NULL}
+\item{output_list}{Character vector containing the \code{"id"} of outputvars.
+If defined only these defined outputs will be written. Defaults to NULL.}
 
-\item{output_list_timestep}{single character string or character vector
-defining what temporal resolution the defined output from \code{output_list}
+\item{output_list_timestep}{Single character string or character vector
+defining what temporal resolution the defined outputs from \code{output_list}
 should have. Either provide a single character string for all outputs or
-a vector with the length of \code{output_list} defining each individually. Choose
-between \code{"annual"}, \code{"monthly"} or \code{"daily"}.}
+a vector with the length of \code{output_list} defining each timestep
+individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.}
 
-\item{output_format}{character string defining the format of the output.
+\item{output_format}{Character string defining the format of the output.
 Defaults to \code{"raw"}, further options would be \code{"cdf"} (write netcdf) or
-\code{"clm"} (use a header)}
+\code{"clm"} (use a header).}
 
-\item{js_filename}{character string providing name of the main js file to be
-parsed. Default is \code{"lpjml.js"}}
+\item{js_filename}{Character string providing name of the main js file to be
+parsed. Default is \code{"lpjml.js"}.}
 
-\item{parallel_cores}{integer defining the number of available CPU cores for
-parallelization. Defaults to \code{4}}
+\item{parallel_cores}{Integer defining the number of available CPU cores for
+parallelization. Defaults to \code{4}.}
 
-\item{debug}{logical If \code{TRUE} inner parallelization is switched off
-to enable tracebacks and all types of error messages. Defaults to \code{FALSE}}
+\item{debug}{logical If \code{TRUE} the inner parallelization is switched off
+to enable tracebacks and all types of error messages. Defaults to \code{FALSE}.}
 }
 \value{
-\link[tibble]{tibble} with at least columns \code{"sime_name"} defined.
+\link[tibble]{tibble} with at least one column named \code{"sim_name"}.
 If defined in params run parameters \code{"order"} and \code{"dependency"} are
 included. \link[tibble]{tibble} in this format is required for
 \link[lpjmlkit]{submit_lpjml}.
 }
 \description{
 Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
-specific format (see details & examples) to write model configuration files
-\code{"config_*.json"} based on the parameters set in each row (corresponds to
-each model run) to override them from the base file \code{"lpjml.js"}.
+specific format (see details & examples) to write the model configuration
+files \code{"config_*.json"} based on the parameters set in each row (corresponds
+to each model run). \code{"config_*.json"} are based on a js file (e.g.:
+\code{"lpjml_*.js"}).
 }
 \details{
 Supply a \link[tibble]{tibble} for \code{params}, in which each row represents
-a configuration (config) for an LPJmL run. \cr
+a configuration (config) for an LPJmL simulation. \cr
 Here a config is referred to as the precompiled \code{"lpjml.js"} file (or if you
 name it differently, use the \code{js_filename} argument) which links to all other
 mandatory \code{"js"} files. The precompilation is done internally by
@@ -71,7 +72,8 @@ mandatory \code{"js"} files. The precompilation is done internally by
 json using a object-oriented like syntax, e.g. \code{"k_temp"} from \code{"param.js"}
 can be accessed with \code{"param.k_temp"} as the column name. \cr
 For each run and thus each row, this value has to be specified in the
-following. If the original value should instead be used, insert \code{NA}.\cr
+\link[tibble]{tibble}. If the original value should instead be used, insert
+\code{NA}.\cr
 Each run can be identified via the \code{"sim_name"}, which has to be provided in
 the first column. \cr
 
@@ -93,14 +95,15 @@ my_params1
 \subsection{Simulation sequences}{
 
 To set up spin-up and transient runs, where transient runs are dependent on
-the spin-up(s), would be a run parameter \code{"dependency"}  has to be defined
-that link runs with each other using the \code{"sim_name"}. \cr
+the spin-up(s), a parameter \code{"dependency"}  has to be defined as a column in
+the \link[tibble]{tibble} that links simulations with each other using the
+\code{"sim_name"}. \cr
 Do not use "-DFROM_RESTART" when using \code{"dependency"}. Same applies for
-config settings \verb{"restart", }"write_restart", \verb{"write_restart_filename", "restart_filename" and restart}, which is set automatically.
-This way multiple runs can be performed in succession and and in a
-conceivably unlimited nesting.
+config settings \verb{"restart", }"write_restart", \verb{"write_restart_filename", "restart_filename" and restart}, which are set automatically.
+This way multiple runs can be performed in succession and build a
+conceivably endless chain or tree.
 
-\if{html}{\out{<div class="sourceCode R">}}\preformatted{# with dependent runs
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{# With dependent runs.
 my_params3 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
@@ -117,10 +120,10 @@ my_params3
 
 \subsection{SLURM options}{
 
-Another feature is to define slurm options for each run (row) separately.
-E.g. you may want to allocate more time for the spin-up run but less for the
-transient to get a better position in the slurm queue. This can be achieved
-by supplying this option as parameter to \code{param}. \cr
+Another feature is to define slurm options for each simulation (row)
+separately. E.g. you may want to allocate more time for the spin-up run but
+less for the transient to get a better position in the slurm queue. This can
+be achieved by supplying this option as a parameter to \code{param}. \cr
 4 options are availble, namely \code{sclass} \code{ntask}, \code{wtime}, \code{blocking}. \cr
 If specified in \code{param} they overwrite the corresponding function arguments
 in \link[lpjmlkit]{submit_lpjml}.
@@ -143,8 +146,9 @@ my_params4
 
 \subsection{Use of macros}{
 
-To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as you would
-do it beeing a flag in shell: \code{"-DMY_MACRO"} \code{"-DCHECKPOINT"}. \cr
+To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as a column of
+the \link[tibble]{tibble} as you would do with a flag in shell:
+\code{"-DMY_MACRO"} \code{"-DCHECKPOINT"}. \cr
 Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
 raise an error, as starting an object definition with \code{"-"} is not allowed in
 \emph{R}.
@@ -164,26 +168,26 @@ my_params2
 }\if{html}{\out{</div>}}
 }
 
-\subsection{in short}{
+\subsection{In short}{
 \itemize{
 \item \code{write_config} creates subdirectories within the \code{output_path} directory
 \itemize{
-\item \code{"./configurations"} to store the config files
+\item \code{"./configurations"} to store the config files.
 \item \code{"./output"} to store the output within subdirectories for each
-\code{"sim_name"}
+\code{"sim_name"}.
 \item \code{"./restart"} to store the restart files within subdirectories for each
-\code{sim_name}
+\code{sim_name}.
 }
-\item use the "." syntax (e.g. \code{"pftpar.1.name"}) to create column names and thus
-keys for accessing the config json values
-\item the column \code{"sim_name"} is mandatory (used as identifier)
-\item run parameter \code{"dependency"} is optional but lay the basis for subsequent
-runs using \link[lpjmlkit]{submit_lpjml}
-\item specify slurm options in \code{param} if you want to differentiate between the
-runs
-\item if \code{NA} is specified as cell value the original value is used
-\item use \emph{R} booleans/logical constants, namely \code{TRUE} and \code{FALSE}
-\item make sure to set value types correctly
+\item Use the "." syntax (e.g. \code{"pftpar.1.name"}) to create column names and thus
+keys for accessing the config json values.
+\item The column \code{"sim_name"} is mandatory (used as an identifier).
+\item The run parameter \code{"dependency"} is optional but lays the basis for
+subsequent runs using \link[lpjmlkit]{submit_lpjml}.
+\item Specify slurm options in \code{param} if you want these to differ between the
+runs.
+\item If \code{NA} is specified as cell value the original value is used.
+\item Use \emph{R} booleans/logical constants, namely \code{TRUE} and \code{FALSE}.
+\item Make sure to set value types correctly.
 }
 }
 }
@@ -196,7 +200,7 @@ model_path <- "./LPJmL_internal"
 output_path <-"./my_runs"
 
 
-# basic usage
+# Basic usage
 my_params <- tibble(
   sim_name = c("scen1", "scen2"),
   random_seed = c(12, 404),
@@ -218,7 +222,7 @@ config_details
 # 1 scen1
 # 2 scen2
 
-# usage with dependency
+# Usage with dependency
 my_params <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),

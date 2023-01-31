@@ -83,7 +83,7 @@ A BibTeX entry for LaTeX users is
  ```latex
 @Manual{,
   title = {lpjmlkit: Toolkit for basic LPJmL handling},
-  author = {Jannes Breier and Sebastian Ostberg and Stephen Bjoern Wirth and Sara Minoli and Fabian Stenzel and Christoph Müller},
+  author = {Jannes Breier and Sebastian Ostberg and Stephen Björn Wirth and Sara Minoli and Fabian Stenzel and Christoph Müller},
   year = {2023},
   note = {R package version 0.5.19},
   url = {https://github.com/PIK-LPJmL/lpjmlkit},

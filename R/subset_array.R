@@ -94,7 +94,7 @@ subset_array <- function(x,
         " not subsetted."
       )
     }
-  } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { 
+  } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { # nolint:undesirable_function_linter.
     # Remove empty subsets.
     before <- names(subset_list)
     subset_list <- subset_list[which(sapply(subset_list, length) > 0)] # nolint:undesirable_function_linter.

@@ -3,7 +3,7 @@
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 #' specific format (see details & examples) to write the model configuration
 #' files `"config_*.json"` based on the parameters set in each row (corresponds
-#' to each model run). `"config_*.json"` are based on a js file (e.g.: 
+#' to each model run). `"config_*.json"` are based on a js file (e.g.:
 #' `"lpjml_*.js"`).
 #'
 #' @param params A tibble in a defined format (see details).
@@ -131,7 +131,7 @@
 #'
 #'
 #' ### Use of macros
-#' To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as a column of 
+#' To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as a column of
 #' the \link[tibble]{tibble} as you would do with a flag in shell:
 #' `"-DMY_MACRO"` `"-DCHECKPOINT"`. \cr
 #' Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
