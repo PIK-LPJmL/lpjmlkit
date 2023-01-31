@@ -73,7 +73,9 @@ can be accessed with \code{"param.k_temp"} as the column name. \cr
 For each run and thus each row, this value has to be specified in the
 following. If the original value should instead be used, insert \code{NA}.\cr
 Each run can be identified via the \code{"sim_name"}, which has to be provided in
-the first column. \cr\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params1 <- tibble(
+the first column. \cr
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params1 <- tibble(
   sim_name = c("scenario1", "scenario2"),
   random_seed = c(42, 404),
   pftpar.1.name = c("first_tree", NA),
@@ -96,7 +98,9 @@ that link runs with each other using the \code{"sim_name"}. \cr
 Do not use "-DFROM_RESTART" when using \code{"dependency"}. Same applies for
 config settings \verb{"restart", }"write_restart", \verb{"write_restart_filename", "restart_filename" and restart}, which is set automatically.
 This way multiple runs can be performed in succession and and in a
-conceivably unlimited nesting.\if{html}{\out{<div class="sourceCode R">}}\preformatted{# with dependent runs
+conceivably unlimited nesting.
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{# with dependent runs
 my_params3 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
@@ -119,7 +123,9 @@ transient to get a better position in the slurm queue. This can be achieved
 by supplying this option as parameter to \code{param}. \cr
 4 options are availble, namely \code{sclass} \code{ntask}, \code{wtime}, \code{blocking}. \cr
 If specified in \code{param} they overwrite the corresponding function arguments
-in \link[lpjmlkit]{submit_lpjml}.\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params4 <- tibble(
+in \link[lpjmlkit]{submit_lpjml}.
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params4 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
  random_seed = c(42, 404),
  dependency = c(NA, "scen1_spinup"),
@@ -141,7 +147,9 @@ To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as you would
 do it beeing a flag in shell: \code{"-DMY_MACRO"} \code{"-DCHECKPOINT"}. \cr
 Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
 raise an error, as starting an object definition with \code{"-"} is not allowed in
-\emph{R}.\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params2 <- tibble(
+\emph{R}.
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params2 <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = c(42, 404),
   `-DMY_MACRO` = c(TRUE, FALSE),

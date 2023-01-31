@@ -102,21 +102,21 @@ dimension formats with categories and namings}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-as_list}{\code{LPJmLMetaData$as_list()}}
-\item \href{#method-as_header}{\code{LPJmLMetaData$as_header()}}
-\item \href{#method-print}{\code{LPJmLMetaData$print()}}
-\item \href{#method-.__init_grid__}{\code{LPJmLMetaData$.__init_grid__()}}
-\item \href{#method-.__update_subset__}{\code{LPJmLMetaData$.__update_subset__()}}
-\item \href{#method-.__transform_time_format__}{\code{LPJmLMetaData$.__transform_time_format__()}}
-\item \href{#method-.__transform_space_format__}{\code{LPJmLMetaData$.__transform_space_format__()}}
-\item \href{#method-.__set_attribute__}{\code{LPJmLMetaData$.__set_attribute__()}}
-\item \href{#method-new}{\code{LPJmLMetaData$new()}}
-\item \href{#method-clone}{\code{LPJmLMetaData$clone()}}
+\item \href{#method-LPJmLMetaData-as_list}{\code{LPJmLMetaData$as_list()}}
+\item \href{#method-LPJmLMetaData-as_header}{\code{LPJmLMetaData$as_header()}}
+\item \href{#method-LPJmLMetaData-print}{\code{LPJmLMetaData$print()}}
+\item \href{#method-LPJmLMetaData-.__init_grid__}{\code{LPJmLMetaData$.__init_grid__()}}
+\item \href{#method-LPJmLMetaData-.__update_subset__}{\code{LPJmLMetaData$.__update_subset__()}}
+\item \href{#method-LPJmLMetaData-.__transform_time_format__}{\code{LPJmLMetaData$.__transform_time_format__()}}
+\item \href{#method-LPJmLMetaData-.__transform_space_format__}{\code{LPJmLMetaData$.__transform_space_format__()}}
+\item \href{#method-LPJmLMetaData-.__set_attribute__}{\code{LPJmLMetaData$.__set_attribute__()}}
+\item \href{#method-LPJmLMetaData-new}{\code{LPJmLMetaData$new()}}
+\item \href{#method-LPJmLMetaData-clone}{\code{LPJmLMetaData$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_list"></a>}}
-\if{latex}{\out{\hypertarget{method-as_list}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-as_list"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-as_list}{}}}
 \subsection{Method \code{as_list()}}{
 Method to coerce (convert) an \code{LPJmLMetaData} object into a
 \link[base]{list}. \cr
@@ -127,8 +127,8 @@ See also \code{\link{as_list}}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_header"></a>}}
-\if{latex}{\out{\hypertarget{method-as_header}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-as_header"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-as_header}{}}}
 \subsection{Method \code{as_header()}}{
 Method to coerce (convert) an \code{LPJmLMetaData} object into an LPJmL (input)
 header (more info at \code{\link{create_header}}). \cr
@@ -145,8 +145,8 @@ header (more info at \code{\link{create_header}}). \cr
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-print"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-print}{}}}
 \subsection{Method \code{print()}}{
 Method to print an \code{LPJmLMetaData} object.
 See also \link[base]{print}
@@ -166,8 +166,8 @@ relevant (\code{all = FALSE})}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__init_grid__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__init_grid__}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__init_grid__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__init_grid__}{}}}
 \subsection{Method \code{.__init_grid__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -176,8 +176,8 @@ relevant (\code{all = FALSE})}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__update_subset__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__update_subset__}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__update_subset__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__update_subset__}{}}}
 \subsection{Method \code{.__update_subset__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -207,8 +207,8 @@ to update meta data, required if year dimension is subsetted !}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__transform_time_format__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__transform_time_format__}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__transform_time_format__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__transform_time_format__}{}}}
 \subsection{Method \code{.__transform_time_format__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -225,8 +225,8 @@ to update meta data, required if year dimension is subsetted !}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__transform_space_format__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__transform_space_format__}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__transform_space_format__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__transform_space_format__}{}}}
 \subsection{Method \code{.__transform_space_format__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -242,8 +242,8 @@ to update meta data, required if year dimension is subsetted !}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__set_attribute__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__set_attribute__}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-.__set_attribute__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-.__set_attribute__}{}}}
 \subsection{Method \code{.__set_attribute__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -261,8 +261,8 @@ to update meta data, required if year dimension is subsetted !}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new LPJmLMetaData object
 \subsection{Usage}{
@@ -284,8 +284,8 @@ that are not included in file header. These are
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LPJmLMetaData-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLMetaData-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

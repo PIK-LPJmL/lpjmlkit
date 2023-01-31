@@ -42,17 +42,15 @@ LPJmLData$set("private",
 #'
 #' @param x [LPJmLData] object
 #'
-#' @param ... Further arguments to be passed on to \link[base]{dimnames}
-#'
 #' @md
 #' @export
-dimnames.LPJmLData <- function(x, ...) x$dimnames(...)
+dimnames.LPJmLData <- function(x) x$dimnames()
 
 # dimensions (list) of the array of an LPJmLData object.
 LPJmLData$set("private",
               ".dimnames",
-              function(...) {
-    dimnames(self$data, ...)
+              function() {
+    dimnames(self$data)
   }
 )
 

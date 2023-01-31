@@ -7,20 +7,47 @@
 set_header_item(header, ...)
 }
 \arguments{
-\item{header}{LPJmL file header as returned by \code{read_header()} or
+\item{header}{An LPJmL file header as returned by \code{read_header()} or
 \code{create_header()}.}
 
-\item{...}{Header items to set. Can be one or several of 'name', 'version',
+\item{...}{Named header items to set. Can be one or several of 'name', 'version',
 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
 'endian'.}
 }
 \value{
-Header 'header' where items included in parameters have been changed.
+Header 'header' where items header items supplied through the
+ellipsis have been changed.
 }
 \description{
 Convenience function to set information in a header object as
-returned by \code{read_header()} or \code{create_header()}. You can set one or several
+returned by \code{read_header()} or \code{create_header()}. One or several
+}
+\examples{
+\dontrun{
+header <- create_header(
+  name = "LPJGRID",
+  version = 3,
+  order = 1,
+  firstyear = 1901,
+  nyear = 1,
+  firstcell = 0,
+  ncell = 67420,
+  nbands = 2,
+  cellsize_lon = 0.5,
+  scalar = 1.0,
+  cellsize_lat = 0.5,
+  datatype = 3,
+  nstep = 1,
+  timestep = 1,
+  endian = .Platform$endian,
+  verbose = TRUE
+)
+
+set_header_item(header = header,
+ ncell = 1)
+}
+
 }
 \seealso{
 \itemize{

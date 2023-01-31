@@ -7,15 +7,16 @@
 read_config(filename)
 }
 \arguments{
-\item{filename}{character string representing path
-(if differs from current working directory) and filename}
+\item{filename}{Character string representing path
+(if different from current working directory) and filename}
 }
 \value{
-nested list object representing the structure of \code{config_*.json}
+A nested list object representing the structure of \code{config_*.json}
 }
 \description{
-Reads a config JSON file (not \code{lpjml.js}!, but its precompiled version
-using \code{parse_config} and turns it into a nested list object.
+Reads a config JSON file (not \code{lpjml.js}!, but its precompiled version which
+can be generated using \code{parse_config} or running \verb{cpp -P filename.js}) and
+turns it into a nested list object.
 }
 \examples{
 \dontrun{

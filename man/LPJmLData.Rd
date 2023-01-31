@@ -32,30 +32,30 @@ be performed directly on the object)}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-add_grid}{\code{LPJmLData$add_grid()}}
-\item \href{#method-subset}{\code{LPJmLData$subset()}}
-\item \href{#method-transform}{\code{LPJmLData$transform()}}
-\item \href{#method-as_array}{\code{LPJmLData$as_array()}}
-\item \href{#method-as_tibble}{\code{LPJmLData$as_tibble()}}
-\item \href{#method-as_raster}{\code{LPJmLData$as_raster()}}
-\item \href{#method-as_terra}{\code{LPJmLData$as_terra()}}
-\item \href{#method-plot}{\code{LPJmLData$plot()}}
-\item \href{#method-length}{\code{LPJmLData$length()}}
-\item \href{#method-dim}{\code{LPJmLData$dim()}}
-\item \href{#method-dimnames}{\code{LPJmLData$dimnames()}}
-\item \href{#method-summary}{\code{LPJmLData$summary()}}
-\item \href{#method-print}{\code{LPJmLData$print()}}
-\item \href{#method-.__transform_grid__}{\code{LPJmLData$.__transform_grid__()}}
-\item \href{#method-.__set_data__}{\code{LPJmLData$.__set_data__()}}
-\item \href{#method-.__set_grid__}{\code{LPJmLData$.__set_grid__()}}
-\item \href{#method-.__set_lock__}{\code{LPJmLData$.__set_lock__()}}
-\item \href{#method-new}{\code{LPJmLData$new()}}
-\item \href{#method-clone}{\code{LPJmLData$clone()}}
+\item \href{#method-LPJmLData-add_grid}{\code{LPJmLData$add_grid()}}
+\item \href{#method-LPJmLData-subset}{\code{LPJmLData$subset()}}
+\item \href{#method-LPJmLData-transform}{\code{LPJmLData$transform()}}
+\item \href{#method-LPJmLData-as_array}{\code{LPJmLData$as_array()}}
+\item \href{#method-LPJmLData-as_tibble}{\code{LPJmLData$as_tibble()}}
+\item \href{#method-LPJmLData-as_raster}{\code{LPJmLData$as_raster()}}
+\item \href{#method-LPJmLData-as_terra}{\code{LPJmLData$as_terra()}}
+\item \href{#method-LPJmLData-plot}{\code{LPJmLData$plot()}}
+\item \href{#method-LPJmLData-length}{\code{LPJmLData$length()}}
+\item \href{#method-LPJmLData-dim}{\code{LPJmLData$dim()}}
+\item \href{#method-LPJmLData-dimnames}{\code{LPJmLData$dimnames()}}
+\item \href{#method-LPJmLData-summary}{\code{LPJmLData$summary()}}
+\item \href{#method-LPJmLData-print}{\code{LPJmLData$print()}}
+\item \href{#method-LPJmLData-.__transform_grid__}{\code{LPJmLData$.__transform_grid__()}}
+\item \href{#method-LPJmLData-.__set_data__}{\code{LPJmLData$.__set_data__()}}
+\item \href{#method-LPJmLData-.__set_grid__}{\code{LPJmLData$.__set_grid__()}}
+\item \href{#method-LPJmLData-.__set_lock__}{\code{LPJmLData$.__set_lock__()}}
+\item \href{#method-LPJmLData-new}{\code{LPJmLData$new()}}
+\item \href{#method-LPJmLData-clone}{\code{LPJmLData$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_grid"></a>}}
-\if{latex}{\out{\hypertarget{method-add_grid}{}}}
+\if{html}{\out{<a id="method-LPJmLData-add_grid"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-add_grid}{}}}
 \subsection{Method \code{add_grid()}}{
 Method to add a grid to an \code{LPJmLData} object.
 See also \code{\link{add_grid}}
@@ -72,8 +72,8 @@ See also \code{\link{add_grid}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-subset"></a>}}
-\if{latex}{\out{\hypertarget{method-subset}{}}}
+\if{html}{\out{<a id="method-LPJmLData-subset"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-subset}{}}}
 \subsection{Method \code{subset()}}{
 Method to use dimension names of \code{LPJmLData$data}
 array directly to subset each dimension to match the supplied vectors.
@@ -90,8 +90,8 @@ array directly to subset each dimension to match the supplied vectors.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-transform"></a>}}
-\if{latex}{\out{\hypertarget{method-transform}{}}}
+\if{html}{\out{<a id="method-LPJmLData-transform"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-transform}{}}}
 \subsection{Method \code{transform()}}{
 Method to transform inner \code{LPJmLData$data} array
 into another space or another time format.
@@ -108,8 +108,8 @@ into another space or another time format.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_array"></a>}}
-\if{latex}{\out{\hypertarget{method-as_array}{}}}
+\if{html}{\out{<a id="method-LPJmLData-as_array"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-as_array}{}}}
 \subsection{Method \code{as_array()}}{
 Method to coerce (convert) an \code{LPJmLData} object into an
 \link[base]{array}.
@@ -126,8 +126,8 @@ Method to coerce (convert) an \code{LPJmLData} object into an
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_tibble"></a>}}
-\if{latex}{\out{\hypertarget{method-as_tibble}{}}}
+\if{html}{\out{<a id="method-LPJmLData-as_tibble"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-as_tibble}{}}}
 \subsection{Method \code{as_tibble()}}{
 Method to coerce (convert) an \code{LPJmLData} object into a
 \link[tibble]{tibble} (modern \link[base]{data.frame}).
@@ -144,8 +144,8 @@ Method to coerce (convert) an \code{LPJmLData} object into a
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_raster"></a>}}
-\if{latex}{\out{\hypertarget{method-as_raster}{}}}
+\if{html}{\out{<a id="method-LPJmLData-as_raster"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-as_raster}{}}}
 \subsection{Method \code{as_raster()}}{
 Method to coerce (convert) an \code{LPJmLData} object into a
 \link[raster]{raster} or \link[raster]{brick} object, that can be used
@@ -163,8 +163,8 @@ for any GIS-based raster operations.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-as_terra"></a>}}
-\if{latex}{\out{\hypertarget{method-as_terra}{}}}
+\if{html}{\out{<a id="method-LPJmLData-as_terra"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-as_terra}{}}}
 \subsection{Method \code{as_terra()}}{
 Method to coerce (convert) an \code{LPJmLData} object into a
 \link[terra]{rast}, that can be used for any GIS-based raster
@@ -182,8 +182,8 @@ operations.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-LPJmLData-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-plot}{}}}
 \subsection{Method \code{plot()}}{
 Method to plot a time-series or raster map of an \code{LPJmLData}
 object.
@@ -200,8 +200,8 @@ object.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-length"></a>}}
-\if{latex}{\out{\hypertarget{method-length}{}}}
+\if{html}{\out{<a id="method-LPJmLData-length"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-length}{}}}
 \subsection{Method \code{length()}}{
 Method to get the length of the data array of an \code{LPJmLData}
 object. \cr
@@ -212,8 +212,8 @@ See also \link[base]{length}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dim"></a>}}
-\if{latex}{\out{\hypertarget{method-dim}{}}}
+\if{html}{\out{<a id="method-LPJmLData-dim"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-dim}{}}}
 \subsection{Method \code{dim()}}{
 Method to get the dimensions of the data array of an
 \code{LPJmLData} object. \cr
@@ -224,8 +224,8 @@ See also \link[base]{dim}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dimnames"></a>}}
-\if{latex}{\out{\hypertarget{method-dimnames}{}}}
+\if{html}{\out{<a id="method-LPJmLData-dimnames"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-dimnames}{}}}
 \subsection{Method \code{dimnames()}}{
 Method to get the dimnames (list) of the data array of an
 \code{LPJmLData} object.
@@ -242,8 +242,8 @@ Method to get the dimnames (list) of the data array of an
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summary"></a>}}
-\if{latex}{\out{\hypertarget{method-summary}{}}}
+\if{html}{\out{<a id="method-LPJmLData-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-summary}{}}}
 \subsection{Method \code{summary()}}{
 Method to get the summary of the data array of an
 \code{LPJmLData} object.
@@ -260,8 +260,8 @@ Method to get the summary of the data array of an
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-LPJmLData-print"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-print}{}}}
 \subsection{Method \code{print()}}{
 Method to print the \code{LPJmLData} object. \cr
 See also \link[base]{print}
@@ -271,8 +271,8 @@ See also \link[base]{print}
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__transform_grid__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__transform_grid__}{}}}
+\if{html}{\out{<a id="method-LPJmLData-.__transform_grid__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-.__transform_grid__}{}}}
 \subsection{Method \code{.__transform_grid__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -288,8 +288,8 @@ See also \link[base]{print}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__set_data__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__set_data__}{}}}
+\if{html}{\out{<a id="method-LPJmLData-.__set_data__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-.__set_data__}{}}}
 \subsection{Method \code{.__set_data__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -305,8 +305,8 @@ See also \link[base]{print}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__set_grid__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__set_grid__}{}}}
+\if{html}{\out{<a id="method-LPJmLData-.__set_grid__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-.__set_grid__}{}}}
 \subsection{Method \code{.__set_grid__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -322,8 +322,8 @@ See also \link[base]{print}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-.__set_lock__"></a>}}
-\if{latex}{\out{\hypertarget{method-.__set_lock__}{}}}
+\if{html}{\out{<a id="method-LPJmLData-.__set_lock__"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-.__set_lock__}{}}}
 \subsection{Method \code{.__set_lock__()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -339,8 +339,8 @@ See also \link[base]{print}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LPJmLData-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-new}{}}}
 \subsection{Method \code{new()}}{
 !Internal method only to be used for package development!
 \subsection{Usage}{
@@ -358,8 +358,8 @@ See also \link[base]{print}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LPJmLData-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

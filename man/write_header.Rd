@@ -7,17 +7,17 @@
 write_header(filename, header, overwrite = FALSE)
 }
 \arguments{
-\item{filename}{Filename to write header into}
+\item{filename}{Filename to write header into.}
 
-\item{header}{The header to be written}
+\item{header}{The header to be written.}
 
-\item{overwrite}{Whether to overwrite an existing output file (default FALSE)}
+\item{overwrite}{Whether to overwrite an existing output file (default FALSE).}
 }
 \value{
 None
 }
 \description{
-Write an LPJmL clm header to a file. The header has to be as list
+Write an LPJmL clm header to a file. The header has to be a list
 following the structure returned by \code{read_header()} or \code{create_header()}.
 The function will fail if the output file exists already unless 'overwrite'
 is set to TRUE.

@@ -15,9 +15,11 @@ A collection of basic functions to facilitate the work with the
 ## Overview
 
 ### **[LPJmL Runner &#127939;](./vignettes/lpjml-runner.md)**  to perform LPJmL simulations
+   *LPJmL Runner only supports appropriately configured Unix-based operating systems.*
 - &#9997; [`write_config()`](./vignettes/lpjml-runner.md#1-clipboard-define-a-table-of-modified-configuration-parameters) write config.json files using a tibble with parameters to be changed and a base lpjml.js file
 - &#128269; [`check_config()`](./vignettes/lpjml-runner.md#2-writing_hand-create-corresponding-configuration-files) check if generated config.json files are valid for LPJmL simulations
-- &#9654; [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or &#128640; [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)
+- &#9654; [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or &#128640; [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)\
+
 
 ### **[LPJmL Data &#128190;](./vignettes/lpjml-data.md)** for reading and processing LPJmL data
 - [`read_io()`](./vignettes/lpjml-data.md#1-book-data-reading-function-read_io) read LPJmL input and output as a [`LPJmLData`](/vignettes/lpjml-data.md#2-file_folder-data-class-lpjmldata) object, containing the data array and LPJmLMetaData

@@ -37,7 +37,7 @@ read_io(
 \item{filename}{Mandatory character string giving the file name to read,
 including its path and extension.}
 
-\item{subset}{Optional list allowing to subset data read from file along
+\item{subset}{Optional list allowing to subset data read from the file along
 one or several of its dimensions. See details for more information.}
 
 \item{band_names}{Optional vector of character strings providing the band
@@ -56,79 +56,80 @@ is incorrect. Valid options:
 "meta", a meta information JSON file complementing a raw or clm file.}
 
 \item{version}{Integer indicating clm file header version, currently supports
-one of 1, 2, 3 or 4.}
+one of 1, 2, 3, or 4.}
 
 \item{order}{Integer value or character string describing the order of data
 items in the file (default in input file: 1; in output file: 4). Valid values
 for LPJmL input/output files are "cellyear" 1, "yearcell" 2, "cellindex" 3,
 "cellseq" 4, although only options 1 and 4 are supported by this function.}
 
-\item{firstyear}{Integer providing first year of data in the file.}
+\item{firstyear}{Integer providing the first year of data in the file.}
 
-\item{nyear}{Integer providing number of years of data included in the file.
-These are not consecutive in case of \code{timestep > 1}.}
+\item{nyear}{Integer providing the number of years of data included in the
+file. These are not consecutive in case of \code{timestep > 1}.}
 
-\item{firstcell}{Integer providing cell index of first data item. 0 by
-default.}
+\item{firstcell}{Integer providing the cell index of the first data item.
+0 by default.}
 
-\item{ncell}{Integer providing number of data items per band.}
+\item{ncell}{Integer providing the number of data items per band.}
 
-\item{nbands}{Integer providing number of bands per time step of data.}
+\item{nbands}{Integer providing the number of bands per time step of data.}
 
-\item{cellsize_lon}{Numeric value providing longitude cell size in degrees.}
+\item{cellsize_lon}{Numeric value providing the longitude cell size in
+degrees.}
 
-\item{scalar}{Numeric value providing conversion factor that needs to be
+\item{scalar}{Numeric value providing a conversion factor that needs to be
 applied to raw data when reading it from file to derive final values.}
 
-\item{cellsize_lat}{Numeric value providing latitude cell size in degrees.}
+\item{cellsize_lat}{Numeric value providing the latitude cell size in degrees.}
 
-\item{datatype}{Integer value or character string describing LPJmL data type
-in file. Supported options: "byte" 0, "short" 1, "int" 2, "float" 3,
-"double" 4.}
+\item{datatype}{Integer value or character string describing the LPJmL data
+type stored in the file. Supported options: "byte" 0, "short" 1, "int" 2,
+"float" 3, "double" 4.}
 
 \item{nstep}{Integer value defining the number of within-year time steps of
 the file. Valid values are 1 (yearly), 12 (monthly), 365 (daily). Defaults to
-1 if not read from file ("clm" or "meta" file) or provided by user.}
+1 if not read from file ("clm" or "meta" file) or provided by the user.}
 
 \item{timestep}{Integer value providing the interval in years between years
-represented in file data. Normally 1, but LPJmL also allows averaging annual
-outputs over several years. Defaults to 1 if not read from file
+represented in the file data. Normally 1, but LPJmL also allows averaging
+annual outputs over several years. Defaults to 1 if not read from file
 ("clm" or "meta" file) or provided by user.}
 
 \item{endian}{Endianness to use for file (either "big" or "little"). By
 default uses endianness determined from file header or set in meta
 information or the platform-specific endianness \code{.Platform$endian} if not set.}
 
-\item{variable}{Optional character string providing name of variable
-contained in file. Included in some JSON meta files. \strong{Important:} If
+\item{variable}{Optional character string providing the name of the variable
+contained in the file. Included in some JSON meta files. \strong{Important:} If
 \verb{"file_type" == "raw} and data should be recognized as a grid, prescribe
-\code{variable = "grid"}!}
+\code{variable = "grid"}.}
 
 \item{descr}{Optional character string providing a more detailed description
-of variable contained in file. Included in some JSON meta files.}
+of the variable contained in the file. Included in some JSON meta files.}
 
-\item{unit}{Optional character string providing unit of data in file.
-Included in some JSON meta files.}
+\item{unit}{Optional character string providing the unit of the data in the
+file. Included in some JSON meta files.}
 
-\item{name}{Optional character string specifying header name. This is usually
-read from CLM headers for \code{file_type = "clm"} but can be specified for the
-other \code{file_type} options.}
+\item{name}{Optional character string specifying the header name. This is
+usually read from clm headers for \code{file_type = "clm"} but can be specified
+for the other \code{file_type} options.}
 
 \item{silent}{If set to TRUE, suppresses most warnings or messages. Use only
-after testing that function works as expected with the files it is being used
-on. Default: FALSE.}
+after testing that \code{read_io} works as expected with the files it is being
+used on. Default: FALSE.}
 }
 \value{
-\link{LPJmLData} object
+An \link{LPJmLData} object
 }
 \description{
 Generic function to read LPJmL input & output files in different
-formats. Depending on the format, arguments can be automatically detected,
-or have to be passed on as individual arguments.
+formats. Depending on the format, arguments can be automatically detected
+or have to be passed as individual arguments.
 }
 \details{
-The \code{file_type} determines which arguments are mandatory, optional,
-or not allowed. \code{filename} must always be provided. \code{file_type} is usually
+The \code{file_type} determines which arguments are mandatory or
+optional. \code{filename} must always be provided. \code{file_type} is usually
 detected automatically. Supply only if detected \code{file_type} is incorrect.
 
 In case of \code{file_type = "meta"}, if any of the function arguments not listed
@@ -137,10 +138,10 @@ is given, but they are still overwritten. Normally, you would only set meta
 attributes not set in the JSON file.
 
 In case of \code{file_type = "clm"}, function arguments not listed as "optional"
-are normally determined automatically from the file header included in the
-CLM file. Users may still provide any of these arguments to overwrite values
+are usually determined automatically from the file header included in the
+clm file. Users may still provide any of these arguments to overwrite values
 read from the file header, e.g. when they know that the values in the file
-header are wrong. Also, CLM headers with versions < 4 do not contain all
+header are wrong. Also, clm headers with versions < 4 do not contain all
 header attributes, with missing attributes filled with default values that
 may not be correct for all files.
 
@@ -155,14 +156,14 @@ names are "band", "cell", and "year".
 \itemize{
 \item "year" can be used to return data for a subset of one or several years
 included in the file. Integer indices can be between 1 and \code{nyear}. If
-subsetting by actual calendar years (starting at \code{firstyear}) supply a
-character vector.
+subsetting by actual calendar years (starting at \code{firstyear}) a
+character vector has to be supplied.
 \item "band" can be used to return data for a subset of one or several bands
 included in the file. These can be specified either as integer indices or as
 a character vector if bands are named.
 \item "cell" can be used to return data for a subset of cells. Note that integer
 indices start counting at 1, whereas character indices start counting at the
-\code{firstcell} parameter (usually 0).
+value of \code{firstcell} (usually 0).
 }
 }
 \examples{
@@ -175,13 +176,13 @@ my_data <- read_io("my_file.json")
 # Suppose that file data has two bands named "wheat" and "rice". `band_names`
 # are included in the JSON meta file. Select only the "wheat" band during
 # reading and discard the "rice" band. Also, read only data for years
-# 1910-1920
+# 1910-1920.
 my_data_wheat <- read_io(
   "my_file.json",
   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 )
 
-# Read data from CLM file. This includes a header describing the file
+# Read data from clm file. This includes a header describing the file
 # structure.
 my_data_clm <- read_io("my_file.clm")
 
@@ -198,8 +199,8 @@ my_data_wheat <- read_io(
   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
 )
 
-# Read data from raw binary file. Information about file structure needs to
-# be supplied. Use default values except for `nyear` (1 by default), and
+# Read data from raw binary file. All information about file structure needs
+# to be supplied. Use default values except for `nyear` (1 by default), and
 # `nbands` (also 1 by default).
 my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
 

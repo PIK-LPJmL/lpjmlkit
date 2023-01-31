@@ -5,12 +5,10 @@
 \title{Dimnames of an LPJmLData data array
 Function to get the dimnames (list) of the data array of an LPJmLData object.}
 \usage{
-\method{dimnames}{LPJmLData}(x, ...)
+\method{dimnames}{LPJmLData}(x)
 }
 \arguments{
 \item{x}{\link{LPJmLData} object}
-
-\item{...}{Further arguments to be passed on to \link[base]{dimnames}}
 }
 \description{
 Dimnames of an LPJmLData data array
