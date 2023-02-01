@@ -27,20 +27,39 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' @param ... See [`add_grid`]
     add_grid = function(...) {
 
-      # check for locked objects
+      # Check for locked objects
       check_method_locked(self, "add_grid")
-
-      # check if meta file for grid is located in output location
-      grid_file <- list.files(private$.meta$._data_dir_,
-                              pattern = "grid.bin.json")
-
-      if (length(grid_file) == 1) {
-
-        # if so get concatenate existing file and data_dir to read grid
-        filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
-
-        # add support for cell subsets - this is a rough filter since $subset
-        #   does not say if cell is subsetted - but ok for now
+      
+      if (...length() == 0) {
+      # If user has not supplied any parameters try to find a grid file in the
+      # same directory as data
+        grid_files <- list.files(
+          path = private$.meta$._data_dir_,
+          pattern = "^grid(\\.[[:alpha:]]{3,4})+$",
+          full.names = TRUE
+        )
+        if (length(grid_files) > 0) {
+          grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+          # Prefer "meta" file_type if present
+          if (length(which(grid_types == "meta")) == 1) {
+            filename <- grid_files[match("meta", grid_types)]
+          } else if (length(which(grid_types == "clm")) == 1) {
+            # Second priority "clm" file_type
+            filename <- grid_files[match("clm", grid_types)]
+          } else {
+            stop(
+              "Cannot detect grid file automatically.\n",
+              "$add_grid has to be called supplying parameters as for read_io."
+            )
+          }
+        } else {
+          stop(
+            "Cannot detect grid file automatically.\n",
+            "$add_grid has to be called supplying parameters as for read_io."
+          )
+        }
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
           self$.__set_grid__(
             read_io(
@@ -53,29 +72,22 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
             read_io(filename = filename)
           )
         }
-
       } else {
 
-        # all arguments have to be provided manually via read_io args
-        #   ellipsis (...) does that
-        # check if arguments are provided
-        if (length(as.list(match.call())) > 1) {
+        # All arguments have to be provided manually to read_io.
+        #   Ellipsis (...) does that.
 
-          if (private$.meta$._subset_space_) {
-            self$.__set_grid__(
-              read_io(...,
-                      subset = list(cell = self$dimnames()[["cell"]]))
-            )
-          } else {
-            self$.__set_grid__(
-              read_io(...)
-            )
-          }
-
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
+        if (private$.meta$._subset_space_) {
+          self$.__set_grid__(
+            read_io(...,
+                    subset = list(cell = self$dimnames()[["cell"]]))
+          )
         } else {
-          stop(paste("If no meta file is available $add_grid",
-                     "has to be called explicitly with args as read_io."))
+          self$.__set_grid__(read_io(...))
         }
+
       }
 
       private$.grid$.__set_lock__(is_locked = TRUE)
@@ -442,31 +454,32 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #   x, execute function on copied object and return ("traditional way")
 
 
-#' Add grid to LPJmLData object
+#' Add grid to an LPJmLData object
 #'
-#' Function to add a grid to a [`LPJmLData`]. The function acts
-#' as a [`read_io`] function for the grid file and adds it as an
-#' `LPJmLData` object itself to the the main object as an attribute `$grid`
+#' Function to add a grid to an [`LPJmLData`] object. The function acts
+#' as a [`read_io`] wrapper for the grid file and adds it as an
+#' `LPJmLData` object itself to the the main object as an attribute `$grid`.
 #'
 #' @details
 #' **Important:**
-#' * If `"file_type" == "raw"` and data should be recognized as a
-#' grid, prescribe `variable = "grid"`!
-#' * Do not use [read_io] argument `subset` here!
-#' @param x [LPJmLData] object
+#' * If `"file_type" == "raw"` prescribe `variable = "grid"` to ensure that data
+#' are recognized as a grid.
+#' * Do not use [read_io] argument `subset` here. `add_grid` will use the subset
+#' of the parent [LPJmLData] object `x`.
+#' @param x [LPJmLData] object.
 #'
-#' @param ... arguments passed to [`read_io`] if no grid file and or meta
-#' file in corresponding output directory available.
+#' @param ... Arguments passed to [`read_io`]. Can be left empty to search for
+#' a grid file in the same directory `x` was loaded from.
 #'
-#' @return [`LPJmLData`] object in selected format
+#' @return [`LPJmLData`] object with added $grid attribute.
 #'
 #' @examples
 #' \dontrun{
 #'
-#' # read in vegetation carbon data with meta file
+#' # Read in vegetation carbon data with meta file
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # add grid as attribute (via meta file in output directory)
+#' # Add grid as attribute (via grid file in output directory)
 #' vegc_with_grid <- add_grid(vegc)
 #'
 #' }

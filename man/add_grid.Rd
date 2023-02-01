@@ -2,39 +2,40 @@
 % Please edit documentation in R/LPJmLData.R
 \name{add_grid}
 \alias{add_grid}
-\title{Add grid to LPJmLData object}
+\title{Add grid to an LPJmLData object}
 \usage{
 add_grid(x, ...)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{x}{\link{LPJmLData} object.}
 
-\item{...}{arguments passed to \code{\link{read_io}} if no grid file and or meta
-file in corresponding output directory available.}
+\item{...}{Arguments passed to \code{\link{read_io}}. Can be left empty to search for
+a grid file in the same directory \code{x} was loaded from.}
 }
 \value{
-\code{\link{LPJmLData}} object in selected format
+\code{\link{LPJmLData}} object with added $grid attribute.
 }
 \description{
-Function to add a grid to a \code{\link{LPJmLData}}. The function acts
-as a \code{\link{read_io}} function for the grid file and adds it as an
-\code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}
+Function to add a grid to an \code{\link{LPJmLData}} object. The function acts
+as a \code{\link{read_io}} wrapper for the grid file and adds it as an
+\code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}.
 }
 \details{
 \strong{Important:}
 \itemize{
-\item If \code{"file_type" == "raw"} and data should be recognized as a
-grid, prescribe \code{variable = "grid"}!
-\item Do not use \link{read_io} argument \code{subset} here!
+\item If \code{"file_type" == "raw"} prescribe \code{variable = "grid"} to ensure that data
+are recognized as a grid.
+\item Do not use \link{read_io} argument \code{subset} here. \code{add_grid} will use the subset
+of the parent \link{LPJmLData} object \code{x}.
 }
 }
 \examples{
 \dontrun{
 
-# read in vegetation carbon data with meta file
+# Read in vegetation carbon data with meta file
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# add grid as attribute (via meta file in output directory)
+# Add grid as attribute (via grid file in output directory)
 vegc_with_grid <- add_grid(vegc)
 
 }
