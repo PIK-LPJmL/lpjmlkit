@@ -68,7 +68,7 @@ plot.LPJmLData <- function(x,
 }
 
 # plot method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
+LPJmLData$set("private", # nolint:cyclocomp_linter.
               ".plot",
               function(subset = NULL,
                        aggregate = NULL,
@@ -185,7 +185,7 @@ LPJmLData$set("private",
 
     # subset first 9 (later) raster layers (only 9 can be visualized well)
     #   for performance reasons already here
-    if (dim(data_subset)[z_dim] > 9) {
+    if (z_dim %in% names(dim(data_subset)) && dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
         subset_array(data_subset$data,
                      as.list(stats::setNames(list(seq_len(9)), z_dim)))
