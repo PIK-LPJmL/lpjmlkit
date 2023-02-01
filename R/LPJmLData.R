@@ -42,16 +42,12 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # add support for cell subsets - this is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now
         if (private$.meta$._subset_space_) {
-          self$.__set_grid__(
-            read_io(
+          lpjml_data <- read_io(
               filename = filename,
               subset = list(cell = self$dimnames()[["cell"]])
             )
-          )
         } else {
-          self$.__set_grid__(
-            read_io(filename = filename)
-          )
+          lpjml_data <- read_io(filename = filename)
         }
 
       } else {
@@ -62,14 +58,12 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         if (length(as.list(match.call())) > 1) {
 
           if (private$.meta$._subset_space_) {
-            self$.__set_grid__(
-              read_io(...,
-                      subset = list(cell = self$dimnames()[["cell"]]))
+            lpjml_data <- read_io(
+              ...,
+              subset = list(cell = self$dimnames()[["cell"]])
             )
           } else {
-            self$.__set_grid__(
-              read_io(...)
-            )
+            lpjml_data <- read_io(...)
           }
 
         } else {
@@ -77,6 +71,12 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
                      "has to be called explicitly with args as read_io."))
         }
       }
+
+      # Create LPJmLData object and bring together data and meta_data
+      lpjml_grid <- LPJmLGridData$new(lpjml_data)
+
+      # set grid attribute
+      self$.__set_grid__(lpjml_grid)
 
       private$.grid$.__set_lock__(is_locked = TRUE)
     },
@@ -266,8 +266,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
 
-      if (is.null(private$.meta$variable) ||
-      private$.meta$variable != "grid") {
+      if (class(self)[1] == "LPJmLData") {
         cat(paste0("\u001b[33;3m",
                    "Note: summary is not weighted by grid area.",
                    unset_col,
@@ -344,17 +343,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       }
 
       private$.data <- data
-
-      if (!is.null(private$.meta$variable)) {
-
-        if (private$.meta$variable == "grid") {
-          private$init_grid()
-
-        } else if (private$.meta$variable == "LPJGRID") {
-          private$.meta$.__set_attribute__("variable", "grid")
-          private$init_grid()
-        }
-      }
     }
   ),
 
@@ -404,26 +392,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
   private = list(
-
-    # init grid if variable == "grid"
-    init_grid = function() {
-
-      # update grid data
-      if (dim(private$.data)[["band"]] == 2) {
-        dimnames(private$.data)[["band"]] <- c("lon", "lat")
-      } else {
-        stop("Unknown number of bands for grid initialization.")
-      }
-
-      # update grid meta data
-      self$.__set_data__(
-        drop_omit(self$data, omit = "cell")
-      )
-
-      private$.meta$.__init_grid__()
-
-      return(invisible(self))
-    },
 
     .meta = NULL,
 
