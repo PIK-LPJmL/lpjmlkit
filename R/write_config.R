@@ -276,7 +276,8 @@ write_config <- function(params,
     showWarnings = FALSE
   )
 
-  if (!"order" %in% colnames(params)) {
+  # check if dependency exists but not order - calculate order automatically
+  if ("dependency" %in% colnames(params) && !"order" %in% colnames(params)) {
     params <- get_order(params)
   }
 
