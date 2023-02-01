@@ -14,7 +14,7 @@ write_header(filename, header, overwrite = FALSE)
 \item{overwrite}{Whether to overwrite an existing output file (default FALSE).}
 }
 \value{
-None
+Returns \code{filename} invisibly.
 }
 \description{
 Write an LPJmL clm header to a file. The header has to be a list

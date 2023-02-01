@@ -10,7 +10,7 @@
 #' @param header The header to be written.
 #' @param overwrite Whether to overwrite an existing output file (default FALSE).
 #'
-#' @return None
+#' @return Returns `filename` invisibly.
 #'
 #' @seealso
 #' * [create_header()] for creating headers from scratch and for a more
