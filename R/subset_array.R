@@ -45,7 +45,7 @@ asub <- function(x,
 
 #' @describeIn asub replace an array subset
 #' @export
-"asub<-" <- function(x, ..., value) {
+`asub<-` <- function(x, ..., value) {
   argum <- c(alist(x),
              subarray_argument(x, list(...)), alist(value))
   do.call("[<-", argum) %>%
@@ -94,8 +94,8 @@ subset_array <- function(x,
         " not subsetted."
       )
     }
-  } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { # nolint:undesirable_function_linter.
-    # Remove empty subsets.
+  } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { # nolint:undesirable_function_linter
+    # Remove empty subsets
     before <- names(subset_list)
     subset_list <- subset_list[which(sapply(subset_list, length) > 0)] # nolint:undesirable_function_linter.
     if (length(subset_list) < length(before) && !silent) {
