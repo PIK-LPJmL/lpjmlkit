@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' my_array <- array(1,
-#'                   dim=c(cell = 67, month=12, band = 3),
+#'                   dim=c(cell = 67, month = 12, band = 3),
 #'                   dimnames = list(cell = 0:66,
 #'                                 month = 1:12,
 #'                                 band = c("band1", "band2", "band3")))
