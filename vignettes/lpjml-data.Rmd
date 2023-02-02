@@ -65,7 +65,7 @@ or exported (5) to common data formats.
                    # manually so that month dimension is recognized correctly.
                    nbands = 1,
                    nstep = 12,
-                   # Useful additional information that is not needed to read the Data
+                   # Useful additional information that is not needed to read the
                    # Data.
                    variable = "runoff",
                    descr = "monthly runoff",
