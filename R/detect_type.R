@@ -24,19 +24,19 @@ detect_type <- function(filename) {
   file_check <- readBin(filename, raw(), n = min(file.size(filename), 1024))
   on.exit(rm(file_check)) # nolint:undesirable_function_linter.
   # First check for "clm". The file header should always start with "LPJ".
-  if (all(
+  if (length(file_check) > 3 && all(
     rawToChar(utils::head(file_check, 3), multiple = TRUE) == c("L", "P", "J")
   )) {
     return("clm")
   }
   # Next, check for NetCDF format.
-  if (all(
+  if ((length(file_check) > 3 && all(
     rawToChar(utils::head(file_check, 3), multiple = TRUE) ==
     c("C", "D", "F") # classic NetCDF format
-  ) || all(
+  )) || (length(file_check) > 8 && all(
     utils::head(file_check, 8) ==
     c(0x89, 0x48, 0x44, 0x46, 0x0d, 0x0a, 0x1a, 0x0a) # HDF5/NetCDF4 format
-  )) {
+  ))) {
     return("cdf")
   }
   # Next, check if file contains only text. This could be JSON or other text

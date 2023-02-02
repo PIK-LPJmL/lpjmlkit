@@ -479,12 +479,6 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    if (!is.null(private$.meta$variable) &&
-        private$.meta$variable == "grid" &&
-        private$.meta$._space_format_ == "cell") {
-      stop(paste("not legit for variable", private$.meta$variable))
-    }
-
     # support of lazy loading of grid for meta files else add explicitly
     if (is.null(private$.grid) &&
         private$.meta$._space_format_ == "cell") {
