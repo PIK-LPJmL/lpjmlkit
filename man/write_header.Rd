@@ -11,16 +11,17 @@ write_header(filename, header, overwrite = FALSE)
 
 \item{header}{The header to be written.}
 
-\item{overwrite}{Whether to overwrite an existing output file (default FALSE).}
+\item{overwrite}{Whether to overwrite an existing output file
+(default \code{FALSE}).}
 }
 \value{
 Returns \code{filename} invisibly.
 }
 \description{
 Write an LPJmL clm header to a file. The header has to be a list
-following the structure returned by \code{read_header()} or \code{create_header()}.
-The function will fail if the output file exists already unless 'overwrite'
-is set to TRUE.
+following the structure returned by \code{\link[=read_header]{read_header()}} or \code{\link[=create_header]{create_header()}}.
+The function will fail if the output file exists already unless \code{overwrite}
+is set to \code{TRUE}.
 }
 \examples{
 \dontrun{

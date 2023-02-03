@@ -17,8 +17,8 @@ the dimension has a dimnames attribute, e.g.
 \code{band = c("rainfed rice", "rainfed maize")}.}
 }
 \value{
-An \code{\link{LPJmLData}} object with dimensions resulting from the selection in
-'subset'. Meta data are updated as well.
+An \code{\link{LPJmLData}} object with dimensions resulting from the selection
+in \code{subset}. Meta data are updated as well.
 }
 \description{
 Function to extract a subset of the full data in an \code{\link{LPJmLData}} object by
@@ -29,7 +29,7 @@ applying selections along one or several of its dimensions.
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# Subset cells by index.
+# Subset cells by index
 subset(vegc, cell = seq(27410, 27415))
 # [...]
 # $data \%>\%
@@ -39,7 +39,7 @@ subset(vegc, cell = seq(27410, 27415))
 #     .$band  "1"
 # [...]
 
-# Subset time by character vector.
+# Subset time by character vector
 subset(vegc, time = c("2001-12-31", "2002-12-31", "2003-12-31"))
 # [...]
 # $data \%>\%

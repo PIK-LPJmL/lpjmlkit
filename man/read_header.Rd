@@ -2,20 +2,20 @@
 % Please edit documentation in R/read_header.R
 \name{read_header}
 \alias{read_header}
-\title{Read header (any version) from LPJmL file}
+\title{Read header (any version) from LPJmL input/output file}
 \usage{
 read_header(filename, force_version = NULL, verbose = TRUE)
 }
 \arguments{
 \item{filename}{Filename to read header from.}
 
-\item{force_version}{Manually set clm version (default value 'NULL' means
-that the version is determined automatically from the header; set only if
-the version number in the file is incorrect).}
+\item{force_version}{Manually set clm version. The default value \code{NULL} means
+that the version is determined automatically from the header. Set only if
+the version number in the file header is incorrect.}
 
-\item{verbose}{If TRUE (the default), \code{read_header} provides some feedback
-when using default values for missing parameters. If FALSE, only errors are
-reported.}
+\item{verbose}{If \code{TRUE} (the default), \code{read_header} provides some feedback
+when using default values for missing parameters. If \code{FALSE}, only errors
+are reported.}
 }
 \value{
 The function returns a list with 3 components:
@@ -26,7 +26,7 @@ The function returns a list with 3 components:
 'cellsize_lat', 'datatype', 'nstep', 'timestep') describing the file
 structure. If header version is <4, the header is partially filled with
 default values.
-\item endian: Endianness of file ("little" or "big").
+\item endian: Endianness of file (\code{"little"} or \code{"big"}).
 }
 }
 \description{

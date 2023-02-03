@@ -10,19 +10,17 @@
 \item{x}{\link{LPJmLData} object}
 
 \item{subset}{List of array dimension(s) as name/key and
-corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27416)}. More information at
-\code{\link{subset.LPJmLData}}.}
+corresponding subset vector as value, e.g. \code{list(cell = c(27411:27416))}.
+More information at \code{\link[=subset.LPJmLData]{subset.LPJmLData()}}.}
 
 \item{aggregate}{List of array dimension(s) as name/key and
-corresponding aggregation function as value, e.g.
-\code{list(band = sum)}.}
+corresponding aggregation function as value, e.g. \code{list(band = sum)}.}
 
 \item{raster_extent}{Optional parameter to crop map display of spatial data.
 An \link[raster]{extent} or any object from which an Extent object can be
 extracted. Not relevant if \code{aggregate} includes spatial dimension.}
 
-\item{...}{Arguments forwarded to \link[graphics]{plot} and
+\item{...}{Arguments passed to \link[graphics]{plot} and
 \link[raster]{plot}}
 }
 \description{
@@ -30,8 +28,8 @@ Function to plot a time-series or raster map of an \code{\link{LPJmLData}}
 object.
 }
 \details{
-Depending on the dimensions of the \link{LPJmLData} objects internal data array the
-plot will be a ...
+Depending on the dimensions of the \link{LPJmLData} object's internal data array
+the plot will be a ...
 \itemize{
 \item single map plot: more than 8 \code{"cell"}s or \code{"lat"} & \code{"lon"} dimensions
 available)
@@ -41,11 +39,12 @@ available)
 \item lat/lon plot: a subsetted/aggregated \code{"lat"} or \code{"lon"} dimension
 }
 
-The plotting can only handle 2-3 dimensions, use arguments \code{subset} and
-\code{aggregate} to get the desired outcome. If more dimensions have length > 1,
-plot will return an error by suggesting to reduce number of dimensions
+The plot can only handle 2-3 dimensions. Use arguments \code{subset} and
+\code{aggregate} to modify \code{x$data} to the desired plot type. If more than three
+dimensions have length > 1,' plot will return an error and suggest to reduce
+the number of dimensions.
 
-\emph{Note that the plot function aims to provide a quick overview of the data,
+\emph{Note that the plot function aims to provide a quick overview of the data
 rather than create publication-ready graphs.}
 }
 \examples{
@@ -53,18 +52,19 @@ rather than create publication-ready graphs.}
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# Plot first 9 years starting from 1901 as a raster plot.
+# Plot first 9 years starting from 1901 as a raster plot
 plot(vegc)
 
-# Plots raster with mean over the whole time series.
+# Plot raster with mean over the whole time series
 plot(vegc,
      aggregate = list(time = mean))
 
-# Plot only year 2010 as a raster.
+# Plot only year 2010 as a raster
 plot(vegc,
      subset = list(time = "2010"))
 
-# Plot first 10 time steps as global mean time series.
+# Plot first 10 time steps as global mean time series. Note: Aggregation
+# across cells is not area-weighted.
 plot(vegc,
      subset = list(time = 1:10),
      aggregate = list(cell = mean))

@@ -12,7 +12,7 @@ create_time_names <- function(
 
   # Number of days per month.
   ndays_in_month <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31) %>%
-    # Subset months if defined.
+    # Subset months if defined
     { # nolint
       if (is.null(months)) . else .[months]
     }
@@ -61,7 +61,7 @@ create_time_names <- function(
   } else if (nstep == 1) {
     time_dimnames <- paste(years, 12, 31, sep = "-")
 
-  # Currently no support for other (special) nstep cases.
+  # Currently no support for other (special) nstep cases
   } else {
     stop(paste0("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365"))
   }
@@ -71,11 +71,11 @@ create_time_names <- function(
 
 split_time_names <- function(time_names) {
 
-  # Split time string "year-month-day" into year, month, day int vector.
+  # Split time string "year-month-day" into year, month, day integer vector
   time_split <- strsplit(time_names, "-") %>%
     lapply(function(x) as.character(as.integer(x)))
 
-  # Create corresponding dimnames for disaggregated array by unique entry.
+  # Create corresponding dimnames for disaggregated array by unique entry
   matrix(unlist(time_split),
          nrow = length(time_split),
          byrow = TRUE,

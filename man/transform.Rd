@@ -7,11 +7,12 @@
 transform(x, to)
 }
 \arguments{
-\item{x}{An \link{LPJmLData} object}
+\item{x}{An \link{LPJmLData} object.}
 
-\item{to}{A Character vector defining space and/or time format into which
+\item{to}{A character vector defining space and/or time format into which
 the corresponding data dimensions should be transformed. Choose from space
-formats \code{c("cell", "lon_lat")} and time formats \code{c("time","year_month_day")}.}
+formats \code{c("cell", "lon_lat")} and time formats
+\code{c("time","year_month_day")}.}
 }
 \value{
 An \code{\link{LPJmLData}} object in the selected format.
@@ -41,7 +42,7 @@ transform(runoff, to = "lon_lat")
 
 # Transform time format from a single time dimension into separate dimensions
 # for years, months, and days. Dimensions for time steps not present in the
-# data are ommitted, i.e. no "day" dimension for monthly data.
+# data are omitted, i.e. no "day" dimension for monthly data.
 transform(runoff, to = "year_month_day")
 # [...]
 # $data \%>\%

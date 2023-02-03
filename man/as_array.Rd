@@ -7,12 +7,12 @@
 as_array(x, subset = NULL, aggregate = NULL, ...)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{x}{\link{LPJmLData} object.}
 
 \item{subset}{List of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
 \verb{list(cell = c(27411:27415)}. More information at
-\code{\link{subset.LPJmLData}}.}
+\code{\link[=subset.LPJmLData]{subset.LPJmLData()}}.}
 
 \item{aggregate}{List of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
@@ -22,8 +22,8 @@ corresponding aggregation function as value, e.g.
 \code{na.rm = TRUE}.}
 }
 \value{
-an \link[base]{array} with dimensions of objects \verb{$data} with
-applied \code{\link{subset}} and \code{\link{aggregate}} functionality as well as \code{dim} and
+an \link[base]{array} with dimensions of object \verb{$data} with
+applied \code{subset} and \code{aggregate} functionality as well as \code{dim} and
 \code{dimnames} from the \code{\link{LPJmLData}} object.
 }
 \description{
@@ -38,7 +38,7 @@ an \code{array} which can be accessed via \verb{$data}.
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# Returns array attribute of LPJmLData object directly.
+# Returns array attribute of LPJmLData object directly
 vegc$data
 #        time
 # cell      1901-12-31   1902-12-31   1903-12-31   1904-12-31   1905-12-31
@@ -50,7 +50,7 @@ vegc$data
 #   5     1.106748e+01 1.137272e+01 1.196524e+01 1.131316e+01 9.924266e+0
 
 # Returns two-dimensional array with timeseries for the mean across cells
-  `27410:27415`
+# 27410:27415
 as_array(vegc,
          subset = list(cell = 27410:27415),
          aggregate = list(cell = mean))

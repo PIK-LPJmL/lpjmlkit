@@ -1,24 +1,24 @@
 #' Compile LPJmL model
 #'
-#' Compiles the LPJmL source code and creates an executable by internally
-#' executing make all.
+#' Compiles the LPJmL source code and creates an executable by executing
+#' "make all" on the operating system shell.
 #'
 #' @param model_path Character string providing the path to LPJmL
-#' (equal to LPJROOT)
+#' (equal to `LPJROOT` environment variable)
 #'
-#' @param make_fast Logical - if TRUE `make -j16 all` is executed which uses 16
-#' processors for compilation in parallel mode. Defaults to TRUE
+#' @param make_fast Logical. If set to `TRUE`, calls "make -j16 all" instead of
+#'   "make all" for compilation in parallel mode on 16 CPUs. Defaults to `TRUE`.
 #'
-#' @param make_clean Logical - if TRUE execute make clean first to remove
-#' previous installation. Defaults to FALSE
+#' @param make_clean Logical. If set to `TRUE`, calls "make clean" first to
+#'   remove previous installation. Defaults to `FALSE`.
 #'
-#' @param throw_error Logical - if `FALSE` does not throw an error if sub
-#' process has non-zero exit status, hence if compilation fails in first
-#' attempt. Defaults to TRUE
+#' @param throw_error Logical. Whether to throw an error if sub-process has
+#'   non-zero exit status, hence if compilation fails. Defaults to `TRUE`.
 #'
-#'@param debug Logical - if `TRUE`LPJmL is compiled with flag `-debug`
+#'@param debug Logical. Whether to compile LPJmL with `-debug` flag. Defaults to
+#'  `FALSE`.
 #'
-#' @return A list with process status, see \link[processx]{run}
+#' @return A list with process status, see \link[processx]{run}.
 #'
 #' @examples
 #' \dontrun{
@@ -33,7 +33,7 @@ make_lpjml <- function(model_path = ".",
                       throw_error = TRUE,
                       debug = FALSE) {
 
-  # take precompiled config.json as proxy if LPJmL was already configured
+  # Take precompiled config.json as proxy if LPJmL was already configured
   if (file.exists(paste0(model_path, "/bin/lpjml"))) {  # nolint:absolute_path_linter.
     init <- processx::run(command = "sh",
                           args = c("-c",
@@ -64,5 +64,5 @@ make_lpjml <- function(model_path = ".",
                           echo = TRUE)
   }
 
-  return(init)
+  init
 }

@@ -13,18 +13,18 @@ as_header(x, silent = TRUE)
 conversion/initialization.}
 }
 \value{
-An LPJmL header object, more information at \code{\link{create_header}}
+An LPJmL header object. More information at \code{\link[=create_header]{create_header()}}.
 }
 \description{
 Function to coerce (convert) an \code{\link{LPJmLMetaData}} object into an
-LPJmL header object, more information at \code{\link{create_header}}.
+LPJmL header object. More information at \code{\link[=create_header]{create_header()}}.
 }
 \examples{
 \dontrun{
 
 vegc_meta <- read_meta(filename = "./vegc.bin.json")
 
-# Returns one dimensional array with timeseries for cells `27410:27415`
+# Returns a list object with the structure of an LPJmL header
 as_header(vegc_meta)
 # $name
 # [1] "LPJDUMMY"
@@ -32,10 +32,10 @@ as_header(vegc_meta)
 # $header
 #      version        order    firstyear        nyear    firstcell
 #          4.0          4.0       1901.0        200.0          0.0
-#       nbands cellsize_lon       scalar cellsize_lat     datatype
-#          1.0          0.5          1.0          0.5          3.0
-#     timestep
-#          1.0
+#        ncell       nbands cellsize_lon       scalar cellsize_lat
+#      67420.0          1.0          0.5          1.0          0.5
+#     datatype        nstep     timestep
+#          3.0          1.0          1.0
 #
 # $endian
 # [1] "little"

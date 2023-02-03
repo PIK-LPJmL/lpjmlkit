@@ -10,45 +10,43 @@ as_raster(x, subset = NULL, aggregate = NULL, ...)
 \item{x}{\link{LPJmLData} object}
 
 \item{subset}{List of array dimension(s) as name/key and
-corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}. More information at
-\code{\link{subset.LPJmLData}}.}
+corresponding subset vector as value, e.g.\code{list(cell = c(27411:27415))}.
+More information at \code{\link[=subset.LPJmLData]{subset.LPJmLData()}}.}
 
 \item{aggregate}{List of array dimension(s) as name/key and
-corresponding aggregation function as value, e.g.
-\code{list(band = sum)}.}
+corresponding aggregation function as value, e.g. \code{list(band = sum)}.}
 
 \item{...}{Arguments passed to the aggregate function(s), e.g.
 \code{na.rm = TRUE}.}
 }
 \value{
-A \link[raster]{raster} or \link[raster]{brick} object with spatial
-extent and coordinates based on internal \verb{$grid} attribute and containing a
-lon/lat representation of \code{x$data}. If multiple bands or time steps exist, a
+A \link[raster]{raster} or \link[raster]{brick} object with spatial extent
+and coordinates based on internal \verb{$grid} attribute and containing a lon/lat
+representation of \code{x$data}. If multiple bands or time steps exist, a
 \link[raster]{brick} is created. Further meta information such as the
 lon/lat resolution are extracted from \verb{$meta}.
 }
 \description{
 Function to coerce (convert) an \code{\link{LPJmLData}} object into a
-\link[raster]{raster} or \link[raster]{brick} object, that allows for any
-GIS-based raster operations. Read more
-\href{https://rspatial.github.io/raster/reference/raster-package.html}{here}. The
-successor package of raster is \href{https://rspatial.org/}{terra}.
+\link[raster]{raster} or \link[raster]{brick} object that allows for any
+GIS-based raster operations. Read more about the raster package at
+\url{https://rspatial.github.io/raster/reference/raster-package.html}.
+The successor package of raster is called terra: \url{https://rspatial.org/}.
 }
 \details{
 The \verb{$grid} attribute is required for spatial transformation. When
 using \code{file_type = "meta"}, grid data are usually read automatically via
-\code{\link{add_grid}} if the grid file is present in the same directory. Otherwise,
-\code{add_grid} has to be called explicitly with the path to a matching grid file.
-Supports either multiple bands or multiple time steps. Use 'subset' or
-'aggregate' to reduce data with multiple bands and time steps.
+\code{\link[=add_grid]{add_grid()}} if the grid file is present in the same directory. Otherwise,
+\code{add_grid()} has to be called explicitly with the path to a matching grid
+file. Supports either multiple bands or multiple time steps. Use \code{subset} or
+\code{aggregate} to reduce data with multiple bands and time steps.
 }
 \examples{
 \dontrun{
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# Returns a RasterBrick for all data.
+# Returns a RasterBrick for all data
 as_raster(vegc)
 # class      : RasterBrick
 # dimensions : 280, 720, 201600, 200  (nrow, ncol, ncell, nlayers)

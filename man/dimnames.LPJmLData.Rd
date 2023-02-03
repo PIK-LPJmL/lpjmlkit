@@ -2,8 +2,7 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{dimnames.LPJmLData}
 \alias{dimnames.LPJmLData}
-\title{Dimnames of an LPJmLData data array
-Function to get the dimnames (list) of the data array of an LPJmLData object.}
+\title{Dimnames of an LPJmLData data array}
 \usage{
 \method{dimnames}{LPJmLData}(x)
 }
@@ -11,6 +10,5 @@ Function to get the dimnames (list) of the data array of an LPJmLData object.}
 \item{x}{\link{LPJmLData} object}
 }
 \description{
-Dimnames of an LPJmLData data array
 Function to get the dimnames (list) of the data array of an LPJmLData object.
 }

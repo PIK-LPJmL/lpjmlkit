@@ -41,27 +41,31 @@ including its path and extension.}
 one or several of its dimensions. See details for more information.}
 
 \item{band_names}{Optional vector of character strings providing the band
-names or NULL. Determined automatically from the meta file in case of
-\code{file_type = "meta"}.}
+names or \code{NULL}. Normally determined automatically from the meta file in
+case of output files using \code{file_type = "meta"}.}
 
 \item{dim_order}{Order of dimensions in returned LPJmLData object. Must be
-a character vector containing all of the following in any order: "cell",
-"band", "time". Select the order most useful to your further data processing.}
+a character vector containing all of the following in any order:
+\code{c("cell", "time", "band")}. Users may select the order most useful to
+their further data processing.}
 
 \item{file_type}{Optional character string giving the file type. This is
-normally detected automatically but can be prescribed if automatic detection
-is incorrect. Valid options:
-"raw", a binary file without header;
-"clm", a binary file with header;
-"meta", a meta information JSON file complementing a raw or clm file.}
+normally detected automatically but can be prescribed if automatic
+detection is incorrect. Valid options:
+\itemize{
+\item \code{"raw"}, a binary file without header.
+\item \code{"clm"}, a binary file with header.
+\item \code{"meta"}, a meta information JSON file complementing a raw or clm file.
+}}
 
-\item{version}{Integer indicating clm file header version, currently supports
-one of 1, 2, 3, or 4.}
+\item{version}{Integer indicating the clm file header version, currently
+supports one of \code{c(1, 2, 3, 4)}.}
 
 \item{order}{Integer value or character string describing the order of data
-items in the file (default in input file: 1; in output file: 4). Valid values
-for LPJmL input/output files are "cellyear" 1, "yearcell" 2, "cellindex" 3,
-"cellseq" 4, although only options 1 and 4 are supported by this function.}
+items in the file (default in input file: 1; in output file: 4). Valid
+values for LPJmL input/output files are \code{"cellyear"}/ \code{1}, \code{"yearcell"} /
+\code{2}, \code{"cellindex"}/ \code{3}, and \code{"cellseq"} / \code{4}, although only options \code{1}
+and \code{4} are supported by this function.}
 
 \item{firstyear}{Integer providing the first year of data in the file.}
 
@@ -69,7 +73,7 @@ for LPJmL input/output files are "cellyear" 1, "yearcell" 2, "cellindex" 3,
 file. These are not consecutive in case of \code{timestep > 1}.}
 
 \item{firstcell}{Integer providing the cell index of the first data item.
-0 by default.}
+\code{0} by default.}
 
 \item{ncell}{Integer providing the number of data items per band.}
 
@@ -81,29 +85,32 @@ degrees.}
 \item{scalar}{Numeric value providing a conversion factor that needs to be
 applied to raw data when reading it from file to derive final values.}
 
-\item{cellsize_lat}{Numeric value providing the latitude cell size in degrees.}
+\item{cellsize_lat}{Numeric value providing the latitude cell size in
+degrees.}
 
 \item{datatype}{Integer value or character string describing the LPJmL data
-type stored in the file. Supported options: "byte" 0, "short" 1, "int" 2,
-"float" 3, "double" 4.}
+type stored in the file. Supported options: \code{"byte"} / \code{0}, \code{"short"} /
+\code{1}, \code{"int"} / \code{2}, \code{"float"} / \code{3}, or \code{"double"} / \code{4}.}
 
 \item{nstep}{Integer value defining the number of within-year time steps of
-the file. Valid values are 1 (yearly), 12 (monthly), 365 (daily). Defaults to
-1 if not read from file ("clm" or "meta" file) or provided by the user.}
+the file. Valid values are \code{1} (yearly), \code{12} (monthly), \code{365} (daily).
+Defaults to \code{1} if not read from file ("clm" or "meta" file) or provided by
+the user.}
 
 \item{timestep}{Integer value providing the interval in years between years
-represented in the file data. Normally 1, but LPJmL also allows averaging
-annual outputs over several years. Defaults to 1 if not read from file
+represented in the file data. Normally \code{1}, but LPJmL also allows averaging
+annual outputs over several years. Defaults to \code{1} if not read from file
 ("clm" or "meta" file) or provided by user.}
 
-\item{endian}{Endianness to use for file (either "big" or "little"). By
+\item{endian}{Endianness to use for file (either \code{"big"} or \code{"little"}). By
 default uses endianness determined from file header or set in meta
-information or the platform-specific endianness \code{.Platform$endian} if not set.}
+information or the platform-specific endianness \code{.Platform$endian} if not
+set.}
 
 \item{variable}{Optional character string providing the name of the variable
 contained in the file. Included in some JSON meta files. \strong{Important:} If
-\verb{"file_type" == "raw} and data should be recognized as a grid, prescribe
-\code{variable = "grid"}.}
+\code{file_type == "raw"}, prescribe \code{variable = "grid"} to ensure that data
+are recognized as a grid.}
 
 \item{descr}{Optional character string providing a more detailed description
 of the variable contained in the file. Included in some JSON meta files.}
@@ -115,12 +122,12 @@ file. Included in some JSON meta files.}
 usually read from clm headers for \code{file_type = "clm"} but can be specified
 for the other \code{file_type} options.}
 
-\item{silent}{If set to TRUE, suppresses most warnings or messages. Use only
-after testing that \code{read_io} works as expected with the files it is being
-used on. Default: FALSE.}
+\item{silent}{If set to \code{TRUE}, suppresses most warnings or messages. Use
+only after testing that \code{read_io()} works as expected with the files it is
+being used on. Default: \code{FALSE}.}
 }
 \value{
-An \link{LPJmLData} object
+An \link{LPJmLData} object.
 }
 \description{
 Generic function to read LPJmL input & output files in different
@@ -128,9 +135,9 @@ formats. Depending on the format, arguments can be automatically detected
 or have to be passed as individual arguments.
 }
 \details{
-The \code{file_type} determines which arguments are mandatory or
-optional. \code{filename} must always be provided. \code{file_type} is usually
-detected automatically. Supply only if detected \code{file_type} is incorrect.
+The \code{file_type} determines which arguments are mandatory or optional.
+\code{filename} must always be provided. \code{file_type} is usually detected
+automatically. Supply only if detected \code{file_type} is incorrect.
 
 In case of \code{file_type = "meta"}, if any of the function arguments not listed
 as "mandatory" are provided and are already set in the JSON file, a warning
@@ -163,7 +170,7 @@ included in the file. These can be specified either as integer indices or as
 a character vector if bands are named.
 \item "cell" can be used to return data for a subset of cells. Note that integer
 indices start counting at 1, whereas character indices start counting at the
-value of \code{firstcell} (usually 0).
+value of \code{firstcell} (usually \code{0}).
 }
 }
 \examples{
@@ -192,7 +199,7 @@ my_data_clm <- read_io("my_file.clm")
 my_data_clm <- read_io("my_file.clm", band_names = c("wheat", "rice"))
 
 # Once `band_names` are set, subsetting by name is possible also for
-# `file_type = "clm"`.
+# file_type = "clm"
 my_data_wheat <- read_io(
   "my_file.clm",
   band_names = c("wheat", "rice"),
@@ -200,11 +207,11 @@ my_data_wheat <- read_io(
 )
 
 # Read data from raw binary file. All information about file structure needs
-# to be supplied. Use default values except for `nyear` (1 by default), and
-# `nbands` (also 1 by default).
+# to be supplied. Use default values except for nyear (1 by default), and
+# nbands (also 1 by default).
 my_data <- read_io("my_file.bin", nyear = 100, nbands = 2)
 
-# Supply `band_names` to be able to subset by name.
+# Supply band_names to be able to subset by name
 my_data_wheat <- read_io(
   "my_file.bin",
   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`

@@ -2,9 +2,7 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{summary.LPJmLData}
 \alias{summary.LPJmLData}
-\title{LPJmLData object summary
-Function to get the summary of the data array of an LPJmLData object.
-See also \link[base]{summary}}
+\title{LPJmLData object summary}
 \usage{
 \method{summary}{LPJmLData}(object, ...)
 }
@@ -14,18 +12,17 @@ See also \link[base]{summary}}
 \item{...}{Further arguments:
 \itemize{
 \item \code{dimension} for which a summary is printed for every element
-(in style of matrix summary). Default is \verb{dimension = band"}. Choose from
+(in style of matrix summary). Default is \code{dimension = "band"}. Choose from
 available dimensions like \code{"time"} or \code{"cell"}.
 \item \code{subset} list of array dimension(s) as name/key and corresponding subset
 vector as value, e.g. \verb{list(cell = c(27411:27415)}. More information at
-\code{\link{subset.LPJmLData}}.
+\code{\link[=subset.LPJmLData]{subset.LPJmLData()}}.
 \item \code{cutoff} (logical) If \code{TRUE} summary for dimension elements > 16 are
 cut off.
-\item Additional arguments to be passed on to \link[base]{summary}
+\item Additional arguments to be passed on to \link[base]{summary}.
 }}
 }
 \description{
-LPJmLData object summary
 Function to get the summary of the data array of an LPJmLData object.
-See also \link[base]{summary}
+See also \link[base]{summary}.
 }

@@ -2,8 +2,7 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{dim.LPJmLData}
 \alias{dim.LPJmLData}
-\title{Dimensions of an LPJmLData data array
-Function to get the dimensions of the data array of an LPJmLData object.}
+\title{Dimensions of an LPJmLData data array}
 \usage{
 \method{dim}{LPJmLData}(x)
 }
@@ -11,6 +10,5 @@ Function to get the dimensions of the data array of an LPJmLData object.}
 \item{x}{\link{LPJmLData} object}
 }
 \description{
-Dimensions of an LPJmLData data array
 Function to get the dimensions of the data array of an LPJmLData object.
 }

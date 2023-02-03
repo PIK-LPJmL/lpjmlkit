@@ -9,24 +9,24 @@ add_grid(x, ...)
 \arguments{
 \item{x}{\link{LPJmLData} object.}
 
-\item{...}{Arguments passed to \code{\link{read_io}} if no grid file and/or meta
-file are available in the corresponding output directory.}
+\item{...}{Arguments passed to \code{\link[=read_io]{read_io()}} if no grid file in "meta"
+format is available in the corresponding output directory.}
 }
 \value{
-\code{\link{LPJmLData}} object in selected format
+A copy of \code{x} (\code{\link{LPJmLData}} object) with added \verb{$grid} attribute.
 }
 \description{
 Function to add a grid to an \code{\link{LPJmLData}} object. The function acts
-as a \code{\link{read_io}} function for the grid file and adds it as an
-\code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}
+as a \code{\link[=read_io]{read_io()}} wrapper for the grid file and adds it as an
+\code{LPJmLData} object itself to the \verb{$grid} attribute of the main object.
 }
 \details{
 \strong{Important:}
 \itemize{
-\item If \code{"file_type" == "raw"} and data should be recognized as a
-grid, prescribe \code{variable = "grid"}!
-\item Do not use \link{read_io} argument \code{subset} here! \code{add_grid} will use the subset
-of the parent \link{LPJmLData} object \code{x}.
+\item If \code{"file_type" == "raw"} prescribe \code{variable = "grid"} to ensure data are
+recognized as a grid.
+\item Do not use \code{\link[=read_io]{read_io()}} argument \code{subset} here. \code{add_grid} will use the
+\code{subset} of the parent \code{\link{LPJmLData}} object \code{x}.
 }
 }
 \examples{

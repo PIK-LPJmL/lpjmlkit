@@ -14,26 +14,26 @@ make_lpjml(
 }
 \arguments{
 \item{model_path}{Character string providing the path to LPJmL
-(equal to LPJROOT)}
+(equal to \code{LPJROOT} environment variable)}
 
-\item{make_fast}{Logical - if TRUE \verb{make -j16 all} is executed which uses 16
-processors for compilation in parallel mode. Defaults to TRUE}
+\item{make_fast}{Logical. If set to \code{TRUE}, calls "make -j16 all" instead of
+"make all" for compilation in parallel mode on 16 CPUs. Defaults to \code{TRUE}.}
 
-\item{make_clean}{Logical - if TRUE execute make clean first to remove
-previous installation. Defaults to FALSE}
+\item{make_clean}{Logical. If set to \code{TRUE}, calls "make clean" first to
+remove previous installation. Defaults to \code{FALSE}.}
 
-\item{throw_error}{Logical - if \code{FALSE} does not throw an error if sub
-process has non-zero exit status, hence if compilation fails in first
-attempt. Defaults to TRUE}
+\item{throw_error}{Logical. Whether to throw an error if sub-process has
+non-zero exit status, hence if compilation fails. Defaults to \code{TRUE}.}
 
-\item{debug}{Logical - if \code{TRUE}LPJmL is compiled with flag \code{-debug}}
+\item{debug}{Logical. Whether to compile LPJmL with \code{-debug} flag. Defaults to
+\code{FALSE}.}
 }
 \value{
-A list with process status, see \link[processx]{run}
+A list with process status, see \link[processx]{run}.
 }
 \description{
-Compiles the LPJmL source code and creates an executable by internally
-executing make all.
+Compiles the LPJmL source code and creates an executable by executing
+"make all" on the operating system shell.
 }
 \examples{
 \dontrun{

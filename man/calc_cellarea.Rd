@@ -2,7 +2,7 @@
 % Please edit documentation in R/calc_cellarea.R
 \name{calc_cellarea}
 \alias{calc_cellarea}
-\title{Calculate cell area of LPJmL cells}
+\title{Calculate the cell area of LPJmL cells}
 \usage{
 calc_cellarea(
   x,
@@ -14,15 +14,15 @@ calc_cellarea(
 }
 \arguments{
 \item{x}{\code{LPJmLData} object with \verb{$grid} attribute, an LPJmLData object of
-variable \code{"grid"} (\code{"LPJGRID"}) or vector of cell-center latitude
+variable \code{"grid"} (\code{"LPJGRID"}) or a vector of cell-center latitude
 coordinates in degrees.}
 
 \item{res_lon}{Grid resolution in longitude direction in degrees
-(default: 0.5). If \code{x} is an LPJmLData object the resolution will be taken
-from the meta data included in \code{x} if available.}
+(default: \code{0.5}). If \code{x} is an LPJmLData object the resolution will be
+taken from the meta data included in \code{x} if available.}
 
 \item{res_lat}{Grid resolution in latitude direction in degrees (default:
-same as res_lon). If \code{x} is an LPJmLData object the resolution will be
+same as \code{res_lon}). If \code{x} is an LPJmLData object the resolution will be
 taken from the meta data included in \code{x} if available.}
 
 \item{earth_radius}{Radius of the sphere (in \eqn{m}) used to calculate the
@@ -37,8 +37,8 @@ LPJmLData object. A vector of the same length as \code{x} if \code{x} is a vecto
 latitude coordinates. Cell areas are returned in the unit \code{return_unit}.
 }
 \description{
-Calculate cell area of LPJmL cells based on an LPJmLData object
-or cell coordinates and grid resolution.
+Calculate the cell area of LPJmL cells based on an \code{\link{LPJmLData}}
+object or latitude coordinates and grid resolution.
 Uses a spherical representation of the Earth.
 }
 \examples{

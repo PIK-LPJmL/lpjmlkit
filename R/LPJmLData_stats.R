@@ -8,17 +8,17 @@
 #' @export
 length.LPJmLData <- function(x) x$length()
 
-# length of the array of an LPJmLData
+# Length of the array of an LPJmLData object
 LPJmLData$set("private",
               ".length",
               function() {
-    return(length(self$data))
+    length(self$data)
   }
 )
 
 
 #' Dimensions of an LPJmLData data array
-# '
+#'
 #' Function to get the dimensions of the data array of an LPJmLData object.
 #'
 #' @param x [LPJmLData] object
@@ -27,7 +27,7 @@ LPJmLData$set("private",
 #' @export
 dim.LPJmLData <- function(x) x$dim()
 
-# dimension names and lengths of the array of an LPJmLData object.
+# Dimensions of the data array of an LPJmLData object
 LPJmLData$set("private",
               ".dim",
               function() {
@@ -37,7 +37,7 @@ LPJmLData$set("private",
 
 
 #' Dimnames of an LPJmLData data array
-# '
+#'
 #' Function to get the dimnames (list) of the data array of an LPJmLData object.
 #'
 #' @param x [LPJmLData] object
@@ -46,7 +46,7 @@ LPJmLData$set("private",
 #' @export
 dimnames.LPJmLData <- function(x) x$dimnames()
 
-# dimensions (list) of the array of an LPJmLData object.
+# dimnames (list) of the data array of an LPJmLData object
 LPJmLData$set("private",
               ".dimnames",
               function() {
@@ -56,22 +56,22 @@ LPJmLData$set("private",
 
 
 #' LPJmLData object summary
-# '
+#'
 #' Function to get the summary of the data array of an LPJmLData object.
-#' See also \link[base]{summary}
+#' See also \link[base]{summary}.
 #'
 #' @param object [LPJmLData] object
 #'
 #' @param ... Further arguments:
 #' * `dimension` for which a summary is printed for every element
-#' (in style of matrix summary). Default is `dimension = band"`. Choose from
-#' available dimensions like `"time"` or `"cell"`.
+#'   (in style of matrix summary). Default is `dimension = "band"`. Choose from
+#'   available dimensions like `"time"` or `"cell"`.
 #' * `subset` list of array dimension(s) as name/key and corresponding subset
-#' vector as value, e.g. `list(cell = c(27411:27415)`. More information at
-#' [`subset.LPJmLData`].
+#'   vector as value, e.g. `list(cell = c(27411:27415)`. More information at
+#'   [`subset.LPJmLData()`].
 #' * `cutoff` (logical) If `TRUE` summary for dimension elements > 16 are
-#' cut off.
-#' * Additional arguments to be passed on to \link[base]{summary}
+#'   cut off.
+#' * Additional arguments to be passed on to \link[base]{summary}.
 #'
 #' @md
 #' @export
@@ -81,7 +81,7 @@ summary.LPJmLData <- function(object,
 }
 
 
-# summary of the array of the array of an LPJmLData object.
+# Summary of the data array of an LPJmLData object
 LPJmLData$set("private",
               ".summary",
               function(dimension = "band",

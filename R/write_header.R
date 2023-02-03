@@ -2,20 +2,21 @@
 #'
 #' @description
 #' Write an LPJmL clm header to a file. The header has to be a list
-#' following the structure returned by `read_header()` or `create_header()`.
-#' The function will fail if the output file exists already unless 'overwrite'
-#' is set to TRUE.
+#' following the structure returned by [`read_header()`] or [`create_header()`].
+#' The function will fail if the output file exists already unless `overwrite`
+#' is set to `TRUE`.
 #'
 #' @param filename Filename to write header into.
 #' @param header The header to be written.
-#' @param overwrite Whether to overwrite an existing output file (default FALSE).
+#' @param overwrite Whether to overwrite an existing output file
+#'   (default `FALSE`).
 #'
 #' @return Returns `filename` invisibly.
 #'
 #' @seealso
-#' * [create_header()] for creating headers from scratch and for a more
+#' * [`create_header()`] for creating headers from scratch and for a more
 #'   detailed description of the LPJmL header format.
-#' * [read_header()] for reading headers from files.
+#' * [`read_header()`] for reading headers from files.
 #'
 #' @examples
 #' \dontrun{
@@ -29,7 +30,7 @@
 #'
 #' @export
 write_header <- function(filename, header, overwrite = FALSE) {
-  # Check that header is valid.
+  # Check that header is valid
   if (!is.list(header)) {
     stop("Header must be a list() object")
   }
@@ -98,7 +99,8 @@ write_header <- function(filename, header, overwrite = FALSE) {
       )
     }
   }
-  # Check whether output file exists already.
+
+  # Check whether output file exists already
   if (file.exists(filename)) {
     if (!overwrite) {
       stop(
@@ -111,7 +113,7 @@ write_header <- function(filename, header, overwrite = FALSE) {
     }
     warning(paste(filename, "exists already and will be overwritten"))
   }
-  # Write header to file.
+  # Write header to file
   fp <- file(filename, "wb")
   writeBin(charToRaw(header$name), fp)
   writeBin(

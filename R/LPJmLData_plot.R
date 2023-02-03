@@ -6,24 +6,22 @@
 #' @param x [LPJmLData] object
 #'
 #' @param subset List of array dimension(s) as name/key and
-#' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27416)`. More information at
-#' [`subset.LPJmLData`].
+#'   corresponding subset vector as value, e.g. `list(cell = c(27411:27416))`.
+#'   More information at [`subset.LPJmLData()`].
 #'
 #' @param aggregate List of array dimension(s) as name/key and
-#' corresponding aggregation function as value, e.g.
-#' `list(band = sum)`.
+#'   corresponding aggregation function as value, e.g. `list(band = sum)`.
 #'
 #' @param raster_extent Optional parameter to crop map display of spatial data.
-#' An \link[raster]{extent} or any object from which an Extent object can be
-#' extracted. Not relevant if `aggregate` includes spatial dimension.
+#'   An \link[raster]{extent} or any object from which an Extent object can be
+#'   extracted. Not relevant if `aggregate` includes spatial dimension.
 #'
-#' @param ... Arguments forwarded to \link[graphics]{plot} and
-#' \link[raster]{plot}
+#' @param ... Arguments passed to \link[graphics]{plot} and
+#'   \link[raster]{plot}
 #'
 #'@details
-#'Depending on the dimensions of the [LPJmLData] objects internal data array the
-#' plot will be a ...
+#'Depending on the dimensions of the [LPJmLData] object's internal data array
+#' the plot will be a ...
 #' * single map plot: more than 8 `"cell"`s or `"lat"` & `"lon"` dimensions
 #'   available)
 #' * multiple maps plot: length of one time (e.g.`"time"`, `"year"`,
@@ -31,11 +29,12 @@
 #' * time series plot: less than 9 `"cell"`s
 #' * lat/lon plot: a subsetted/aggregated `"lat"` or `"lon"` dimension
 #'
-#' The plotting can only handle 2-3 dimensions, use arguments `subset` and
-#' `aggregate` to get the desired outcome. If more dimensions have length > 1,
-#' plot will return an error by suggesting to reduce number of dimensions
+#' The plot can only handle 2-3 dimensions. Use arguments `subset` and
+#' `aggregate` to modify `x$data` to the desired plot type. If more than three
+#' dimensions have length > 1,' plot will return an error and suggest to reduce
+#' the number of dimensions.
 #'
-#' *Note that the plot function aims to provide a quick overview of the data,
+#' *Note that the plot function aims to provide a quick overview of the data
 #' rather than create publication-ready graphs.*
 #'
 #' @examples
@@ -43,18 +42,19 @@
 #'
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # Plot first 9 years starting from 1901 as a raster plot.
+#' # Plot first 9 years starting from 1901 as a raster plot
 #' plot(vegc)
 #'
-#' # Plots raster with mean over the whole time series.
+#' # Plot raster with mean over the whole time series
 #' plot(vegc,
 #'      aggregate = list(time = mean))
 #'
-#' # Plot only year 2010 as a raster.
+#' # Plot only year 2010 as a raster
 #' plot(vegc,
 #'      subset = list(time = "2010"))
 #'
-#' # Plot first 10 time steps as global mean time series.
+#' # Plot first 10 time steps as global mean time series. Note: Aggregation
+#' # across cells is not area-weighted.
 #' plot(vegc,
 #'      subset = list(time = 1:10),
 #'      aggregate = list(cell = mean))
@@ -90,16 +90,16 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
   time_dims <- strsplit(private$.meta$._time_format_, "_")[[1]]
   space_dims <- strsplit(private$.meta$._space_format_, "_")[[1]]
 
-  # do subsetting first for better performance
+  # Subset first for better performance
   data_subset <- self$clone(deep = TRUE)
   if (!is.null(subset)) {
     do.call(data_subset$subset, args = subset)
   }
 
-  # extract ellipsis to later check for passed arguments
+  # Extract ellipsis to later check for passed arguments
   dots <- list(...)
 
-  # check if available aggregation option is supplied
+  # Check if available aggregation option is supplied
   if (!all(names(aggregate) %in% c(space_dims,
                                    time_dims,
                                    "band"))) {
@@ -127,7 +127,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     )
   }
 
-  # check for non aggregated space dimension (<= 8 -> time series plots)
+  # Check for non aggregated space dimension (<= 8 -> time series plots)
   space_len <- names(dim(data_subset)) %>%
     .[!(. %in% names(aggregate))] %>%
     .[. %in% space_dims] %>%
@@ -141,12 +141,12 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                   "-",
                   private$.meta$unit)
 
-  # for spatial aggregation plot time series
+  # Plot time series for spatially aggregated data or low cell count
   if (all(space_dims %in% names(aggregate)) ||
       (private$.meta$._space_format_ == "cell" && space_len <= 8) ||
       (private$.meta$._space_format_ == "lon_lat" && any(space_dims %in% names(aggregate)))) { # nolint
 
-    #add default axes labels to plot.
+    # Add default axis labels to plot
     var_title <- paste0(descr, " [", unit, "]")
 
     if (is.null(dots$ylab)) {
@@ -157,7 +157,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       dots$main <- ifelse(is.null(dots$main), var_title, dots$main)
     }
 
-    # perform aggregation and plot
+    # Perform aggregation and plot
     data_only <- aggregate_array(data_subset,
                                  aggregate_list = aggregate,
                                  na.rm = TRUE)
@@ -174,29 +174,29 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       )
     )
 
-  # for temporal or aggregation by band plot a maps
+  # Plot map(s) for temporal aggregation or aggregation by band
   } else {
 
-    # get name of z dimension (layers)
+    # Get name of z dimension (layers)
     z_dim <- names(dim(data_subset))[dim(data_subset) >= 1] %>%
       .[!(. %in% names(aggregate))] %>%
       .[!(. %in% space_dims)]
 
-    # if still two z dimensions filter dimensions of length 1
+    # If still two z dimensions filter dimensions of length 1
     if (length(z_dim) > 1 && any(dim(data_subset)[z_dim] > 1)) {
       z_dim <- z_dim[z_dim %in% names(dim(data_subset))[dim(data_subset) > 1]]
     } else if (length(z_dim) != 1) {
       z_dim <- "band"
     }
 
-    # if two two z dimensions with length > 1 throw error
+    # If still two z dimensions with length > 1 throw error
     if (length(z_dim) > 1) {
       stop("Too many dimensions. Please reduce via subset or
            aggregate.")
     }
 
-    # subset first 9 (later) raster layers (only 9 can be visualized well)
-    #   for performance reasons already here
+    # Subset first 9 bands or time steps for performance reasons already here
+    # (only 9 can be visualized well)
     if (z_dim %in% names(dim(data_subset)) && dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
         subset_array(data_subset$data,
@@ -204,7 +204,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       )
     }
 
-    # create plot title if not provided
+    # Create plot title if not provided
     if (is.null(dots$main)) {
       var_title <- paste0(descr, " [", unit, "]")
     } else {
@@ -212,15 +212,15 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       dots$main <- NULL
     }
 
-    # aggregate over selected dimensions and corresponding fun of aggregate
+    # Aggregate over selected dimensions with provided aggregation function(s)
     data_subset$.__set_data__(
       aggregate_array(data_subset,
                       aggregate_list = aggregate,
                       na.rm = TRUE)
     )
 
-    # create raster and crop if extent ist provided, otherwise automatic
-    #   cropping via as_raster functionality is used
+    # Create raster and crop if extent is provided. Otherwise, automatic
+    #   cropping via as_raster functionality is used.
     data_ras <- data_subset %>%
       as_raster() %>%
       `if`(!is.null(raster_extent), raster::crop(., y = raster_extent), .)
@@ -236,7 +236,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
 })
 
 
-# helper function to draw time series plots
+# Helper function to draw time series plots.
 #   TODO: requires refactoring # nolint
 plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
                          raw_data,
@@ -281,7 +281,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
                  " has to be provided by the data."))
   }
 
-  # hierarchical ordering of what to display on the x axis
+  # Hierarchical ordering of what to display on the x axis
   if (length(time_dims) > 1 && "year" %in% dim_names) {
     x_dim <- "year"
   } else if (length(time_dims) > 1 && "month" %in% dim_names) {
@@ -298,7 +298,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     x_dim <- space_dims[which(dim(raw_data)[space_dims] > 1)]
   }
 
-  # dimension to be shown in the legend "3rd dimension"
+  # Dimension to be shown in the legend "3rd dimension"
   legend_dim <- dim_names[!dim_names == x_dim]
   if (length(legend_dim) > 1 && any(dim(raw_data)[legend_dim]) > 1)
     legend_dim <- legend_dim[legend_dim %in% dim_names[dim(raw_data) > 1]]
@@ -306,18 +306,18 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     legend_dim <- ifelse("band" %in% legend_dim, "band", legend_dim[1])
 
 
-  # limit plot lines to maximum of 8
+  # Limit plot lines to maximum of 8
   legend_length <- dim(raw_data)[[legend_dim]] %>%
     ifelse(. > 8, 8, .)
 
-  # subset raw_data that is actually displayed
+  # Subset raw_data that is actually displayed
   raw_data <- subset_array(
     raw_data,
     as.list(stats::setNames(list(seq_len(legend_length)), legend_dim)),
     drop = FALSE
   )
 
-  # set default axis lims and colors if not provided
+  # Set default axis limits and colors if not provided
   if (is.null(dots$ylim)) {
     dots$ylim <- range(raw_data, na.rm = TRUE, finite = TRUE)
   }
@@ -326,7 +326,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     cols <- dots$col
     dots <- dots[names(dots) != "col"]
   } else {
-    # use default colours
+    # Use default colors
     cols <- seq_len(legend_length)
   }
 
@@ -336,12 +336,12 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
   if (is.null(dots$xlab)) {
     dots$xlab <- tools::toTitleCase(x_dim)
   }
-  # for time and year as x axis adjust the axis labels
+  # Adjust the axis labels for time and year as x axis
   if (x_dim %in% c("time", "year")) {
     dots$xaxt <- "n"
   }
 
-  # check if a supported plot type is supplied.
+  # Check if a supported plot type is supplied.
   if (dots$type %in% c("h", "S", "s")) {
     stop(cat(
       paste0(
@@ -381,15 +381,15 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.
 
-  # do.call for use of ellipsis via dots list
-  #   subset_array for dynamic subsetting of flexible legend_dim
+  # do.call for use of ellipsis via dots list.
+  #   subset_array for dynamic subsetting of flexible legend_dim.
   do.call(graphics::plot,
           c(x = list(subset_array(raw_data,
                                   as.list(stats::setNames(1, legend_dim)))),
             col = cols[1],
             dots))
 
-  # depending on length of time series set breaks accordingly
+  # Set breaks depending on length of time series
   if (x_dim %in% c("time", "year")) {
     if (lpjml_data$meta$nyear > 100) {
       brks <- 20
@@ -403,7 +403,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
       brks <- 1
     }
 
-    # set nstep only if time dimension, leads to month inbetween years
+    # Set nstep only if time dimension, leads to month inbetween years
     #   if lpjml_data$meta$nstep > 1
     nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
 
@@ -426,12 +426,12 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
                     type = dots$type)
   }
 
-  # calculate length of longest string in legend to not overlap
+  # Calculate length of longest string in legend to not overlap
   char_len <- dimnames(raw_data)[[legend_dim]] %>%
     .[which.max(nchar(.))]
 
-  # legend at the bottom left side of the graphic device.
-  #   calculations ensure placement within margins.
+  # Legend at the bottom left side of the graphic device.
+  #   Calculations ensure placement within margins.
   # TODO: replace with withr::with_par for temporarily changing pars # nolint
   graphics::legend(
     x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
@@ -460,7 +460,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
   )
   graphics::par(opar) %>% invisible() # nolint:undesirable_function_linter.
 
-  # create grid, special case for time, year because of specified x axis
+  # Create grid, special case for time, year because of specified x axis
   if (x_dim %in% c("time", "year")) {
     graphics::abline(v = at_ticks,
                      col = "lightgray",

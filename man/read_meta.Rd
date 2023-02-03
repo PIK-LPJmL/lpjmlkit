@@ -14,7 +14,7 @@ read_meta(filename, ...)
 read.}
 }
 \value{
-An \code{\link{LPJmLMetaData}} object
+An \code{\link{LPJmLMetaData}} object.
 }
 \description{
 Reads a meta JSON file or the header of a binary LPJmL input or output file.

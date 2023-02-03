@@ -1,11 +1,11 @@
-#' @title Retrieve information from LPJmL input/output file header
+#' @title Retrieve information from an LPJmL input/output file header
 #'
 #' @description Convenience function to extract information from a header object
-#' as returned by `read_header()` or `create_header()`. Returns one item per
-#'  call.
+#'   as returned by [`read_header()`] or [`create_header()`]. Returns one item
+#'   per call.
 #'
-#' @param header LPJmL file header as returned by `read_header()` or
-#'   `create_header()`.
+#' @param header LPJmL file header as returned by [`read_header()`] or
+#'   [`create_header()`].
 #' @param item Header information item to retrieve. One of `c("name", "version",
 #'   "order", "firstyear", "nyear", "firstcell", "ncell", "nbands",
 #'   "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep", "timestep",
@@ -28,8 +28,8 @@
 #' nyear <- get_header_item(header = header, item = "nyear")
 #' }
 get_header_item <- function(header, item) {
-  # Check header structure.
-  # Expect a list with elements "name", "header" and "endian".
+  # Check header structure. Expect a list with elements "name", "header" and
+  # "endian".
   if (!is.list(header) || any(is.null(header[c("name", "header", "endian")]))) {
     stop(
       paste(
@@ -38,7 +38,7 @@ get_header_item <- function(header, item) {
       )
     )
   }
-  # Confirm that no other elements are in list.
+  # Confirm that no other elements are in list
   if (length(header) != 3) {
     stop(
       paste(
@@ -47,21 +47,21 @@ get_header_item <- function(header, item) {
       )
     )
   }
-  # Expect only a single "name" and "endian".
+  # Expect only a single "name" and "endian"
   if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
     stop("Header has invalid structure. More than one 'name' or 'endian'")
   }
-  # Expect header$header to have 13 values (some of which may be defaults).
+  # Expect header$header to have 13 values (some of which may be defaults)
   if (length(header$header) != 13) {
     stop("Header has invalid structure. Invalid header$header")
   }
-  # Valid items that can be queried from a header.
+  # Valid items that can be queried from a header
   valid_items <- c(
     "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
     "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
     "timestep", "endian"
   )
-  # Check that user provided valid item (and no more than one item).
+  # Check that user provided valid item (and no more than one item)
   if (length(item) != 1 || any(!item %in% valid_items)) {
     stop(
       paste(
@@ -70,7 +70,7 @@ get_header_item <- function(header, item) {
       )
     )
   }
-  # Check that item is also in header (header elements are named correctly).
+  # Check that item is also in header (header elements are named correctly)
   if (!item %in% names(header) && !item %in% names(header$header)) {
     stop(
       paste("Header has invalid structure: item", sQuote(item), "is missing")

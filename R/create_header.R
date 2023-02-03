@@ -1,31 +1,33 @@
-#' @title Create a new LPJmL input (or output) file header
+#' @title Create a new LPJmL input/output file header
 #'
 #' @description Create a header from scratch in the format required by
-#' `write_header()`.
+#'   [`write_header()`].
 #'
-#' @param name Header name attribute (default: "LPJGRID").
-#' @param version CLM version to use (default: 3).
-#' @param order Order of data items (see LPJmL code for supported values;
-#'   default: 1).
-#' @param firstyear Start year of data in file (default: 1901).
-#' @param nyear Number of years of data included in file (default: 1).
-#' @param firstcell Index of first data item (default: 0).
+#' @param name Header name attribute (default: `"LPJGRID").
+#' @param version CLM version to use (default: `3`).
+#' @param order Order of data items. See details below or LPJmL code for
+#'   supported values. The order may be provided either as an integer value or
+#'   as a character string (default: `1`).
+#' @param firstyear Start year of data in file (default: `1901`).
+#' @param nyear Number of years of data included in file (default: `1`).
+#' @param firstcell Index of first data item (default: `0`).
 #' @param ncell Number of data items per band.
-#' @param nbands Number of bands per year of data (default: 2).
-#' @param cellsize_lon Longitude cellsize in deg (default: 0.5).
-#' @param scalar Conversion factor applied to data when it is read by LPJmL
-#'   (default: 1.0).
-#' @param cellsize_lat Latitude cellsize in deg (default: same as cellsize_lon).
-#' @param datatype LPJmL data type in file (see LPJmL code for valid data type
-#'   codes; default: 3).
-#' @param nstep Number of time steps per year, added in header version 4 to
-#'   separate time bands from content bands (default: 1).
-#' @param timestep If larger than 1, outputs are averaged over timestep years
-#'   and only written once every timestep years (default: 1).
-#' @param endian Endianness to use for file (either "big" or "little", by
+#' @param nbands Number of bands per year of data (default: `2`).
+#' @param cellsize_lon Longitude cellsize in degrees (default: `0.5`).
+#' @param scalar Conversion factor applied to data when it is read by LPJmL or
+#'   by `read_io()` (default: `1.0`).
+#' @param cellsize_lat Latitude cellsize in degrees (default: same as
+#'   `cellsize_lon`).
+#' @param datatype LPJmL data type in file. See details below or LPJmL code for
+#'   valid data type codes (default: `3`).
+#' @param nstep Number of time steps per year. Added in header version 4 to
+#'   separate time bands from content bands (default: `1`).
+#' @param timestep If larger than 1, outputs are averaged over `timestep` years
+#'   and only written once every `timestep` years (default: `1`).
+#' @param endian Endianness to use for file (either `"big"` or `"little"`, by
 #'   default uses platform-specific endianness `.Platform$endian`).
-#' @param verbose If TRUE (the default), function provides some feedback on
-#'   datatype and when using default values for missing parameters. If FALSE,
+#' @param verbose If `TRUE` (the default), function provides some feedback on
+#'   datatype and when using default values for missing parameters. If `FALSE`,
 #'   only errors are reported.
 #'
 #' @return The function returns a list with 3 components:
@@ -71,19 +73,21 @@
 #' versions 3 and 4 add header attributes 'cellsize_lat' and 'datatype'. Header
 #' version 4 adds attributes 'nstep' and 'timestep'.
 #'
-#' Valid values for 'order' are 1, 2, 3, and 4. The default for LPJmL input
-#' files is 1. The default for LPJmL output files is 4, except for grid output
-#' files which also use 1.
+#' Valid values for `order` are `1` / `"cellyear"`, `2` / `"yearcell"`, `3` /
+#' `"cellindex"`, and `4` / `"cellseq"`. The default for LPJmL input files is
+#' `1`. The default for LPJmL output files is `4`, except for grid output
+#' files which also use `1`.
 #'
 #' By default, input files contain data for all cells, indicated by setting
-#' the 'firstcell' index to 0. If 'firstcell' > 0, LPJmL assumes the first
-#' 'firstcell' cells to be missing in the data.
+#' the `firstcell` index to `0`. If `firstcell > 0`, LPJmL assumes the first
+#' `firstcell` cells to be missing in the data.
 #'
-#' Valid codes for the 'datatype' attribute and the corresponding LPJmL data
-#' types are: 0 (LPJ_BYTE), 1 (LPJ_SHORT), 2 (LPJ_INT), 3 (LPJ_FLOAT),
-#' 4 (LPJ_DOUBLE).
+#' Valid codes for the `datatype` attribute and the corresponding LPJmL data
+#' types are: `0` / `"byte"` (LPJ_BYTE), `1` / `"short"` (LPJ_SHORT), `2` /
+#' `"int"` (LPJ_INT), `3` / `"float"` (LPJ_FLOAT), `4` / `"double"`
+#' (LPJ_DOUBLE).
 #'
-#' Default parameters of the function are valid for grid input files using
+#' The default parameters of the function are valid for grid input files using
 #' LPJ_FLOAT data type.
 #'
 #' @seealso
