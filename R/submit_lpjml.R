@@ -1,7 +1,7 @@
 #' Submit LPJmL model simulation to SLURM
 #'
 #' LPJmL simulations are submitted to SLURM using `"config*.json"` files written
-#' [`write_config()`]. `write_config()` returns a
+#' by [`write_config()`]. `write_config()` returns a
 #' tibble that can be used as an input (see `x`). It serves the details to
 #' submit single or multiple (dependent/subsequent) model simulations.
 #'

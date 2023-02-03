@@ -59,7 +59,7 @@ See \code{x}, extended by columns \code{"type"}, \code{"job_id"} and \code{"stat
 }
 \description{
 LPJmL simulations are submitted to SLURM using \code{"config*.json"} files written
-\code{\link[=write_config]{write_config()}}. \code{write_config()} returns a
+by \code{\link[=write_config]{write_config()}}. \code{write_config()} returns a
 tibble that can be used as an input (see \code{x}). It serves the details to
 submit single or multiple (dependent/subsequent) model simulations.
 }
