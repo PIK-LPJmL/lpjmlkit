@@ -40,8 +40,8 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # Concatenate existing file and data_dir to read grid
         filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
 
-        # Add support for cell subsets. TODO: This is a rough filter since
-        # $subset does not say if cell is subsetted - but ok for now.
+        # Check if spatial dimensions have been subsetted before - use dimnames
+        # for subsetting
         if (private$.meta$._subset_space_) {
           self$.__set_grid__(
             read_io(
