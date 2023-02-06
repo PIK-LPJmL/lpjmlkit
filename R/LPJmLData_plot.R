@@ -300,7 +300,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   # Dimension to be shown in the legend "3rd dimension"
   legend_dim <- dim_names[!dim_names == x_dim]
-  if (length(legend_dim) > 1 && any(dim(raw_data)[legend_dim]) > 1)
+  if (length(legend_dim) > 1 && any(dim(raw_data)[legend_dim] > 1))
     legend_dim <- legend_dim[legend_dim %in% dim_names[dim(raw_data) > 1]]
   else if (length(legend_dim) > 1 && all(dim(raw_data)[legend_dim]) == 1)
     legend_dim <- ifelse("band" %in% legend_dim, "band", legend_dim[1])
