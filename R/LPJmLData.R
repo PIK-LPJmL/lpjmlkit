@@ -474,8 +474,12 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #'
 #' @param x [LPJmLData] object.
 #'
-#' @param ... Arguments passed to [`read_io()`] if no grid file in "meta"
-#' format is available in the corresponding output directory.
+#' @param ... Arguments passed to [`read_io()`]. Without any arguments,
+#'   `add_grid()` will search for a file name starting with "grid" in the same
+#'   directory that `x` was loaded from. This supports grid files in `"meta"`
+#'   and `"clm"` format. If the grid file is in `"raw"` format or should be
+#'   loaded from a different directory, supply all necessary `read_io()`
+#'   parameters.
 #'
 #' @return A copy of `x` ([`LPJmLData`] object) with added `$grid` attribute.
 #'
