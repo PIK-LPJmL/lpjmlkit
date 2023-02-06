@@ -2,20 +2,21 @@
 % Please edit documentation in R/read_config.R
 \name{read_config}
 \alias{read_config}
-\title{Read a LPJmL config file (JSON)}
+\title{Read an LPJmL config file (JSON)}
 \usage{
 read_config(filename)
 }
 \arguments{
-\item{filename}{character string representing path
-(if differs from current working directory) and filename}
+\item{filename}{Character string representing path
+(if different from current working directory) and filename.}
 }
 \value{
-nested list object representing the structure of \code{config_*.json}
+A nested list object representing the structure of \code{config_*.json}.
 }
 \description{
-Reads a config JSON file (not \code{lpjml.js}!, but its precompiled version
-using \code{parse_config} and turns it into a nested list object.
+Reads a config JSON file (not \code{lpjml.js}, but its precompiled version which
+can be generated using \code{parse_config()} or running \verb{cpp -P filename.js} in
+the shell) and turns it into a nested list object.
 }
 \examples{
 \dontrun{

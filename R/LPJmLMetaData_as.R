@@ -1,21 +1,21 @@
-#' Coerce LPJmLMetaData to a LPJmL header object
+#' Coerce LPJmLMetaData to an LPJmL header object
 #'
-#' Function to coerce (convert) a `LPJmLMetaData` object into a
-#' LPJmL header object, more information at [`create_header`].
+#' Function to coerce (convert) an [`LPJmLMetaData`] object into an
+#' LPJmL header object. More information at [`create_header()`].
 #'
-#' @param x [LPJmLMetaData] object
+#' @param x An [LPJmLMetaData] object
 #'
 #' @param silent Logical. Whether to suppress notifications from header
 #' conversion/initialization.
 #'
-#' @return a LPJmL header object, more information at [`create_header`]
+#' @return An LPJmL header object. More information at [`create_header()`].
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc_meta <- read_meta(filename = "./vegc.bin.json")
 #'
-#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' # Returns a list object with the structure of an LPJmL header
 #' as_header(vegc_meta)
 #' # $name
 #' # [1] "LPJDUMMY"
@@ -23,10 +23,10 @@
 #' # $header
 #' #      version        order    firstyear        nyear    firstcell
 #' #          4.0          4.0       1901.0        200.0          0.0
-#' #       nbands cellsize_lon       scalar cellsize_lat     datatype
-#' #          1.0          0.5          1.0          0.5          3.0
-#' #     timestep
-#' #          1.0
+#' #        ncell       nbands cellsize_lon       scalar cellsize_lat
+#' #      67420.0          1.0          0.5          1.0          0.5
+#' #     datatype        nstep     timestep
+#' #          3.0          1.0          1.0
 #' #
 #' # $endian
 #' # [1] "little"
@@ -78,19 +78,19 @@ LPJmLMetaData$set(
 
 #' Coerce LPJmLMetaData to a list
 #'
-#' Function to coerce (convert) a `LPJmLMetaData` object into a
+#' Function to coerce (convert) an [`LPJmLMetaData`] object into a
 #' \link[base]{list}.
 #'
-#' @param x [LPJmLMetaData] object
+#' @param x An [LPJmLMetaData] object
 #'
-#' @return a \link[base]{list}
+#' @return A \link[base]{list}
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc_meta <- read_meta(filename = "./vegc.bin.json")
 #'
-#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' # Returns one dimensional array with timeseries for cells `27410:27415`
 #' as_list(vegc_meta)
 #' # $sim_name
 #' # [1] "lu_cf"

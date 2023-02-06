@@ -1,12 +1,13 @@
-#' Read a LPJmL config file (JSON)
+#' Read an LPJmL config file (JSON)
 #'
-#' Reads a config JSON file (not `lpjml.js`!, but its precompiled version
-#' using `parse_config` and turns it into a nested list object.
+#' Reads a config JSON file (not `lpjml.js`, but its precompiled version which
+#' can be generated using `parse_config()` or running `cpp -P filename.js` in
+#' the shell) and turns it into a nested list object.
 #'
-#' @param filename character string representing path
-#' (if differs from current working directory) and filename
+#' @param filename Character string representing path
+#' (if different from current working directory) and filename.
 #'
-#' @return nested list object representing the structure of `config_*.json`
+#' @return A nested list object representing the structure of `config_*.json`.
 #'
 #' @examples
 #' \dontrun{
@@ -24,5 +25,5 @@
 #' @export
 read_config <- function(filename) {
     tmp_json <- jsonlite::read_json(path = filename, simplify = FALSE)
-  return(tmp_json)
+  tmp_json
 }

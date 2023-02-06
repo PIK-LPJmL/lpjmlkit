@@ -1,26 +1,81 @@
-#' @title Set information in a LPJmL input (or output) file header
+#' @title Set information in an LPJmL input (or output) file header
 #'
 #' @description Convenience function to set information in a header object as
-#' returned by `read_header()` or `create_header()`. You can set one or several
-#  header items at once.
+#'   returned by [`read_header()`] or [`create_header()`]. One or several
+#    header items can be set at once.
 #'
-#' @param header LPJmL file header as returned by `read_header()` or
-#'   `create_header()`.
-#' @param ... Header items to set. Can be one or several of 'name', 'version',
-#'   'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
+#' @param header An LPJmL file header as returned by [`read_header()`] or
+#'   [`create_header()`].
+#' @param ... Named header items to set. Can be one or several of 'name',
+#'   'version', 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 #'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
 #'   'endian'.
 #'
-#' @return Header 'header' where items included in parameters have been changed.
+#' @return Header `header` where header items supplied through the ellipsis
+#'   have been changed.
+#'
 #' @seealso
-#' * [create_header()] for creating headers from scratch and for a more
+#' * [`create_header()`] for creating headers from scratch and for a more
 #'   detailed description of the LPJmL header format.
-#' * [read_header()] for reading headers from files.
+#' * [`read_header()`] for reading headers from files.
+#'
+#'@examples
+#'\dontrun{
+#' header <- create_header(
+#'   name = "LPJGRID",
+#'   version = 3,
+#'   order = 1,
+#'   firstyear = 1901,
+#'   nyear = 1,
+#'   firstcell = 0,
+#'   ncell = 67420,
+#'   nbands = 2,
+#'   cellsize_lon = 0.5,
+#'   scalar = 1.0,
+#'   cellsize_lat = 0.5,
+#'   datatype = 3,
+#'   nstep = 1,
+#'   timestep = 1,
+#'   endian = .Platform$endian,
+#'   verbose = TRUE
+#' )
+#'
+#' header
+#' $name
+#' [1] "LPJGRID"
+#'
+#' $header
+#'      version        order    firstyear        nyear    firstcell        ncell
+#'          3.0          1.0       1901.0          1.0          0.0      67420.0
+#'        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
+#'          2.0          0.5          1.0          0.5          3.0          1.0
+#'     timestep
+#'          1.0
+#'
+#' $endian
+#' [1] "little"
+#'
+#' # Change number of cells to 1
+#' set_header_item(header = header, ncell = 1)
+#' $name
+#' [1] "LPJGRID"
+#'
+#' $header
+#'      version        order    firstyear        nyear    firstcell        ncell
+#'          3.0          1.0       1901.0          1.0          0.0          1.0
+#'        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
+#'          2.0          0.5          1.0          0.5          3.0          1.0
+#'     timestep 
+#'          1.0 
+#'
+#' $endian
+#' [1] "little"
+#'}
 #'
 #' @export
 set_header_item <- function(header, ...) {
-  # Check header structure
-  # Expect a list with elements "name", "header" and "endian"
+  # Check header structure. Expect a list with elements "name", "header" and
+  # "endian".
   if (!is.list(header) || any(is.null(header[c("name", "header", "endian")]))) {
     stop(
       paste(
@@ -100,9 +155,9 @@ set_header_item <- function(header, ...) {
       )
     )
   }
-  # Switch on verbose output in create_header if setting name, version or
+  # Switch on verbose output in create_header if setting name, version, or
   # datatype (these parameters can cause warnings/info prints). Otherwise,
-  # suppress output of these messages
+  # suppress output of these messages.
   if (any(!sapply(args[c("name", "version", "datatype")], is.null))) { # nolint:undesirable_function_linter.
     verbose <- TRUE
   } else {
@@ -178,5 +233,5 @@ set_header_item <- function(header, ...) {
     endian = ifelse(is.null(args[["endian"]]), header$endian, args[["endian"]]),
     verbose = verbose
   )
-  return(tmpheader)
+  tmpheader
 }

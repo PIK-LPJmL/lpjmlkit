@@ -1,23 +1,23 @@
-#' @title Calculate cell area of LPJmL cells
+#' @title Calculate the cell area of LPJmL cells
 #'
-#' @description Calculate cell area of LPJmL cells based on a LPJmLData object
-#' or cell coordinates and grid resolution.
-#' Uses a spherical representation of Earth.
+#' @description Calculate the cell area of LPJmL cells based on an [`LPJmLData`]
+#'   object or latitude coordinates and grid resolution.
+#'   Uses a spherical representation of the Earth.
 #'
-#' @param x `LPJmLData` object with `$grid` attribute, a LPJmLData object of
-#' variable `"grid"` (`"LPJGRID"`) or vector of cell-center latitude
-#' coordinates in degrees.
+#' @param x `LPJmLData` object with `$grid` attribute, an LPJmLData object of
+#'   variable `"grid"` (`"LPJGRID"`) or a vector of cell-center latitude
+#'   coordinates in degrees.
 #' @param res_lon Grid resolution in longitude direction in degrees
-#'   (default: 0.5). If `x` is a LPJmLData object the resolution will be taken
-#'   from the meta data included in `x`.
+#'   (default: `0.5`). If `x` is an LPJmLData object the resolution will be
+#'   taken from the meta data included in `x` if available.
 #' @param res_lat Grid resolution in latitude direction in degrees (default:
-#'   same as res_lon). If `x` is a LPJmLData object the resolution will be
-#'   taken from the meta data included in `x`.
-#' @param earth_radius Radius of sphere (in \eqn{m}) used to calculate cell
-#'   areas.
+#'   same as `res_lon`). If `x` is an LPJmLData object the resolution will be
+#'   taken from the meta data included in `x` if available.
+#' @param earth_radius Radius of the sphere (in \eqn{m}) used to calculate the
+#'   cell areas.
 #' @param return_unit Character string describing the area unit of the returned
 #'   cell areas. Defaults to `"m2"`, further options: `"ha"` or `"km2"`.
-#' @return A vector or array matching the space dimension(s) of `x` if `x` is a
+#' @return A vector or array matching the space dimension(s) of `x` if `x` is an
 #'   LPJmLData object. A vector of the same length as `x` if `x` is a vector of
 #'   latitude coordinates. Cell areas are returned in the unit `return_unit`.
 #'
@@ -40,11 +40,11 @@ calc_cellarea <- function(x,
   # Workflow for LPJmLData objects
   if (methods::is(x, "LPJmLData")) {
 
-    # Check if grid is available as attribute.
+    # Check if grid is available as attribute
     if (!is.null(x$grid)) {
       x <- x$grid
 
-    # Check if LPJmLData object is of variable grid or LPJGRID (header file).
+    # Check if LPJmLData object is of variable grid or LPJGRID (header file)
     } else if (!any(c("grid", "LPJGRID") %in% x$meta$variable)) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
@@ -59,10 +59,10 @@ calc_cellarea <- function(x,
       warning("Using x$meta$cellsize_lat instead of supplied res_lat.")
     }
 
-    # Check for format of space dimensions, apply different processing.
+    # Check for format of space dimensions, apply different processing
     if (x$meta$._space_format_ == "cell") {
       # For format "cell" latitudes are supplied as data in band dimension
-      #   ("lat").
+      #   ("lat")
       x <- asub(x$data, band = "lat")
     } else {
 
@@ -74,11 +74,11 @@ calc_cellarea <- function(x,
     }
 
   } else {
-    # Make sure supplied vector is numeric.
+    # Make sure supplied vector is numeric
     x <- as.double(x)
   }
-  
-  # Check for irregular grid resolution arguments.
+
+  # Check for irregular grid resolution arguments
   if (length(res_lon) > 1) {
     warning("res_lon has length ", length(res_lon), ". Using first element.")
     res_lon <- res_lon[1]
@@ -96,7 +96,7 @@ calc_cellarea <- function(x,
   }
   res_lat <- as.double(res_lat)
 
-  # Check for irregular latitude coordinates.
+  # Check for irregular latitude coordinates
   if (any(x < -90 | x > 90, na.rm = TRUE)) {
     stop("Invalid latitude values in 'x'. Values must be within +- 90 degrees")
   }
@@ -105,7 +105,7 @@ calc_cellarea <- function(x,
 
   cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
 
-    # Apply conversion factor based on return_unit parameter.
+    # Apply conversion factor based on return_unit parameter
     switch(return_unit,
            m2 = .,
            ha = . * 1e-4,

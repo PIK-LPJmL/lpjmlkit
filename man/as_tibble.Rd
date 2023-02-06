@@ -2,43 +2,43 @@
 % Please edit documentation in R/LPJmLData_as.R
 \name{as_tibble}
 \alias{as_tibble}
-\title{Coerce LPJmLData to a tibble}
+\title{Coerce an LPJmLData object to a tibble}
 \usage{
 as_tibble(x, subset = NULL, aggregate = NULL, value_name = "value", ...)
 }
 \arguments{
 \item{x}{\link{LPJmLData} object}
 
-\item{subset}{list of array dimension(s) as name/key and
+\item{subset}{List of array dimension(s) as name/key and
 corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
-\code{\link{subset.LPJmLData}}.}
+\code{list(cell = c(27411:27415))}. More information at
+\code{\link[=subset.LPJmLData]{subset.LPJmLData()}}.}
 
-\item{aggregate}{list of array dimension(s) as name/key and
+\item{aggregate}{List of array dimension(s) as name/key and
 corresponding aggregation function as value, e.g.
 \code{list(band = sum)}.}
 
-\item{value_name}{rename value column in  returned \code{tibble}. Defaults to
+\item{value_name}{Name of value column in returned \code{tibble}. Defaults to
 \code{"value"}.}
 
-\item{...}{arguments forwarded to the aggregate function(s), e.g.
+\item{...}{Arguments passed to the aggregate function(s), e.g.
 \code{na.rm = TRUE}.}
 }
 \value{
 a \link[tibble]{tibble} with columns corresponding to dimension
-naming of \code{LPJmLData$data} array and values in value column.
+naming of the \code{LPJmLData$data} array and values in one value column.
 }
 \description{
-Function to coerce (convert) a \code{\link{LPJmLData}} object into a
-\link[tibble]{tibble} (modern \link[base]{data.frame}, read more
-\href{https://r4ds.had.co.nz/tibbles.html}{here})
+Function to coerce (convert) an \code{\link{LPJmLData}} object into a
+\link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
+tibbles at \url{https://r4ds.had.co.nz/tibbles.html)}.
 }
 \examples{
 \dontrun{
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# returns one dimensional array with timeseries for cells `27410:27415`
+# Returns two-dimensional tibble representation of vegc$data.
 as_tibble(vegc)
 #   cell  time       band    value
 #   <fct> <fct>      <fct>   <dbl>

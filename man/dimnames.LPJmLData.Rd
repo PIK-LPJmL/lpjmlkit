@@ -2,19 +2,13 @@
 % Please edit documentation in R/LPJmLData_stats.R
 \name{dimnames.LPJmLData}
 \alias{dimnames.LPJmLData}
-\title{Dimnames of a LPJmLData's data array
-Function to get the dimensions (list) of the array of a
-\code{LPJmLData} object.}
+\title{Dimnames of an LPJmLData data array}
 \usage{
-\method{dimnames}{LPJmLData}(x, ...)
+\method{dimnames}{LPJmLData}(x)
 }
 \arguments{
 \item{x}{\link{LPJmLData} object}
-
-\item{...}{further arguments to be passed on to \link[base]{dimnames}}
 }
 \description{
-Dimnames of a LPJmLData's data array
-Function to get the dimensions (list) of the array of a
-\code{LPJmLData} object.
+Function to get the dimnames (list) of the data array of an LPJmLData object.
 }

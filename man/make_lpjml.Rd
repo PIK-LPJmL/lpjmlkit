@@ -6,31 +6,41 @@
 \usage{
 make_lpjml(
   model_path = ".",
-  make_fast = TRUE,
+  nproc = NULL,
   make_clean = FALSE,
   throw_error = TRUE,
-  debug = FALSE
+  debug = NULL
 )
 }
 \arguments{
-\item{model_path}{character string providing the path to LPJmL
-(equal to LPJROOT)}
+\item{model_path}{Character string providing the path to LPJmL
+(equal to \code{LPJROOT} environment variable)}
 
-\item{make_fast}{logical - if TRUE \verb{make -j16 all} is executed.
-Defaults to TRUE}
+\item{nproc}{numeric. Number of N central processing units / threads to be
+used for compilation.}
 
-\item{make_clean}{logical - if TRUE execute make clean first.
-Defaults to FALSE}
+\item{make_clean}{Logical. If set to \code{TRUE}, calls "make clean" first to
+remove previous installation. Defaults to \code{FALSE}.}
 
-\item{throw_error}{logical - if \code{FALSE} does not throw an error if sub
-process has non-zero exit status, hence if compilation fails in first
-attempt. Defaults to TRUE}
+\item{throw_error}{Logical. Whether to throw an error if sub-process has
+non-zero exit status, hence if compilation fails. Defaults to \code{TRUE}.}
 
-\item{debug}{logical - if \code{TRUE}LPJmL is compiled with flag \code{-debug}}
+\item{debug}{NULL or Logical. Whether to compile LPJmL with "-debug" flag.
+Defaults to \code{NULL}. If set to \code{FALSE} or \code{TRUE}, \code{make_clean} is set
+automatically and compilation configuration is reset with/without "-debug".
+Also the "configure.sh" file is rewritten.}
 }
 \value{
-a list with process status, see \link[processx]{run}
+A list with process status, see \link[processx]{run}.
 }
 \description{
-Compiles LPJmL and create executables by internally executing make all.
+Compiles the LPJmL source code and creates an executable by executing
+"make all" on the operating system shell.
+}
+\examples{
+\dontrun{
+model_path <- "./LPJmL_internal"
+make_lpjml(model_path = model_path)
+}
+
 }

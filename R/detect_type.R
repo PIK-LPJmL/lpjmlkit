@@ -1,21 +1,29 @@
-#' @title Detect file type of a LPJmL file
-#' @description This utility function tries to detect automatically if a
-#' provided file is of "clm", "meta", or "raw" file type. NetCDFs and simple
-#' text formats such as `.txt` or `.csv` are also detected.
+#' @title Detect the file type of an LPJmL input/output file
 #'
-#' @param filename Character string naming the file to check
-#' @return character vector of length 1 giving the file type:
-#' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format)
-#' * "clm" for a binary LPJmL file with header
-#' * "meta" for a JSON meta file describing a LPJmL binary file
-#' * "raw" for a binary LPJmL file without header
-#' * "text" for any type of text-only file, e.g. `.txt` or `.csv`
+#' @description This utility function tries to detect automatically if a
+#'   provided file is of `"clm"`, `"meta"`, or `"raw"` file type. NetCDFs and
+#'   simple text formats such as ".txt" or ".csv" are also detected.
+#'
+#' @param filename Character string naming the file to check.
+#' @return Character vector of length 1 giving the file type:
+#' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format).
+#' * "clm" for a binary LPJmL input/output file with header.
+#' * "meta" for a JSON meta file describing a binary LPJmL input/output file.
+#' * "raw" for a binary LPJmL input/output file without header. This is also the
+#'     default if no other file type can be recognized.
+#' * "text" for any type of text-only file, e.g. ".txt" or ".csv"
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' detect_type(filename = "filename.clm")
+#' [1] "clm"
+#' }
 detect_type <- function(filename) {
   if (!file.exists(filename)) {
     stop("File ", filename, " does not exist.")
   }
-  # Load at most the first 1024 bytes of the file for checking.
+  # Load at most the first 1024 bytes of the file for checking
   file_check <- readBin(filename, raw(), n = min(file.size(filename), 1024))
   on.exit(rm(file_check)) # nolint:undesirable_function_linter.
   # First check for "clm". The file header should always start with "LPJ".
@@ -24,10 +32,10 @@ detect_type <- function(filename) {
   )) {
     return("clm")
   }
-  # Next, check for NetCDF format.
+  # Next, check for NetCDF format
   if ((length(file_check) > 3 && all(
     rawToChar(utils::head(file_check, 3), multiple = TRUE) ==
-    c("C", "D", "F") # classic NetCDF format
+    c("C", "D", "F") # Classic NetCDF format
   )) || (length(file_check) > 8 && all(
     utils::head(file_check, 8) ==
     c(0x89, 0x48, 0x44, 0x46, 0x0d, 0x0a, 0x1a, 0x0a) # HDF5/NetCDF4 format
@@ -52,5 +60,5 @@ detect_type <- function(filename) {
     }
   }
   # Otherwise, assume it is a "raw"
-  return("raw")
+  "raw"
 }
