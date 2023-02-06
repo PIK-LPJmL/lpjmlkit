@@ -32,11 +32,15 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       check_method_locked(self, "add_grid")
       
       if (...length() == 0) {
-      # If user has not supplied any parameters try to find a grid file in the
-      # same directory as data
+        # If user has not supplied any parameters try to find a grid file in the
+        # same directory as data.
+        # The pattern will match any file name that starts with "grid*".
+        # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
+        # This will only match file names "grid.*", where * is one or two file
+        # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
         grid_files <- list.files(
           path = private$.meta$._data_dir_,
-          pattern = "^grid(\\.[[:alpha:]]{3,4})+$",
+          pattern = "^grid",
           full.names = TRUE
         )
         if (length(grid_files) > 0) {
