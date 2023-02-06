@@ -6,18 +6,18 @@
 \usage{
 make_lpjml(
   model_path = ".",
-  make_fast = TRUE,
+  nproc = NULL,
   make_clean = FALSE,
   throw_error = TRUE,
-  debug = FALSE
+  debug = NULL
 )
 }
 \arguments{
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable)}
 
-\item{make_fast}{Logical. If set to \code{TRUE}, calls "make -j16 all" instead of
-"make all" for compilation in parallel mode on 16 CPUs. Defaults to \code{TRUE}.}
+\item{nproc}{numeric. Number of N central processing units / threads to be
+used for compilation.}
 
 \item{make_clean}{Logical. If set to \code{TRUE}, calls "make clean" first to
 remove previous installation. Defaults to \code{FALSE}.}
@@ -25,8 +25,10 @@ remove previous installation. Defaults to \code{FALSE}.}
 \item{throw_error}{Logical. Whether to throw an error if sub-process has
 non-zero exit status, hence if compilation fails. Defaults to \code{TRUE}.}
 
-\item{debug}{Logical. Whether to compile LPJmL with \code{-debug} flag. Defaults to
-\code{FALSE}.}
+\item{debug}{NULL or Logical. Whether to compile LPJmL with "-debug" flag.
+Defaults to \code{NULL}. If set to \code{FALSE} or \code{TRUE}, \code{make_clean} is set
+automatically and compilation configuration is reset with/without "-debug".
+Also the "configure.sh" file is rewritten.}
 }
 \value{
 A list with process status, see \link[processx]{run}.

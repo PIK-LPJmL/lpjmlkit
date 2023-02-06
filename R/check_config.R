@@ -18,7 +18,7 @@
 #'   stdout/stderr message. If `TRUE`, return the result of the check.
 #'   Defaults to `FALSE`.
 #'
-#' @return See `pretty_print`.
+#' @return NULL.
 #'
 #' @examples
 #' \dontrun{

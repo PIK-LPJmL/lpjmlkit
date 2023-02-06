@@ -22,7 +22,7 @@ stdout/stderr message. If \code{TRUE}, return the result of the check.
 Defaults to \code{FALSE}.}
 }
 \value{
-See \code{pretty_print}.
+NULL.
 }
 \description{
 Check if created LPJmL config JSON files (\code{\link[=write_config]{write_config()}}) are
