@@ -2,29 +2,61 @@
 % Please edit documentation in R/check_config.R
 \name{check_config}
 \alias{check_config}
-\title{Check validity of LPJmL config JSON files}
+\title{Check the validity of LPJmL config JSON files}
 \usage{
 check_config(x, model_path, output_path = NULL, return_output = FALSE)
 }
 \arguments{
-\item{x}{job_details object returned by \link[lpjmlkit]{write_config} or
+\item{x}{\code{job_details} object returned by \code{\link[=write_config]{write_config()}} or
 character vector providing the config file names
-(hint: returns x as a list entry)}
+(hint: returns \code{x} as a list entry).}
 
-\item{model_path}{character string providing the path to LPJmL
-(equal to LPJROOT)}
+\item{model_path}{Character string providing the path to LPJmL
+(equal to \code{LPJROOT} environment variable).}
 
-\item{output_path}{character string - if output_path differs from
-model_path - path where an output, a restart and a configuration
-folder are created}
+\item{output_path}{Character string providing path where an output, a restart
+and a configuration folder are created. If ǸULL\verb{, }model_path` is used.}
 
-\item{return_output}{boolean - if FALSE print stdout/stderr else return.
-Defaults to FALSE}
+\item{return_output}{Parameter affecting the output. If \code{FALSE} print
+stdout/stderr message. If \code{TRUE}, return the result of the check.
+Defaults to \code{FALSE}.}
 }
 \value{
-see \code{pretty_print}
+NULL.
 }
 \description{
-Check if created LPJmL config JSON files (\link[lpjmlkit]{write_config}) are
-valid using lpjcheck for multiple files.
+Check if created LPJmL config JSON files (\code{\link[=write_config]{write_config()}}) are
+valid and are ready to be used for simulations using lpjcheck for multiple
+files.
+}
+\examples{
+\dontrun{
+library(tibble)
+library(lpjmlkit)
+
+model_path <- "./LPJmL_internal"
+output_path <-"./my_runs"
+
+
+# Basic usage
+my_params <- tibble(
+  sim_name = c("scen1", "scen2"),
+  random_seed = c(12, 404),
+  pftpar.1.name = c("first_tree", NA),
+  param.k_temp = c(NA, 0.03),
+  new_phenology = c(TRUE, FALSE)
+)
+
+config_details <- write_config(
+  params = my_params,
+  model_path = model_path,
+  output_path = output_path
+)
+
+check_config(x = config_details,
+  model_path = model_path,
+  output_path = output_path,
+  return_output = FALSE
+)
+}
 }
