@@ -271,6 +271,9 @@ LPJmLData$set("private",
           subset_array(
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
           ) %>%
+          aperm(c("lat", "lon",
+                  setdiff(names(dim(.)), c("lat", "lon")))
+          ) %>%
           raster::raster(template = tmp_raster)
 
         names(tmp_raster) <- data_subset$meta$variable
@@ -308,7 +311,8 @@ LPJmLData$set("private",
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- data_subset$data
+      ] <- aperm(data_subset$data,
+                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
     }
 
     return(tmp_raster)
@@ -411,6 +415,9 @@ LPJmLData$set("private",
           subset_array(
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
           ) %>%
+          aperm(c("lat", "lon",
+                  setdiff(names(dim(.)), c("lat", "lon")))
+          ) %>%
           terra::rast(crs = terra::crs(tmp_rast),
                       extent = terra::ext(tmp_rast))
 
@@ -466,7 +473,8 @@ LPJmLData$set("private",
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- data_subset$data
+      ] <- aperm(data_subset$data,
+                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
     }
 
     # Assign units (meta data)
