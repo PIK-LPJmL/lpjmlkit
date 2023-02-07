@@ -447,7 +447,6 @@ fit_grid <- function(x, grid, space_dim) {
   # check if space dimension(s) are not the first dimension
   if (pre_dims > 0) {
 
-    print(dim(x)[seq_len(pre_dims)])
     # for all dimension before recycle the value of each cell corresponding
     # times
     grid <- dim(x)[seq_len(pre_dims)] %>%
