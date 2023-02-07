@@ -12,7 +12,7 @@
 #'   (equal to `LPJROOT` environment variable).
 #'
 #' @param output_path Character string providing path where an output, a restart
-#'   and a configuration folder are created. If ǸULL`, `model_path` is used.
+#'   and a configuration folder are created. If `NULL`, `model_path` is used.
 #'
 #' @param return_output Parameter affecting the output. If `FALSE` print
 #'   stdout/stderr message. If `TRUE`, return the result of the check.

@@ -1,6 +1,6 @@
 # Toolkit for basic LPJmL handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
-R package **lpjmlkit**, version **0.6.3**
+R package **lpjmlkit**, version **0.6.4**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit)  [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/builds)
 
@@ -18,7 +18,7 @@ A collection of basic functions to facilitate the work with the
    *LPJmL Runner only supports appropriately configured Unix-based operating systems.*
 - &#9997; [`write_config()`](./vignettes/lpjml-runner.md#1-clipboard-define-a-table-of-modified-configuration-parameters) write config.json files using a tibble with parameters to be changed and a base lpjml.js file
 - &#128269; [`check_config()`](./vignettes/lpjml-runner.md#2-writing_hand-create-corresponding-configuration-files) check if generated config.json files are valid for LPJmL simulations
-- &#9654; [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or &#128640; [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)\
+- &#9654; [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or &#128640; [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)
 
 
 ### **[LPJmL Data &#128190;](./vignettes/lpjml-data.md)** for reading and processing LPJmL data
@@ -76,7 +76,7 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Müller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.6.3, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Müller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. R package version 0.6.4, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
 
 A BibTeX entry for LaTeX users is
 
@@ -85,7 +85,7 @@ A BibTeX entry for LaTeX users is
   title = {lpjmlkit: Toolkit for basic LPJmL handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Björn Wirth and Sara Minoli and Fabian Stenzel and Christoph Müller},
   year = {2023},
-  note = {R package version 0.6.3},
+  note = {R package version 0.6.4},
   url = {https://github.com/PIK-LPJmL/lpjmlkit},
 }
 ```

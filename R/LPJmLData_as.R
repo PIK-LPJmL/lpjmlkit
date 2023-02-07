@@ -272,7 +272,7 @@ LPJmLData$set("private",
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
           ) %>%
           aperm(c("lat", "lon",
-                  setdiff(names(dim(data_subset)), c("lat", "lon")))
+                  setdiff(names(dim(.)), c("lat", "lon")))
           ) %>%
           raster::raster(template = tmp_raster)
 
@@ -416,7 +416,7 @@ LPJmLData$set("private",
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
           ) %>%
           aperm(c("lat", "lon",
-                  setdiff(names(dim(data_subset)), c("lat", "lon")))
+                  setdiff(names(dim(.)), c("lat", "lon")))
           ) %>%
           terra::rast(crs = terra::crs(tmp_rast),
                       extent = terra::ext(tmp_rast))
