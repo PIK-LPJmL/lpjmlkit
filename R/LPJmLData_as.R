@@ -243,8 +243,10 @@ LPJmLData$set("private",
     tmp_raster <- create_tmp_raster(data_subset)
 
     # Get dimensions larger 1 to check if raster or brick is required
-    #   (or too many dimensions > 1 which are not compatible with raster)
-    multi_dims <- names(which(dim(data_subset$data) > 1))
+    # (or too many dimensions > 1 which are not compatible with raster)
+    # space dims are always included (to work with 1 cell rasters)
+    multi_dims <- get_multidims(data_subset)
+
 
     # Check whether there are multiple bands/time steps. Convert space_format
     # from "lon_lat" to "cell" if multi-layer brick is required. Stop if there
@@ -256,7 +258,7 @@ LPJmLData$set("private",
 
         data_subset$transform(to = "cell")
 
-        multi_dims <- names(which(dim(data_subset$data) > 1))
+        multi_dims <- get_multidims(data_subset)
 
       } else if (length(multi_dims) > 3) {
         stop(
@@ -388,7 +390,8 @@ LPJmLData$set("private",
 
     # Get dimensions larger 1 to check if single-layer or multi-layer SpatRaster
     # is required (or too many dimensions > 1)
-    multi_dims <- names(which(dim(data_subset$data) > 1))
+    # space dims are always included (to work with 1 cell SpatRaster)
+    multi_dims <- get_multidims(data_subset)
 
     # Check whether there are multiple bands/time steps. Convert space_format
     # from "lon_lat" to "cell" if multi-layer SpatRaster is required. Stop if
@@ -400,7 +403,7 @@ LPJmLData$set("private",
 
         data_subset$transform(to = "cell")
 
-        multi_dims <- names(which(dim(data_subset$data) > 1))
+        multi_dims <- get_multidims(data_subset)
 
       } else if (length(multi_dims) > 3) {
         stop(
@@ -474,7 +477,8 @@ LPJmLData$set("private",
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
       ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(.)), "cell")))
+                 perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>%
+      drop()
     }
 
     # Assign units (meta data)
@@ -577,4 +581,15 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
   }
 
   tmp_raster
+}
+
+
+# get multi dimensions of array with except of space dimension (cell / lon, lat)
+get_multidims <- function(x) {
+  space_dims <- unlist(strsplit(x$meta$._space_format_, "_"))
+  multi_dims <- names(which(dim(x$data) > 1))
+  if (!any(space_dims %in% multi_dims)) {
+    multi_dims <- append(multi_dims, space_dims)
+  }
+  multi_dims
 }

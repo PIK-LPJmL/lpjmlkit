@@ -450,7 +450,6 @@ fit_grid <- function(x, grid, space_dim) {
     # for all dimension before recycle the value of each cell corresponding
     # times
     grid <- dim(x)[seq_len(pre_dims)] %>%
-      .[. > 1] %>%
       prod() %>%
       rep(grid, each = .)
   }
