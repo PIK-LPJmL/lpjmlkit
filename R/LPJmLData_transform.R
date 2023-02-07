@@ -149,8 +149,8 @@ LPJmLData$set("private",
 
       # Initialize grid array
       grid_array <- array(NA,
-                        dim = lapply(spatial_dimnames, length),
-                        dimnames = spatial_dimnames)
+                          dim = lapply(spatial_dimnames, length),
+                          dimnames = spatial_dimnames)
 
       # Get indices of lat and lon dimnames
       ilon <- round((asub(self$data, band = "lon") -
@@ -447,12 +447,12 @@ fit_grid <- function(x, grid, space_dim) {
   # check if space dimension(s) are not the first dimension
   if (pre_dims > 0) {
 
+    print(dim(x)[seq_len(pre_dims)])
     # for all dimension before recycle the value of each cell corresponding
     # times
     grid <- dim(x)[seq_len(pre_dims)] %>%
       .[. > 1] %>%
-      sum() %>%
-      ifelse(. < 1, 1, .) %>%
+      prod() %>%
       rep(grid, each = .)
   }
 
