@@ -15,7 +15,7 @@ character vector providing the config file names
 (equal to \code{LPJROOT} environment variable).}
 
 \item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created. If ǸULL\verb{, }model_path` is used.}
+and a configuration folder are created. If \code{NULL}, \code{model_path} is used.}
 
 \item{return_output}{Parameter affecting the output. If \code{FALSE} print
 stdout/stderr message. If \code{TRUE}, return the result of the check.
