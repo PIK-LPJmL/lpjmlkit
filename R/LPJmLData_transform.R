@@ -267,14 +267,22 @@ LPJmLData$set("private",
 
       private$.grid$.__transform_grid__(to = to)
 
-      # Assign data to transformed array by grid
-      data_array <- array(
-        private$.grid$data,
-        dim = c(dim(private$.grid$data), other_dims),
-        dimnames = do.call(list,
-                           args = c(dimnames(private$.grid$data),
-                                    other_dimnames))
-      )
+      # Append new space dimension where they have been before
+      new_dimnames <- append(other_dimnames,
+                             values = dimnames(private$.grid$data)[c("lat", "lon")], # nolint
+                             after = get_predim(self$data, "cell"))
+      new_dims <- append(other_dims,
+                         values = dim(private$.grid$data)[c("lat", "lon")],
+                         after = get_predim(self$data, "cell"))
+
+      # fit_grid recycles data if necessary to fit into the array
+      data_array <- fit_grid(self$data,
+                             private$.grid$data,
+                             "cell") %>%
+        # Assign data to transformed array by grid
+        array(dim = new_dims,
+              dimnames = new_dimnames)
+
       data_array[!is.na(data_array)] <- self$data
 
       # Set corresponding meta data entry
@@ -284,21 +292,30 @@ LPJmLData$set("private",
     } else if (private$.meta$._space_format_ == "lon_lat" &&
         to == "cell") {
 
-      # Array for masking data
-      mask_array <- array(private$.grid$data,
-                          dim = dim(self$data),
-                          dimnames = dimnames(self$data))
+
+      # fit_grid recycles data if necessary to fit into the array
+      mask_array <- fit_grid(self$data,
+                             private$.grid$data,
+                             c("lon", "lat")) %>%
+        # Create array for masking data
+        array(dim = dim(self$data),
+              dimnames = dimnames(self$data))
 
       private$.grid$.__transform_grid__(to = to)
 
+      # append new space dimension where they have been before
+      new_dimnames <- append(other_dimnames,
+                             values = dimnames(private$.grid$data)["cell"],
+                             after = get_predim(self$data, c("lon", "lat")))
+      new_dims <- append(other_dims,
+                         values = dim(private$.grid$data)["cell"],
+                         after = get_predim(self$data, c("lon", "lat")))
+
       # Assign data to transformed array by grid
-      data_array <- array(
-        NA,
-        dim = c(dim(private$.grid$data)["cell"], other_dims),
-        dimnames = do.call(list,
-                           args = c(dimnames(private$.grid$data)["cell"],
-                                    other_dimnames))
-      )
+      data_array <- array(NA,
+                          dim = new_dims,
+                          dimnames = new_dimnames)
+
       data_array[] <- self$data[!is.na(mask_array)]
 
       # Set corresponding meta data entry
@@ -374,7 +391,7 @@ LPJmLData$set("private",
 
       private$.meta$.__transform_time_format__("year_month_day")
 
-    # Case 2: Transformation from dimensions "year", "month", "day" 
+    # Case 2: Transformation from dimensions "year", "month", "day"
     # (if available) to "time" dimension
     } else if (private$.meta$._time_format_ == "year_month_day" &&
                to == "time") {
@@ -383,6 +400,7 @@ LPJmLData$set("private",
       pre_dimnames <- self$dimnames() %>%
         lapply(as.integer) %>%
         suppressWarnings()
+
       time_dimnames <- list(
         time = create_time_names(nstep = private$.meta$nstep,
                                  years = pre_dimnames$year,
@@ -417,3 +435,33 @@ LPJmLData$set("private",
     return(invisible(self))
   }
 )
+
+
+# Function to recycle grid if necessary if array where data should be assigned
+# to has space dimension not as the first dimension(s)
+fit_grid <- function(x, grid, space_dim) {
+
+  # Get position of last dimension before first space dimension
+  pre_dims <- get_predim(x, space_dim)
+
+  # check if space dimension(s) are not the first dimension
+  if (pre_dims > 0) {
+
+    # for all dimension before recycle the value of each cell corresponding
+    # times
+    grid <- dim(x)[seq_len(pre_dims)] %>%
+      .[. > 1] %>%
+      sum() %>%
+      ifelse(. < 1, 1, .) %>%
+      rep(grid, each = .)
+  }
+
+  grid
+}
+
+
+# Function to get position of last dimension before first space dimension in
+# array
+get_predim <- function(x, space_dim) {
+  which(names(dim(x)) %in% space_dim)[1] - 1
+}
