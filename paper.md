@@ -37,7 +37,7 @@ authors:
     corresponding: false
     affiliation: 1
 affiliations:
- - name: Potsdam Institute of Climate Impact Research (PIK), Germany
+ - name: Potsdam Institute for Climate Impact Research (PIK), Germany
    index: 1
  - name: Climate Focus, Germany
    index: 2
@@ -56,7 +56,7 @@ bibliography: paper.bib
 The *lpjmlkit* R package [@lpjmlkit_manual] is an open source software for
 handling the open source Dynamic Global Vegetation model (DGVM)
 [LPJmL](https://github.com/PIK-LPJmL/LPJmL) mainly developed and maintained
-by the Potsdam Institute of Climate Impact Research (PIK).
+by the Potsdam Institute for Climate Impact Research (PIK).
 It contains two main modules. One, *LPJmL Runner*, provides the functionality to
 create model configurations for multiple simulations simultaneously and run them
 either on a configured local computer or on an HPC cluster with SLURM support.\
