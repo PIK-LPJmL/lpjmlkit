@@ -82,17 +82,19 @@ community.\
 LPJmL has been in use for more than a decade and has helped researchers in
 conducting numerous studies in various research areas that affect the
 terrestrial biosphere. To this end, scientists at PIK added the hydroligcal
-cycle to LPJ [@Gerten:2004], the previous model name, it was complemented by
-managed land to "LPJmL" [@Bondeau:2007; @Rolinski:2018] and later the nitrogen
-cycle was introduced [@vonBloh:2018].\
+cycle to LPJ [@gerten_terrestrial_2004], the previous model name, it was 
+complemented by managed land to "LPJmL"
+[@bondeau_modelling_2007; @rolinski_modeling_2018] and later the nitrogen cycle
+was introduced [@von_bloh_implementing_2018].\
 This allowed for broader, interdisciplinary studies such as the work of
-@Gerten:2020, which answered the question of whether it is possible to feed ten
-billion people within four planetary boundaries, or studies that implemented
-features of sustainable agriculture in LPJmL that had never been simulated
-before with a DGVM. LPJmL is also used extensively in the context of simulating
-natural vegetation dynamics with disturbances such as fire. ... **TODO** ...\
-However, unlike its sister model LPJ-GUESS [@Bagnara:2019] or other
-models at PIK [@Dietrich:2019] LPJmL was never equipped with standardised
+@gerten_feeding_2020, which answered the question of whether it is possible to
+feed ten billion people within four planetary boundaries, or studies that
+implemented features of sustainable agriculture in LPJmL that had never been
+simulated before with a DGVM. LPJmL is also used extensively in the context of
+simulating natural vegetation dynamics with disturbances such as fire. ...
+**TODO** ...\
+However, unlike its sister model LPJ-GUESS [@bagnara_r_2019] or other
+models at PIK [@dietrich_magpie_2019] LPJmL was never equipped with standardised
 interfaces for higher level programming languages to either run simulations or
 read and process its data.\
 This makes it difficult for beginners to work with LPJmL, but even scientists
@@ -110,7 +112,6 @@ R script as well as for further software development based on LPJmL.
 # Package features
 
 
-
 ## LPJmL Runner
 
 
@@ -120,32 +121,10 @@ R script as well as for further software development based on LPJmL.
 ## miscellaneous
 
 
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
-
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+We would like to thank Susanne Rolinski and Marie Hemmen for their
+contributions. Special thanks also go to Werner von Bloh for incremental changes
+to the LPJmL model, such as writing metafiles.
 
 # References
