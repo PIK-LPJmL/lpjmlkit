@@ -36,6 +36,10 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # same directory as data. This throws an error if no suitable file is
         # found.
         filename <- find_gridfile(private$.meta$._data_dir_)
+        blue_col <- "\u001b[34m"
+        unset_col <- "\u001b[0m"
+        cat(blue_col, "$grid ", unset_col, "read from ",
+            sQuote(basename(filename)), "\n", sep = "")
 
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.
@@ -43,12 +47,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
           self$.__set_grid__(
             read_io(
               filename = filename,
-              subset = list(cell = self$dimnames()[["cell"]])
+              subset = list(cell = self$dimnames()[["cell"]]),
+              silent = TRUE
             )
           )
         } else {
           self$.__set_grid__(
-            read_io(filename = filename)
+            read_io(filename = filename, silent = TRUE)
           )
         }
       } else {
