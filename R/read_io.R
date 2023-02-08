@@ -278,6 +278,15 @@ read_io <- function( # nolint:cyclocomp_linter.
   check_year_subset(subset, meta_data, silent)
 
   if (file_type == "meta") {
+    # Check format of the file linked in meta file
+    if (is.null(meta_data$format)) {
+      stop("Missing 'format' in meta file ", sQuote(filename))
+    } else if(! meta_data$format %in% setdiff(supported_types, "meta")) {
+      # Capture fringe case where the meta file links to a file in an
+      # unsupported format
+      stop("Format ", dQuote(meta_data$format), " specified in meta file ",
+           sQuote(filename), " not supported.")
+    }
     # Get filename from meta file
     if (basename(meta_data$filename) == meta_data$filename) {
       # meta_data$filename is in same directory as filename. Can use path from
@@ -315,7 +324,7 @@ read_io <- function( # nolint:cyclocomp_linter.
       "Unexpected file size (", file.size(filename), " bytes) of ", filename,
       "\nExpected size: ", expected_filesize, " bytes",
       "\nPlease check ",
-      ifelse(file_type == "meta", "meta file", "header"),
+      switch(file_type, meta = "meta file", clm = "header", "supplied"),
       " attributes."
     )
   }
