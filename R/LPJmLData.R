@@ -30,53 +30,48 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
       # Check for locked objects
       check_method_locked(self, "add_grid")
+      
+      if (...length() == 0) {
+        # If user has not supplied any parameters try to find a grid file in the
+        # same directory as data. This throws an error if no suitable file is
+        # found.
+        filename <- find_gridfile(private$.meta$._data_dir_)
+        blue_col <- "\u001b[34m"
+        unset_col <- "\u001b[0m"
+        cat(blue_col, "$grid ", unset_col, "read from ",
+            sQuote(basename(filename)), "\n", sep = "")
 
-      # Check if meta file for grid is located in output location
-      grid_file <- list.files(private$.meta$._data_dir_,
-                              pattern = "grid.bin.json")
-
-      if (length(grid_file) == 1) {
-
-        # Concatenate existing file and data_dir to read grid
-        filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
-
-        # Check if spatial dimensions have been subsetted before - use dimnames
-        # for subsetting
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
           self$.__set_grid__(
             read_io(
               filename = filename,
-              subset = list(cell = self$dimnames()[["cell"]])
+              subset = list(cell = self$dimnames()[["cell"]]),
+              silent = TRUE
             )
           )
         } else {
           self$.__set_grid__(
-            read_io(filename = filename)
+            read_io(filename = filename, silent = TRUE)
           )
         }
-
       } else {
 
-        # All arguments have to be provided manually as read_io arguments.
-        # Ellipsis (...) does that.
-        # Check if arguments are provided.
-        if (length(as.list(match.call())) > 1) {
+        # All arguments have to be provided manually to read_io.
+        #   Ellipsis (...) does that.
 
-          if (private$.meta$._subset_space_) {
-            self$.__set_grid__(
-              read_io(...,
-                      subset = list(cell = self$dimnames()[["cell"]]))
-            )
-          } else {
-            self$.__set_grid__(
-              read_io(...)
-            )
-          }
-
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
+        if (private$.meta$._subset_space_) {
+          self$.__set_grid__(
+            read_io(...,
+                    subset = list(cell = self$dimnames()[["cell"]]))
+          )
         } else {
-          stop(paste("If no meta file is available $add_grid",
-                     "has to be called explicitly with arguments as read_io."))
+          self$.__set_grid__(read_io(...))
         }
+
       }
 
       private$.grid$.__set_lock__(is_locked = TRUE)
@@ -458,18 +453,22 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #'
 #' @param x [LPJmLData] object.
 #'
-#' @param ... Arguments passed to [`read_io()`] if no grid file in "meta"
-#' format is available in the corresponding output directory.
+#' @param ... Arguments passed to [`read_io()`]. Without any arguments,
+#'   `add_grid()` will search for a file name starting with "grid" in the same
+#'   directory that `x` was loaded from. This supports grid files in `"meta"`
+#'   and `"clm"` format. If the grid file is in `"raw"` format or should be
+#'   loaded from a different directory, supply all necessary `read_io()`
+#'   parameters.
 #'
 #' @return A copy of `x` ([`LPJmLData`] object) with added `$grid` attribute.
 #'
 #' @examples
 #' \dontrun{
 #'
-#' # read in vegetation carbon data with meta file
+#' # Read in vegetation carbon data with meta file
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # add grid as attribute (via meta file in output directory)
+#' # Add grid as attribute (via grid file in output directory)
 #' vegc_with_grid <- add_grid(vegc)
 #'
 #' }
@@ -542,6 +541,57 @@ check_method_locked <- function(x, method_name) {
       )
     )
   }
+}
+
+#' Search for a grid file in a directory
+#'
+#' Function to search for a grid file in a specific directory.
+#'
+#' @param searchdir Directory where to look for a grid file.
+#' @return Character string with the file name of a grid file upon success.
+#'   Function fails if no matching grid file can be detected.
+#'
+#' @details This function looks for file names in `searchdir` that match the
+#'   `pattern` parameter in its [`list.files()`] call. Files of type "meta" are
+#'   preferred. Files of type "clm" are also accepted. The function returns an
+#'   error if no suitable file or multiple files are found. Otherwise, the file
+#'   name of the grid file including the full path is returned.
+#' @noRd
+find_gridfile <- function(searchdir) {
+  # The pattern will match any file name that starts with "grid*".
+  # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
+  # This will only match file names "grid.*", where * is one or two file
+  # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
+  grid_files <- list.files(
+    path = searchdir,
+    pattern = "^grid",
+    full.names = TRUE
+  )
+  if (length(grid_files) > 0) {
+    grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+    # Prefer "meta" file_type if present
+    if (length(which(grid_types == "meta")) == 1) {
+      filename <- grid_files[match("meta", grid_types)]
+    } else if (length(which(grid_types == "clm")) == 1) {
+      # Second priority "clm" file_type
+      filename <- grid_files[match("clm", grid_types)]
+    } else {
+      # Stop if either multiple files per file type or not the right type have
+      # been detected
+      stop(
+        "Cannot detect grid file automatically.\n",
+        "$add_grid has to be called supplying parameters as for read_io."
+      )
+    }
+  } else {
+    # Stop if no file name matching pattern detected
+    stop(
+      "Cannot detect grid file automatically.\n",
+      "$add_grid has to be called supplying parameters as for read_io."
+    )
+  }
+
+  filename
 }
 
 # Avoid note for "."...
