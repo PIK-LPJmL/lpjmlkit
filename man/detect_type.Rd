@@ -2,25 +2,32 @@
 % Please edit documentation in R/detect_type.R
 \name{detect_type}
 \alias{detect_type}
-\title{Detect file type of a LPJmL file}
+\title{Detect the file type of an LPJmL input/output file}
 \usage{
 detect_type(filename)
 }
 \arguments{
-\item{filename}{Character string naming the file to check}
+\item{filename}{Character string naming the file to check.}
 }
 \value{
-character vector of length 1 giving the file type:
+Character vector of length 1 giving the file type:
 \itemize{
-\item "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format)
-\item "clm" for a binary LPJmL file with header
-\item "meta" for a JSON meta file describing a LPJmL binary file
-\item "raw" for a binary LPJmL file without header
-\item "text" for any type of text-only file, e.g. \code{.txt} or \code{.csv}
+\item "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format).
+\item "clm" for a binary LPJmL input/output file with header.
+\item "meta" for a JSON meta file describing a binary LPJmL input/output file.
+\item "raw" for a binary LPJmL input/output file without header. This is also the
+default if no other file type can be recognized.
+\item "text" for any type of text-only file, e.g. ".txt" or ".csv"
 }
 }
 \description{
 This utility function tries to detect automatically if a
-provided file is of "clm", "meta", or "raw" file type. NetCDFs and simple
-text formats such as \code{.txt} or \code{.csv} are also detected.
+provided file is of \code{"clm"}, \code{"meta"}, or \code{"raw"} file type. NetCDFs and
+simple text formats such as ".txt" or ".csv" are also detected.
+}
+\examples{
+\dontrun{
+detect_type(filename = "filename.clm")
+[1] "clm"
+}
 }

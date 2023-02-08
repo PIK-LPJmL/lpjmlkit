@@ -1,22 +1,24 @@
-#' @title Data type and size of a LPJmL input/output file header
+#' @title Data type of an LPJmL input/output file
 #'
-#' @description Provide information on the data type used in a LPJmL file
-#'   based on the 'datatype' attribute included in the file header.
+#' @description Provides information on the data type used in an LPJmL
+#'   input/output file based on the 'datatype' attribute included in the file
+#'   header.
 #'
-#' @param header Header list object as returned by read_header() or
-#'   create_header(). Alternatively, can be a single integer just giving the
+#' @param header Header list object as returned by [`read_header()`] or
+#'   [`create_header()`]. Alternatively, can be a single integer just giving the
 #'   data type code or a single character string giving one of the LPJmL type
-#'   names c("byte", "short", "int", "float", "double").
-#' @param fail Whether function should fail if datatype is invalid. Default: TRUE.
-#'   If set to FALSE, function returns NULL if datatype is invalid.
+#'   names `c("byte", "short", "int", "float", "double")`.
+#' @param fail Determines whether the function should fail if the datatype is
+#'   invalid (default: `TRUE`).
 #'
 #' @return On success, the function returns a list object with three components:
-#' * type: R data type; can be used with 'what' parameter of `readBin()`.
-#' * size: size of data type; can be used with 'size' parameter of `readBin()`.
-#' * signed: whether or not the data type is signed; can be used with 'signed'
-#'   parameter of `readBin()`.
+#' * type: R data type; can be used with `what` parameter of [`readBin()`].
+#' * size: size of data type; can be used with `size` parameter of
+#'   [`readBin()`].
+#' * signed: whether or not the data type is signed; can be used with `signed`
+#'   parameter of [`readBin()`].
 #'
-#' If `fail = FALSE`, the function returns NULL if an invalid datatype is
+#' If `fail = FALSE`, the function returns `NULL` if an invalid datatype is
 #' provided.
 #'
 #' @examples
@@ -26,7 +28,7 @@
 #' # Open file for reading
 #' fp <- file("filename.clm", "rb")
 #' # Skip over file header
-#' seek(fp, get_headerize(header))
+#' seek(fp, get_headersize(header))
 #' # Read in file data
 #' file_data <- readBin(
 #'   fp,
@@ -34,7 +36,7 @@
 #'   size = get_datatype(header)$size,
 #'   signed = get_datatype(header)$signed,
 #'   n = header$header["ncell"] * header$header["nbands"] *
-#'       header$header["nyear"],
+#'       header$header["nyear"] * header$header["nstep"],
 #'   endian = header[["endian"]]
 #' )
 #' # Close file
@@ -42,7 +44,7 @@
 #' }
 #'
 #' @seealso
-#' * [read_header()] for reading headers from LPJmL files.
+#' * [read_header()] for reading headers from LPJmL input/output files.
 #' * [create_header()] for creating headers from scratch.
 #' * [get_headersize()] for determining the size of file headers.
 #'
@@ -51,7 +53,7 @@ get_datatype <- function(header, fail = TRUE) {
   if (is.list(header) && !is.null(header$header)) {
     header <- header$header
   }
-  # Also support data type string used in LPJmL meta files.
+  # Also support data type string used in LPJmL meta files
   if (is.character(header) && length(header) == 1) {
     header <- c(
       datatype = switch(
@@ -72,8 +74,8 @@ get_datatype <- function(header, fail = TRUE) {
       }
     }
   }
-  # Also support single numeric value instead of full header
-  # Possible header items besides datatype
+  # Also support single numeric value instead of full header.
+  # Possible header items besides datatype:
   header_items <- c(
     "version", "order", "firstyear", "nyear", "firstcell", "ncell", "nbands",
     "cellsize_lon", "scalar", "cellsize_lat", "nstep", "timestep"

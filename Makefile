@@ -1,4 +1,4 @@
-.PHONY: help build check test lint format
+.PHONY: help build check test lint lint-all format format-all install docs
 .DEFAULT_GOAL = help
 
 # extracts the help text and formats it nicely

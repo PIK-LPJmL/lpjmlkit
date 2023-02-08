@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_header.R
 \name{create_header}
 \alias{create_header}
-\title{Create a new LPJmL input (or output) file header}
+\title{Create a new LPJmL input/output file header}
 \usage{
 create_header(
   name = "LPJGRID",
@@ -24,44 +24,46 @@ create_header(
 )
 }
 \arguments{
-\item{name}{Header name attribute (default: "LPJGRID").}
+\item{name}{Header name attribute (default: `"LPJGRID").}
 
-\item{version}{CLM version to use (default: 3).}
+\item{version}{CLM version to use (default: \code{3}).}
 
-\item{order}{Order of data items (see LPJmL code for supported values;
-default: 1).}
+\item{order}{Order of data items. See details below or LPJmL code for
+supported values. The order may be provided either as an integer value or
+as a character string (default: \code{1}).}
 
-\item{firstyear}{Start year of data in file (default: 1901).}
+\item{firstyear}{Start year of data in file (default: \code{1901}).}
 
-\item{nyear}{Number of years of data included in file (default: 1).}
+\item{nyear}{Number of years of data included in file (default: \code{1}).}
 
-\item{firstcell}{Index of first data item (default: 0).}
+\item{firstcell}{Index of first data item (default: \code{0}).}
 
 \item{ncell}{Number of data items per band.}
 
-\item{nbands}{Number of bands per year of data (default: 2).}
+\item{nbands}{Number of bands per year of data (default: \code{2}).}
 
-\item{cellsize_lon}{Longitude cellsize in deg (default: 0.5).}
+\item{cellsize_lon}{Longitude cellsize in degrees (default: \code{0.5}).}
 
-\item{scalar}{Conversion factor applied to data when it is read by LPJmL
-(default: 1.0).}
+\item{scalar}{Conversion factor applied to data when it is read by LPJmL or
+by \code{read_io()} (default: \code{1.0}).}
 
-\item{cellsize_lat}{Latitude cellsize in deg (default: same as cellsize_lon).}
+\item{cellsize_lat}{Latitude cellsize in degrees (default: same as
+\code{cellsize_lon}).}
 
-\item{datatype}{LPJmL data type in file (see LPJmL code for valid data type
-codes; default: 3).}
+\item{datatype}{LPJmL data type in file. See details below or LPJmL code for
+valid data type codes (default: \code{3}).}
 
-\item{nstep}{Number of time steps per year, added in header version 4 to
-separate time bands from content bands (default: 1).}
+\item{nstep}{Number of time steps per year. Added in header version 4 to
+separate time bands from content bands (default: \code{1}).}
 
-\item{timestep}{If larger than 1, outputs are every over timestep years and
-only written once every timestep years (default: 1).}
+\item{timestep}{If larger than 1, outputs are averaged over \code{timestep} years
+and only written once every \code{timestep} years (default: \code{1}).}
 
-\item{endian}{Endianness to use for file (either "big" or "little", by
+\item{endian}{Endianness to use for file (either \code{"big"} or \code{"little"}, by
 default uses platform-specific endianness \code{.Platform$endian}).}
 
-\item{verbose}{If TRUE (the default), function provides some feedback on
-datatype and when using default values for missing parameters. If FALSE,
+\item{verbose}{If \code{TRUE} (the default), function provides some feedback on
+datatype and when using default values for missing parameters. If \code{FALSE},
 only errors are reported.}
 }
 \value{
@@ -76,7 +78,7 @@ The function returns a list with 3 components:
 }
 \description{
 Create a header from scratch in the format required by
-\code{write_header()}.
+\code{\link[=write_header]{write_header()}}.
 }
 \details{
 File headers in input files are used by LPJmL to determine the
@@ -94,19 +96,21 @@ versions 2, 3 and 4 add header attributes 'cellsize_lon' and 'scalar'. Header
 versions 3 and 4 add header attributes 'cellsize_lat' and 'datatype'. Header
 version 4 adds attributes 'nstep' and 'timestep'.
 
-Valid values for 'order' are 1, 2, 3, and 4. The default for LPJmL input
-files is 1. The default for LPJmL output files is 4, except for grid output
-files which also use 1.
+Valid values for \code{order} are \code{1} / \code{"cellyear"}, \code{2} / \code{"yearcell"}, \code{3} /
+\code{"cellindex"}, and \code{4} / \code{"cellseq"}. The default for LPJmL input files is
+\code{1}. The default for LPJmL output files is \code{4}, except for grid output
+files which also use \code{1}.
 
 By default, input files contain data for all cells, indicated by setting
-the 'firstcell' index to 0. If 'firstcell' > 0, LPJmL assumes the first
-'firstcell' cells to be missing in data.
+the \code{firstcell} index to \code{0}. If \code{firstcell > 0}, LPJmL assumes the first
+\code{firstcell} cells to be missing in the data.
 
-Valid codes for the 'datatype' attribute and the corresponding LPJmL data
-types are: 0 (LPJ_BYTE), 1 (LPJ_SHORT), 2 (LPJ_INT), 3 (LPJ_FLOAT),
-4 (LPJ_DOUBLE).
+Valid codes for the \code{datatype} attribute and the corresponding LPJmL data
+types are: \code{0} / \code{"byte"} (LPJ_BYTE), \code{1} / \code{"short"} (LPJ_SHORT), \code{2} /
+\code{"int"} (LPJ_INT), \code{3} / \code{"float"} (LPJ_FLOAT), \code{4} / \code{"double"}
+(LPJ_DOUBLE).
 
-Default parameters of the function are valid for grid input files using
+The default parameters of the function are valid for grid input files using
 LPJ_FLOAT data type.
 }
 \examples{
@@ -120,9 +124,9 @@ header <- create_header(
   ncell = 67420,
   nbands = 2,
   cellsize_lon = 0.5,
-  scalar = 0.01,
+  scalar = 1.0,
   cellsize_lat = 0.5,
-  datatype = 1,
+  datatype = 3,
   nstep = 1,
   timestep = 1,
   endian = .Platform$endian,
@@ -132,7 +136,7 @@ header <- create_header(
 }
 \seealso{
 \itemize{
-\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL files.
+\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL input/output files.
 \item \code{\link[=write_header]{write_header()}} for writing headers to files.
 }
 }

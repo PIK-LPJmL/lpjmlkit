@@ -1,11 +1,11 @@
-#' @title Retrieve information from LPJmL input/output file header
+#' @title Retrieve information from an LPJmL input/output file header
 #'
 #' @description Convenience function to extract information from a header object
-#' as returned by `read_header()` or `create_header()`. Returns one item per
-#'  call.
+#'   as returned by [`read_header()`] or [`create_header()`]. Returns one item
+#'   per call.
 #'
-#' @param header LPJmL file header as returned by `read_header()` or
-#'   `create_header()`.
+#' @param header LPJmL file header as returned by [`read_header()`] or
+#'   [`create_header()`].
 #' @param item Header information item to retrieve. One of `c("name", "version",
 #'   "order", "firstyear", "nyear", "firstcell", "ncell", "nbands",
 #'   "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep", "timestep",
@@ -17,12 +17,19 @@
 #' @seealso
 #' * [create_header()] for creating headers from scratch and for a more
 #'   detailed description of the LPJmL header format.
-#' * [read_header()] for reading headers from files.
+#' * [read_header()] for reading headers from LPJmL input/output files.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Read file header
+#' header <- read_header("filename.clm")
+#' nyear <- get_header_item(header = header, item = "nyear")
+#' }
 get_header_item <- function(header, item) {
-  # Check header structure
-  # Expect a list with elements "name", "header" and "endian"
+  # Check header structure. Expect a list with elements "name", "header" and
+  # "endian".
   if (!is.list(header) || any(is.null(header[c("name", "header", "endian")]))) {
     stop(
       paste(
