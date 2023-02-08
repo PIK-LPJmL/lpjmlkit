@@ -9,8 +9,12 @@ add_grid(x, ...)
 \arguments{
 \item{x}{\link{LPJmLData} object.}
 
-\item{...}{Arguments passed to \code{\link[=read_io]{read_io()}} if no grid file in "meta"
-format is available in the corresponding output directory.}
+\item{...}{Arguments passed to \code{\link[=read_io]{read_io()}}. Without any arguments,
+\code{add_grid()} will search for a file name starting with "grid" in the same
+directory that \code{x} was loaded from. This supports grid files in \code{"meta"}
+and \code{"clm"} format. If the grid file is in \code{"raw"} format or should be
+loaded from a different directory, supply all necessary \code{read_io()}
+parameters.}
 }
 \value{
 A copy of \code{x} (\code{\link{LPJmLData}} object) with added \verb{$grid} attribute.
@@ -32,10 +36,10 @@ recognized as a grid.
 \examples{
 \dontrun{
 
-# read in vegetation carbon data with meta file
+# Read in vegetation carbon data with meta file
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# add grid as attribute (via meta file in output directory)
+# Add grid as attribute (via grid file in output directory)
 vegc_with_grid <- add_grid(vegc)
 
 }
