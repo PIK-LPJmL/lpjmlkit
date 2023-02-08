@@ -37,7 +37,7 @@ authors:
     corresponding: false
     affiliation: 1
 affiliations:
- - name: Potsdam Institute for Climate Impact Research (PIK), Germany
+ - name: Potsdam Institute of Climate Impact Research (PIK), Germany
    index: 1
  - name: Climate Focus, Germany
    index: 2
@@ -57,20 +57,21 @@ The *lpjmlkit* R package [@lpjmlkit_manual] is an open source software for
 handling the open source Dynamic Global Vegetation model (DGVM)
 [LPJmL](https://github.com/PIK-LPJmL/LPJmL) mainly developed and maintained
 by the Potsdam Institute of Climate Impact Research (PIK).
-It contains two main modules. One, called *LPJmL Runner*, provides the
-functionality to create model configurations for
-multiple simulations at once and run them either on a configured local machine
-or on an HPC cluster with SLURM support.\
-The other, called *LPJmL Data* offers a generic read function that supports both
-simulation output and model input data for multiple file format types. The associated data
-class *LPJmLData* contains both the data and the corresponding metadata to ensure
-the integrity of both within an instantiated object. LPJmLData objects can be
-modified to a limited extent **[maybe say something on why only to limited extent and what that limit is for?]** 
-and exported to other common R data formats.
-In addition to these modules, further functions that facilitate 
-common use cases of LPJmL are included. This article introduces *lpjmlkit*,
-an R package that serves as an interface to LPJmL and thus both simplifies
-direct work with the model and enables new software developments **[enables new software development -- unclear what that means?]**.
+It contains two main modules. One, *LPJmL Runner*, provides the functionality to
+create model configurations for multiple simulations simultaneously and run them
+either on a configured local computer or on an HPC cluster with SLURM support.\
+The other, *LPJmL Data* offers a generic read function that supports
+simulation output and model input data for multiple file formats.
+The associated data class *LPJmLData* contains both the data and the
+corresponding metadata to ensure data integrity within an instance. LPJmLData
+objects act as data containers that provide special modification functions
+such as subsetting or transformations of the data. They can be exported into
+various other common R data formats.
+In addition to these modules, other functions are included to facilitate common
+use cases of LPJmL. This article introduces *lpjmlkit*, an R package
+that serves as an interface to LPJmL to simplify direct work with the model and
+to enable new generic software developments based on LPJmL simulations or data.
+
 
 
 # Statement of need
@@ -106,15 +107,21 @@ read and process input or output data.\
 This makes it difficult for beginners to work with LPJmL, but even scientists
 who have been using LPJmL for a while had to develop their own scripts and tools
 for routine data processing instead of using a generic, standardized interface.
-Numerous scripts have been shared, adapted
-and reapplied among scientists. Naturally, bugs were introduced and a lot of time was spent
-debugging, updating or adapting them to new model developments. **[I'm not sure on this one, lpjmlkit does not solve the problem of introducinb bugs to the LPJmL code and the need fore debugging... I'd leave that out and say something on wasting resources by re-creating standard processing routines]**\
+Numerous processing scripts have been shared, adapted and reapplied among
+scientists. A lot of time was spent on finding solutions for different and
+sometimes similar use cases. Nevertheless, the scope of such solutions was
+always limited, a never-ending cycle of work that is avoidable.
 `lpjmlkit` was developed to eliminate these problems and at the same time create
 a standard in the handling of LPJmL to improve the design of simulation experiments
-and the transparency of studies with LPJmL **[Not sure how that increases transparency of studies, maybe elaborate on that a bit more]**.\
-This way `lpjmlkit` serves as an application programming interface (API) to 
+and the transparency of studies with LPJmL. By using the LPJmL Runner
+functionality model configurations are stored in a single and unique
+configuration file that references the exact model version of LPJmL
+used for the simulations to achieve reproducible results.
+This way `lpjmlkit` serves as an application programming interface (API) to
 LPJmL and provides an easy-to-use basis for interaction with LPJmL in a simple
-R script as well as for further software development based on LPJmL **[future software development component not entirely clear, elaborate]**.
+R script as well as for further software development based on LPJmL. It is now
+possible to write functions with LPJmL data for all kinds of applications.
+The same is true for performing complex LPJmL simulations.
 
 # Package features
 
