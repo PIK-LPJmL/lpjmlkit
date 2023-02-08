@@ -33,36 +33,10 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       
       if (...length() == 0) {
         # If user has not supplied any parameters try to find a grid file in the
-        # same directory as data.
-        # The pattern will match any file name that starts with "grid*".
-        # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
-        # This will only match file names "grid.*", where * is one or two file
-        # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
-        grid_files <- list.files(
-          path = private$.meta$._data_dir_,
-          pattern = "^grid",
-          full.names = TRUE
-        )
-        if (length(grid_files) > 0) {
-          grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
-          # Prefer "meta" file_type if present
-          if (length(which(grid_types == "meta")) == 1) {
-            filename <- grid_files[match("meta", grid_types)]
-          } else if (length(which(grid_types == "clm")) == 1) {
-            # Second priority "clm" file_type
-            filename <- grid_files[match("clm", grid_types)]
-          } else {
-            stop(
-              "Cannot detect grid file automatically.\n",
-              "$add_grid has to be called supplying parameters as for read_io."
-            )
-          }
-        } else {
-          stop(
-            "Cannot detect grid file automatically.\n",
-            "$add_grid has to be called supplying parameters as for read_io."
-          )
-        }
+        # same directory as data. This throws an error if no suitable file is
+        # found.
+        filename <- find_gridfile(private$.meta$._data_dir_)
+
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
@@ -562,6 +536,57 @@ check_method_locked <- function(x, method_name) {
       )
     )
   }
+}
+
+#' Search for a grid file in a directory
+#'
+#' Function to search for a grid file in a specific directory.
+#'
+#' @param searchdir Directory where to look for a grid file.
+#' @return Character string with the file name of a grid file upon success.
+#'   Function fails if no matching grid file can be detected.
+#'
+#' @details This function looks for file names in `searchdir` that match the
+#'   `pattern` parameter in its [`list.files()`] call. Files of type "meta" are
+#'   preferred. Files of type "clm" are also accepted. The function returns an
+#'   error if no suitable file or multiple files are found. Otherwise, the file
+#'   name of the grid file including the full path is returned.
+#' @noRd
+find_gridfile <- function(searchdir) {
+  # The pattern will match any file name that starts with "grid*".
+  # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
+  # This will only match file names "grid.*", where * is one or two file
+  # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
+  grid_files <- list.files(
+    path = searchdir,
+    pattern = "^grid",
+    full.names = TRUE
+  )
+  if (length(grid_files) > 0) {
+    grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+    # Prefer "meta" file_type if present
+    if (length(which(grid_types == "meta")) == 1) {
+      filename <- grid_files[match("meta", grid_types)]
+    } else if (length(which(grid_types == "clm")) == 1) {
+      # Second priority "clm" file_type
+      filename <- grid_files[match("clm", grid_types)]
+    } else {
+      # Stop if either multiple files per file type or not the right type have
+      # been detected
+      stop(
+        "Cannot detect grid file automatically.\n",
+        "$add_grid has to be called supplying parameters as for read_io."
+      )
+    }
+  } else {
+    # Stop if no file name matching pattern detected
+    stop(
+      "Cannot detect grid file automatically.\n",
+      "$add_grid has to be called supplying parameters as for read_io."
+    )
+  }
+
+  filename
 }
 
 # Avoid note for "."...
