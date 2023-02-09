@@ -23,7 +23,7 @@ authors:
   - name: Stephen Wirth
     orcid: 0000-0002-2261-8771
     corresponding: false
-    affiliation: 1
+    affiliation: 1, 3
   - name: Sara Minoli
     orcid: 0000-0002-2261-8771
     corresponding: false
@@ -41,6 +41,8 @@ affiliations:
    index: 1
  - name: Climate Focus, Germany
    index: 2
+ - name: Institute of Crop Science and Plant Breeding, Grass and Forage Science/Organic Agriculture, Kiel University, Hermann-Rodewald-Str. 9, 24118, Kiel, Germany
+   index: 3
 
 date: 30 January 2023
 bibliography: paper.bib
