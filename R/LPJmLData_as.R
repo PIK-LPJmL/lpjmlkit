@@ -248,38 +248,14 @@ LPJmLData$set("private",
     multi_dims <- get_multidims(data_subset)
 
 
-    # Check whether there are multiple bands/time steps. Convert space_format
-    # from "lon_lat" to "cell" if multi-layer brick is required. Stop if there
-    # are too many dimensions (e.g. multiple bands and multiple time steps).
+    # Convert space_format from "lon_lat" to "cell" to allow for non-sequential
+    # coordinate axes, i.e. non-continuous subsetting along one or both space
+    # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
+      data_subset$transform(to = "cell")
 
-      if (length(multi_dims) == 3) {
-
-        data_subset$transform(to = "cell")
-
-        multi_dims <- get_multidims(data_subset)
-
-      } else if (length(multi_dims) > 3) {
-        stop(
-          paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via subset function or",
-                "argument.")
-        )
-      } else {
-
-        # Assign data to tmp_raster
-        tmp_raster <- data_subset$data %>%
-          subset_array(
-            list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
-          ) %>%
-          aperm(c("lat", "lon",
-                  setdiff(names(dim(.)), c("lat", "lon")))
-          ) %>%
-          raster::raster(template = tmp_raster)
-
-        names(tmp_raster) <- data_subset$meta$variable
-      }
+      multi_dims <- get_multidims(data_subset)
     }
 
     # For space_format "cell" allow one additional dimension
@@ -288,7 +264,8 @@ LPJmLData$set("private",
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via $subset.")
+                "Reduce to one additional dimension besides space via $subset",
+                "or $aggregate.")
         )
 
       } else if (length(multi_dims) == 2) {
@@ -393,39 +370,14 @@ LPJmLData$set("private",
     # space dims are always included (to work with 1 cell SpatRaster)
     multi_dims <- get_multidims(data_subset)
 
-    # Check whether there are multiple bands/time steps. Convert space_format
-    # from "lon_lat" to "cell" if multi-layer SpatRaster is required. Stop if
-    # there are too many dimensions (e.g. multiple bands and multiple time
-    # steps).
+    # Convert space_format from "lon_lat" to "cell" to allow for non-sequential
+    # coordinate axes, i.e. non-continuous subsetting along one or both space
+    # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
-      if (length(multi_dims) == 3) {
+      data_subset$transform(to = "cell")
 
-        data_subset$transform(to = "cell")
-
-        multi_dims <- get_multidims(data_subset)
-
-      } else if (length(multi_dims) > 3) {
-        stop(
-          paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via subset function or",
-                "argument.")
-        )
-      } else {
-
-        # Assign data to tmp_raster
-        tmp_rast <- data_subset$data %>%
-          subset_array(
-            list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
-          ) %>%
-          aperm(c("lat", "lon",
-                  setdiff(names(dim(.)), c("lat", "lon")))
-          ) %>%
-          terra::rast(crs = terra::crs(tmp_rast),
-                      extent = terra::ext(tmp_rast))
-
-        names(tmp_rast) <- data_subset$meta$variable
-      }
+      multi_dims <- get_multidims(data_subset)
     }
 
     # For space_format "cell" allow one additional dimension
@@ -434,7 +386,8 @@ LPJmLData$set("private",
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via $subset.")
+                "Reduce to one additional dimension besides space via $subset",
+                "or $aggregate.")
         )
 
       } else if (length(multi_dims) == 2) {
