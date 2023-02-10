@@ -10,7 +10,10 @@
 #'   dimensions. Subsets may either specify integer indices, e.g.
 #'   `cell = c(27411:27416)`, `band = -c(14:16, 19:32)`, or character vectors if
 #'   the dimension has a dimnames attribute, e.g.
-#'   `band = c("rainfed rice", "rainfed maize")`.
+#'   `band = c("rainfed rice", "rainfed maize")`.\
+#'   Coordinates, so pairs of lon and lat can be subsetted by providing a tibble
+#'   in the form of `coords = tibble(lon = ..., lat =...)`. The argument can
+#'   `"coordinates"`
 #'
 #' @return An [`LPJmLData`] object with dimensions resulting from the selection
 #'   in `subset`. Meta data are updated as well.
@@ -53,9 +56,6 @@ subset.LPJmLData <- function(x, ...) {
 LPJmLData$set("private",
               ".subset",
               function(...) {
-
-    # Check for locked objects
-    check_method_locked(self, "subset")
 
     # Function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {
@@ -178,7 +178,6 @@ LPJmLData$set("private",
         } else {
           grid <- self$clone(deep = TRUE)
         }
-        grid$.__set_lock__(is_locked = FALSE)
         cell_dimnames <- transform(grid, to = "cell") %>%
           dimnames() %>%
           .$cell
@@ -212,6 +211,7 @@ LPJmLData$set("private",
     return(invisible(self))
   }
 )
+
 
 create_year_dimnames <- function(subset_list, data) {
 

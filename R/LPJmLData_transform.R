@@ -60,24 +60,21 @@ LPJmLData$set("private",
               ".transform",
               function(to) {
 
-    # Check for locked objects
-    check_method_locked(self, "transform")
-
     # Transform time format
     if (any(to %in% private$.meta$._dimension_map_$time)) {
-      private$transform_time(to = "time")
+      private$.transform_time(to = "time")
       to <- to[!to %in% private$.meta$._dimension_map_$time]
     } else if (any(to %in% private$.meta$._dimension_map_$year_month_day)) {
-      private$transform_time(to = "year_month_day")
+      private$.transform_time(to = "year_month_day")
       to <- to[!to %in% private$.meta$._dimension_map_$year_month_day]
     }
 
     # Transform space format
     if (any(to %in% private$.meta$._dimension_map_$cell)) {
-      private$transform_space(to = "cell")
+      private$.transform_space(to = "cell")
       to <- to[!to %in% private$.meta$._dimension_map_$cell]
     } else if (any(to %in% private$.meta$._dimension_map_$lon_lat)) {
-      private$transform_space(to = "lon_lat")
+      private$.transform_space(to = "lon_lat")
       to <- to[!to %in% private$.meta$._dimension_map_$lon_lat]
     }
 
@@ -107,133 +104,12 @@ LPJmLData$set("private",
   }
 )
 
-# Method to transform the dimensions of a grid array from "cell" to "lon_lat"
-# or the other way around
-LPJmLData$set("private",
-              ".transform_grid",
-              function(to = NULL) {
-    if (is.null(private$.meta$variable) ||
-        private$.meta$variable != "grid") {
-      stop(paste("not legit for variable", private$.meta$variable))
-    }
-
-    # Convenience function - if to == NULL automatically switch to other to
-    if (is.null(to)) {
-      if (private$.meta$._space_format_ == "cell") {
-        to <- "lon_lat"
-      } else {
-        to <- "cell"
-      }
-    }
-
-    # Case 1: Transformation from cell dimension to lon, lat dimensions
-    if (private$.meta$._space_format_ == "cell" &&
-        to == "lon_lat") {
-
-      # calculate grid extent from range to span raster
-      grid_extent <- apply(
-          self$data,
-          "band",
-          range
-      )
-
-      # Calculate dimnames for full 2 dimensional grid
-      spatial_dimnames <- mapply(seq, # nolint:undesirable_function_linter.
-                                 grid_extent[1, c("lat", "lon")],
-                                 grid_extent[2, c("lat", "lon")] +
-                                   c(private$.meta$cellsize_lat,
-                                     private$.meta$cellsize_lon) / 2,
-                                 by = c(private$.meta$cellsize_lat,
-                                        private$.meta$cellsize_lon),
-                                 SIMPLIFY = FALSE)
-
-      # Initialize grid array
-      grid_array <- array(NA,
-                          dim = lapply(spatial_dimnames, length),
-                          dimnames = spatial_dimnames)
-
-      # Get indices of lat and lon dimnames
-      ilon <- round((asub(self$data, band = "lon") -
-        min(grid_extent[, "lon"])) / private$.meta$cellsize_lon) + 1
-      ilat <- round((asub(self$data, band = "lat") -
-        min(grid_extent[, "lat"])) / private$.meta$cellsize_lat) + 1
-
-      # Set dimnames of grid_array to actual coordinates instead of dummy
-      # spatial_dimnames
-      coordlon <- asub(self$data, band = "lon")[
-        match(seq_len(dim(grid_array)["lon"]), ilon)
-      ]
-      dimnames(grid_array)$lon <- ifelse(
-        is.na(coordlon),
-        dimnames(grid_array)$lon,
-        coordlon
-      )
-      coordlat <- asub(self$data, band = "lat")[
-        match(seq_len(dim(grid_array)["lat"]), ilat)
-      ]
-      dimnames(grid_array)$lat <- ifelse(
-        is.na(coordlat),
-        dimnames(grid_array)$lat,
-        coordlat
-      )
-
-      # Replace cell of lon and lat by cell index
-      grid_array[cbind(ilat, ilon)] <- as.integer(
-        dimnames(self$data)$cell
-      )
-      self$.__set_data__(grid_array)
-      private$.meta$.__transform_space_format__("lon_lat")
-
-    # Case 2: Transformation from lon, lat dimensions to cell dimension
-    } else if (private$.meta$._space_format_ == "lon_lat" &&
-        to == "cell") {
-
-      # Get indices of actual cells
-      grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
-      grid_dimnames <- lapply(dimnames(self$data), as.numeric)
-
-      # Set values to latitude and longitude coordinates and dimnames to cell
-      # indices
-      self$.__set_data__(
-        array(
-          cbind(
-            lon = grid_dimnames[["lon"]][
-              grid_indices[, which(names(dim(self$data)) == "lon")]
-            ],
-            lat = grid_dimnames[["lat"]][
-              grid_indices[, which(names(dim(self$data)) == "lat")]
-            ]
-          ),
-          dim = c(cell = length(self$data[grid_indices]),
-                  band = 2),
-          dimnames = list(cell = self$data[grid_indices],
-                          band = c("lon", "lat"))
-        )
-      )
-
-      private$.meta$.__transform_space_format__("cell")
-    }
-
-    return(invisible(self))
-  }
-)
-
 
 # Method to transform space dimension of data array from "cell" to "lon_lat" or
 #   the other way around. If required add_grid to LPJmLData along the way.
 LPJmLData$set("private",
-              "transform_space",
+              ".transform_space",
               function(to = NULL) {
-
-    # Use transform_grid method on the object itself if it is a grid
-    if (!is.null(private$.meta$variable) &&
-        private$.meta$variable == "grid") {
-      self$.__transform_grid__(to = to)
-      return(invisible(self))
-    }
-
-    # Check for locked objects
-    check_method_locked(self, "transform_space")
 
     # Convenience function - if to == NULL automatically switch to other to
     if (is.null(to)) {
@@ -251,9 +127,7 @@ LPJmLData$set("private",
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
-    if (is.null(private$.grid)) {
-      self$add_grid()
-    }
+    self$add_grid()
 
     # Create new data array based on disaggregated time dimension
     other_dimnames <- dimnames(self$data) %>%
@@ -265,7 +139,7 @@ LPJmLData$set("private",
     if (private$.meta$._space_format_ == "cell" &&
         to == "lon_lat") {
 
-      private$.grid$.__transform_grid__(to = to)
+      private$.grid$.__transform_space__(to = to)
 
       # Append new space dimension where they have been before
       new_dimnames <- append(other_dimnames,
@@ -301,7 +175,7 @@ LPJmLData$set("private",
         array(dim = dim(self$data),
               dimnames = dimnames(self$data))
 
-      private$.grid$.__transform_grid__(to = to)
+      private$.grid$.__transform_space__(to = to)
 
       # append new space dimension where they have been before
       new_dimnames <- append(other_dimnames,
@@ -339,18 +213,8 @@ LPJmLData$set("private",
 # Method to transform the time dimension of the data array from "time" to
 # "year_month_cell" or the other way around
 LPJmLData$set("private",
-              "transform_time",
+              ".transform_time",
               function(to = NULL) {
-
-    # Special case: LPJmLData objects containing "grid" variable do not have any
-    # time information. Fail if attempting to switch time format.
-    if (!is.null(private$.meta$variable) &&
-        private$.meta$variable == "grid") {
-      stop(paste("not legit for variable", dQuote(private$.meta$variable)))
-    }
-
-    # Check for locked objects
-    check_method_locked(self, "transform_time")
 
     # Convenience function - if to == NULL automatically switch to other to
     if (is.null(to)) {

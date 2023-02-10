@@ -237,7 +237,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+    data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
     # Create empty raster to use as base for assigning data
     tmp_raster <- create_tmp_raster(data_subset)
@@ -383,7 +383,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+    data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
     # Create empty SpatRaster to use as base for assigning data
     tmp_rast <- create_tmp_raster(data_subset, is_terra = TRUE)
@@ -490,7 +490,7 @@ LPJmLData$set("private",
 
 
 LPJmLData$set("private",
-              "subset_raster_data",
+              ".subset_raster_data",
               function(self,
                        subset = NULL,
                        aggregate = NULL,
@@ -498,10 +498,7 @@ LPJmLData$set("private",
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
-    if (is.null(private$.grid) &&
-        private$.meta$._space_format_ == "cell") {
-      self$add_grid()
-    }
+    self$add_grid()
 
     # Workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone(deep = TRUE)

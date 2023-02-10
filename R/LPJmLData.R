@@ -19,6 +19,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   lock_objects = TRUE,
 
   public = list(
+
     # modify methods --------------------------------------------------------- #
 
     #' @description
@@ -28,9 +29,11 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' @param ... See [`add_grid()`].
     add_grid = function(...) {
 
-      # Check for locked objects
-      check_method_locked(self, "add_grid")
-      
+      # Skip if grid is already attached
+      if (!is.null(private$.grid)) {
+        return(invisible(self))
+      }
+
       if (...length() == 0) {
         # If user has not supplied any parameters try to find a grid file in the
         # same directory as data. This throws an error if no suitable file is
@@ -54,24 +57,19 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         }
       } else {
 
-          # All arguments have to be provided manually to read_io.
-          #   Ellipsis (...) does that.
+        # All arguments have to be provided manually to read_io.
+        #   Ellipsis (...) does that.
 
-          # Add support for cell subsets. This is a rough filter since $subset
-          #   does not say if cell is subsetted - but ok for now.
-          if (private$.meta$._subset_space_) {
-            lpjml_data <- read_io(
-              ...,
-              subset = list(cell = self$dimnames()[["cell"]])
-            )
-          } else {
-            lpjml_data <- read_io(...)
-          }
-
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
+        if (private$.meta$._subset_space_) {
+          lpjml_data <- read_io(
+            ...,
+            subset = list(cell = self$dimnames()[["cell"]])
+          )
         } else {
-          self$.__set_grid__(read_io(...))
+          lpjml_data <- read_io(...)
         }
-
       }
 
       # Create LPJmLData object and bring together data and meta_data
@@ -79,8 +77,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
       # set grid attribute
       self$.__set_grid__(lpjml_grid)
-
-      private$.grid$.__set_lock__(is_locked = TRUE)
     },
 
 
@@ -285,15 +281,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     },
 
 
-    #' @description
-    #' !Internal method only to be used for package development!
-    #'
-    #' @param ... See [`transform()`].
-    .__transform_grid__ = function(...) {
-      private$.transform_grid(...)
-    },
-
-
     # Set data attribute; only to be used internally or explicitly
     #   on purpose
     #' @description
@@ -313,17 +300,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' @param grid An `LPJmLData` object holding grid coordinates.
     .__set_grid__ = function(grid) {
       private$.grid <- grid
-    },
-
-
-    # Set is_locked attribute; only to be used internally or explicitly
-    #   on purpose
-    #' @description
-    #' !Internal method only to be used for package development!
-    #'
-    #' @param is_locked Bolean.
-    .__set_lock__ = function(is_locked) {
-      private$.is_locked <- is_locked
     },
 
 
@@ -374,21 +350,12 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   environment.
         grid <- private$.grid$clone(deep = TRUE)
 
-        # Allow using methods on grid outside of LPJmLData instance
-        grid$.__set_lock__(is_locked = FALSE)
-
         return(grid)
 
       } else {
         # If NULL make sure NULL is returned directly and not tried to clone
         return(private$.grid)
       }
-    },
-
-    #' @field ._is_locked_ *Internal* logical. If an object is locked no method
-    #'   can be performed directly on the object.
-    ._is_locked_ = function() {
-      return(private$.is_locked)
     }
   ),
 
@@ -399,9 +366,8 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
     .data = NULL,
 
-    .grid = NULL,
+    .grid = NULL
 
-    .is_locked = FALSE
   )
 )
 
@@ -496,26 +462,6 @@ aggregate_array <- function(x,
   data
 }
 
-
-check_method_locked <- function(x, method_name) {
-  if (x$._is_locked_) {
-    stop(
-      paste0(
-        "\u001b[0m",
-        "The attribute ",
-        "\u001b[34m",
-        ifelse(is.null(x$meta$variable), "???", x$meta$variable),
-        "\u001b[0m",
-        " is locked. You cannot use method ",
-        "\u001b[34m",
-        method_name,
-        "\u001b[0m",
-        " on this object.",
-        "\n"
-      )
-    )
-  }
-}
 
 #' Search for a grid file in a directory
 #'
