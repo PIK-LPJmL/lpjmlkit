@@ -10,33 +10,38 @@ asub(x, ..., drop = TRUE)
 asub(x, ...) <- value
 }
 \arguments{
-\item{x}{array with named dimensions}
+\item{x}{An array with named dimensions.}
 
-\item{...}{Provide dimension names to be used to subset an \link[base]{array}
-in combination with indices vectors, e.g. \code{cell = c(27411:27416)}, or
-\code{band = -c(14:16, 19:32)} or subset using a "character" vector like
+\item{...}{One or several vectors of indices or character strings to be used
+to subset \code{x}. Argument names refer to the dimension name to be subset,
+while argument values specify the selected elements along the respective
+dimension. Examples: \code{cell = c(27411:27416)}, \code{band = -c(14:16, 19:32)},
 \code{band = c("rainfed rice","rainfed maize")}.}
 
-\item{drop}{logical. If TRUE (default), dimensions are dropped when dimension
-has length == 1, else dimension is kept.}
+\item{drop}{Logical. If \code{TRUE} (default), dimensions with a length of 1 are
+dropped from the result. Otherwise, they are kept.}
 
-\item{value}{array/vector of the same dimension as referred to by dimension
-and subset vector (\code{...})}
+\item{value}{Array/vector of replacement values. Note: If \code{value} does not
+have the same dimensions as selected by (\code{...}), automatic replication
+is done by \strong{R} to extend \code{value} to the required length.}
 }
 \value{
-array or vector (if \code{drop=TRUE} and one only dimension left)
+Without replacement \code{value} returns an array (or vector if
+\code{drop = TRUE} and only one dimension is left) of the selected subset of
+\code{x}. If \code{value} is specified, returns an array with the same dimensions as
+\code{x} where values selected by \code{(...)} are replaced by values from \code{value}.
 }
 \description{
-Subset an array with supplied dimnames and - if defined - replace it.
+Subset an array with the supplied dimnames and - if defined - replace values.
 }
 \section{Functions}{
 \itemize{
-\item \code{asub(x, ...) <- value}: replace an array subset
+\item \code{asub(x, ...) <- value}: Replace an array subset
 
 }}
 \examples{
 my_array <- array(1,
-                  dim=c(cell = 67, month=12, band = 3),
+                  dim=c(cell = 67, month = 12, band = 3),
                   dimnames = list(cell = 0:66,
                                 month = 1:12,
                                 band = c("band1", "band2", "band3")))
@@ -47,7 +52,7 @@ dimnames(my_subset)[3]
 #   [1] "band1"
 #   [2] "band3"
 
-# replace subset
+# Replace subset
 asub(my_subset, band = c("band1")) <- 0
 
 }

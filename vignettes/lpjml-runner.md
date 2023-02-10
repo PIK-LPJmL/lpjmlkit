@@ -5,20 +5,12 @@ error prone without having a big (bash) script overhead.
 
 ## ⚙ Setup
 
-Please make sure to have set the [working environment for
-LPJmL](https://gitlab.pik-potsdam.de/lpjml/LPJmL_internal/-/blob/master/INSTALL)
-correctly if you are not working on the PIK cluster (with [SLURM
-Workload
-Manager](https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm)).
-On the PIK cluster please load the lpjml module (below) or add it to
-your `".profile"`.
-
-``` bash
-# load lpjml module to use LPJmL internal functions
-module load lpjml
-```
-
- 
+**! Important !** The LPJmL Runner module only supports unix-based
+operating systems in which the [working environment for
+LPJmL](https://github.com/PIK-LPJmL/LPJmL/blob/master/INSTALL) is
+configured!  
+For users on the PIK cluster: Load the `"lpjml"` module or add it to
+your `".profile"`.  
 
 ## Overview
 

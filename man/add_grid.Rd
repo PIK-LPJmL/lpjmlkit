@@ -2,39 +2,44 @@
 % Please edit documentation in R/LPJmLData.R
 \name{add_grid}
 \alias{add_grid}
-\title{Add grid to LPJmLData object}
+\title{Add grid to an LPJmLData object}
 \usage{
 add_grid(x, ...)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{x}{\link{LPJmLData} object.}
 
-\item{...}{arguments passed to \code{\link{read_io}} if no grid file and or meta
-file in corresponding output directory available.}
+\item{...}{Arguments passed to \code{\link[=read_io]{read_io()}}. Without any arguments,
+\code{add_grid()} will search for a file name starting with "grid" in the same
+directory that \code{x} was loaded from. This supports grid files in \code{"meta"}
+and \code{"clm"} format. If the grid file is in \code{"raw"} format or should be
+loaded from a different directory, supply all necessary \code{read_io()}
+parameters.}
 }
 \value{
-\code{\link{LPJmLData}} object in selected format
+A copy of \code{x} (\code{\link{LPJmLData}} object) with added \verb{$grid} attribute.
 }
 \description{
-Function to add a grid to a \code{\link{LPJmLData}}. The function acts
-as a \code{\link{read_io}} function for the grid file and adds it as an
-\code{LPJmLData} object itself to the the main object as an attribute \verb{$grid}
+Function to add a grid to an \code{\link{LPJmLData}} object. The function acts
+as a \code{\link[=read_io]{read_io()}} wrapper for the grid file and adds it as an
+\code{LPJmLData} object itself to the \verb{$grid} attribute of the main object.
 }
 \details{
 \strong{Important:}
 \itemize{
-\item If \code{"file_type" == "raw"} and data should be recognized as a
-grid, prescribe \code{variable = "grid"}!
-\item Do not use \link{read_io} argument \code{subset} here!
+\item If \code{"file_type" == "raw"} prescribe \code{variable = "grid"} to ensure data are
+recognized as a grid.
+\item Do not use \code{\link[=read_io]{read_io()}} argument \code{subset} here. \code{add_grid} will use the
+\code{subset} of the parent \code{\link{LPJmLData}} object \code{x}.
 }
 }
 \examples{
 \dontrun{
 
-# read in vegetation carbon data with meta file
+# Read in vegetation carbon data with meta file
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# add grid as attribute (via meta file in output directory)
+# Add grid as attribute (via grid file in output directory)
 vegc_with_grid <- add_grid(vegc)
 
 }

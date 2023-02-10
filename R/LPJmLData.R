@@ -1,15 +1,16 @@
 #' @title LPJmL data class
 #'
-#' @description A data container for LPJmL input and output. Container - because
-#' a LPJmLData object is a environment in which the data array as well as the
-#' meta data are stored after [`read_io`].
+#' @description
+#' A data container for LPJmL input and output. Container - because an
+#' LPJmLData object is an environment in which the data array as well as the
+#' meta data are stored after [`read_io()`].
 #' The data array can be accessed via `$data`, the meta data via `$meta`.
 #' The enclosing environment is locked and cannot be altered by any
-#' other than the available modify methods and thus ensures its integrity and
+#' other than the available modify methods to ensure its integrity and
 #' validity.
-#' Please use base stats methods like [`print`, [`summary.LPJmLData`] or
-#' [`plot.LPJmLData`] to get insights and export methods like [`as_tibble`] or
-#' [`as_raster`] to export it into common working formats.
+#' Use base stats methods like [`print()`], [`summary.LPJmLData()`] or
+#' [`plot.LPJmLData()`] to get insights and export methods like [`as_tibble()`]
+#' or [`as_raster()`] to export it into common working formats.
 #'
 LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
@@ -21,42 +22,43 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     # modify methods --------------------------------------------------------- #
 
     #' @description
-    #' Method to add a grid to a `LPJmLData`.
+    #' Method to add a grid to an `LPJmLData` object.
     #' See also [`add_grid`]
     #'
-    #' @param ... See [`add_grid`]
+    #' @param ... See [`add_grid()`].
     add_grid = function(...) {
 
-      # check for locked objects
+      # Check for locked objects
       check_method_locked(self, "add_grid")
+      
+      if (...length() == 0) {
+        # If user has not supplied any parameters try to find a grid file in the
+        # same directory as data. This throws an error if no suitable file is
+        # found.
+        filename <- find_gridfile(private$.meta$._data_dir_)
+        blue_col <- "\u001b[34m"
+        unset_col <- "\u001b[0m"
+        cat(blue_col, "$grid ", unset_col, "read from ",
+            sQuote(basename(filename)), "\n", sep = "")
 
-      # check if meta file for grid is located in output location
-      grid_file <- list.files(private$.meta$._data_dir_,
-                              pattern = "grid.bin.json")
-
-      if (length(grid_file) == 1) {
-
-        # if so get concatenate existing file and data_dir to read grid
-        filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
-
-        # add support for cell subsets - this is a rough filter since $subset
-        #   does not say if cell is subsetted - but ok for now
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
           lpjml_data <- read_io(
               filename = filename,
-              subset = list(cell = self$dimnames()[["cell"]])
+              subset = list(cell = self$dimnames()[["cell"]]),
+              silent = TRUE
             )
         } else {
-          lpjml_data <- read_io(filename = filename)
+          lpjml_data <- read_io(filename = filename, silent = TRUE)
         }
-
       } else {
 
-        # all arguments have to be provided manually via read_io args
-        #   ellipsis (...) does that
-        # check if arguments are provided
-        if (length(as.list(match.call())) > 1) {
+          # All arguments have to be provided manually to read_io.
+          #   Ellipsis (...) does that.
 
+          # Add support for cell subsets. This is a rough filter since $subset
+          #   does not say if cell is subsetted - but ok for now.
           if (private$.meta$._subset_space_) {
             lpjml_data <- read_io(
               ...,
@@ -67,9 +69,9 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
           }
 
         } else {
-          stop(paste("If no meta file is available $add_grid",
-                     "has to be called explicitly with args as read_io."))
+          self$.__set_grid__(read_io(...))
         }
+
       }
 
       # Create LPJmLData object and bring together data and meta_data
@@ -83,21 +85,20 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Method to use dimension names of `LPJmLData`
-    #' array directly to subset each by simply using supplying
-    #' vectors.
+    #' Method to use dimension names of `LPJmLData$data`
+    #' array directly to subset each dimension to match the supplied vectors.
     #'
-    #' @param ... See [`subset.LPJmLData`]
+    #' @param ... See [`subset.LPJmLData()`]
     subset = function(...) {
       private$.subset(...)
     },
 
 
     #' @description
-    #' Method to transform inner `LPJmLData` array
-    #' into another space or another time format.
+    #' Method to transform inner `LPJmLData$data` array
+    #' into another space or time format.
     #'
-    #' @param ... See [`transform`]
+    #' @param ... See [`transform()`].
     transform = function(...) {
       private$.transform(...)
     },
@@ -106,52 +107,52 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     # export methods --------------------------------------------------------- #
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' Method to coerce (convert) an `LPJmLData` object into an
     #' \link[base]{array}.
     #'
-    #' @param ... See [`as_array`]
+    #' @param ... See [`as_array()`].
     as_array = function(...) {
       private$.as_array(...)
     },
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
+    #' Method to coerce (convert) an `LPJmLData` object into a
     #' \link[tibble]{tibble} (modern \link[base]{data.frame}).
     #'
-    #' @param ... See [`as_tibble`]
+    #' @param ... See [`as_tibble()`].
     as_tibble = function(...) {
       private$.as_tibble(...)
     },
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
-    #' \link[raster]{raster} or \link[raster]{brick} object, that opens the
-    #' space for any GIS based raster operations.
+    #' Method to coerce (convert) an `LPJmLData` object into a
+    #' \link[raster]{raster} or \link[raster]{brick} object that can be used
+    #' for any GIS-based raster operations.
     #'
-    #' @param ... See [`as_raster`]
+    #' @param ... See [`as_raster()`].
     as_raster = function(...) {
       private$.as_raster(...)
     },
 
 
     #' @description
-    #' Method to coerce (convert) a `LPJmLData` object into a
-    #' \link[terra]{rast}, that opens the space for any GIS based raster
+    #' Method to coerce (convert) an `LPJmLData` object into a
+    #' \link[terra]{rast} object that can be used for any GIS-based raster
     #' operations.
     #'
-    #' @param ... See [`as_terra`]
+    #' @param ... See [`as_terra()`].
     as_terra = function(...) {
       private$.as_terra(...)
     },
 
 
     #' @description
-    #' Method to plot a time-series or raster map of a `LPJmLData`
+    #' Method to plot a time-series or raster map of an `LPJmLData`
     #' object.
     #'
-    #' @param ... See [`plot.LPJmLData`]
+    #' @param ... See [`plot.LPJmLData()`].
     plot = function(...) {
       private$.plot(...)
     },
@@ -160,63 +161,63 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     # stats methods ---------------------------------------------------------- #
 
     #' @description
-    #' Method to get the length of the array of a `LPJmLData`
+    #' Method to get the length of the data array of an `LPJmLData`
     #' object. \cr
-    #' See also \link[base]{length}
+    #' See also \link[base]{length}.
     length = function() {
       private$.length()
     },
 
 
     #' @description
-    #' Method to get the dimension names and lengths of the array of a
+    #' Method to get the dimensions of the data array of an
     #' `LPJmLData` object. \cr
-    #' See also \link[base]{dim}
+    #' See also \link[base]{dim}.
     dim = function() {
       private$.dim()
     },
 
 
     #' @description
-    #' Method to get the dimensions (list) of the array of a
+    #' Method to get the dimnames (list) of the data array of an
     #' `LPJmLData` object.
     #'
-    #' @param ... See [dimnames.LPJmLData]
+    #' @param ... See [`dimnames.LPJmLData()`].
     dimnames = function(...) {
       private$.dimnames(...)
     },
 
 
     #' @description
-    #' Method to get the summary of the array of a
+    #' Method to get the summary of the data array of an
     #' `LPJmLData` object.
     #'
-    #' @param ... See [summary.LPJmLData]
+    #' @param ... See [`summary.LPJmLData()]`.
     summary = function(...) {
       private$.summary(...)
     },
 
 
     #' @description
-    #' Method to print the `LPJmLData`. \cr
-    #' See also \link[base]{print}
+    #' Method to print the `LPJmLData` object. \cr
+    #' See also \link[base]{print}.
     print = function() {
 
-      # set colour higlighting
+      # Set color higlighting
       blue_col <- "\u001b[34m"
       unset_col <- "\u001b[0m"
 
-      # print meta data
+      # Print meta data
       cat(paste0("\u001b[1m", blue_col, "$meta %>%", unset_col, "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
 
-      # not all meta data are printed
+      # Not all meta data are printed
       cat(paste0("\u001b[33;3m",
                  "Note: not printing all meta data, use $meta to get all.",
                  unset_col,
                  "\n"))
 
-      # print grid only if available
+      # Print grid only if available
       if (!is.null(private$.grid)) {
         cat(paste0("\u001b[1m\u001b[31m",
                    "$grid",
@@ -227,14 +228,14 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
                    "\n"))
       }
 
-      # print data attribute
+      # Print data attribute
       cat(paste0("\u001b[1m",
                  blue_col,
                  "$data %>%",
                  unset_col,
                  "\n"))
 
-      # dimnames
+      # Dimnames
       dim_names <- self$dimnames()
       cat(paste0(blue_col, "  dimnames() %>%", unset_col, "\n"))
 
@@ -262,7 +263,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         cat("\n")
       }
 
-      # summary
+      # Summary
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
 
@@ -285,61 +286,61 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
-    #' Internal method only to be used for package development.
+    #' !Internal method only to be used for package development!
     #'
-    #' @param ... ...
+    #' @param ... See [`transform()`].
     .__transform_grid__ = function(...) {
       private$.transform_grid(...)
     },
 
 
-    # set data attribute only to be used internally or explicitly
+    # Set data attribute; only to be used internally or explicitly
     #   on purpose
     #' @description
     #' !Internal method only to be used for package development!
     #'
-    #' @param data ...
+    #' @param data Data array.
     .__set_data__ = function(data) {
       private$.data <- data
     },
 
 
-    # set grid attribute only to be used internally or explicitly
+    # Set grid attribute; only to be used internally or explicitly
     #   on purpose
     #' @description
     #' !Internal method only to be used for package development!
     #'
-    #' @param grid ...
+    #' @param grid An `LPJmLData` object holding grid coordinates.
     .__set_grid__ = function(grid) {
       private$.grid <- grid
     },
 
 
-    # set is_locked attribute only to be used internally or explicitly
+    # Set is_locked attribute; only to be used internally or explicitly
     #   on purpose
     #' @description
     #' !Internal method only to be used for package development!
     #'
-    #' @param is_locked ...
+    #' @param is_locked Bolean.
     .__set_lock__ = function(is_locked) {
       private$.is_locked <- is_locked
     },
 
 
-    # Create a new LPJmLData object only to be used internally or explicitly
+    # Create a new LPJmLData object; only to be used internally or explicitly
     #' @description
     #' !Internal method only to be used for package development!
     #'
-    #' @param data `array` with LPJmL data
+    #' @param data `array` with LPJmL data.
     #'
-    #' @param meta_data meta_data `LPJmLMetaData` Object
+    #' @param meta_data An `LPJmLMetaData` object.
     initialize = function(data, meta_data = NULL) {
 
       if (methods::is(meta_data, "LPJmLMetaData") |
           methods::is(meta_data, "NULL")) {
         private$.meta <- meta_data
       } else {
-        stop("Provide a LPJmLMetaData object for meta data.")
+        stop("Provide an LPJmLMetaData object for meta data.")
       }
 
       private$.data <- data
@@ -347,44 +348,45 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   ),
 
 
-  # active bindings
+  # Active bindings
   active = list(
 
-    #' @field meta [`LPJmLMetaData`] object to store corresponding meta data
+    #' @field meta [`LPJmLMetaData`] object to store corresponding meta data.
     meta = function() {
-      # clone meta object so that if meta is changed outside of a LPJmLData
+      # Clone meta object so that if meta is changed outside of the LPJmLData
       #   instance it will not change this instance
       return(private$.meta$clone())
     },
 
-    #' @field data \link[base]{array} containing the underlying data
+    #' @field data \link[base]{array} containing the underlying data.
     data = function() {
       return(private$.data)
     },
 
-    #' @field grid *optional* - `LPJmLData` containing the underlying grid,
+    #' @field grid Optional `LPJmLData` object containing the underlying grid.
     grid = function() {
 
       if (!is.null(private$.grid)) {
 
-        # clone meta object so that if meta is changed outside of a LPJmLData
-        #   instance it will not change this instance - deep because grid
-        #   includes another R6 class object (meta) which is another environment
+        # Clone grid object so that if grid is changed outside of the LPJmLData
+        #   instance it will not change this instance. `deep = TRUE` because
+        #   grid includes another R6 class object (meta) which is another
+        #   environment.
         grid <- private$.grid$clone(deep = TRUE)
 
-        # allow using methods on grid outside of LPJmLData instance
+        # Allow using methods on grid outside of LPJmLData instance
         grid$.__set_lock__(is_locked = FALSE)
 
         return(grid)
 
       } else {
-        # if NULL make sure NULL is returned directly and not tried to clone
+        # If NULL make sure NULL is returned directly and not tried to clone
         return(private$.grid)
       }
     },
 
-    #' @field ._is_locked_ *internal* Logical. Is object locked (no method can
-    #' be performed directly on the object)
+    #' @field ._is_locked_ *Internal* logical. If an object is locked no method
+    #'   can be performed directly on the object.
     ._is_locked_ = function() {
       return(private$.is_locked)
     }
@@ -403,38 +405,44 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   )
 )
 
-# set up method dispatch ----------------------------------------------------- #
+# Set up method dispatch ----------------------------------------------------- #
 
-#   https://stackoverflow.com/questions/50842251/define-a-bracket-operator-on-an-r6-class # nolint
-# add additional (important) functions for method dispatch with deep copying
-#   x, execute function on copied object and return ("traditional way")
+# https://stackoverflow.com/questions/50842251/define-a-bracket-operator-on-an-r6-class # nolint
+# Add additional (important) functions for method dispatch which create a deep
+# copy of x, execute function on copied object and return ("traditional way").
 
 
-#' Add grid to LPJmLData object
+#' Add grid to an LPJmLData object
 #'
-#' Function to add a grid to a [`LPJmLData`]. The function acts
-#' as a [`read_io`] function for the grid file and adds it as an
-#' `LPJmLData` object itself to the the main object as an attribute `$grid`
+#' Function to add a grid to an [`LPJmLData`] object. The function acts
+#' as a [`read_io()`] wrapper for the grid file and adds it as an
+#' `LPJmLData` object itself to the `$grid` attribute of the main object.
 #'
 #' @details
 #' **Important:**
-#' * If `"file_type" == "raw"` and data should be recognized as a
-#' grid, prescribe `variable = "grid"`!
-#' * Do not use [read_io] argument `subset` here!
-#' @param x [LPJmLData] object
+#' * If `"file_type" == "raw"` prescribe `variable = "grid"` to ensure data are
+#'   recognized as a grid.
+#' * Do not use [`read_io()`] argument `subset` here. `add_grid` will use the
+#'   `subset` of the parent [`LPJmLData`] object `x`.
 #'
-#' @param ... arguments passed to [`read_io`] if no grid file and or meta
-#' file in corresponding output directory available.
+#' @param x [LPJmLData] object.
 #'
-#' @return [`LPJmLData`] object in selected format
+#' @param ... Arguments passed to [`read_io()`]. Without any arguments,
+#'   `add_grid()` will search for a file name starting with "grid" in the same
+#'   directory that `x` was loaded from. This supports grid files in `"meta"`
+#'   and `"clm"` format. If the grid file is in `"raw"` format or should be
+#'   loaded from a different directory, supply all necessary `read_io()`
+#'   parameters.
+#'
+#' @return A copy of `x` ([`LPJmLData`] object) with added `$grid` attribute.
 #'
 #' @examples
 #' \dontrun{
 #'
-#' # read in vegetation carbon data with meta file
+#' # Read in vegetation carbon data with meta file
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # add grid as attribute (via meta file in output directory)
+#' # Add grid as attribute (via grid file in output directory)
 #' vegc_with_grid <- add_grid(vegc)
 #'
 #' }
@@ -444,14 +452,14 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 add_grid <- function(x, ...) {
   y <- x$clone(deep = TRUE)
   y$add_grid(...)
-  return(y)
+  y
 }
 
 
-# utility functions ---------------------------------------------------------- #
+# Utility functions ---------------------------------------------------------- #
 
-# aggregation function, only to be applied for conversions (as_raster, plot)
-#   do not apply to self to not violate data integrity !
+# Aggregation function, only to be applied for conversions (as_raster, plot).
+#   Do not apply to self to not violate data integrity !
 aggregate_array <- function(x,
                             aggregate_list = NULL,
                             ...) {
@@ -485,7 +493,7 @@ aggregate_array <- function(x,
       }
     }
   }
-  return(data)
+  data
 }
 
 
@@ -509,5 +517,56 @@ check_method_locked <- function(x, method_name) {
   }
 }
 
-# avoid note for "."...
+#' Search for a grid file in a directory
+#'
+#' Function to search for a grid file in a specific directory.
+#'
+#' @param searchdir Directory where to look for a grid file.
+#' @return Character string with the file name of a grid file upon success.
+#'   Function fails if no matching grid file can be detected.
+#'
+#' @details This function looks for file names in `searchdir` that match the
+#'   `pattern` parameter in its [`list.files()`] call. Files of type "meta" are
+#'   preferred. Files of type "clm" are also accepted. The function returns an
+#'   error if no suitable file or multiple files are found. Otherwise, the file
+#'   name of the grid file including the full path is returned.
+#' @noRd
+find_gridfile <- function(searchdir) {
+  # The pattern will match any file name that starts with "grid*".
+  # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
+  # This will only match file names "grid.*", where * is one or two file
+  # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
+  grid_files <- list.files(
+    path = searchdir,
+    pattern = "^grid",
+    full.names = TRUE
+  )
+  if (length(grid_files) > 0) {
+    grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+    # Prefer "meta" file_type if present
+    if (length(which(grid_types == "meta")) == 1) {
+      filename <- grid_files[match("meta", grid_types)]
+    } else if (length(which(grid_types == "clm")) == 1) {
+      # Second priority "clm" file_type
+      filename <- grid_files[match("clm", grid_types)]
+    } else {
+      # Stop if either multiple files per file type or not the right type have
+      # been detected
+      stop(
+        "Cannot detect grid file automatically.\n",
+        "$add_grid has to be called supplying parameters as for read_io."
+      )
+    }
+  } else {
+    # Stop if no file name matching pattern detected
+    stop(
+      "Cannot detect grid file automatically.\n",
+      "$add_grid has to be called supplying parameters as for read_io."
+    )
+  }
+
+  filename
+}
+
+# Avoid note for "."...
 utils::globalVariables(".") # nolint:undesirable_function_linter

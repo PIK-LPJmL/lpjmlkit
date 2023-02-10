@@ -2,22 +2,22 @@
 % Please edit documentation in R/read_meta.R
 \name{read_meta}
 \alias{read_meta}
-\title{Read a LPJmL meta or header file}
+\title{Read an LPJmL meta file or binary file header}
 \usage{
 read_meta(filename, ...)
 }
 \arguments{
-\item{filename}{character string representing path
-(if differs from current working directory) and filename}
+\item{filename}{Character string representing path
+(if different from current working directory) and filename.}
 
-\item{...}{further arguments passed to \code{\link{read_header}} if header file is read}
+\item{...}{Additional arguments passed to \code{\link{read_header}} if header file is
+read.}
 }
 \value{
-LPJmLMetaData object
+An \code{\link{LPJmLMetaData}} object.
 }
 \description{
-Reads a meta JSON file or a LPJmL input or output that includes a file
-header.
+Reads a meta JSON file or the header of a binary LPJmL input or output file.
 }
 \examples{
 \dontrun{
@@ -32,4 +32,5 @@ header.
  meta$band_names[1]
  # [1] "tropical broadleaved evergreen tree"
 }
+
 }

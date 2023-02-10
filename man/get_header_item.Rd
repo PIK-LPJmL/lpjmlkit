@@ -2,13 +2,13 @@
 % Please edit documentation in R/get_header_item.R
 \name{get_header_item}
 \alias{get_header_item}
-\title{Retrieve information from LPJmL input/output file header}
+\title{Retrieve information from an LPJmL input/output file header}
 \usage{
 get_header_item(header, item)
 }
 \arguments{
-\item{header}{LPJmL file header as returned by \code{read_header()} or
-\code{create_header()}.}
+\item{header}{LPJmL file header as returned by \code{\link[=read_header]{read_header()}} or
+\code{\link[=create_header]{create_header()}}.}
 
 \item{item}{Header information item to retrieve. One of \code{c("name", "version", "order", "firstyear", "nyear", "firstcell", "ncell", "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep", "timestep", "endian")}.}
 }
@@ -18,13 +18,20 @@ Requested header item. Character string in case of "name" and
 }
 \description{
 Convenience function to extract information from a header object
-as returned by \code{read_header()} or \code{create_header()}. Returns one item per
-call.
+as returned by \code{\link[=read_header]{read_header()}} or \code{\link[=create_header]{create_header()}}. Returns one item
+per call.
+}
+\examples{
+\dontrun{
+# Read file header
+header <- read_header("filename.clm")
+nyear <- get_header_item(header = header, item = "nyear")
+}
 }
 \seealso{
 \itemize{
 \item \code{\link[=create_header]{create_header()}} for creating headers from scratch and for a more
 detailed description of the LPJmL header format.
-\item \code{\link[=read_header]{read_header()}} for reading headers from files.
+\item \code{\link[=read_header]{read_header()}} for reading headers from LPJmL input/output files.
 }
 }

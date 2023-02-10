@@ -7,13 +7,13 @@
 as_list(x)
 }
 \arguments{
-\item{x}{\link{LPJmLMetaData} object}
+\item{x}{An \link{LPJmLMetaData} object}
 }
 \value{
-a \link[base]{list}
+A \link[base]{list}
 }
 \description{
-Function to coerce (convert) a \code{LPJmLMetaData} object into a
+Function to coerce (convert) an \code{\link{LPJmLMetaData}} object into a
 \link[base]{list}.
 }
 \examples{
@@ -21,7 +21,7 @@ Function to coerce (convert) a \code{LPJmLMetaData} object into a
 
 vegc_meta <- read_meta(filename = "./vegc.bin.json")
 
-# returns one dimensional array with timeseries for cells `27410:27415`
+# Returns one dimensional array with timeseries for cells `27410:27415`
 as_list(vegc_meta)
 # $sim_name
 # [1] "lu_cf"

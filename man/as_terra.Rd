@@ -2,49 +2,48 @@
 % Please edit documentation in R/LPJmLData_as.R
 \name{as_terra}
 \alias{as_terra}
-\title{Coerce LPJmLData to a terra object}
+\title{Coerce an LPJmLData object to a terra object}
 \usage{
 as_terra(x, subset = NULL, aggregate = NULL, ...)
 }
 \arguments{
-\item{x}{\link{LPJmLData} object}
+\item{x}{\link{LPJmLData} object.}
 
-\item{subset}{list of array dimension(s) as name/key and
-corresponding subset vector as value, e.g.
-\verb{list(cell = c(27411:27415)}, more information at
-\code{\link{subset.LPJmLData}}.}
+\item{subset}{List of array dimension(s) as name/key and
+corresponding subset vector as value, e.g. \verb{list(cell = c(27411:27415)}.
+More information at \code{\link[=subset.LPJmLData]{subset.LPJmLData()}}.}
 
-\item{aggregate}{list of array dimension(s) as name/key and
-corresponding aggregation function as value, e.g.
-\code{list(band = sum)}.}
+\item{aggregate}{List of array dimension(s) as name/key and
+corresponding aggregation function as value, e.g. \code{list(band = sum)}.}
 
-\item{...}{arguments forwarded to the aggregate function(s), e.g.
+\item{...}{Arguments passed to the aggregate function(s), e.g.
 \code{na.rm = TRUE}.}
 }
 \value{
-a \link[terra]{rast}  with grid based on
-internal \verb{$grid} attribute (\code{\link{LPJmLData}} of \code{"./grid.*"}) and corresponding
-data for each grid cell. If multiple bands or time dimensions exist, a
-\link[raster]{brick} is created. Further meta information such as the
-lon/lat resolution are extracted from \verb{$meta}.
+A \link[terra]{rast} object with spatial extent and coordinates based
+on internal \verb{$grid} attribute and containing a lon/lat representation of
+\code{x$data}. Further meta information such as the lon/lat resolution is
+extracted from \verb{$meta}.
 }
 \description{
-Function to coerce (convert) a \code{\link{LPJmLData}} object into a
-\link[terra]{rast}, that opens the space for any GIS based raster operations.
-Read more \href{https://rspatial.org/}{here}.
+Function to coerce (convert) an \code{\link{LPJmLData}} object into a
+\link[terra]{rast} object that allows GIS-based raster operations.
+Read more about the terra package at \url{https://rspatial.org/}.
 }
 \details{
-for coercion to a \link[terra]{rast} the \verb{$grid} attribute is
-required. When using \code{file_type = "meta"}, grid data is read automatically
-via \code{\link{add_grid}}. If \code{file_type = "clm"} or
-\code{file_type = "raw"} is used, \code{add_grid} has to be performed beforehand.
+The \verb{$grid} attribute is required for spatial transformation. When
+using \code{file_type = "meta"}, grid data are usually read automatically via
+\code{\link[=add_grid]{add_grid()}} if the grid file is present in the same directory. Otherwise,
+\code{add_grid()} has to be called explicitly with the path to a matching grid
+file. Supports either multiple bands or multiple time steps. Use \code{subset} or
+\code{aggregate} to reduce data with multiple bands and time steps.
 }
 \examples{
 \dontrun{
 
 vegc <- read_io(filename = "./vegc.bin.json")
 
-# returns a SpatRaster for all data
+# Returns a SpatRaster for all data
 as_terra(vegc)
 # ...
 }

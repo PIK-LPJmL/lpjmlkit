@@ -1,26 +1,27 @@
-#' Coerce LPJmLData to an array
+#' Coerce an LPJmLData object to an array
 #'
-#' Function to coerce (convert) a [`LPJmLData`] object into a pure
+#' Function to coerce (convert) an [`LPJmLData`] object into a pure
 #' \link[base]{array}. Pure - because LPJmLData stores the data already as
 #' an `array` which can be accessed via `$data`.
-#' `as_array` provides further functionality to subset or aggregate the `array`.
+#' `as_array` provides additional functionality to subset or aggregate the
+#' `array`.
 #'
-#' @param x [LPJmLData] object
+#' @param x [LPJmLData] object.
 #'
-#' @param subset list of array dimension(s) as name/key and
+#' @param subset List of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27415)`, more information at
-#' [`subset.LPJmLData`].
+#' `list(cell = c(27411:27415)`. More information at
+#' [`subset.LPJmLData()`].
 #'
-#' @param aggregate list of array dimension(s) as name/key and
+#' @param aggregate List of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
 #' `list(band = sum)`.
 #'
-#' @param ... arguments forwarded to the aggregate function(s), e.g.
+#' @param ... Arguments passed to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
-#' @return an \link[base]{array} with dimensions of objects `$data` with
-#' applied [`subset`] and [`aggregate`] functionality as well as `dim` and
+#' @return an \link[base]{array} with dimensions of object `$data` with
+#' applied `subset` and `aggregate` functionality as well as `dim` and
 #' `dimnames` from the [`LPJmLData`] object.
 #'
 #' @examples
@@ -28,7 +29,7 @@
 #'
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # returns array attribute of LPJmLData object directly
+#' # Returns array attribute of LPJmLData object directly
 #' vegc$data
 #' #        time
 #' # cell      1901-12-31   1902-12-31   1903-12-31   1904-12-31   1905-12-31
@@ -39,7 +40,8 @@
 #' #   4     7.592700e+01 7.821202e+01 6.798551e+01 6.632317e+01 5.691082e+01
 #' #   5     1.106748e+01 1.137272e+01 1.196524e+01 1.131316e+01 9.924266e+0
 #'
-#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' # Returns two-dimensional array with timeseries for the mean across cells
+#' # 27410:27415
 #' as_array(vegc,
 #'          subset = list(cell = 27410:27415),
 #'          aggregate = list(cell = mean))
@@ -63,7 +65,7 @@ as_array <- function(x,
   y <- x$as_array(subset,
                   aggregate,
                   ...)
-  return(y)
+  y
 }
 
 # as_array method roxygen documentation in LPJmlData.R
@@ -73,7 +75,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    # initiate clone to be returned on which following methods are executed
+    # Initiate clone to be returned on which following methods are executed
     data_subset <- self$clone(deep = TRUE)
     `if`(!is.null(subset),
          do.call(data_subset$subset, args = subset),
@@ -85,38 +87,38 @@ LPJmLData$set("private",
 )
 
 
-#' Coerce LPJmLData to a tibble
+#' Coerce an LPJmLData object to a tibble
 #'
-#' Function to coerce (convert) a [`LPJmLData`] object into a
-#' \link[tibble]{tibble} (modern \link[base]{data.frame}, read more
-#' [here](https://r4ds.had.co.nz/tibbles.html))
+#' Function to coerce (convert) an [`LPJmLData`] object into a
+#' \link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
+#' tibbles at <https://r4ds.had.co.nz/tibbles.html)>.
 #'
 #' @param x [LPJmLData] object
 #'
-#' @param subset list of array dimension(s) as name/key and
+#' @param subset List of array dimension(s) as name/key and
 #' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27415)`, more information at
-#' [`subset.LPJmLData`].
+#' `list(cell = c(27411:27415))`. More information at
+#' [`subset.LPJmLData()`].
 #'
-#' @param aggregate list of array dimension(s) as name/key and
+#' @param aggregate List of array dimension(s) as name/key and
 #' corresponding aggregation function as value, e.g.
 #' `list(band = sum)`.
 #'
-#' @param value_name rename value column in  returned `tibble`. Defaults to
+#' @param value_name Name of value column in returned `tibble`. Defaults to
 #' `"value"`.
 #'
-#' @param ... arguments forwarded to the aggregate function(s), e.g.
+#' @param ... Arguments passed to the aggregate function(s), e.g.
 #' `na.rm = TRUE`.
 #'
 #' @return a \link[tibble]{tibble} with columns corresponding to dimension
-#' naming of `LPJmLData$data` array and values in value column.
+#' naming of the `LPJmLData$data` array and values in one value column.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # returns one dimensional array with timeseries for cells `27410:27415`
+#' # Returns two-dimensional tibble representation of vegc$data.
 #' as_tibble(vegc)
 #' #   cell  time       band    value
 #' #   <fct> <fct>      <fct>   <dbl>
@@ -140,7 +142,7 @@ as_tibble <- function(x,
                    aggregate,
                    value_name,
                    ...)
-  return(y)
+  y
 }
 
 # as_tibble method roxygen documentation in LPJmlData.R
@@ -162,45 +164,47 @@ LPJmLData$set("private",
 )
 
 
-#' Coerce LPJmLData to a raster object
+#' Coerce an LPJmLData object to a Raster* object
 #'
-#' Function to coerce (convert) a [`LPJmLData`] object into a
-#' \link[raster]{raster} or \link[raster]{brick} object, that opens the space
-#' for any GIS based raster operations. Read more
-#' [here](https://rspatial.github.io/raster/reference/raster-package.html). The
-#' successor package of raster is [terra](https://rspatial.org/).
+#' Function to coerce (convert) an [`LPJmLData`] object into a
+#' \link[raster]{raster} or \link[raster]{brick} object that allows for any
+#' GIS-based raster operations. Read more about the raster package at
+#' <https://rspatial.github.io/raster/reference/raster-package.html>.
+#' The successor package of raster is called terra: <https://rspatial.org/>.
 #'
 #' @param x [LPJmLData] object
 #'
-#' @param subset list of array dimension(s) as name/key and
-#' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27415)`, more information at
-#' [`subset.LPJmLData`].
+#' @param subset List of array dimension(s) as name/key and
+#'   corresponding subset vector as value, e.g.`list(cell = c(27411:27415))`.
+#'   More information at [`subset.LPJmLData()`].
 #'
-#' @param aggregate list of array dimension(s) as name/key and
-#' corresponding aggregation function as value, e.g.
-#' `list(band = sum)`.
+#' @param aggregate List of array dimension(s) as name/key and
+#'   corresponding aggregation function as value, e.g. `list(band = sum)`.
 #'
-#' @param ... arguments forwarded to the aggregate function(s), e.g.
-#' `na.rm = TRUE`.
+#' @param ... Arguments passed to the aggregate function(s), e.g.
+#'   `na.rm = TRUE`.
 #'
-#' @return a \link[raster]{raster} or \link[raster]{brick} with grid based on
-#' internal `$grid` attribute ([`LPJmLData`] of `"./grid.*"`) and corresponding
-#' data for each grid cell. If multiple bands or time dimensions exist, a
+#' @return
+#' A \link[raster]{raster} or \link[raster]{brick} object with spatial extent
+#' and coordinates based on internal `$grid` attribute and containing a lon/lat
+#' representation of `x$data`. If multiple bands or time steps exist, a
 #' \link[raster]{brick} is created. Further meta information such as the
 #' lon/lat resolution are extracted from `$meta`.
 #'
-#' @details for coercion to a \link[raster]{raster} or \link[raster]{brick},
-#' the `$grid` attribute is required. When using `file_type = "meta"`, grid data
-#' is read automatically via [`add_grid`]. If `file_type = "clm"`
-#' or `file_type = "raw"` is used, `add_grid` has to be performed beforehand.
+#' @details
+#' The `$grid` attribute is required for spatial transformation. When
+#' using `file_type = "meta"`, grid data are usually read automatically via
+#' [`add_grid()`] if the grid file is present in the same directory. Otherwise,
+#' `add_grid()` has to be called explicitly with the path to a matching grid
+#' file. Supports either multiple bands or multiple time steps. Use `subset` or
+#' `aggregate` to reduce data with multiple bands and time steps.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # returns a raster brick for all data
+#' # Returns a RasterBrick for all data
 #' as_raster(vegc)
 #' # class      : RasterBrick
 #' # dimensions : 280, 720, 201600, 200  (nrow, ncol, ncell, nlayers)
@@ -223,7 +227,7 @@ as_raster <- function(x,
   y <- x$as_raster(subset,
                    aggregate,
                    ...)
-  return(y)
+  y
 }
 
 # as_raster method roxygen documentation in LPJmlData.R
@@ -235,15 +239,18 @@ LPJmLData$set("private",
 
     data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
 
-    # create empty raster to use as base for assigning data
+    # Create empty raster to use as base for assigning data
     tmp_raster <- create_tmp_raster(data_subset)
 
-    # get dimensions larger 1 to check if raster or brick required
-    #   (or too many dimensions > 1 which are not compatible with raster)
-    multi_dims <- names(which(dim(data_subset$data) > 1))
+    # Get dimensions larger 1 to check if raster or brick is required
+    # (or too many dimensions > 1 which are not compatible with raster)
+    # space dims are always included (to work with 1 cell rasters)
+    multi_dims <- get_multidims(data_subset)
 
-    # check for space_format == "lon_lat" if multiple bands/time convert
-    #   to "cell" format, if larger stop
+
+    # Check whether there are multiple bands/time steps. Convert space_format
+    # from "lon_lat" to "cell" if multi-layer brick is required. Stop if there
+    # are too many dimensions (e.g. multiple bands and multiple time steps).
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
 
@@ -251,7 +258,7 @@ LPJmLData$set("private",
 
         data_subset$transform(to = "cell")
 
-        multi_dims <- names(which(dim(data_subset$data) > 1))
+        multi_dims <- get_multidims(data_subset)
 
       } else if (length(multi_dims) > 3) {
         stop(
@@ -261,10 +268,13 @@ LPJmLData$set("private",
         )
       } else {
 
-        # assign data to tmp_raster
+        # Assign data to tmp_raster
         tmp_raster <- data_subset$data %>%
           subset_array(
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
+          ) %>%
+          aperm(c("lat", "lon",
+                  setdiff(names(dim(.)), c("lat", "lon")))
           ) %>%
           raster::raster(template = tmp_raster)
 
@@ -272,6 +282,7 @@ LPJmLData$set("private",
       }
     }
 
+    # For space_format "cell" allow one additional dimension
     if (data_subset$meta$._space_format_ == "cell") {
 
       if (length(multi_dims) > 2) {
@@ -282,7 +293,7 @@ LPJmLData$set("private",
 
       } else if (length(multi_dims) == 2) {
 
-        # get dimension with length > 1 which is not cell to use for
+        # Get dimension with length > 1 which is not cell to use for
         #   layer naming
         multi_layer <- multi_dims[which(multi_dims != "cell")]
         tmp_raster <- raster::brick(tmp_raster,
@@ -291,18 +302,19 @@ LPJmLData$set("private",
         names(tmp_raster) <- dimnames(data_subset$data)[[multi_layer]]
 
       } else if (length(multi_dims) == 1) {
-        # for single rasters use variable as layer name
+        # For single rasters use variable as layer name
         names(tmp_raster) <- data_subset$meta$variable
       }
 
-      # add values of raster cells by corresponding coordinates (lon, lat)
+      # Add values of raster cells by corresponding coordinates (lon, lat)
       tmp_raster[
         raster::cellFromXY(
           tmp_raster,
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- data_subset$data
+      ] <- aperm(data_subset$data,
+                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
     }
 
     return(tmp_raster)
@@ -310,43 +322,44 @@ LPJmLData$set("private",
 )
 
 
-#' Coerce LPJmLData to a terra object
+#' Coerce an LPJmLData object to a terra object
 #'
-#' Function to coerce (convert) a [`LPJmLData`] object into a
-#' \link[terra]{rast}, that opens the space for any GIS based raster operations.
-#' Read more [here](https://rspatial.org/).
+#' Function to coerce (convert) an [`LPJmLData`] object into a
+#' \link[terra]{rast} object that allows GIS-based raster operations.
+#' Read more about the terra package at <https://rspatial.org/>.
 #'
-#' @param x [LPJmLData] object
+#' @param x [LPJmLData] object.
 #'
-#' @param subset list of array dimension(s) as name/key and
-#' corresponding subset vector as value, e.g.
-#' `list(cell = c(27411:27415)`, more information at
-#' [`subset.LPJmLData`].
+#' @param subset List of array dimension(s) as name/key and
+#'   corresponding subset vector as value, e.g. `list(cell = c(27411:27415)`.
+#'   More information at [`subset.LPJmLData()`].
 #'
-#' @param aggregate list of array dimension(s) as name/key and
-#' corresponding aggregation function as value, e.g.
-#' `list(band = sum)`.
+#' @param aggregate List of array dimension(s) as name/key and
+#'   corresponding aggregation function as value, e.g. `list(band = sum)`.
 #'
-#' @param ... arguments forwarded to the aggregate function(s), e.g.
-#' `na.rm = TRUE`.
+#' @param ... Arguments passed to the aggregate function(s), e.g.
+#'   `na.rm = TRUE`.
+
+#' @return
+#' A \link[terra]{rast} object with spatial extent and coordinates based
+#' on internal `$grid` attribute and containing a lon/lat representation of
+#' `x$data`. Further meta information such as the lon/lat resolution is
+#' extracted from `$meta`.
 #'
-#' @return a \link[terra]{rast}  with grid based on
-#' internal `$grid` attribute ([`LPJmLData`] of `"./grid.*"`) and corresponding
-#' data for each grid cell. If multiple bands or time dimensions exist, a
-#' \link[raster]{brick} is created. Further meta information such as the
-#' lon/lat resolution are extracted from `$meta`.
-#'
-#' @details for coercion to a \link[terra]{rast} the `$grid` attribute is
-#' required. When using `file_type = "meta"`, grid data is read automatically
-#' via [`add_grid`]. If `file_type = "clm"` or
-#' `file_type = "raw"` is used, `add_grid` has to be performed beforehand.
+#' @details
+#' The `$grid` attribute is required for spatial transformation. When
+#' using `file_type = "meta"`, grid data are usually read automatically via
+#' [`add_grid()`] if the grid file is present in the same directory. Otherwise,
+#' `add_grid()` has to be called explicitly with the path to a matching grid
+#' file. Supports either multiple bands or multiple time steps. Use `subset` or
+#' `aggregate` to reduce data with multiple bands and time steps.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # returns a SpatRaster for all data
+#' # Returns a SpatRaster for all data
 #' as_terra(vegc)
 #' # ...
 #' }
@@ -360,7 +373,7 @@ as_terra <- function(x,
   y <- x$as_terra(subset,
                   aggregate,
                   ...)
-  return(y)
+  y
 }
 
 # as_terra method roxygen documentation in LPJmlData.R
@@ -372,22 +385,25 @@ LPJmLData$set("private",
 
     data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
 
-    # create empty SpatRaster to use as base for assigning data
+    # Create empty SpatRaster to use as base for assigning data
     tmp_rast <- create_tmp_raster(data_subset, is_terra = TRUE)
 
-    # get dimensions larger 1 to check if raster or brick required
-    #   (or too many dimensions > 1 which are not compatible with raster)
-    multi_dims <- names(which(dim(data_subset$data) > 1))
+    # Get dimensions larger 1 to check if single-layer or multi-layer SpatRaster
+    # is required (or too many dimensions > 1)
+    # space dims are always included (to work with 1 cell SpatRaster)
+    multi_dims <- get_multidims(data_subset)
 
-    # check for space_format == "lon_lat" if multiple bands/time convert
-    #   to "cell" format, if larger stop
+    # Check whether there are multiple bands/time steps. Convert space_format
+    # from "lon_lat" to "cell" if multi-layer SpatRaster is required. Stop if
+    # there are too many dimensions (e.g. multiple bands and multiple time
+    # steps).
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
       if (length(multi_dims) == 3) {
 
         data_subset$transform(to = "cell")
 
-        multi_dims <- names(which(dim(data_subset$data) > 1))
+        multi_dims <- get_multidims(data_subset)
 
       } else if (length(multi_dims) > 3) {
         stop(
@@ -397,10 +413,13 @@ LPJmLData$set("private",
         )
       } else {
 
-        # assign data to tmp_raster
+        # Assign data to tmp_raster
         tmp_rast <- data_subset$data %>%
           subset_array(
             list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
+          ) %>%
+          aperm(c("lat", "lon",
+                  setdiff(names(dim(.)), c("lat", "lon")))
           ) %>%
           terra::rast(crs = terra::crs(tmp_rast),
                       extent = terra::ext(tmp_rast))
@@ -409,6 +428,7 @@ LPJmLData$set("private",
       }
     }
 
+    # For space_format "cell" allow one additional dimension
     if (data_subset$meta$._space_format_ == "cell") {
 
       if (length(multi_dims) > 2) {
@@ -419,7 +439,7 @@ LPJmLData$set("private",
 
       } else if (length(multi_dims) == 2) {
 
-        # get dimension with length > 1 which is not cell to use for
+        # Get dimension with length > 1 which is not cell to use for
         #   layer naming
         multi_layer <- multi_dims[which(multi_dims != "cell")]
 
@@ -430,14 +450,14 @@ LPJmLData$set("private",
 
         if (multi_layer == "time") {
 
-          # set time meta data
+          # Set time meta data
           terra::time(tmp_rast) <- as.Date(
             dimnames(data_subset$data)[[multi_layer]]
           )
 
         } else if (multi_layer %in% c("year", "month", "day")) {
 
-          # set time meta data as integer (year, month, day)
+          # Set time meta data as integer (year, month, day)
           terra::time(tmp_rast) <- as.integer(
             dimnames(data_subset$data)[[multi_layer]]
           )
@@ -445,21 +465,23 @@ LPJmLData$set("private",
 
       } else if (length(multi_dims) == 1) {
 
-        # for single rasters use variable as layer name
+        # For single-layer SpatRaster use variable as layer name
         names(tmp_rast) <- data_subset$meta$variable
       }
 
-      # add values of raster cells by corresponding coordinates (lon, lat)
+      # Add values of raster cells by corresponding coordinates (lon, lat)
       tmp_rast[
         terra::cellFromXY(
           tmp_rast,
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- data_subset$data
+      ] <- aperm(data_subset$data,
+                 perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>%
+      drop()
     }
 
-    # assign units (meta data)
+    # Assign units (meta data)
     terra::units(tmp_rast) <- data_subset$meta$unit
 
     return(tmp_rast)
@@ -474,19 +496,14 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    if (!is.null(private$.meta$variable) &&
-        private$.meta$variable == "grid" &&
-        private$.meta$._space_format_ == "cell") {
-      stop(paste("not legit for variable", private$.meta$variable))
-    }
-
-    # support of lazy loading of grid for meta files else add explicitly
+    # Support lazy loading of grid for meta files. This throws an error if no
+    # suitable grid file is detected.
     if (is.null(private$.grid) &&
         private$.meta$._space_format_ == "cell") {
       self$add_grid()
     }
 
-    # workflow adjusted for subsetted grid (via cell)
+    # Workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone(deep = TRUE)
     if (!is.null(subset)) {
       do.call(data_subset$subset, args = subset)
@@ -496,7 +513,7 @@ LPJmLData$set("private",
         !any(names(aggregate) %in% strsplit(private$.meta$._space_format_,"_")[[1]]) && # nolint
         all(names(aggregate) %in% names(dim(self$data)))) {
 
-      # not recommended for self, some meta data not valid for data_subset!
+      # Not recommended for self, some meta data not valid for data_subset
       data_subset$.__set_data__(
         aggregate_array(data_subset,
                         aggregate_list = aggregate,
@@ -516,7 +533,7 @@ LPJmLData$set("private",
 
 create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
-  # calculate grid extent from range to span raster
+  # Calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
     data_extent <- apply(data_subset$grid$data,
                          "band",
@@ -530,8 +547,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
   }
 
   grid_extent <- data_extent + matrix(
-    # coordinates represent the centre of cell, for the extent borders
-    #   are required, thus subtract/add half of resolution
+    # Coordinates represent the centre of the cell. Subtract/add half of
+    # resolution to derive cell borders for extent.
     c(-data_subset$meta$cellsize_lon / 2,
       data_subset$meta$cellsize_lon / 2,
       -data_subset$meta$cellsize_lat / 2,
@@ -563,5 +580,15 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
     )
   }
 
-  return(tmp_raster)
+  tmp_raster
+}
+
+
+# get multi dimensions names of array with except of space dimension
+# (cell / lon, lat) which are always included (requirement for raster/terra)
+get_multidims <- function(x) {
+  space_dims <- unlist(strsplit(x$meta$._space_format_, "_"))
+  multi_dims <- names(which(dim(x$data) > 1))
+
+  union(multi_dims, space_dims)
 }

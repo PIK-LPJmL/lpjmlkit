@@ -1,59 +1,61 @@
 #' Write LPJmL config files (JSON)
 #'
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
-#' specific format (see details & examples) to write model configuration files
-#' `"config_*.json"` based on the parameters set in each row (corresponds to
-#' each model run) to override them from the base file `"lpjml.js"`.
+#' specific format (see details & examples) to write the model configuration
+#' file `"config_*.json"`. Each row in the tibble corresponds to a model run.
+#' The generated `"config_*.json"` is based on a js file (e.g.: `"lpjml_*.js"`).
 #'
-#' @param params a tibble in a defined format (see details)
+#' @param params A tibble in a defined format (see details).
 #'
-#' @param model_path character string providing the path to LPJmL
-#' (equal to LPJROOT)
+#' @param model_path Character string providing the path to LPJmL
+#' (equal to `LPJROOT` environment variable).
 #'
-#' @param output_path character string - if `output_path` should differ from
-#' `model_path` - provide a path where an output, a restart and a configuration
-#' folder that will be containing each files are created
+#' @param output_path Character string providing path where an output, a restart
+#'   and a configuration folder are created to store respective data. If `NULL`,
+#'   `model_path` is used.
 #'
-#' @param output_list character vector containing the `"id"` of outputvars.
-#' If defined only these defined outputs will be written. Defaults to NULL
+#' @param output_list Character vector containing the `"id"` of outputvars.
+#'   If defined, only these defined outputs will be written. Otherwise, all
+#'   outputs set in `js_filename` will be written. Defaults to `NULL`.
 #'
-#' @param output_list_timestep single character string or character vector
-#' defining what temporal resolution the defined output from `output_list`
-#' should have. Either provide a single character string for all outputs or
-#' a vector with the length of `output_list` defining each individually. Choose
-#' between `"annual"`, `"monthly"` or `"daily"`.
+#' @param output_list_timestep Single character string or character vector
+#'   defining what temporal resolution the defined outputs from `output_list`
+#'   should have. Either provide a single character string for all outputs or
+#'   a vector with the length of `output_list` defining each timestep
+#'   individually. Choose between `"annual"`, `"monthly"` or `"daily"`.
 #'
-#' @param output_format character string defining the format of the output.
-#' Defaults to `"raw"`, further options would be `"cdf"` (write netcdf) or
-#' `"clm"` (use a header)
+#' @param output_format Character string defining the format of the output.
+#'   Defaults to `"raw"`. Further options: `"cdf"` (NetCDF) or `"clm"`
+#'   (file with header).
 #'
-#' @param js_filename character string providing name of the main js file to be
-#' parsed. Default is `"lpjml.js"`
+#' @param js_filename Character string providing the name of the main js file to
+#'   be parsed. Defaults to `"lpjml.js"`.
 #'
-#' @param parallel_cores integer defining the number of available CPU cores for
-#' parallelization. Defaults to `4`
+#' @param parallel_cores Integer defining the number of available CPU cores for
+#'   parallelization. Defaults to `4`.
 #'
-#' @param debug logical If `TRUE` inner parallelization is switched off
-#' to enable tracebacks and all types of error messages. Defaults to `FALSE`
+#' @param debug logical If `TRUE`, the inner parallelization is switched off
+#'   to enable tracebacks and all types of error messages. Defaults to `FALSE`.
 #'
-#' @return \link[tibble]{tibble} with at least columns `"sime_name"` defined.
-#' If defined in params run parameters `"order"` and `"dependency"` are
-#' included. \link[tibble]{tibble} in this format is required for
-#' \link[lpjmlkit]{submit_lpjml}.
+#' @return \link[tibble]{tibble} with at least one column named `"sim_name"`.
+#'   Run parameters `"order"` and `"dependency"` are included if defined in
+#'   `params`. \link[tibble]{tibble} in this format is required for
+#'   [`submit_lpjml()`].
 #'
 #' @details
 #'
 #' Supply a \link[tibble]{tibble} for `params`, in which each row represents
-#' a configuration (config) for a LPJmL run. \cr
-#' Here a config is referred to as the precompiled `"lpjml.js"` file (or if you
-#' name it differently, use the `js_filename` argument) which links to all other
-#' mandatory `"js"` files. The precompilation is done internally by
-#' `write_config`.\cr
-#' `write_config` uses the column names of `param` as keys for the config
-#' json using a object-oriented like syntax, e.g. `"k_temp"` from `"param.js"`
+#' a configuration (config) for an LPJmL simulation. \cr
+#' Here a config is referred to as the precompiled `"lpjml.js"` file (or file
+#' name provided as `js_filename` argument), which links to all other
+#' mandatory ".js" files. The precompilation is done internally by
+#' [`write_config()`].\cr
+#' `write_config()` uses the column names of `param` as keys for the config
+#' json using an object-oriented like syntax, e.g. `"k_temp"` from `"param.js"`
 #' can be accessed with `"param.k_temp"` as the column name. \cr
 #' For each run and thus each row, this value has to be specified in the
-#' following. If the original value should instead be used, insert `NA`.\cr
+#' \link[tibble]{tibble}. If the original value should instead be used, insert
+#' `NA`.\cr
 #' Each run can be identified via the `"sim_name"`, which has to be provided in
 #' the first column. \cr
 #'
@@ -77,16 +79,17 @@
 #'
 #' ### Simulation sequences
 #' To set up spin-up and transient runs, where transient runs are dependent on
-#' the spin-up(s), would be a run parameter `"dependency"`  has to be defined
-#' that link runs with each other using the `"sim_name"`. \cr
-#' Do not use "-DFROM_RESTART" when using `"dependency"`. Same applies for
-#' config settings `"restart", `"write_restart", `"write_restart_filename",
-#' "restart_filename" and restart`, which is set automatically.
-#' This way multiple runs can be performed in succession and and in a
-#' conceivably unlimited nesting.
+#' the spin-up(s), a parameter `"dependency"`  has to be defined as a column in
+#' the \link[tibble]{tibble} that links simulations with each other using the
+#' `"sim_name"`. \cr
+#' Do not manually set "-DFROM_RESTART" when using `"dependency"`. The same
+#' applies for LPJmL config settings "restart", "write_restart", "write_restart_filename",
+#' "restart_filename", which are set automatically by this function.
+#' This way multiple runs can be performed in succession and build a
+#' conceivably endless chain or tree.
 #'
 #' ```R
-#' # with dependent runs
+#' # With dependent runs.
 #' my_params3 <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
@@ -102,13 +105,14 @@
 #'
 #'
 #' ### SLURM options
-#' Another feature is to define slurm options for each run (row) separately.
-#' E.g. you may want to allocate more time for the spin-up run but less for the
-#' transient to get a better position in the slurm queue. This can be achieved
-#' by supplying this option as parameter to `param`. \cr
-#' 4 options are availble, namely `sclass` `ntask`, `wtime`, `blocking`. \cr
-#' If specified in `param` they overwrite the corresponding function arguments
-#' in \link[lpjmlkit]{submit_lpjml}.
+#' Another feature is to define SLURM options for each simulation (row)
+#' separately. For example, users may want to set a lower wall clock limit
+#' (`wtime`) for the transient run than the spin-up run to get a higher priority
+#' in the SLURM queue. This can be achieved by supplying this option as a
+#' parameter to `param`. \cr
+#' 4 options are available, namely `sclass`, `ntask`, `wtime`, `blocking`. \cr
+#' If specified in `param`, they overwrite the corresponding function arguments
+#' in [`submit_lpjml()`].
 #'
 #' ```R
 #' my_params4 <- tibble(
@@ -128,11 +132,11 @@
 #'
 #'
 #' ### Use of macros
-#' To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as you would
-#' do it beeing a flag in shell: `"-DMY_MACRO"` `"-DCHECKPOINT"`. \cr
-#' Also do not forget to wrap it in backticks, else \link[tibble]{tibble} will
-#' raise an error, as starting an object definition with `"-"` is not allowed in
-#' *R*.
+#' To set a macro (e.g. "MY_MACRO" or "CHECKPOINT") provide it as a column of
+#' the \link[tibble]{tibble} as you would do with a flag in the shell:
+#' `"-DMY_MACRO"` `"-DCHECKPOINT"`. \cr
+#' Wrap macros in backticks or \link[tibble]{tibble} will raise an error, as
+#' starting an object definition with `"-"` is not allowed in *R*.
 #'
 #' ```R
 #' my_params2 <- tibble(
@@ -149,23 +153,24 @@
 #' # 2 scen1_transient         404 FALSE
 #' ```
 #'
-#' ### in short
-#' * `write_config` creates subdirectories within the `output_path` directory
-#'    * `"./configurations"` to store the config files
+#' ### In short
+#' * `write_config()` creates subdirectories within the `output_path` directory
+#'    * `"./configurations"` to store the config files.
 #'    * `"./output"` to store the output within subdirectories for each
-#'      `"sim_name"`
+#'      `sim_name`.
 #'    * `"./restart"` to store the restart files within subdirectories for each
-#'      `sim_name`
-#' * use the "." syntax (e.g. `"pftpar.1.name"`) to create column names and thus
-#'   keys for accessing the config json values
-#' * the column `"sim_name"` is mandatory (used as identifier)
-#' * run parameter `"dependency"` is optional but lay the basis for subsequent
-#'   runs using \link[lpjmlkit]{submit_lpjml}
-#' * specify slurm options in `param` if you want to differentiate between the
-#'   runs
-#' * if `NA` is specified as cell value the original value is used
-#' * use *R* booleans/logical constants, namely `TRUE` and `FALSE`
-#' * make sure to set value types correctly
+#'      `sim_name`.
+#' * The "." syntax (e.g. `"pftpar.1.name"`) allows to create column names and
+#'   thus keys for accessing values in the config json.
+#' * The column `"sim_name"` is mandatory (used as an identifier).
+#' * The run parameter `"dependency"` is optional but enables interdependent
+#'   consecutive runs using [`submit_lpjml()`].
+#' * SLURM options in `param` allow to use different values per run.
+#' * If `NA` is specified as cell value the original value is used.
+#' * *R* booleans/logical constants `TRUE` and `FALSE` are to be used for
+#'   boolean parameters in the config json.
+#' * Value types need to be set correctly, e.g. no strings where numeric values
+#'   are expected.
 #'
 #' @examples
 #' \dontrun{
@@ -176,7 +181,7 @@
 #' output_path <-"./my_runs"
 #'
 #'
-#' # basic usage
+#' # Basic usage
 #' my_params <- tibble(
 #'   sim_name = c("scen1", "scen2"),
 #'   random_seed = c(12, 404),
@@ -198,7 +203,7 @@
 #' # 1 scen1
 #' # 2 scen2
 #'
-#' # usage with dependency
+#' # Usage with dependency
 #' my_params <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
@@ -219,7 +224,7 @@
 #' # 2 scen1_transient     2 scen1_spinup
 #'
 #'
-# usage with slurm option
+# Usage with SLURM option
 #' my_params <- tibble(
 #'  sim_name = c("scen1_spinup", "scen1_transient"),
 #'  random_seed = c(42, 404),
@@ -255,19 +260,19 @@ write_config <- function(params,
                          parallel_cores = 4,
                          debug = FALSE) {
 
-  # check if model_path valid
+  # Check if model_path is valid
   if (!dir.exists(model_path)) {
     stop(
       paste0("Folder of model_path \"", model_path, "\" does not exist!")
     )
   }
 
-  # if output_path is not supplied use model_path as output_path
+  # If output_path is not supplied use model_path as output_path
   if (is.null(output_path)) {
     output_path <- model_path
   }
 
-  # create configurations directory to store config_*.json files
+  # Create configurations directory to store config_*.json files
   dir.create(
     paste(ifelse(is.null(output_path), model_path, output_path),
           "configurations",
@@ -276,16 +281,16 @@ write_config <- function(params,
     showWarnings = FALSE
   )
 
-  # check if dependency exists but not order - calculate order automatically
+  # Check if dependency exists but not order. Calculate order automatically.
   if ("dependency" %in% colnames(params) && !"order" %in% colnames(params)) {
     params <- get_order(params)
   }
 
   commit_hash <- get_git_urlhash(path = model_path, raise_error = FALSE)
 
-  # call function rowwise on dataframe/tibble
-  #   initiate run/slurm parameters, if not defined by tibble NA columns are
-  #   removed at the end of this functions
+  # Call function row-wise on dataframe/tibble.
+  #   Initiate run/SLURM parameters. If not defined by params tibble, NA columns
+  #   are removed at the end of this function.
   config_tmp <- tibble::tibble(sim_name = NA,
                                order = NA,
                                dependency = NA)
@@ -294,28 +299,28 @@ write_config <- function(params,
 
   config_tmp[slurm_args] <- NA
 
-  # debug option to traceback other function errors which strangely are not
-  #   written to stdout and thus outfile=error_file by parallel::makeCluster
-  #   requires a better solution soon (maybe via doSNOW package)
+  # Debug option to traceback other function errors because errors are not
+  #   written correctly to outfile = error_file by parallel::makeCluster().
+  #   TODO: Find a better solution (maybe via doSNOW package). # nolint
   if (!debug) { # nolint:undesirable_function_linter.
 
-    # create temporary file to store stdout and stderr within parallel mode
+    # Create temporary file to store stdout and stderr within parallel mode
     error_file <- tempfile(fileext = ".txt")
 
-    # parallelize write_single_config, parsing and replacing json takes time
-    # create and register cluster based on available CPU cores/nodes
+    # Parallelize write_single_config() because parsing and replacing json takes
+    # time. Create and register cluster based on available CPU cores/nodes.
     cl <- parallel::makeCluster(parallel_cores, outfile = error_file)
     doParallel::registerDoParallel(cl)
 
     row_id <- NULL
-    # parallel foreach param row with row binding
+    # Parallel foreach param row with row binding.
     job_details <- foreach::foreach(row_id = seq_len(nrow(params)),
                                     .combine = "rbind",
                                     .packages = "tibble",
                                     .errorhandling = "stop"
     ) %dopar% {
 
-      # write single call
+      # Write a single configuration
       tryCatch({
         write_single_config(params = params[row_id, ],
                             model_path = model_path,
@@ -328,30 +333,30 @@ write_config <- function(params,
                             slurm_args = slurm_args,
                             commit_hash = commit_hash)
 
-      # stop when error occures
+      # Stop if an error occurs
       }, error = function(e) {
 
-        # check if error is returned
+        # Check if error is returned
         if (e != "") {
 
-          # error with hint to use the debug argument
+          # Error with hint to use the debug argument
           stop(paste0(e,
-                      " - Please use argument debug=TRUE for traceback ",
+                      "\nPlease use argument debug = TRUE for traceback ",
                       "functionality"),
                call. = FALSE)
         } else {
 
-          # hint to use the debug argument
-          stop("This is not a common error, please use argument debug=TRUE")
+          # Hint to use the debug argument
+          stop("This is not a common error, please use argument debug = TRUE")
         }
       })
     }
 
-    # close cluster
+    # Close cluster
     parallel::stopCluster(cl)
 
-    # check for warnings, if there are any return warning with original warning
-    #   message
+    # Check for and display any warnings written to error_file by parallel
+    # processes
     warns <- readLines(error_file, warn = FALSE)
     warn_msg <- which(grepl("Warning message", warns)) + 2
 
@@ -360,7 +365,7 @@ write_config <- function(params,
     }
 
   } else {
-
+    # Run without parallelization to allow debugging of write_single_config()
     job_details <- config_tmp
 
     for (row_id in seq_len(dim(params)[1])) {
@@ -380,8 +385,8 @@ write_config <- function(params,
   }
 
 
-  # return job_details with sim_names as well as config_names
-  #   order and dependency are only returned if defined in the params
+  # Return job_details with sim_names as well as config_names.
+  #   "order" and "dependency" are only returned if defined in the params.
   if (any(is.na(job_details$order)) ||
       all(is.na(job_details$dependency))) {
     job_details$order <- NULL
@@ -396,14 +401,14 @@ write_config <- function(params,
 
   attr(job_details, "stages") <- c("config")
 
-  return(job_details)
+  job_details
 }
 
 
 # Function to write a single config_<sim_name>.json file using the default
-#   config.json file
+#   config.json file.
 #   mutate* functions are applied to change params/keys after provided
-#   data frame/tibble
+#   data frame/tibble.
 write_single_config <- function(params,
                                 model_path,
                                 output_path,
@@ -416,17 +421,17 @@ write_single_config <- function(params,
                                 test_it = FALSE,
                                 commit_hash = "") {
 
-  # read json file without simplification (to vector) to avoid destroying the
-  #   original json structure (important to be readable for LPJmL)
-  #   save it as config.json (as a convention)
+  # Read json file without simplification (to vector) to avoid destroying the
+  #   original json structure (important to be readable for LPJmL).
+  #   Save it as config.json (as a convention).
   if (is.null(params[["sim_name"]])) {
     stop(cat("In params a sim_name is missing!\n"))
   }
 
   config_tmp$sim_name <- params[["sim_name"]]
 
-  # check if order and dependency is defined to set sequence of dependent runs
-  #   include error catching for missing order or dependency if other is def
+  # Check if order and dependency is defined to set sequence of dependent runs.
+  #   Include error catching for missing order or dependency if other is defined.
   if (!is.null(params[["order"]])) {
 
     if (params[["order"]] == 1) {
@@ -458,8 +463,8 @@ write_single_config <- function(params,
     )
   }
 
-  # check if macros defined use option -D for filtering
-  #   if macros are set false then ignore but use names to sort from parameters
+  # Check if macros defined use option -D for filtering.
+  #   If macros are set false then ignore but use names to sort from parameters.
   if (any(grepl("^-D", colnames(params)))) {
     macro <- unlist(params[grepl("^-D", colnames(params))])
     macro_name <- names(macro)
@@ -475,14 +480,14 @@ write_single_config <- function(params,
     macro_name <- NULL
   }
 
-  # parse config using the cpp precompiler and thereby evaluate macros
+  # Parse config and evaluate macros using the cpp precompiler
   tmp_json <- parse_config(path = model_path,
                            from_restart = from_restart,
                            js_filename = js_filename,
                            macro = macro,
                            test_file = test_it) %>%
 
-    # replace output and restart params (paths, output format & which outputs)
+    # Replace output and restart params (paths, output format & which outputs)
     mutate_config_output(params = params,
                          output_path = output_path,
                          output_format = output_format,
@@ -490,8 +495,8 @@ write_single_config <- function(params,
                          output_timestep = output_list_timestep,
                          dir_create = !test_it) %>%
 
-    # params/keys insert from params data frame
-    #   columns as keys and rows as values (values, vectors possible)
+    # Insert parameters/keys from params data frame.
+    #   Columns as keys and rows as values (values, vectors possible).
     mutate_config_param(params = params,
                         exclude_macros = macro_name,
                         commit_hash = commit_hash,
@@ -499,9 +504,9 @@ write_single_config <- function(params,
 
   if (!test_it) {
 
-    # write config json file, use sim_name for naming
-    #   additional jsonlite::write_json arguments are very important to be
-    #   readable in LPJmL (type conservation/hinting)
+    # Write config json file, use sim_name for naming.
+    #   Additional jsonlite::write_json arguments are very important to be
+    #   readable in LPJmL (type conservation/hinting).
     jsonlite::write_json(
       path = paste0(output_path,
                     "/configurations/",
@@ -523,8 +528,8 @@ write_single_config <- function(params,
 }
 
 
-# Function to run cpp precompiler on lpjml.js to parse config.json
-#  define from_restart and if further macros required a macro
+# Function to run cpp precompiler on lpjml.js to parse config.json.
+#  Define from_restart and any other macros set by user.
 parse_config <- function(path,
                          from_restart = FALSE,
                          js_filename = "lpjml.js",
@@ -533,7 +538,7 @@ parse_config <- function(path,
 
   if (!test_file) {
 
-       # processx::run kills any occuring subprocesses to avoid fork bombs
+       # processx::run kills any occuring subprocesses to avoid fork bombs.
        tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
                                  args = c(
                                    "-c",
@@ -557,8 +562,8 @@ parse_config <- function(path,
 
 
 # Function to rewrite parts in the output and restart section of precompiled
-#   and read (as list) lpjml.js > config.json
-#   output format (raw, clm cdf), output selection, output path, restart_path
+#   and read (as list) lpjml.js > config.json.
+#   Output format (raw, clm cdf), output selection, output path, restart_path.
 mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  params,
                                  output_path,
@@ -567,19 +572,19 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  output_timestep,
                                  dir_create = FALSE) {
 
-  # concatenate output path and create folder if set
+  # Concatenate output path and create folder if set
   opath <- paste(output_path, "output", params[["sim_name"]], "", sep = "/")
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
   if (is.null(output_list) || x[["nspinup"]] > 500) {
     for (x_id in seq_len(length(x[["output"]]))) {
 
-      # replace output format in x if defined (e.g. raw, clm, cdf)
+      # Replace output format in x if defined (e.g. raw, clm, cdf)
       if (x[["output"]][[x_id]]$file$fmt != "txt") {
         x[["output"]][[x_id]]$file$fmt <- output_format
       }
 
-      # replace output path replace in x
+      # Replace output path in x
       x[["output"]][[x_id]]$file$name <- gsub("output/",
                                               opath,
                                               x[["output"]][[x_id]]$file$name)
@@ -587,11 +592,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
   } else {
 
-    # get list of outputvar names
+    # Get list of outputvar names
     outputvar_names <- unlist(lapply(x[["outputvar"]], function(x)x$name)) # nolint:paren_body_linter.
     outputvar_units <- unlist(lapply(x[["outputvar"]], function(x)x$unit)) # nolint:paren_body_linter.
 
-    # empty output and include grid if not done
+    # Empty output and include grid if not done
     x["output"] <- list(c())
 
     if (!("grid" %in% output_list) && !("cdf" %in% output_format)) {
@@ -606,18 +611,18 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
       length_output_timestep <- length(output_timestep)
     }
 
-    # iterate over all defined outputs
+    # Iterate over all defined outputs.
     for (id_ov in seq_len(length(output_list))) {
 
-      # get elements in output list that are not defined in x[["outputvar"]]
+      # Get elements in output list that are not defined in x[["outputvar"]]
       if (output_list[id_ov] %in% outputvar_names) {
 
-        # create empty (new) output list to be appended at the end
+        # Create empty (new) output list to be appended at the end
         new_output <- list()
         new_output[["id"]] <- output_list[id_ov]
         new_output[["file"]] <- list()
 
-        # output format three possibilities: netcdf: cdf, raw: bin and clm
+        # Output format three possibilities: netcdf: cdf, raw: bin and clm
         new_output[["file"]][["fmt"]] <- ifelse(
           length(output_format) == 1 && is.character(output_format),
           ifelse(output_list[id_ov] == "globalflux", "txt", output_format),
@@ -626,9 +631,10 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                       "string."))
         )
 
-        # output_timestep could be supplied as single character string
-        #   prescribing a timestep for all outputs and a character vector with
-        #   the length of output_list to assign an individual timestep for each
+        # Output_timestep could be supplied as a single character string
+        #   prescribing a timestep for all outputs or as a character vector
+        #   with the length of output_list to assign an individual timestep for
+        #   each output.
         if (length_output_timestep == 1 &&
             !(output_list[id_ov] %in% c("grid", "globalflux"))) {
 
@@ -660,7 +666,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                       "matching the length of output_list."))
         }
 
-        # adjust correct units to avoid correction factors in LPJmL
+        # Adjust correct units to avoid correction factors in LPJmL
         unit_replace <- outputvar_units[
           which(output_list[id_ov] == outputvar_names)
         ]
@@ -679,8 +685,8 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           unit_replace
         )
 
-        # create file name with correct path, corresponding outputvar name and
-        #   file ending based on the output_format
+        # Create file name with correct path, corresponding outputvar name and
+        #   file extension based on the output_format
         new_output[["file"]][["name"]] <- paste0(
           opath,
           output_list[id_ov], ".",
@@ -693,12 +699,12 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           )
         )
 
-        # append new output to output in config
+        # Append new output to output in config
         x[["output"]] <- append(x[["output"]], list(new_output))
 
       } else {
 
-        # if ID not available print warning
+        # If ID not available print warning
         warning(paste0("Output with ID ",
                        output_list[id_ov],
                        " is not available in current model version",
@@ -707,7 +713,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     }
   }
 
-  # replace restart paths if write restart is set
+  # Replace restart paths if write restart is set
   rpath <- paste(output_path, "restart", params[["sim_name"]], "", sep = "/")
 
   if (dir_create) dir.create(rpath, recursive = TRUE, showWarnings = FALSE)
@@ -720,7 +726,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
   if (!is.null(x[["restart_filename"]]) && !is.null(params[["dependency"]])) {
 
-    # if dependency is defined start from restart file of dependency sim_name
+    # If dependency is defined start from restart file of dependency sim_name
     x[["restart_filename"]] <- paste0(ifelse(is.na(params[["dependency"]]),
                                         rpath,
                                         paste(output_path,
@@ -737,7 +743,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
     warning(paste0("With `-DFROM_RESTART` being set to TRUE",
                    " please make sure to explicitly set restart_filename in",
-                   " params. Else the original entry is used!"))
+                   " params. Otherwise, the original entry is used."))
   }
 
   x[["write_restart_filename"]] <- paste0(rpath, "restart.lpj")
@@ -747,17 +753,17 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
 
 # Function to rewrite params in terms of JSON keys of precompiled
-#   and read (as list) lpjml.js > config.json
-#   Nested keys can be reached via "key.subkey,subsubkey" -> "input.soil.name".
-#   For the second level (only) indices can be used, lists occur quite on that
-#   level, e.g. "key.1.subkey" -> "soilpar.1.name"
+#   and read (as list) lpjml.js > config.json.
+#   Nested keys can be reached via "key.subkey.subsubkey" -> "input.soil.name".
+#   Indices can be used to access elements in lists. Lists occur only on second
+#   level, e.g. "key.1.subkey" -> "soilpar.1.name".
 mutate_config_param <- function(x,
                                 params,
                                 exclude_macros,
                                 commit_hash,
                                 slurm_args) {
 
-  # every column represents a key in config.json
+  # Every column represents a key in config.json
   params[c("order", "dependency", slurm_args, exclude_macros)] <- NULL
 
   x[["sim_githash"]] <- commit_hash
@@ -766,15 +772,15 @@ mutate_config_param <- function(x,
 
   for (colname in colnames(params)) {
 
-    # test if NA is supplied, then default value is used
+    # Use default value if NA is supplied
     param_value <- unlist(params[[colname]])
 
     if (any(is.na(param_value))) next
 
-    # split keys for each level
+    # Split keys for each level
     keys <- strsplit(colname, "[.]")[[1]]
 
-    # test for length and digits (indices) -> handle each case
+    # Test for length and digits (indices) -> handle each case.
     if (length(keys) > 1) {
 
       if (grepl("^[[:digit:]]+$", keys)[2]) {
@@ -824,18 +830,18 @@ mutate_config_param <- function(x,
     }
   }
 
-  return(x)
+  x
 }
 
 
 # Function to convert numerics to integers since R is missing explicit
-#   non-/decimals, both x <- 1 as well as x <- 1.0 assigns a numeric value
+#   non-/decimals. Both x <- 1 as well as x <- 1.0 assigns a numeric value.
 convert_integer <- function(x, check_value) {
 
-  # check if value is a list to replace
+  # Check if value is a list to replace
   if (!is.list(check_value)) {
 
-    # check if target value is an integer -> convert
+    # Convert if target value is an integer
     if (is.integer(check_value) ||
        (is.character(check_value)) && is.numeric(x)) {
       return(as.integer(x))
@@ -846,7 +852,7 @@ convert_integer <- function(x, check_value) {
 
   } else {
 
-    # for list replacements, check if list elements are integer if so -> convert
+    # For list replacements, convert values if list elements are integer
     if (all(sapply(check_value, is.integer))) {# nolint:undesirable_function_linter.
       return(lapply(x, as.integer))
 
@@ -857,7 +863,7 @@ convert_integer <- function(x, check_value) {
 }
 
 
-# function to get order if not specified
+# Function to get order if not specified
 get_order <- function(x) {
   .data <- NULL
 
