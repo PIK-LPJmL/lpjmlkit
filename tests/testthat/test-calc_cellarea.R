@@ -18,8 +18,10 @@ test_that("Calculate cell area with LPJmLData object and grid attribute", {
   output$transform(to = "lon_lat")
   cell_area2 <- calc_cellarea(output, return_unit = "km2")
 
-  testthat::expect_equal(as.vector(cell_area),
-                         as.vector(na.omit(cell_area2)))
+  testthat::expect_equal(
+    as.vector(cell_area),
+    as.vector(cell_area2[match(names(cell_area), output$grid$data)])
+  )
 })
 
 test_that("Calculate cell area with LPJmLData object of variable grid", {
@@ -32,6 +34,8 @@ test_that("Calculate cell area with LPJmLData object of variable grid", {
   output$transform(to = "lon_lat")
   cell_area2 <- calc_cellarea(output, return_unit = "km2")
 
-  testthat::expect_equal(as.vector(cell_area),
-                         as.vector(na.omit(cell_area2)))
+  testthat::expect_equal(
+    as.vector(cell_area),
+    as.vector(cell_area2[match(names(cell_area), output$grid$data)])
+  )
 })

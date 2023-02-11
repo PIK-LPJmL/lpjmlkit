@@ -709,21 +709,26 @@ read_io_data <- function(
       )
     )
 
-    # Assign dimension names to array
+    # Assign dimension names to array.
+    # Ensure cell or band indices are not written in scientific notation.
     band_names <- default(
       meta_data$band_names, seq_len(default(meta_data$nbands, 1))
+    ) %>% format(trim = TRUE, scientific = FALSE, justify = "none")
+    cell_dimnames <- format(
+      seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
+      trim = TRUE, scientific = FALSE, justify = "none"
     )
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
       cellyear  = list(                                                # order 1
         band = band_names,
         time = NULL, # Assign dates later
-        cell = seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell)
+        cell = cell_dimnames
       ),
       yearcell  = stop("Order yearcell not supported"),                # order 2
       cellindex = stop("Order cellindex not supported"),               # order 3
       cellseq   = list(                                                # order 4
-        cell = seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
+        cell = cell_dimnames,
         band = band_names,
         time = NULL # Assign dates later
       )

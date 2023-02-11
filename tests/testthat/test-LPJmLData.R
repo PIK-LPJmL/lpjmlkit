@@ -72,13 +72,18 @@ test_that("test add_grid method", {
   output$add_grid()
   # read in grid directly
   grid <- read_io("../testdata/output/grid.bin.json")
+  # initialize object as grid (removes time information)
+  grid$init_grid()
   # check if added grid equals grid file (read in separately)
   expect_equal(output$grid, grid)
   # check grid cells with those of objects meta data
-  expect_equal(dimnames(output$grid$data)$cell,
-               as.character(
-                seq(output$meta$firstcell, length.out = output$meta$ncell)
-               ))
+  expect_equal(
+    dimnames(output$grid$data)$cell,
+    format(
+      seq(output$meta$firstcell, length.out = output$meta$ncell),
+      trim = TRUE, scientific = FALSE, justify = "none"
+    )
+  )
 })
 
 # test length method

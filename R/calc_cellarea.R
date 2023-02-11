@@ -44,9 +44,16 @@ calc_cellarea <- function(x,
     if (!is.null(x$grid)) {
       x <- x$grid
 
-    # Check if LPJmLData object is of variable grid or LPJGRID (header file)
+    # Without grid attribute, fail unless LPJmLData object is of variable grid
+    # or LPJGRID (header file)
     } else if (!any(c("grid", "LPJGRID") %in% x$meta$variable)) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
+    }
+    # Initialize LPJmLData object as grid if necessary. Make a copy in order not
+    # to change the original.
+    if (!is.null(x$meta$nyear)) {
+      x <- x$clone(deep = TRUE)
+      x$init_grid()
     }
 
     if (!is.null(x$meta$cellsize_lon) && any(res_lon != x$meta$cellsize_lon)) {

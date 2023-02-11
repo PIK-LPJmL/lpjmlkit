@@ -13,12 +13,13 @@ test_integrity <- function(output) {
     # test for equal length of cell in data and meta data (ncell)
     testthat::expect_equal(dim_data[["cell"]], output$meta$ncell)
     # test for equal dimnames of cell in data and those constructed by meta data
-    testthat::expect_equal(dimnames_data$cell,
-                           as.character(
-                             seq(output$meta$firstcell,
-                                 length.out = output$meta$ncell)
-                             )
-                           )
+    testthat::expect_equal(
+      dimnames_data$cell,
+      format(
+        seq(output$meta$firstcell, length.out = output$meta$ncell),
+        trim = TRUE, scientific = FALSE, justify = "none"
+      )
+    )
   } else {
     # test for equal dimnames of lat, lon in data and those of underlying grid
     testthat::expect_equal(dimnames_data$lat,

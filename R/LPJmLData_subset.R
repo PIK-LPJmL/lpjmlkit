@@ -172,16 +172,11 @@ LPJmLData$set("private",
 
       } else {
 
-        # Proxy to check if grid is an attribute or instance itself is a grid
-        if (!is.null(private$.grid)) {
-          grid <- private$.grid$clone(deep = TRUE)
-        } else {
-          grid <- self$clone(deep = TRUE)
+        if (is.null(private$.grid)) {
+          stop("Missing $grid attribute. Add via $add_grid()")
         }
-        grid$.__set_lock__(is_locked = FALSE)
-        cell_dimnames <- transform(grid, to = "cell") %>%
-          dimnames() %>%
-          .$cell
+        cell_dimnames <- sort(private$.grid$data) %>% 
+          format(trim = TRUE, scientific = FALSE, justify = "none")
       }
 
     } else {
