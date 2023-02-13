@@ -126,11 +126,6 @@ LPJmLData$set("private",
       }
     }
 
-    # Use fmatch from package fastmatch instead of base::match if available.
-    if ("fastmatch" %in% .packages(all.available = TRUE)) {
-      match <- fastmatch::fmatch
-    }
-
     # Case 1: Transformation from cell dimension to lon, lat dimensions
     if (private$.meta$._space_format_ == "cell" &&
         to == "lon_lat") {
@@ -184,8 +179,7 @@ LPJmLData$set("private",
       ) + 1
 
       # Set dimnames of grid_array to actual coordinates instead of dummy
-      # spatial_dimnames. Use fmatch from fastmatch package if available,
-      # otherwise fall back to base::match.
+      # spatial_dimnames.
       coordlon <- asub(self$data, band = "lon")[
         match(seq_len(dim(grid_array)["lon"]), ilon)
       ]
@@ -258,11 +252,6 @@ LPJmLData$set("private",
     # Check for locked objects
     check_method_locked(self, "transform_space")
     
-    # Use fmatch from package fastmatch instead of base::match if available.
-    if ("fastmatch" %in% .packages(all.available = TRUE)) {
-      match <- fastmatch::fmatch
-    }
-
     # Convenience function - if to == NULL automatically switch to other to
     if (is.null(to)) {
       if (private$.meta$._space_format_ == "cell") {
