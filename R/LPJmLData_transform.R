@@ -154,7 +154,7 @@ LPJmLData$set("private",
       # Generate two-dimensional array covering the full grid_extent with
       # lon_lat dimensions using orientation as in raster objects, i.e. from
       # west to east and from north to south.
-      spatial_dimnames <- mapply(
+      spatial_dimnames <- mapply( # nolint:undesirable_function_linter.
         seq, # nolint:undesirable_function_linter.
         from = grid_extent[cbind(c("min", "max"), c("lon", "lat"))],
         to = grid_extent[cbind(c("max", "min"), c("lon", "lat"))] +
@@ -257,7 +257,7 @@ LPJmLData$set("private",
 
     # Check for locked objects
     check_method_locked(self, "transform_space")
-    
+
     # Use fmatch from package fastmatch instead of base::match if available.
     if ("fastmatch" %in% .packages(all.available = TRUE)) {
       match <- fastmatch::fmatch
@@ -294,7 +294,7 @@ LPJmLData$set("private",
         to == "lon_lat") {
 
       private$.grid$.__transform_grid__(to = to)
-      
+
       # Matrix with ilon and ilat indices of cells in new array
       ilonilat <- arrayInd(
         match(as.integer(dimnames(self)[["cell"]]), private$.grid$data),
@@ -302,12 +302,12 @@ LPJmLData$set("private",
       )
       dimnames(ilonilat) <- list(cell = dimnames(self)[["cell"]],
                                  band = c("lon", "lat"))
-      
+
       # Index matrix to access elements from source data
-      index_src <- expand.grid(sapply(dim(self), seq_len)) # nolint:undesirable_function_linter.
-      
+      index_source <- expand.grid(sapply(dim(self), seq_len)) # nolint:undesirable_function_linter.
+
       # Transform index matrix from source to target
-      index_tgt <- mapply(
+      index_target <- mapply( # nolint:undesirable_function_linter.
         function(index, name, ilonilat) {
           if (name == "cell") {
             ilonilat[index, ]
@@ -315,16 +315,16 @@ LPJmLData$set("private",
             index
           }
         },
-        index = index_src,
+        index = index_source,
         name = names(dim(self)),
         MoreArgs = list(ilonilat = ilonilat)
-      ) %>% 
+      ) %>%
         unlist(recursive = TRUE, use.names = FALSE) %>%
-          matrix(nrow = nrow(index_src))
-      
-      rm(index_src, ilonilat)
+        matrix(nrow = nrow(index_source))
+
+      rm(index_source, ilonilat)
       gc(full = TRUE)
-        
+
 
       # Replace source space dimension with target space dimensions in dim and
       # dimnames attribute
@@ -338,12 +338,12 @@ LPJmLData$set("private",
         values = dim(private$.grid$data)[c("lon", "lat")],
         after = get_predim(self$data, "cell")
       )
-      
+
       # Create target data array
-      tgt_array <- array(NA, dim = new_dims, dimnames = new_dimnames)
-      
+      target_array <- array(NA, dim = new_dims, dimnames = new_dimnames)
+
       # Insert data from source array into target array
-      tgt_array[index_tgt] <- self$data
+      target_array[index_target] <- self$data
 
     # Case 2: Transformation between lon, lat dimensions and cell dimension
     } else if (private$.meta$._space_format_ == "lon_lat" &&
@@ -352,6 +352,7 @@ LPJmLData$set("private",
       # Matrix with ilon and ilat indices of cells in new array
       ilonilat <- arrayInd(match(sort(private$.grid$data), private$.grid$data),
                            dim(private$.grid))
+
       dimnames(ilonilat) <- list(cell = format(sort(private$.grid$data),
                                                trim = TRUE, scientific = FALSE),
                                  band = c("lon", "lat"))
@@ -368,14 +369,14 @@ LPJmLData$set("private",
         other_dims,
         values = dim(private$.grid$data)["cell"],
         after = get_predim(self$data, c("lon", "lat"))
-      )             
-      
+      )
+
 
       # Index matrix to access elements from source data
-      index_src <- expand.grid(sapply(new_dims, seq_len)) # nolint:undesirable_function_linter.
+      index_source <- expand.grid(sapply(new_dims, seq_len)) # nolint:undesirable_function_linter.
 
       # Transform index matrix from source to target
-      index_tgt <- mapply(
+      index_target <- mapply( # nolint:undesirable_function_linter.
         function(index, name, ilonilat) {
           if (name == "cell") {
             ilonilat[index, ]
@@ -383,17 +384,17 @@ LPJmLData$set("private",
             index
           }
         },
-        index = index_src,
+        index = index_source,
         name = names(new_dimnames),
         MoreArgs = list(ilonilat = ilonilat)
-      ) %>% 
+      ) %>%
         unlist(recursive = TRUE, use.names = FALSE) %>%
-          matrix(nrow = nrow(index_src))
-      
-      rm(index_src, ilonilat)
+          matrix(nrow = nrow(index_source))
+
+      rm(index_source, ilonilat)
       gc(full = TRUE)
 
-      tgt_array <- array(self$data[index_tgt], dim = new_dims,
+      target_array <- array(self$data[index_target], dim = new_dims,
                          dimnames = new_dimnames)
 
     } else {
@@ -401,10 +402,10 @@ LPJmLData$set("private",
     }
 
     # Overwrite internal data with same data but new dimensions
-    self$.__set_data__(tgt_array)
+    self$.__set_data__(target_array)
 
     # Set space format in meta data entry
-    private$.meta$.__transform_space_format__(to)    
+    private$.meta$.__transform_space_format__(to)
 
     return(invisible(self))
   }

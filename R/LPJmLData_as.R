@@ -488,11 +488,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   # Calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
-    data_extent <- rbind(
-      min = apply(data_subset$grid$data, "band", min),
-      max = apply(data_subset$grid$data, "band", max)
-    )
-                         
+    data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
+                         max = apply(data_subset$grid$data, "band", max))
 
   } else {
     data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint

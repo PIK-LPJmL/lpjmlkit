@@ -713,11 +713,14 @@ read_io_data <- function(
     # Ensure cell or band indices are not written in scientific notation.
     band_names <- default(
       meta_data$band_names, seq_len(default(meta_data$nbands, 1))
-    ) %>% format(trim = TRUE, scientific = FALSE, justify = "none")
+    ) %>%
+      format(trim = TRUE, scientific = FALSE, justify = "none")
+
     cell_dimnames <- format(
       seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
       trim = TRUE, scientific = FALSE, justify = "none"
     )
+
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
       cellyear  = list(                                                # order 1
