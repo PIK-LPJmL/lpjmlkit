@@ -296,8 +296,10 @@ LPJmLData$set("private",
       private$.grid$.__transform_grid__(to = to)
       
       # Matrix with ilon and ilat indices of cells in new array
-      ilonilat <- arrayInd(match(dimnames(self)[["cell"]], private$.grid$data),
-                           dim(private$.grid))
+      ilonilat <- arrayInd(
+        match(as.integer(dimnames(self)[["cell"]]), private$.grid$data),
+        dim(private$.grid)
+      )
       dimnames(ilonilat) <- list(cell = dimnames(self)[["cell"]],
                                  band = c("lon", "lat"))
       
@@ -319,6 +321,9 @@ LPJmLData$set("private",
       ) %>% 
         unlist(recursive = TRUE, use.names = FALSE) %>%
           matrix(nrow = nrow(index_src))
+      
+      rm(index_src, ilonilat)
+      gc(full = TRUE)
         
 
       # Replace source space dimension with target space dimensions in dim and
@@ -385,6 +390,9 @@ LPJmLData$set("private",
         unlist(recursive = TRUE, use.names = FALSE) %>%
           matrix(nrow = nrow(index_src))
       
+      rm(index_src, ilonilat)
+      gc(full = TRUE)
+
       tgt_array <- array(self$data[index_tgt], dim = new_dims,
                          dimnames = new_dimnames)
 
