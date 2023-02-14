@@ -147,6 +147,16 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
         stop("Unknown number of bands for grid initialization.")
       }
 
+      if (!is.null(private$.meta$nstep) && private$.meta$nstep != 1) {
+        stop("Unsupported 'nstep' = ", private$.meta$nstep,
+             "for grid initialization")
+      }
+
+      if (!is.null(private$.meta$nyear) && private$.meta$nyear != 1) {
+        stop("Unsupported 'nyear' = ", private$.meta$nyear,
+             "for grid initialization")
+      }
+
       # Update grid meta data
       self$.__set_data__(
         drop_omit(self$data, omit = "cell")
