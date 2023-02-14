@@ -488,9 +488,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   # Calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
-    data_extent <- apply(data_subset$grid$data,
-                         "band",
-                         range)
+    data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
+                         max = apply(data_subset$grid$data, "band", max))
 
   } else {
     data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint
@@ -537,8 +536,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 }
 
 
-# get multi dimensions names of array with except of space dimension
-# (cell / lon, lat) which are always included (requirement for raster/terra)
+# Get names of dimensions with length > 1. Always include space dimension(s)
+# (cell / lon, lat), which are required for use with raster/terra.
 get_multidims <- function(x) {
   space_dims <- unlist(strsplit(x$meta$._space_format_, "_"))
   multi_dims <- names(which(dim(x$data) > 1))
