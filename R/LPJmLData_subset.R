@@ -164,7 +164,7 @@ LPJmLData$set("private",
 
     if (any(c(lon_lat, "cell", coords) %in% names(subset_list))) {
 
-      # New dimnames attribute of cell dimension needs to be passed to the 
+      # New dimnames attribute of cell dimension needs to be passed to the
       # `.__update_subset__` method in LPJmLMetaData to update the number of
       # cells as well as the (new) firstcell if subsetting by cell
       if (private$.meta$._space_format_ == "cell") {
@@ -172,15 +172,11 @@ LPJmLData$set("private",
 
       } else {
 
-        # Proxy to check if grid is an attribute or instance itself is a grid
-        if (!is.null(private$.grid)) {
-          grid <- private$.grid$clone(deep = TRUE)
-        } else {
-          grid <- self$clone(deep = TRUE)
+        if (is.null(private$.grid)) {
+          stop("Missing $grid attribute. Add via $add_grid()")
         }
-        cell_dimnames <- grid$.__transform_space__(to = "cell") %>%
-          dimnames() %>%
-          .$cell
+        cell_dimnames <- sort(private$.grid$data) %>%
+          format(trim = TRUE, scientific = FALSE, justify = "none")
       }
 
     } else {

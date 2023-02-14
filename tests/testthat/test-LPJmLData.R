@@ -20,18 +20,25 @@ test_integrity <- function(output, meta = NULL) {
   # test for equal length of cell in data and meta data (ncell)
   testthat::expect_equal(dim_data[["cell"]], meta$ncell)
   # test for equal dimnames of cell in data and those constructed by meta data
-  testthat::expect_equal(dimnames_data$cell,
-                         as.character(
-                          seq(meta$firstcell, length.out = meta$ncell)
-                         ))
+  testthat::expect_equal(
+    dimnames_data$cell,
+    format(
+      seq(meta$firstcell, length.out = meta$ncell),
+      trim = TRUE, scientific = FALSE
+    )
+  )
 
   # test for equal length of time steps in data and meta data (nyear * nstep)
   testthat::expect_equal(dim_data[["time"]], meta$nyear)
   # test for equal dimnames of time steps in data and those constructed by
   #   meta data with create_time_names function (nstep, firstyear, nyear)
-  testthat::expect_equal(dimnames_data$time,
-                         create_time_names(meta$nstep,
-                                           seq(meta$firstyear, length.out = meta$nyear))) # nolint
+  testthat::expect_equal(
+    dimnames_data$time,
+    create_time_names(
+      meta$nstep,
+      seq(meta$firstyear, by = meta$timestep, length.out = meta$nyear)
+    )
+  )
 
   # test for equal length of bands in data and meta data (nbands)
   testthat::expect_equal(dim_data[["band"]], meta$nbands)
@@ -76,10 +83,13 @@ test_that("test add_grid method", {
   # check if added grid equals grid file (read in separately)
   expect_equal(output$grid, grid)
   # check grid cells with those of objects meta data
-  expect_equal(dimnames(output$grid$data)$cell,
-               as.character(
-                seq(output$meta$firstcell, length.out = output$meta$ncell)
-               ))
+  expect_equal(
+    dimnames(output$grid$data)$cell,
+    format(
+      seq(output$meta$firstcell, length.out = output$meta$ncell),
+      trim = TRUE, scientific = FALSE
+    )
+  )
 })
 
 # test length method

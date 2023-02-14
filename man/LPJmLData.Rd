@@ -45,6 +45,7 @@ can be performed directly on the object.}
 \item \href{#method-LPJmLData-dimnames}{\code{LPJmLData$dimnames()}}
 \item \href{#method-LPJmLData-summary}{\code{LPJmLData$summary()}}
 \item \href{#method-LPJmLData-print}{\code{LPJmLData$print()}}
+\item \href{#method-LPJmLData-init_grid}{\code{LPJmLData$init_grid()}}
 \item \href{#method-LPJmLData-.__transform_grid__}{\code{LPJmLData$.__transform_grid__()}}
 \item \href{#method-LPJmLData-.__set_data__}{\code{LPJmLData$.__set_data__()}}
 \item \href{#method-LPJmLData-.__set_grid__}{\code{LPJmLData$.__set_grid__()}}
@@ -265,8 +266,27 @@ Method to get the summary of the data array of an
 \subsection{Method \code{print()}}{
 Method to print the \code{LPJmLData} object. \cr
 See also \link[base]{print}.
+Initialize LPJmLData instance as a grid
+
+Modify an LPJmLData object containing grid coordinates so that it can be
+used as the \verb{$grid} attribute to another LPJmLData object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLData-init_grid"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-init_grid}{}}}
+\subsection{Method \code{init_grid()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$init_grid()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Calling this method on an LPJmLData object removes any time dimension and
+adds band names "lon" and "lat". Use this method before assigning an
+LPJmLData object as the \verb{$grid} attribute to another LPJmLData object.
 }
 
 }

@@ -125,11 +125,11 @@ LPJmLData$set("private",
       }
     }
 
-    # Support lazy loading of grid for meta files. This throws an error if no
-    # suitable grid file is detected.
+    # Support lazy loading of grid files. This throws an error if no suitable
+    # grid file is detected.
     self$add_grid()
 
-    # Create new data array based on disaggregated time dimension
+    # Extract dimensions other than space dimension(s) from self
     other_dimnames <- dimnames(self$data) %>%
       `[<-`(unlist(strsplit(private$.meta$._space_format_, "_")), NULL)
     other_dims <- dim(self$data) %>%
@@ -141,6 +141,36 @@ LPJmLData$set("private",
 
       private$.grid$.__transform_space__(to = to)
 
+      # Matrix with ilon and ilat indices of cells in new array
+      ilonilat <- arrayInd(
+        match(as.integer(dimnames(self)[["cell"]]), private$.grid$data),
+        dim(private$.grid)
+      )
+      dimnames(ilonilat) <- list(cell = dimnames(self)[["cell"]],
+                                 band = c("lon", "lat"))
+
+      # Index matrix to access elements from source data
+      index_source <- expand.grid(sapply(dim(self), seq_len)) # nolint:undesirable_function_linter.
+
+      # Transform index matrix from source to target
+      index_target <- mapply( # nolint:undesirable_function_linter.
+        function(index, name, ilonilat) {
+          if (name == "cell") {
+            ilonilat[index, ]
+          } else {
+            index
+          }
+        },
+        index = index_source,
+        name = names(dim(self)),
+        MoreArgs = list(ilonilat = ilonilat)
+      ) %>%
+        unlist(recursive = TRUE, use.names = FALSE) %>%
+        matrix(nrow = nrow(index_source))
+
+      rm(index_source, ilonilat)
+      gc(full = TRUE)
+
       # Append new space dimension where they have been before
       new_dimnames <- append(other_dimnames,
                              values = dimnames(private$.grid$data)[c("lat", "lon")], # nolint
@@ -149,61 +179,86 @@ LPJmLData$set("private",
                          values = dim(private$.grid$data)[c("lat", "lon")],
                          after = get_predim(self$data, "cell"))
 
-      # fit_grid recycles data if necessary to fit into the array
-      data_array <- fit_grid(self$data,
-                             private$.grid$data,
-                             "cell") %>%
-        # Assign data to transformed array by grid
-        array(dim = new_dims,
-              dimnames = new_dimnames)
+      # Replace source space dimension with target space dimensions in dim and
+      # dimnames attribute
+      new_dimnames <- append(
+        other_dimnames,
+        values = dimnames(private$.grid$data)[c("lon", "lat")],
+        after = get_predim(self$data, "cell")
+      )
+      new_dims <- append(
+        other_dims,
+        values = dim(private$.grid$data)[c("lon", "lat")],
+        after = get_predim(self$data, "cell")
+      )
 
-      data_array[!is.na(data_array)] <- self$data
+      # Create target data array
+      target_array <- array(NA, dim = new_dims, dimnames = new_dimnames)
 
-      # Set corresponding meta data entry
-      private$.meta$.__transform_space_format__("lon_lat")
+      # Insert data from source array into target array
+      target_array[index_target] <- self$data
 
     # Case 2: Transformation between lon, lat dimensions and cell dimension
     } else if (private$.meta$._space_format_ == "lon_lat" &&
         to == "cell") {
 
+      # Matrix with ilon and ilat indices of cells in new array
+      ilonilat <- arrayInd(match(sort(private$.grid$data), private$.grid$data),
+                           dim(private$.grid))
 
-      # fit_grid recycles data if necessary to fit into the array
-      mask_array <- fit_grid(self$data,
-                             private$.grid$data,
-                             c("lon", "lat")) %>%
-        # Create array for masking data
-        array(dim = dim(self$data),
-              dimnames = dimnames(self$data))
+      dimnames(ilonilat) <- list(cell = format(sort(private$.grid$data),
+                                               trim = TRUE, scientific = FALSE),
+                                 band = c("lon", "lat"))
 
+      # Transform grid to target space format
       private$.grid$.__transform_space__(to = to)
 
-      # append new space dimension where they have been before
-      new_dimnames <- append(other_dimnames,
-                             values = dimnames(private$.grid$data)["cell"],
-                             after = get_predim(self$data, c("lon", "lat")))
-      new_dims <- append(other_dims,
-                         values = dim(private$.grid$data)["cell"],
-                         after = get_predim(self$data, c("lon", "lat")))
+      new_dimnames <- append(
+        other_dimnames,
+        values = dimnames(private$.grid$data)["cell"],
+        after = get_predim(self$data, c("lon", "lat"))
+      )
+      new_dims <- append(
+        other_dims,
+        values = dim(private$.grid$data)["cell"],
+        after = get_predim(self$data, c("lon", "lat"))
+      )
 
-      # Assign data to transformed array by grid
-      data_array <- array(NA,
-                          dim = new_dims,
-                          dimnames = new_dimnames)
 
-      data_array[] <- self$data[!is.na(mask_array)]
+      # Index matrix to access elements from source data
+      index_source <- expand.grid(sapply(new_dims, seq_len)) # nolint:undesirable_function_linter.
 
-      # Set corresponding meta data entry
-      private$.meta$.__transform_space_format__("cell")
+      # Transform index matrix from source to target
+      index_target <- mapply( # nolint:undesirable_function_linter.
+        function(index, name, ilonilat) {
+          if (name == "cell") {
+            ilonilat[index, ]
+          } else {
+            index
+          }
+        },
+        index = index_source,
+        name = names(new_dimnames),
+        MoreArgs = list(ilonilat = ilonilat)
+      ) %>%
+        unlist(recursive = TRUE, use.names = FALSE) %>%
+          matrix(nrow = nrow(index_source))
 
-      if (!is.null(private$.grid)) {
-        private$.grid$meta$.__transform_space_format__("cell")
-      }
+      rm(index_source, ilonilat)
+      gc(full = TRUE)
+
+      target_array <- array(self$data[index_target], dim = new_dims,
+                         dimnames = new_dimnames)
 
     } else {
       return(invisible(self))
     }
+
     # Overwrite internal data with same data but new dimensions
-    self$.__set_data__(data_array)
+    self$.__set_data__(target_array)
+
+    # Set space format in meta data entry
+    private$.meta$.__transform_space_format__(to)
 
     return(invisible(self))
   }
@@ -211,7 +266,7 @@ LPJmLData$set("private",
 
 
 # Method to transform the time dimension of the data array from "time" to
-# "year_month_cell" or the other way around
+# "year_month_day" or the other way around
 LPJmLData$set("private",
               ".transform_time",
               function(to = NULL) {
@@ -299,28 +354,6 @@ LPJmLData$set("private",
     return(invisible(self))
   }
 )
-
-
-# Function to recycle grid if necessary if array where data should be assigned
-# to has space dimension not as the first dimension(s)
-fit_grid <- function(x, grid, space_dim) {
-
-  # Get position of last dimension before first space dimension
-  pre_dims <- get_predim(x, space_dim)
-
-  # check if space dimension(s) are not the first dimension
-  if (pre_dims > 0) {
-
-    # for all dimension before recycle the value of each cell corresponding
-    # times
-    grid <- dim(x)[seq_len(pre_dims)] %>%
-      prod() %>%
-      rep(grid, each = .)
-  }
-
-  grid
-}
-
 
 # Function to get position of last dimension before first space dimension in
 # array

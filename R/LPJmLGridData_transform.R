@@ -17,22 +17,32 @@ LPJmLGridData$set("private",
     if (private$.meta$._space_format_ == "cell" &&
         to == "lon_lat") {
 
-      # calculate grid extent from range to span raster
-      grid_extent <- apply(
-          self$data,
-          "band",
-          range
-      )
+      # Calculate grid extent from range to span raster. Separate calls for min
+      # and max are much faster than one call for range on large grid arrays.
+      grid_extent <- rbind(apply(self$data,
+                                 "band",
+                                 min),
+                           apply(self$data,
+                                 "band",
+                                 max))
 
-      # Calculate dimnames for full 2 dimensional grid
-      spatial_dimnames <- mapply(seq, # nolint:undesirable_function_linter.
-                                 grid_extent[1, c("lat", "lon")],
-                                 grid_extent[2, c("lat", "lon")] +
-                                   c(private$.meta$cellsize_lat,
-                                     private$.meta$cellsize_lon) / 2,
-                                 by = c(private$.meta$cellsize_lat,
-                                        private$.meta$cellsize_lon),
-                                 SIMPLIFY = FALSE)
+      rownames(grid_extent) <- c("min", "max")
+
+      # Generate two-dimensional array covering the full grid_extent with
+      # lon_lat dimensions using orientation as in raster objects, i.e. from
+      # west to east and from north to south.
+      spatial_dimnames <- mapply( # nolint:undesirable_function_linter.
+        seq, # nolint:undesirable_function_linter.
+        from = grid_extent[cbind(c("min", "max"), c("lon", "lat"))],
+        to = grid_extent[cbind(c("max", "min"), c("lon", "lat"))] +
+          c(private$.meta$cellsize_lon, private$.meta$cellsize_lat) *
+          c(0.5, -0.5),
+        by = c(private$.meta$cellsize_lon, -private$.meta$cellsize_lat),
+        SIMPLIFY = FALSE
+      )
+      spatial_dimnames <- lapply(spatial_dimnames, format, trim = TRUE,
+                                 scientific = FALSE, SIMPLIFY = FALSE) # nolint:undesirable_function_linter.
+      names(spatial_dimnames) <- c("lon", "lat")
 
       # Initialize grid array
       grid_array <- array(NA,
@@ -40,24 +50,29 @@ LPJmLGridData$set("private",
                           dimnames = spatial_dimnames)
 
       # Get indices of lat and lon dimnames
-      ilon <- round((asub(self$data, band = "lon") -
-        min(grid_extent[, "lon"])) / private$.meta$cellsize_lon) + 1
-      ilat <- round((asub(self$data, band = "lat") -
-        min(grid_extent[, "lat"])) / private$.meta$cellsize_lat) + 1
+      ilon <- round(
+        (asub(self$data, band = "lon") - min(grid_extent[, "lon"])) /
+          private$.meta$cellsize_lon
+      ) + 1
+      # ilat in descending order
+      ilat <- round(
+        (max(grid_extent[, "lat"]) - asub(self$data, band = "lat")) /
+          private$.meta$cellsize_lat
+      ) + 1
 
       # Set dimnames of grid_array to actual coordinates instead of dummy
-      # spatial_dimnames
+      # spatial_dimnames.
       coordlon <- asub(self$data, band = "lon")[
         match(seq_len(dim(grid_array)["lon"]), ilon)
+      ]
+      coordlat <- asub(self$data, band = "lat")[
+        match(seq_len(dim(grid_array)["lat"]), ilat)
       ]
       dimnames(grid_array)$lon <- ifelse(
         is.na(coordlon),
         dimnames(grid_array)$lon,
         coordlon
       )
-      coordlat <- asub(self$data, band = "lat")[
-        match(seq_len(dim(grid_array)["lat"]), ilat)
-      ]
       dimnames(grid_array)$lat <- ifelse(
         is.na(coordlat),
         dimnames(grid_array)$lat,
@@ -65,9 +80,7 @@ LPJmLGridData$set("private",
       )
 
       # Replace cell of lon and lat by cell index
-      grid_array[cbind(ilat, ilon)] <- as.integer(
-        dimnames(self$data)$cell
-      )
+      grid_array[cbind(ilon, ilat)] <- as.integer(dimnames(self$data)$cell)
       self$.__set_data__(grid_array)
       private$.meta$.__transform_space_format__("lon_lat")
 
@@ -75,8 +88,11 @@ LPJmLGridData$set("private",
     } else if (private$.meta$._space_format_ == "lon_lat" &&
         to == "cell") {
 
-      # Get indices of actual cells
+      # Get ilon and ilat of non-missing cells
       grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
+      # Get corresponding cell index
+      cell_indices <- self$data[grid_indices]
+      # Get lon and lat coordinate values corresponding to each ilon/ilat value
       grid_dimnames <- lapply(dimnames(self$data), as.numeric)
 
       # Set values to latitude and longitude coordinates and dimnames to cell
@@ -93,9 +109,12 @@ LPJmLGridData$set("private",
           ),
           dim = c(cell = length(self$data[grid_indices]),
                   band = 2),
-          dimnames = list(cell = self$data[grid_indices],
-                          band = c("lon", "lat"))
-        )
+          dimnames = list(
+            cell = format(self$data[grid_indices], trim = TRUE,
+                          scientific = FALSE),
+            band = c("lon", "lat")
+          )
+        )[order(cell_indices), ]
       )
 
       private$.meta$.__transform_space_format__("cell")

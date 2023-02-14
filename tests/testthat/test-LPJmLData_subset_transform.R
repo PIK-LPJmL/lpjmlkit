@@ -13,12 +13,13 @@ test_integrity <- function(output) {
     # test for equal length of cell in data and meta data (ncell)
     testthat::expect_equal(dim_data[["cell"]], output$meta$ncell)
     # test for equal dimnames of cell in data and those constructed by meta data
-    testthat::expect_equal(dimnames_data$cell,
-                           as.character(
-                             seq(output$meta$firstcell,
-                                 length.out = output$meta$ncell)
-                             )
-                           )
+    testthat::expect_equal(
+      dimnames_data$cell,
+      format(
+        seq(output$meta$firstcell, length.out = output$meta$ncell),
+        trim = TRUE, scientific = FALSE
+      )
+    )
   } else {
     # test for equal dimnames of lat, lon in data and those of underlying grid
     testthat::expect_equal(dimnames_data$lat,
@@ -34,27 +35,33 @@ test_integrity <- function(output) {
                            output$meta$nyear * output$meta$nstep)
     # test for equal dimnames of time steps in data and those constructed by
     #   meta data with create_time_names function (nstep, firstyear, nyear)
-    testthat::expect_equal(dimnames_data$time,
-                           create_time_names(output$meta$nstep,
-                                             seq(output$meta$firstyear,
-                                                 length.out = output$meta$nyear))) # nolint
+    testthat::expect_equal(
+      dimnames_data$time,
+      create_time_names(
+        output$meta$nstep,
+        seq(output$meta$firstyear, by = output$meta$timestep,
+            length.out = output$meta$nyear)
+      )
+    )
   } else {
     # test for equal length of years in data and meta data (nyear)
     testthat::expect_equal(dim_data[["year"]], output$meta$nyear)
     # test for equal dimnames of years in data and those constructed by
     #   meta data (firstyear, nyear)
-    testthat::expect_equal(dimnames_data$year,
-                           as.character(
-                             seq(output$meta$firstyear,
-                                 length.out = output$meta$nyear)
-                             )
-                           )
+    testthat::expect_equal(
+      dimnames_data$year,
+      format(
+        seq(output$meta$firstyear, by = output$meta$timestep,
+            length.out = output$meta$nyear),
+        trim = TRUE, scientific = FALSE
+      )
+    )
 
     # for month there is no meta data available (like nmonth, firstmonth)
     #   following tests only via hardcoded pre defined month to be tested
     if ("month" %in% names(dim_data) && !output$meta$subset) {
       testthat::expect_equal(dimnames_data$month, as.character(1:12))
-    } else if ("month" %in% names(dim_data) && !output$meta$subset) {
+    } else if ("month" %in% names(dim_data) && output$meta$subset) {
       testthat::expect_equal(dimnames_data$month, as.character(6:9))
     }
   }
@@ -79,8 +86,9 @@ test_integrity <- function(output) {
       #   output meta data
       testthat::expect_equal(
         dimnames_grid$cell,
-        as.character(
-         seq(output$meta$firstcell, length.out = output$meta$ncell)
+        format(
+          seq(output$meta$firstcell, length.out = output$meta$ncell),
+          trim = TRUE, scientific = FALSE
         )
       )
     } else {
@@ -88,8 +96,7 @@ test_integrity <- function(output) {
       #   by meta data of output
       testthat::expect_true(
         all(as.vector(stats::na.omit(output$grid$data)) %in%
-          seq(output$meta$firstcell, length.out = output$meta$ncell) # nolint
-        )
+            seq(output$meta$firstcell, length.out = output$meta$ncell))
       )
     }
   }
