@@ -13,7 +13,7 @@
 #' @param drop Logical. If `TRUE` (default), dimensions with a length of 1 are
 #'   dropped from the result. Otherwise, they are kept.
 #'
-#' @param value Array/vector of replacement values. Note: If `value` does not 
+#' @param value Array/vector of replacement values. Note: If `value` does not
 #'   have the same dimensions as selected by (`...`), automatic replication
 #'   is done by **R** to extend `value` to the required length.
 #'
@@ -222,6 +222,11 @@ subset_array_pair <- function(x,
   # Get pair in the same order as dimensions
   pair <- pair[stats::na.omit(match(names(dimnames(x)), names(pair)))]
   pair_names <- names(pair)
+
+  # Ensure that coordinates are character vectors.
+  if (!all(sapply(pair, is.character) | sapply(pair, is.factor), na.rm = TRUE)) { #nolint
+    stop("Values for coordinate pairs must be supplied as strings")
+  }
 
   # Look up/match vector of dimnames of x (for performance in loop)
   idim1_table <- as.numeric(dimnames(x)[[pair_names[1]]])

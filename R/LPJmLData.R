@@ -30,7 +30,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
       # Check for locked objects
       check_method_locked(self, "add_grid")
-      
+
       if (...length() == 0) {
         # If user has not supplied any parameters try to find a grid file in the
         # same directory as data. This throws an error if no suitable file is
@@ -306,7 +306,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       } else {
         stop("Unsupported number of bands for grid initialization.")
       }
-      
+
       if (!is.null(private$.meta$nstep) && private$.meta$nstep != 1) {
         stop("Unsupported 'nstep' = ", private$.meta$nstep,
              "for grid initialization")
