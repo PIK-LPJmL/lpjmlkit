@@ -70,8 +70,9 @@ test_that("test add_grid method", {
   output <- read_io(filename = file_name)
   # perform adding a grid object
   output$add_grid()
-  # read in grid directly
-  grid <- read_io("../testdata/output/grid.bin.json")
+  # read in grid directly and initialize object as LPJmLGridData
+  grid <- read_io("../testdata/output/grid.bin.json") %>%
+    LPJmLGridData$new()
   # check if added grid equals grid file (read in separately)
   expect_equal(output$grid, grid)
   # check grid cells with those of objects meta data

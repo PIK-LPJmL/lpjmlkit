@@ -178,7 +178,7 @@ LPJmLData$set("private",
         } else {
           grid <- self$clone(deep = TRUE)
         }
-        cell_dimnames <- transform(grid, to = "cell") %>%
+        cell_dimnames <- grid$.__transform_space__(to = "cell") %>%
           dimnames() %>%
           .$cell
       }

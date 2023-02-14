@@ -77,16 +77,20 @@ test_integrity <- function(output) {
     if ("cell" %in% names(dimnames_grid)) {
       # test for equal dimnames of cell in grid data and those constructed by
       #   output meta data
-      expect_equal(dimnames_grid$cell,
-                   as.character(
-                    seq(output$meta$firstcell, length.out = output$meta$ncell)
-                   ))
+      testthat::expect_equal(
+        dimnames_grid$cell,
+        as.character(
+         seq(output$meta$firstcell, length.out = output$meta$ncell)
+        )
+      )
     } else {
       # test to match data of grid (cell numbers) and cell numbers constructed
       #   by meta data of output
-      expect_true(all(as.vector(stats::na.omit(output$grid$data)) %in%
-                      seq(output$meta$firstcell, length.out = output$meta$ncell)) # nolint
-                  )
+      testthat::expect_true(
+        all(as.vector(stats::na.omit(output$grid$data)) %in%
+          seq(output$meta$firstcell, length.out = output$meta$ncell) # nolint
+        )
+      )
     }
   }
 }

@@ -38,14 +38,12 @@ calc_cellarea <- function(x,
                           return_unit = "m2"
                          ) {
   # Workflow for LPJmLData objects
-  if (methods::is(x, "LPJmLData")) {
+  if (methods::is(x, "LPJmLData") || methods::is(x, "LPJmLGridData")) {
 
     # Check if grid is available as attribute
     if (!is.null(x$grid)) {
       x <- x$grid
-
-    # Check if LPJmLData object is of variable grid or LPJGRID (header file)
-    } else if (!any(c("grid", "LPJGRID") %in% x$meta$variable)) {
+    } else if (!methods::is(x, "LPJmLGridData")) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
 
