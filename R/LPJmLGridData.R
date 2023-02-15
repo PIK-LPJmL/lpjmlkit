@@ -102,11 +102,13 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
     #' @param lpjml_data LPJmLData object with variable `"grid"` or `"LPJGRID"`
     initialize = function(lpjml_data) {
 
-      lpjml_data$transform(to = "cell")
+      x <- lpjml_data$clone(deep = TRUE)
+      x$transform(to = "cell")
+
       # Clone LPJmLMetaData data into meta attribute
-      private$.meta <- lpjml_data$meta
+      private$.meta <- x$meta
       # Assign LPJmLData data
-      private$.data <- lpjml_data$data
+      private$.data <- x$data
 
 
       if (!is.null(private$.meta$variable)) {

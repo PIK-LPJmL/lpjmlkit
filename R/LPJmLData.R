@@ -269,14 +269,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
                    unset_col,
                    "\n")
         )
-
-      } else {
-        cat(paste0("\u001b[33;3m",
-                   ifelse(private$.meta$._space_format_ == "cell",
-                          "Note: only min & max printed as equivalent to spatial extent.", # nolint
-                          "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), # nolint
-                   unset_col,
-                   "\n"))
       }
     },
 

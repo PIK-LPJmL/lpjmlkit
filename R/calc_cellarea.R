@@ -31,7 +31,7 @@
 #' gridarea <- calc_cellarea(grid[,"lat"])
 #'
 #' @export
-calc_cellarea <- function(x,
+calc_cellarea <- function(x, # nolint:cyclocomp_linter.
                           res_lon = 0.5,
                           res_lat = res_lon,
                           earth_radius = 6371000.785,
