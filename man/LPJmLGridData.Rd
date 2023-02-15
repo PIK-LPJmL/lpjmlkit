@@ -2,18 +2,18 @@
 % Please edit documentation in R/LPJmLGridData.R
 \name{LPJmLGridData}
 \alias{LPJmLGridData}
-\title{LPJmL Grid data class}
+\title{LPJmL grid data class}
 \description{
-A data container for LPJmL input and output. Container - because
-a LPJmLData object is a environment in which the data array as well as the
-meta data are stored after \code{\link{read_io}}.
-The data array can be accessed via \verb{$data}, the meta data via \verb{$meta}.
-The enclosing environment is locked and cannot be altered by any
-other than the available modify methods and thus ensures its integrity and
-validity.
-Please use base stats methods like [\code{print}, \code{\link{summary.LPJmLData}} or
-\code{\link{plot.LPJmLData}} to get insights and export methods like \code{\link{as_tibble}} or
-\code{\link{as_raster}} to export it into common working formats.
+A dedicated data class for an LPJmL input or output grid.
+LPJmLGridData serves the spatial reference for any \link{LPJmLData} objects and
+matches its spatial dimensions ("cell" or "lon", "lat") when attached as an
+grid attribute to it.\
+LPJmLGridData holds the information which longitude and latitude correspond
+to each cell center assuming WGS84 as the coordinate reference system or
+the corresponding cell index when the data comes with longitude and latitude
+dimension.
+As in LPJmLData the data array can be accessed via \verb{$data},
+the meta data via \verb{$meta}.
 }
 \section{Super class}{
 \code{\link[lpjmlkit:LPJmLData]{lpjmlkit::LPJmLData}} -> \code{LPJmLGridData}
