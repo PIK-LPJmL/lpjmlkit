@@ -14,7 +14,14 @@ dimension names and values represent the requested elements along these
 dimensions. Subsets may either specify integer indices, e.g.
 \code{cell = c(27411:27416)}, \code{band = -c(14:16, 19:32)}, or character vectors if
 the dimension has a dimnames attribute, e.g.
-\code{band = c("rainfed rice", "rainfed maize")}.}
+\code{band = c("rainfed rice", "rainfed maize")}.\
+Coordinate pairs of individual cells can be selected by providing a tibble
+in the form of \code{coords = tibble(lon = ..., lat =...)}. Coordinate values
+in the tibble need to be supplied as character vectors. The argument can
+also be called \code{coordinates}. When coordinates are supplied as character
+vectors to subset either along the \code{lon} or \code{lat} dimension or to subset
+by coordinate pair, the function matches the grid cells closest to the
+supplied coordinate value.}
 }
 \value{
 An \code{\link{LPJmLData}} object with dimensions resulting from the selection

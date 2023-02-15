@@ -237,7 +237,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+    data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
     # Create empty raster to use as base for assigning data
     tmp_raster <- create_tmp_raster(data_subset)
@@ -360,7 +360,7 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+    data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
     # Create empty SpatRaster to use as base for assigning data
     tmp_rast <- create_tmp_raster(data_subset, is_terra = TRUE)
@@ -443,7 +443,7 @@ LPJmLData$set("private",
 
 
 LPJmLData$set("private",
-              "subset_raster_data",
+              ".subset_raster_data",
               function(self,
                        subset = NULL,
                        aggregate = NULL,
@@ -451,10 +451,7 @@ LPJmLData$set("private",
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
-    if (is.null(private$.grid) &&
-        private$.meta$._space_format_ == "cell") {
-      self$add_grid()
-    }
+    self$add_grid()
 
     # Workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone(deep = TRUE)
@@ -492,22 +489,19 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
                          max = apply(data_subset$grid$data, "band", max))
 
   } else {
-    data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint
-                            range(as.numeric(dimnames(data_subset$data)[["lat"]]))), # nolint
-                            nrow = 2,
-                            ncol = 2)
+    data_extent <- cbind(
+      lon = range(as.numeric(dimnames(data_subset$data)[["lon"]])),
+      lat = range(as.numeric(dimnames(data_subset$data)[["lat"]]))
+    )
   }
 
-  grid_extent <- data_extent + matrix(
+  grid_extent <- data_extent + cbind(
     # Coordinates represent the centre of the cell. Subtract/add half of
     # resolution to derive cell borders for extent.
-    c(-data_subset$meta$cellsize_lon / 2,
-      data_subset$meta$cellsize_lon / 2,
-      -data_subset$meta$cellsize_lat / 2,
-      data_subset$meta$cellsize_lat / 2),
-    nrow = 2,
-    ncol = 2
+    lon = data_subset$meta$cellsize_lon * c(-0.5, 0.5),
+    lat = data_subset$meta$cellsize_lat * c(-0.5, 0.5)
   )
+
 
   if (is_terra) {
     tmp_raster <- terra::rast(

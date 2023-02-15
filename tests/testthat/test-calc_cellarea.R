@@ -26,7 +26,6 @@ test_that("Calculate cell area with LPJmLData object and grid attribute", {
 
 test_that("Calculate cell area with LPJmLData object of variable grid", {
   output <- read_io(filename = "../testdata/output/grid.bin.json")
-
   # calculate cell area for each cell
   cell_area <- calc_cellarea(output, return_unit = "km2")
 

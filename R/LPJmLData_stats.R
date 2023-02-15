@@ -111,9 +111,7 @@ LPJmLData$set("private",
           summary(...)
 
       } else {
-        if (!is.null(private$.meta$variable) &&
-            private$.meta$variable == "grid") {
-
+        if (class(self)[1] == "LPJmLGridData") {
           mat_sum %>%
               summary(...) %>%
               `[`(c(1, 6), )
