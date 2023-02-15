@@ -34,7 +34,7 @@ test_that("Calculate cell area with LPJmLData object of variable grid", {
   cell_area2 <- calc_cellarea(output, return_unit = "km2")
 
   testthat::expect_equal(
-    cell_area,
-    cell_area2
+    as.vector(cell_area),
+    as.vector(cell_area2[match(names(cell_area), output$grid$data)])
   )
 })

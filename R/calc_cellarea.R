@@ -41,17 +41,19 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
   # Workflow for LPJmLData objects
   if (methods::is(x, "LPJmLData") || methods::is(x, "LPJmLGridData")) {
 
-    # Handle LPJmLData objects of variable grid as LPJmLGridData objects to
-    # allow for calc_cellarea
-    if (methods::is(x, "LPJmLData") &&
-        any(c("grid", "LPJGRID") %in% x$meta$variable)) {
-      x <- LPJmLGridData$new(x) # nolint:object_usage_linter.
-    }
 
     # Check if grid is available as attribute
     if (!is.null(x$grid)) {
       x <- x$grid
-    } else if (!methods::is(x, "LPJmLGridData")) {
+
+    # Handle LPJmLData objects of variable grid as LPJmLGridData objects to
+    # allow for calc_cellarea
+    } else if (methods::is(x, "LPJmLData") &&
+        any(c("grid", "LPJGRID") %in% x$meta$variable)) {
+      x <- LPJmLGridData$new(x) # nolint:object_usage_linter.
+    }
+
+    if (!methods::is(x, "LPJmLGridData")) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
 

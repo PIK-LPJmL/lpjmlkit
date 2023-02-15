@@ -1,15 +1,15 @@
-#' @title LPJmL Grid data class
+#' @title LPJmL grid data class
 #'
-#' @description A data container for LPJmL input and output. Container - because
-#' a LPJmLData object is a environment in which the data array as well as the
-#' meta data are stored after [`read_io`].
-#' The data array can be accessed via `$data`, the meta data via `$meta`.
-#' The enclosing environment is locked and cannot be altered by any
-#' other than the available modify methods and thus ensures its integrity and
-#' validity.
-#' Please use base stats methods like [`print`, [`summary.LPJmLData`] or
-#' [`plot.LPJmLData`] to get insights and export methods like [`as_tibble`] or
-#' [`as_raster`] to export it into common working formats.
+#' @description A dedicated data class for an LPJmL input or output grid.
+#' LPJmLGridData serves the spatial reference for any [LPJmLData] objects and
+#' matches its spatial dimensions ("cell" or "lon", "lat") when attached as an
+#' grid attribute to it.\
+#' LPJmLGridData holds the information which longitude and latitude correspond
+#' to each cell center assuming WGS84 as the coordinate reference system or
+#' the corresponding cell index when the data comes with longitude and latitude
+#' dimension.
+#' As in LPJmLData the data array can be accessed via `$data`,
+#' the meta data via `$meta`.
 #'
 LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
 
