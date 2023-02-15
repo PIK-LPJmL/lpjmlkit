@@ -299,7 +299,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #'
     #' @param grid An `LPJmLData` object holding grid coordinates.
     .__set_grid__ = function(grid) {
-      private$.grid <- grid
+
+      if (methods::is(grid, "LPJmLGridData")) {
+        private$.grid <- grid
+
+      } else {
+        stop("Provide an LPJmLGridData to set grid attribute.")
+      }
     },
 
 

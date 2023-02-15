@@ -19,14 +19,11 @@ LPJmLGridData$set("private",
 
       # Calculate grid extent from range to span raster. Separate calls for min
       # and max are much faster than one call for range on large grid arrays.
-      grid_extent <- rbind(apply(self$data,
-                                 "band",
-                                 min),
-                           apply(self$data,
-                                 "band",
-                                 max))
+      grid_extent <- rbind(
+        min = apply(self$data, "band", min),
+        max = apply(self$data, "band", max)
+      )
 
-      rownames(grid_extent) <- c("min", "max")
 
       # Generate two-dimensional array covering the full grid_extent with
       # lon_lat dimensions using orientation as in raster objects, i.e. from
@@ -68,6 +65,7 @@ LPJmLGridData$set("private",
       coordlat <- asub(self$data, band = "lat")[
         match(seq_len(dim(grid_array)["lat"]), ilat)
       ]
+
       dimnames(grid_array)$lon <- ifelse(
         is.na(coordlon),
         dimnames(grid_array)$lon,
@@ -81,7 +79,9 @@ LPJmLGridData$set("private",
 
       # Replace cell of lon and lat by cell index
       grid_array[cbind(ilon, ilat)] <- as.integer(dimnames(self$data)$cell)
+
       self$.__set_data__(grid_array)
+
       private$.meta$.__transform_space_format__("lon_lat")
 
     # Case 2: Transformation from lon, lat dimensions to cell dimension
@@ -90,8 +90,10 @@ LPJmLGridData$set("private",
 
       # Get ilon and ilat of non-missing cells
       grid_indices <- which(!is.na(self$data), arr.ind = TRUE)
+
       # Get corresponding cell index
       cell_indices <- self$data[grid_indices]
+
       # Get lon and lat coordinate values corresponding to each ilon/ilat value
       grid_dimnames <- lapply(dimnames(self$data), as.numeric)
 

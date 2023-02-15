@@ -109,20 +109,11 @@ LPJmLData$set("private",
 #   the other way around. If required add_grid to LPJmLData along the way.
 LPJmLData$set("private",
               ".transform_space",
-              function(to = NULL) {
+              function(to) {
 
-    # Convenience function - if to == NULL automatically switch to other to
-    if (is.null(to)) {
-      if (private$.meta$._space_format_ == "cell") {
-        to <- "lon_lat"
-      } else {
-        to <- "cell"
-      }
-    } else {
-      # If to equals current format return directly
-      if (private$.meta$._space_format_ == to) {
-        return(invisible(self))
-      }
+    # If to equals current format return directly
+    if (private$.meta$._space_format_ == to) {
+      return(invisible(self))
     }
 
     # Support lazy loading of grid files. This throws an error if no suitable
@@ -269,20 +260,12 @@ LPJmLData$set("private",
 # "year_month_day" or the other way around
 LPJmLData$set("private",
               ".transform_time",
-              function(to = NULL) {
+              function(to) {
 
-    # Convenience function - if to == NULL automatically switch to other to
-    if (is.null(to)) {
-      if (private$.meta$._time_format_ == "time") {
-        to <- "year_month_day"
-      } else {
-        to <- "time"
-      }
-    } else {
+
       # If to equals current format return directly
-      if (private$.meta$._time_format_ == to) {
-        return(invisible(self))
-      }
+    if (private$.meta$._time_format_ == to) {
+      return(invisible(self))
     }
 
     # Case 1: Transformation from "time" dimension to "year", "month", "day"

@@ -11,9 +11,13 @@
 #'   `cell = c(27411:27416)`, `band = -c(14:16, 19:32)`, or character vectors if
 #'   the dimension has a dimnames attribute, e.g.
 #'   `band = c("rainfed rice", "rainfed maize")`.\
-#'   Coordinates, so pairs of lon and lat can be subsetted by providing a tibble
-#'   in the form of `coords = tibble(lon = ..., lat =...)`. The argument can
-#'   `"coordinates"`
+#'   Coordinate pairs of individual cells can be selected by providing a tibble
+#'   in the form of `coords = tibble(lon = ..., lat =...)`. Coordinate values
+#'   in the tibble need to be supplied as character vectors. The argument can
+#'   also be called `coordinates`. When coordinates are supplied as character
+#'   vectors to subset either along the `lon` or `lat` dimension or to subset
+#'   by coordinate pair, the function matches the grid cells closest to the
+#'   supplied coordinate value.
 #'
 #' @return An [`LPJmLData`] object with dimensions resulting from the selection
 #'   in `subset`. Meta data are updated as well.
@@ -97,10 +101,9 @@ LPJmLData$set("private",
         subset_array_pair(x = self$data,
                           pair = subset_list[[coords]])
       )
-      private$.grid$.__set_data__(
-        subset_array_pair(x = private$.grid$data,
-                          pair = subset_list[[coords]])
-      )
+
+      # Subset grid with coordinates and update corresponding grid meta data
+      private$.grid$.__subset_space__(subset_list[coords])
 
     } else {
       # Avoid errors when subsetting list with coords
@@ -138,13 +141,9 @@ LPJmLData$set("private",
                    drop = FALSE)
     )
 
-    # Apply subset also for grid, but only for space dimensions
+    # Subset grid with space dimensions and update corresponding grid meta data
     if (!is.null(private$.grid) && !is.null(subset_space_dim)) {
-      private$.grid$.__set_data__(
-        subset_array(private$.grid$data,
-                     subset_list[subset_space_dim],
-                     drop = FALSE)
-      )
+      private$.grid$.__subset_space__(subset_list[subset_space_dim])
     }
 
     if ("time" %in% names(subset_list)) {
@@ -197,12 +196,6 @@ LPJmLData$set("private",
                                      cell_dimnames = cell_dimnames,
                                      time_dimnames = time_dimnames,
                                      year_dimnames = year_dimnames)
-
-    # Update space subsets in grid
-    if (!is.null(private$.grid)) {
-      private$.grid$meta$.__update_subset__(subset_list[subset_space_dim],
-                                            cell_dimnames = cell_dimnames)
-    }
 
     return(invisible(self))
   }

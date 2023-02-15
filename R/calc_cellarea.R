@@ -37,8 +37,16 @@ calc_cellarea <- function(x,
                           earth_radius = 6371000.785,
                           return_unit = "m2"
                          ) {
+
   # Workflow for LPJmLData objects
   if (methods::is(x, "LPJmLData") || methods::is(x, "LPJmLGridData")) {
+
+    # Handle LPJmLData objects of variable grid as LPJmLGridData objects to
+    # allow for calc_cellarea
+    if (methods::is(x, "LPJmLData") &&
+        any(c("grid", "LPJGRID") %in% x$meta$variable)) {
+      x <- LPJmLGridData$new(x) # nolint:object_usage_linter.
+    }
 
     # Check if grid is available as attribute
     if (!is.null(x$grid)) {
@@ -46,6 +54,7 @@ calc_cellarea <- function(x,
     } else if (!methods::is(x, "LPJmLGridData")) {
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
+
     # Initialize LPJmLData object as grid if necessary. Make a copy in order not
     # to change the original.
     if (!is.null(x$meta$nyear)) {
@@ -73,8 +82,14 @@ calc_cellarea <- function(x,
       # For format "lon_lat" latitudes are supplied by dimnames. For calculation
       #   original array is overwritten with corresponding latitudes.
       x <- check <- x$data
+      dim_order <- names(dim(x))
+
+      x <- check <- aperm(x, c("lat", setdiff(dim_order, "lat")))
       asub(x, lat = dimnames(x)$lat) <- as.numeric(dimnames(x)$lat)
+
       x[is.na(check)] <- NA
+      x <- aperm(x, dim_order)
+
     }
 
   } else {
