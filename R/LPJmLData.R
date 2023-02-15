@@ -19,6 +19,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   lock_objects = TRUE,
 
   public = list(
+
     # modify methods --------------------------------------------------------- #
 
     #' @description
@@ -28,8 +29,10 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' @param ... See [`add_grid()`].
     add_grid = function(...) {
 
-      # Check for locked objects
-      check_method_locked(self, "add_grid")
+      # Skip if grid is already attached
+      if (!is.null(private$.grid)) {
+        return(invisible(self))
+      }
 
       if (...length() == 0) {
         # If user has not supplied any parameters try to find a grid file in the
@@ -44,13 +47,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
-          tmp_grid <- read_io(
-            filename = filename,
-            subset = list(cell = self$dimnames()[["cell"]]),
-            silent = TRUE
-          )
+          lpjml_data <- read_io(
+              filename = filename,
+              subset = list(cell = self$dimnames()[["cell"]]),
+              silent = TRUE
+            )
         } else {
-          tmp_grid <- read_io(filename = filename, silent = TRUE)
+          lpjml_data <- read_io(filename = filename, silent = TRUE)
         }
       } else {
 
@@ -60,19 +63,20 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
-          tmp_grid <- read_io(...,
-                              subset = list(cell = self$dimnames()[["cell"]]))
+          lpjml_data <- read_io(
+            ...,
+            subset = list(cell = self$dimnames()[["cell"]])
+          )
         } else {
-          tmp_grid <- read_io(...)
+          lpjml_data <- read_io(...)
         }
-
       }
-      # Initialize LPJmLData object as a grid
-      tmp_grid$init_grid()
-      # Assign to self
-      self$.__set_grid__(tmp_grid)
 
-      private$.grid$.__set_lock__(is_locked = TRUE)
+      # Create LPJmLData object and bring together data and meta_data
+      lpjml_grid <- LPJmLGridData$new(lpjml_data)
+
+      # set grid attribute
+      self$.__set_grid__(lpjml_grid)
     },
 
 
@@ -259,80 +263,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
 
-      if (is.null(private$.meta$variable) ||
-        ! private$.meta$variable %in% c("grid", "LPJGRID")) {
+      if (class(self)[1] == "LPJmLData") {
         cat(paste0("\u001b[33;3m",
                    "Note: summary is not weighted by grid area.",
                    unset_col,
                    "\n")
         )
-
-      } else {
-        cat(paste0("\u001b[33;3m",
-                   ifelse(private$.meta$._space_format_ == "cell",
-                          "Note: only min & max printed as equivalent to spatial extent.", # nolint
-                          "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), # nolint
-                   unset_col,
-                   "\n"))
       }
-    },
-
-    #' Initialize LPJmLData instance as a grid
-    #'
-    #' Modify an LPJmLData object containing grid coordinates so that it can be
-    #' used as the `$grid` attribute to another LPJmLData object.
-    #'
-    #' @details
-    #' Calling this method on an LPJmLData object removes any time dimension and
-    #' adds band names "lon" and "lat". Use this method before assigning an
-    #' LPJmLData object as the `$grid` attribute to another LPJmLData object.
-    init_grid = function() {
-
-      if (!is.null(private$.meta$variable)) {
-
-        if (private$.meta$variable == "LPJGRID") {
-          # Treat "LPJGRID" like "grid"
-          private$.meta$.__set_attribute__("variable", "grid")
-        } else if (private$.meta$variable != "grid") {
-          stop("Set 'variable' to \"grid\" to be able to use it as grid")
-        }
-      } else {
-        stop("Set 'variable' to \"grid\" to be able to use it as grid")
-      }
-
-      # Update grid data
-      if (dim(private$.data)[["band"]] == 2) {
-        dimnames(private$.data)[["band"]] <- c("lon", "lat")
-      } else {
-        stop("Unsupported number of bands for grid initialization.")
-      }
-
-      if (!is.null(private$.meta$nstep) && private$.meta$nstep != 1) {
-        stop("Unsupported 'nstep' = ", private$.meta$nstep,
-             "for grid initialization")
-      }
-
-      if (!is.null(private$.meta$nyear) && private$.meta$nyear != 1) {
-        stop("Unsupported 'nyear' = ", private$.meta$nyear,
-             "for grid initialization")
-      }
-
-      self$.__set_data__(
-        drop_omit(self$data, omit = "cell")
-      )
-
-      # Update grid meta data
-      private$.meta$.__init_grid__()
-
-      return(invisible(self))
-    },
-
-    #' @description
-    #' !Internal method only to be used for package development!
-    #'
-    #' @param ... See [`transform()`].
-    .__transform_grid__ = function(...) {
-      private$.transform_grid(...)
     },
 
 
@@ -354,18 +291,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #'
     #' @param grid An `LPJmLData` object holding grid coordinates.
     .__set_grid__ = function(grid) {
-      private$.grid <- grid
-    },
 
+      if (methods::is(grid, "LPJmLGridData")) {
+        private$.grid <- grid
 
-    # Set is_locked attribute; only to be used internally or explicitly
-    #   on purpose
-    #' @description
-    #' !Internal method only to be used for package development!
-    #'
-    #' @param is_locked Bolean.
-    .__set_lock__ = function(is_locked) {
-      private$.is_locked <- is_locked
+      } else {
+        stop("Provide an LPJmLGridData to set grid attribute.")
+      }
     },
 
 
@@ -386,7 +318,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       }
 
       private$.data <- data
-
     }
   ),
 
@@ -417,21 +348,12 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   environment.
         grid <- private$.grid$clone(deep = TRUE)
 
-        # Allow using methods on grid outside of LPJmLData instance
-        grid$.__set_lock__(is_locked = FALSE)
-
         return(grid)
 
       } else {
         # If NULL make sure NULL is returned directly and not tried to clone
         return(private$.grid)
       }
-    },
-
-    #' @field ._is_locked_ *Internal* logical. If an object is locked no method
-    #'   can be performed directly on the object.
-    ._is_locked_ = function() {
-      return(private$.is_locked)
     }
   ),
 
@@ -442,9 +364,8 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
     .data = NULL,
 
-    .grid = NULL,
+    .grid = NULL
 
-    .is_locked = FALSE
   )
 )
 
@@ -539,26 +460,6 @@ aggregate_array <- function(x,
   data
 }
 
-
-check_method_locked <- function(x, method_name) {
-  if (x$._is_locked_) {
-    stop(
-      paste0(
-        "\u001b[0m",
-        "The attribute ",
-        "\u001b[34m",
-        ifelse(is.null(x$meta$variable), "???", x$meta$variable),
-        "\u001b[0m",
-        " is locked. You cannot use method ",
-        "\u001b[34m",
-        method_name,
-        "\u001b[0m",
-        " on this object.",
-        "\n"
-      )
-    )
-  }
-}
 
 #' Search for a grid file in a directory
 #'

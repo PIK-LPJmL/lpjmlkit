@@ -39,8 +39,11 @@ read_header <- function(filename, force_version = NULL, verbose = TRUE) {
   zz <- file(filename, "rb")
   # Header name length was variable in header version 1. Read first 30 bytes.
   headername <- rawToChar(readBin(zz, raw(), n = 30), multiple = TRUE)
-  # Determine actual header name by looking for alphanumeric characters
-  char_index <- 1:(min(which(!grepl("[[:alpha:]_]", headername))) - 1)
+  # Determine actual header name by looking for alphanumeric characters. This
+  # can lead to warnings if there are non-characters in the first 30 bytes.
+  suppressWarnings({
+    char_index <- 1:(min(which(!grepl("[[:alpha:]_]", headername))) - 1)
+  })
   headername <- headername[char_index]
   headername <- paste(headername, collapse = "")
   # Header names start with "LPJ". Test if valid value.
