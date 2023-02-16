@@ -135,14 +135,29 @@ calibration, benchmarking or indicator development.
 
 # Package features
 
+## LPJML Runner to perform LPJmL simulations
+- LPJmL Runner only supports appropriately configured Unix-based operating systems.
+- `write_config()` write config.json files using a tibble with parameters to be changed and a base lpjml.js file
+- `check_config()` check if generated config.json files are valid for LPJmL simulations
+- `run_lpjml()` run LPJmL directly (e.g. single cell simulations) or `submit_lpjml()`to SLURM (e.g. global simulations)
 
-## LPJmL Runner
 
+## LPJmL Data for reading and processing LPJmL data
+- `read_io()` read LPJmL input and output as a `LPJmLData` object, containing the data array and LPJmLMetaData
+    - `plot()` the data or get insights via `summary()` and other base stats
+    - `transform()` it to other time and space formats
+    - `subset()` the underlying data
+    - `as_array()`, `as_tibble()` and `as_raster()` / `as_terra()` to export into common R data formats
 
-## LPJmL Data
-
+- `read_meta()` read meta or header files as `LPJmLMetaData` object
 
 ## miscellaneous
+- `calc_cellarea()` to calculate the area of LPJmLData objects underlying grid
+or for other objects latitudes
+- functions to handle LPJmL file headers, `read_header()` read the header of LPJmL files, `get_headersize()` get the size of a file header or `create_header()` to create a header object for writing input files
+- `get_datatype()` get information on the data type used in different LPJmL files
+- `asub()` functionality of the subset method to be used on a base array, also to replace data
+- ... *more functions via `library(help = "lpjmlkit")`*
 
 
 # Acknowledgements
