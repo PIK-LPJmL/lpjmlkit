@@ -12,7 +12,7 @@
 #'   names or `NULL`. Normally determined automatically from the meta file in
 #'   case of output files using `file_type = "meta"`.
 #' @param dim_order Order of dimensions in returned LPJmLData object. Must be
-#'   a character vector containing all of the following in any order: 
+#'   a character vector containing all of the following in any order:
 #'   `c("cell", "time", "band")`. Users may select the order most useful to
 #'   their further data processing.
 #' @param file_type Optional character string giving the file type. This is
@@ -118,7 +118,7 @@
 #'   nbands = 2,
 #' )
 #' }
-#' @details 
+#' @details
 #' The `file_type` determines which arguments are mandatory or optional.
 #' `filename` must always be provided. `file_type` is usually detected
 #' automatically. Supply only if detected `file_type` is incorrect.
@@ -278,6 +278,15 @@ read_io <- function( # nolint:cyclocomp_linter.
   check_year_subset(subset, meta_data, silent)
 
   if (file_type == "meta") {
+    # Check format of the file linked in meta file
+    if (is.null(meta_data$format)) {
+      stop("Missing 'format' in meta file ", sQuote(filename))
+    } else if (! meta_data$format %in% setdiff(supported_types, "meta")) {
+      # Capture fringe case where the meta file links to a file in an
+      # unsupported format
+      stop("Format ", dQuote(meta_data$format), " specified in meta file ",
+           sQuote(filename), " not supported.")
+    }
     # Get filename from meta file
     if (basename(meta_data$filename) == meta_data$filename) {
       # meta_data$filename is in same directory as filename. Can use path from
@@ -315,7 +324,7 @@ read_io <- function( # nolint:cyclocomp_linter.
       "Unexpected file size (", file.size(filename), " bytes) of ", filename,
       "\nExpected size: ", expected_filesize, " bytes",
       "\nPlease check ",
-      ifelse(file_type == "meta", "meta file", "header"),
+      switch(file_type, meta = "meta file", clm = "header", "supplied"),
       " attributes."
     )
   }
@@ -700,21 +709,29 @@ read_io_data <- function(
       )
     )
 
-    # Assign dimension names to array
+    # Assign dimension names to array.
+    # Ensure cell or band indices are not written in scientific notation.
     band_names <- default(
       meta_data$band_names, seq_len(default(meta_data$nbands, 1))
+    ) %>%
+      format(trim = TRUE, scientific = FALSE, justify = "none")
+
+    cell_dimnames <- format(
+      seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
+      trim = TRUE, scientific = FALSE, justify = "none"
     )
+
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
       cellyear  = list(                                                # order 1
         band = band_names,
         time = NULL, # Assign dates later
-        cell = seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell)
+        cell = cell_dimnames
       ),
       yearcell  = stop("Order yearcell not supported"),                # order 2
       cellindex = stop("Order cellindex not supported"),               # order 3
       cellseq   = list(                                                # order 4
-        cell = seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
+        cell = cell_dimnames,
         band = band_names,
         time = NULL # Assign dates later
       )

@@ -237,47 +237,25 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+    data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
     # Create empty raster to use as base for assigning data
     tmp_raster <- create_tmp_raster(data_subset)
 
     # Get dimensions larger 1 to check if raster or brick is required
-    #   (or too many dimensions > 1 which are not compatible with raster)
-    multi_dims <- names(which(dim(data_subset$data) > 1))
+    # (or too many dimensions > 1 which are not compatible with raster)
+    # space dims are always included (to work with 1 cell rasters)
+    multi_dims <- get_multidims(data_subset)
 
-    # Check whether there are multiple bands/time steps. Convert space_format
-    # from "lon_lat" to "cell" if multi-layer brick is required. Stop if there
-    # are too many dimensions (e.g. multiple bands and multiple time steps).
+
+    # Convert space_format from "lon_lat" to "cell" to allow for non-sequential
+    # coordinate axes, i.e. non-continuous subsetting along one or both space
+    # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
+      data_subset$transform(to = "cell")
 
-      if (length(multi_dims) == 3) {
-
-        data_subset$transform(to = "cell")
-
-        multi_dims <- names(which(dim(data_subset$data) > 1))
-
-      } else if (length(multi_dims) > 3) {
-        stop(
-          paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via subset function or",
-                "argument.")
-        )
-      } else {
-
-        # Assign data to tmp_raster
-        tmp_raster <- data_subset$data %>%
-          subset_array(
-            list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
-          ) %>%
-          aperm(c("lat", "lon",
-                  setdiff(names(dim(.)), c("lat", "lon")))
-          ) %>%
-          raster::raster(template = tmp_raster)
-
-        names(tmp_raster) <- data_subset$meta$variable
-      }
+      multi_dims <- get_multidims(data_subset)
     }
 
     # For space_format "cell" allow one additional dimension
@@ -286,7 +264,8 @@ LPJmLData$set("private",
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via $subset.")
+                "Reduce to one additional dimension besides space via $subset",
+                "or $aggregate.")
         )
 
       } else if (length(multi_dims) == 2) {
@@ -381,48 +360,24 @@ LPJmLData$set("private",
                        aggregate = NULL,
                        ...) {
 
-    data_subset <- private$subset_raster_data(self, subset, aggregate, ...)
+    data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
     # Create empty SpatRaster to use as base for assigning data
     tmp_rast <- create_tmp_raster(data_subset, is_terra = TRUE)
 
     # Get dimensions larger 1 to check if single-layer or multi-layer SpatRaster
     # is required (or too many dimensions > 1)
-    multi_dims <- names(which(dim(data_subset$data) > 1))
+    # space dims are always included (to work with 1 cell SpatRaster)
+    multi_dims <- get_multidims(data_subset)
 
-    # Check whether there are multiple bands/time steps. Convert space_format
-    # from "lon_lat" to "cell" if multi-layer SpatRaster is required. Stop if
-    # there are too many dimensions (e.g. multiple bands and multiple time
-    # steps).
+    # Convert space_format from "lon_lat" to "cell" to allow for non-sequential
+    # coordinate axes, i.e. non-continuous subsetting along one or both space
+    # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
-      if (length(multi_dims) == 3) {
+      data_subset$transform(to = "cell")
 
-        data_subset$transform(to = "cell")
-
-        multi_dims <- names(which(dim(data_subset$data) > 1))
-
-      } else if (length(multi_dims) > 3) {
-        stop(
-          paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via subset function or",
-                "argument.")
-        )
-      } else {
-
-        # Assign data to tmp_raster
-        tmp_rast <- data_subset$data %>%
-          subset_array(
-            list(lat = rev(seq_len(dim(data_subset$data)[["lat"]])))
-          ) %>%
-          aperm(c("lat", "lon",
-                  setdiff(names(dim(.)), c("lat", "lon")))
-          ) %>%
-          terra::rast(crs = terra::crs(tmp_rast),
-                      extent = terra::ext(tmp_rast))
-
-        names(tmp_rast) <- data_subset$meta$variable
-      }
+      multi_dims <- get_multidims(data_subset)
     }
 
     # For space_format "cell" allow one additional dimension
@@ -431,7 +386,8 @@ LPJmLData$set("private",
       if (length(multi_dims) > 2) {
         stop(
           paste("Too many dimensions with length > 1.",
-                "Reduce to max. two dimensions via $subset.")
+                "Reduce to one additional dimension besides space via $subset",
+                "or $aggregate.")
         )
 
       } else if (length(multi_dims) == 2) {
@@ -474,7 +430,8 @@ LPJmLData$set("private",
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
       ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
+                 perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>%
+      drop()
     }
 
     # Assign units (meta data)
@@ -486,7 +443,7 @@ LPJmLData$set("private",
 
 
 LPJmLData$set("private",
-              "subset_raster_data",
+              ".subset_raster_data",
               function(self,
                        subset = NULL,
                        aggregate = NULL,
@@ -494,10 +451,7 @@ LPJmLData$set("private",
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
-    if (is.null(private$.grid) &&
-        private$.meta$._space_format_ == "cell") {
-      self$add_grid()
-    }
+    self$add_grid()
 
     # Workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone(deep = TRUE)
@@ -531,27 +485,23 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   # Calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
-    data_extent <- apply(data_subset$grid$data,
-                         "band",
-                         range)
+    data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
+                         max = apply(data_subset$grid$data, "band", max))
 
   } else {
-    data_extent <- matrix(c(range(as.numeric(dimnames(data_subset$data)[["lon"]])), # nolint
-                            range(as.numeric(dimnames(data_subset$data)[["lat"]]))), # nolint
-                            nrow = 2,
-                            ncol = 2)
+    data_extent <- cbind(
+      lon = range(as.numeric(dimnames(data_subset$data)[["lon"]])),
+      lat = range(as.numeric(dimnames(data_subset$data)[["lat"]]))
+    )
   }
 
-  grid_extent <- data_extent + matrix(
+  grid_extent <- data_extent + cbind(
     # Coordinates represent the centre of the cell. Subtract/add half of
     # resolution to derive cell borders for extent.
-    c(-data_subset$meta$cellsize_lon / 2,
-      data_subset$meta$cellsize_lon / 2,
-      -data_subset$meta$cellsize_lat / 2,
-      data_subset$meta$cellsize_lat / 2),
-    nrow = 2,
-    ncol = 2
+    lon = data_subset$meta$cellsize_lon * c(-0.5, 0.5),
+    lat = data_subset$meta$cellsize_lat * c(-0.5, 0.5)
   )
+
 
   if (is_terra) {
     tmp_raster <- terra::rast(
@@ -577,4 +527,14 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
   }
 
   tmp_raster
+}
+
+
+# Get names of dimensions with length > 1. Always include space dimension(s)
+# (cell / lon, lat), which are required for use with raster/terra.
+get_multidims <- function(x) {
+  space_dims <- unlist(strsplit(x$meta$._space_format_, "_"))
+  multi_dims <- names(which(dim(x$data) > 1))
+
+  union(multi_dims, space_dims)
 }

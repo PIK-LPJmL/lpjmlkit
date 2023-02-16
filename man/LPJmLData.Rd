@@ -23,9 +23,6 @@ or \code{\link[=as_raster]{as_raster()}} to export it into common working format
 \item{\code{data}}{\link[base]{array} containing the underlying data.}
 
 \item{\code{grid}}{Optional \code{LPJmLData} object containing the underlying grid.}
-
-\item{\code{._is_locked_}}{\emph{Internal} logical. If an object is locked no method
-can be performed directly on the object.}
 }
 \if{html}{\out{</div>}}
 }
@@ -45,10 +42,8 @@ can be performed directly on the object.}
 \item \href{#method-LPJmLData-dimnames}{\code{LPJmLData$dimnames()}}
 \item \href{#method-LPJmLData-summary}{\code{LPJmLData$summary()}}
 \item \href{#method-LPJmLData-print}{\code{LPJmLData$print()}}
-\item \href{#method-LPJmLData-.__transform_grid__}{\code{LPJmLData$.__transform_grid__()}}
 \item \href{#method-LPJmLData-.__set_data__}{\code{LPJmLData$.__set_data__()}}
 \item \href{#method-LPJmLData-.__set_grid__}{\code{LPJmLData$.__set_grid__()}}
-\item \href{#method-LPJmLData-.__set_lock__}{\code{LPJmLData$.__set_lock__()}}
 \item \href{#method-LPJmLData-new}{\code{LPJmLData$new()}}
 \item \href{#method-LPJmLData-clone}{\code{LPJmLData$clone()}}
 }
@@ -271,23 +266,6 @@ See also \link[base]{print}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLData-.__transform_grid__"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLData-.__transform_grid__}{}}}
-\subsection{Method \code{.__transform_grid__()}}{
-!Internal method only to be used for package development!
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$.__transform_grid__(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=transform]{transform()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLData-.__set_data__"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLData-.__set_data__}{}}}
 \subsection{Method \code{.__set_data__()}}{
@@ -317,23 +295,6 @@ See also \link[base]{print}.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{grid}}{An \code{LPJmLData} object holding grid coordinates.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLData-.__set_lock__"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLData-.__set_lock__}{}}}
-\subsection{Method \code{.__set_lock__()}}{
-!Internal method only to be used for package development!
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$.__set_lock__(is_locked)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{is_locked}}{Bolean.}
 }
 \if{html}{\out{</div>}}
 }

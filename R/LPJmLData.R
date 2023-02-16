@@ -19,6 +19,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   lock_objects = TRUE,
 
   public = list(
+
     # modify methods --------------------------------------------------------- #
 
     #' @description
@@ -28,58 +29,54 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' @param ... See [`add_grid()`].
     add_grid = function(...) {
 
-      # Check for locked objects
-      check_method_locked(self, "add_grid")
+      # Skip if grid is already attached
+      if (!is.null(private$.grid)) {
+        return(invisible(self))
+      }
 
-      # Check if meta file for grid is located in output location
-      grid_file <- list.files(private$.meta$._data_dir_,
-                              pattern = "grid.bin.json")
+      if (...length() == 0) {
+        # If user has not supplied any parameters try to find a grid file in the
+        # same directory as data. This throws an error if no suitable file is
+        # found.
+        filename <- find_gridfile(private$.meta$._data_dir_)
+        blue_col <- "\u001b[34m"
+        unset_col <- "\u001b[0m"
+        cat(blue_col, "$grid ", unset_col, "read from ",
+            sQuote(basename(filename)), "\n", sep = "")
 
-      if (length(grid_file) == 1) {
-
-        # Concatenate existing file and data_dir to read grid
-        filename <- paste(private$.meta$._data_dir_, grid_file, sep = "/")
-
-        # Check if spatial dimensions have been subsetted before - use dimnames
-        # for subsetting
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
-          self$.__set_grid__(
-            read_io(
+          lpjml_data <- read_io(
               filename = filename,
-              subset = list(cell = self$dimnames()[["cell"]])
+              subset = list(cell = self$dimnames()[["cell"]]),
+              silent = TRUE
             )
-          )
         } else {
-          self$.__set_grid__(
-            read_io(filename = filename)
-          )
+          lpjml_data <- read_io(filename = filename, silent = TRUE)
         }
-
       } else {
 
-        # All arguments have to be provided manually as read_io arguments.
-        # Ellipsis (...) does that.
-        # Check if arguments are provided.
-        if (length(as.list(match.call())) > 1) {
+        # All arguments have to be provided manually to read_io.
+        #   Ellipsis (...) does that.
 
-          if (private$.meta$._subset_space_) {
-            self$.__set_grid__(
-              read_io(...,
-                      subset = list(cell = self$dimnames()[["cell"]]))
-            )
-          } else {
-            self$.__set_grid__(
-              read_io(...)
-            )
-          }
-
+        # Add support for cell subsets. This is a rough filter since $subset
+        #   does not say if cell is subsetted - but ok for now.
+        if (private$.meta$._subset_space_) {
+          lpjml_data <- read_io(
+            ...,
+            subset = list(cell = self$dimnames()[["cell"]])
+          )
         } else {
-          stop(paste("If no meta file is available $add_grid",
-                     "has to be called explicitly with arguments as read_io."))
+          lpjml_data <- read_io(...)
         }
       }
 
-      private$.grid$.__set_lock__(is_locked = TRUE)
+      # Create LPJmLData object and bring together data and meta_data
+      lpjml_grid <- LPJmLGridData$new(lpjml_data)
+
+      # set grid attribute
+      self$.__set_grid__(lpjml_grid)
     },
 
 
@@ -266,31 +263,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       cat(paste0(blue_col, "$summary()", unset_col, "\n"))
       print(self$summary(cutoff = TRUE))
 
-      if (is.null(private$.meta$variable) ||
-      private$.meta$variable != "grid") {
+      if (class(self)[1] == "LPJmLData") {
         cat(paste0("\u001b[33;3m",
                    "Note: summary is not weighted by grid area.",
                    unset_col,
                    "\n")
         )
-
-      } else {
-        cat(paste0("\u001b[33;3m",
-                   ifelse(private$.meta$._space_format_ == "cell",
-                          "Note: only min & max printed as equivalent to spatial extent.", # nolint
-                          "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), # nolint
-                   unset_col,
-                   "\n"))
       }
-    },
-
-
-    #' @description
-    #' !Internal method only to be used for package development!
-    #'
-    #' @param ... See [`transform()`].
-    .__transform_grid__ = function(...) {
-      private$.transform_grid(...)
     },
 
 
@@ -312,18 +291,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #'
     #' @param grid An `LPJmLData` object holding grid coordinates.
     .__set_grid__ = function(grid) {
-      private$.grid <- grid
-    },
 
+      if (methods::is(grid, "LPJmLGridData")) {
+        private$.grid <- grid
 
-    # Set is_locked attribute; only to be used internally or explicitly
-    #   on purpose
-    #' @description
-    #' !Internal method only to be used for package development!
-    #'
-    #' @param is_locked Bolean.
-    .__set_lock__ = function(is_locked) {
-      private$.is_locked <- is_locked
+      } else {
+        stop("Provide an LPJmLGridData to set grid attribute.")
+      }
     },
 
 
@@ -344,17 +318,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       }
 
       private$.data <- data
-
-      if (!is.null(private$.meta$variable)) {
-
-        if (private$.meta$variable == "grid") {
-          private$init_grid()
-
-        } else if (private$.meta$variable == "LPJGRID") {
-          private$.meta$.__set_attribute__("variable", "grid")
-          private$init_grid()
-        }
-      }
     }
   ),
 
@@ -385,54 +348,24 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   environment.
         grid <- private$.grid$clone(deep = TRUE)
 
-        # Allow using methods on grid outside of LPJmLData instance
-        grid$.__set_lock__(is_locked = FALSE)
-
         return(grid)
 
       } else {
         # If NULL make sure NULL is returned directly and not tried to clone
         return(private$.grid)
       }
-    },
-
-    #' @field ._is_locked_ *Internal* logical. If an object is locked no method
-    #'   can be performed directly on the object.
-    ._is_locked_ = function() {
-      return(private$.is_locked)
     }
   ),
 
 
   private = list(
 
-    # Init grid if variable == "grid"
-    init_grid = function() {
-
-      # Update grid data
-      if (dim(private$.data)[["band"]] == 2) {
-        dimnames(private$.data)[["band"]] <- c("lon", "lat")
-      } else {
-        stop("Unknown number of bands for grid initialization.")
-      }
-
-      self$.__set_data__(
-        drop_omit(self$data, omit = "cell")
-      )
-
-      # Update grid meta data
-      private$.meta$.__init_grid__()
-
-      return(invisible(self))
-    },
-
     .meta = NULL,
 
     .data = NULL,
 
-    .grid = NULL,
+    .grid = NULL
 
-    .is_locked = FALSE
   )
 )
 
@@ -458,18 +391,22 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #'
 #' @param x [LPJmLData] object.
 #'
-#' @param ... Arguments passed to [`read_io()`] if no grid file in "meta"
-#' format is available in the corresponding output directory.
+#' @param ... Arguments passed to [`read_io()`]. Without any arguments,
+#'   `add_grid()` will search for a file name starting with "grid" in the same
+#'   directory that `x` was loaded from. This supports grid files in `"meta"`
+#'   and `"clm"` format. If the grid file is in `"raw"` format or should be
+#'   loaded from a different directory, supply all necessary `read_io()`
+#'   parameters.
 #'
 #' @return A copy of `x` ([`LPJmLData`] object) with added `$grid` attribute.
 #'
 #' @examples
 #' \dontrun{
 #'
-#' # read in vegetation carbon data with meta file
+#' # Read in vegetation carbon data with meta file
 #' vegc <- read_io(filename = "./vegc.bin.json")
 #'
-#' # add grid as attribute (via meta file in output directory)
+#' # Add grid as attribute (via grid file in output directory)
 #' vegc_with_grid <- add_grid(vegc)
 #'
 #' }
@@ -524,24 +461,55 @@ aggregate_array <- function(x,
 }
 
 
-check_method_locked <- function(x, method_name) {
-  if (x$._is_locked_) {
-    stop(
-      paste0(
-        "\u001b[0m",
-        "The attribute ",
-        "\u001b[34m",
-        ifelse(is.null(x$meta$variable), "???", x$meta$variable),
-        "\u001b[0m",
-        " is locked. You cannot use method ",
-        "\u001b[34m",
-        method_name,
-        "\u001b[0m",
-        " on this object.",
-        "\n"
+#' Search for a grid file in a directory
+#'
+#' Function to search for a grid file in a specific directory.
+#'
+#' @param searchdir Directory where to look for a grid file.
+#' @return Character string with the file name of a grid file upon success.
+#'   Function fails if no matching grid file can be detected.
+#'
+#' @details This function looks for file names in `searchdir` that match the
+#'   `pattern` parameter in its [`list.files()`] call. Files of type "meta" are
+#'   preferred. Files of type "clm" are also accepted. The function returns an
+#'   error if no suitable file or multiple files are found. Otherwise, the file
+#'   name of the grid file including the full path is returned.
+#' @noRd
+find_gridfile <- function(searchdir) {
+  # The pattern will match any file name that starts with "grid*".
+  # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
+  # This will only match file names "grid.*", where * is one or two file
+  # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
+  grid_files <- list.files(
+    path = searchdir,
+    pattern = "^grid",
+    full.names = TRUE
+  )
+  if (length(grid_files) > 0) {
+    grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+    # Prefer "meta" file_type if present
+    if (length(which(grid_types == "meta")) == 1) {
+      filename <- grid_files[match("meta", grid_types)]
+    } else if (length(which(grid_types == "clm")) == 1) {
+      # Second priority "clm" file_type
+      filename <- grid_files[match("clm", grid_types)]
+    } else {
+      # Stop if either multiple files per file type or not the right type have
+      # been detected
+      stop(
+        "Cannot detect grid file automatically.\n",
+        "$add_grid has to be called supplying parameters as for read_io."
       )
+    }
+  } else {
+    # Stop if no file name matching pattern detected
+    stop(
+      "Cannot detect grid file automatically.\n",
+      "$add_grid has to be called supplying parameters as for read_io."
     )
   }
+
+  filename
 }
 
 # Avoid note for "."...
