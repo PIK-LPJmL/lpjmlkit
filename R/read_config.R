@@ -45,9 +45,11 @@ read_config <- function(filename,
   # (or not valid)
   file_type <- file_ext(filename)
 
+  # Read compiled config files
   if (file_type == "json") {
     tmp_json <- jsonlite::read_json(path = filename, simplify = FALSE)
 
+  # Read compilable cjson or js files - the standard default config files
   } else if (tolower(file_type) %in% c("cjson", "js")) {
     tmp_json <- parse_config(
       path = dirname(filename),
