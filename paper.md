@@ -56,7 +56,7 @@ bibliography: paper.bib
 [//]: # (![]\(inst/img/logo.png\){width=24% align=left} -> use for final publication)
 
 The *lpjmlkit* R package [@lpjmlkit_manual] is an open source software that is
-developed for handling the open source Dynamic Global Vegetation model (DGVM)
+developed for handling the open source dynamic global vegetation model (DGVM)
 [LPJmL](https://github.com/PIK-LPJmL/LPJmL).
 It contains two main modules.
 One, *LPJmL Runner*, provides the functionality to create multiple model
@@ -87,23 +87,19 @@ experiments lack substantial training in software engineering.
 Developing tools for standard tasks, such as input preparation or basic output
 processing introduces inefficiencies and is error-prone as such on-demand
 solutions typically lack proper testing and documentation.
-In the natural sciences, the progressive development of complex process-based
-numerical models in low-level languages like C often comes at the expense of
-usability, so that they tend to be accessible only to experienced users
-[@wilson_best_2014].
-*lpjmlkit* has come to break with this trend and serve as a user interface
-for the LPJmL model, a well-established and widely-used dynamic global
-vegetation, hydrological and crop model, widely used in the scientific 
-community.\
+Traditional process-based numerical models in low-level languages can be
+challenging for less experienced users to operate, `lpjmlkit` provides a more
+user-friendly interface to the LPJmL model, making it easier for a wider range
+of users to conduct complex simulations.
+LPJmL is a well-established and widely-used dynamic global vegetation,
+hydrological and crop model, widely used in the scientific community.\
 LPJmL has been used for more than a decade and was employed by researchers
-to conduct numerous studies in various research areas related the
+to conduct numerous studies in various research areas related to the
 terrestrial biosphere.
-To this end, the original dynamic global vegetation model (DGVM) LPJ
-[@Sitch2003] was extended by adding an improved representation of the
-hydrological cycle [@gerten_terrestrial_2004], by implementing managed land
-components, forming "LPJmL" (LPJ with *m*anaged *L*and))
-[@bondeau_modelling_2007; @rolinski_modeling_2018; @lutz2019simulating;
-@Porwollik2022cover], and by including the nitrogen cycle
+To this end, the original DGVM LPJ [@Sitch2003] was extended by adding an
+improved representation of the hydrological cycle [@gerten_terrestrial_2004],
+by implementing managed land components, forming "LPJmL"
+(LPJ with *m*anaged *L*and)) [@bondeau_modelling_2007; @rolinski_modeling_2018;@lutz2019simulating; @Porwollik2022cover], and by including the nitrogen cycle
 [@von_bloh_implementing_2018].\
 This facilitated broader, interdisciplinary studies such as the work of
 @gerten_feeding_2020, which answered the question of whether it is possible to
@@ -112,8 +108,8 @@ implemented features of sustainable agriculture in LPJmL
 [@Porwollik2022cover; @Herzfeld2021soc] that had not been simulated before
 within a DGVM.
 There are many other examples of different scientific studies based on LPJmL
-simulations, all using individual software solutions with the risks already
-described.
+simulations, all using individual scripts to create inputs for the model or
+analyze outputs with the risks already described.
 Unlike its sister model LPJ-GUESS [@bagnara_r_2019] or other models, such as
 MAgPIE [@dietrich_magpie_2019] LPJmL was never equipped with standardised
 interfaces for higher level programming languages to either run simulations or
