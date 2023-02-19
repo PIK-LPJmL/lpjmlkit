@@ -38,7 +38,7 @@ read_config <- function(filename,
 
   # Detect file type of config files - compiled json or not pre-compiled
   # (or not valid)
-  file_type <- detect_type(filename)
+  file_type <- detect_type(filename, else_raw = FALSE)
 
   # Read compiled config files
   if (file_type == "json") {
