@@ -883,3 +883,42 @@ get_order <- function(x) {
     dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
     return()
 }
+
+
+# precompile_config <- function(path, js_filename) {
+#        # processx::run kills any occuring subprocesses to avoid fork bombs.
+#   cpp_code <- processx::run(command = "sh", # nolint:object_usage_linter.
+#                             args = c(
+#                               "-c",
+#                               paste0("cpp -P -CC ./",
+#                                      js_filename)
+#                             ),
+#                             wd = path,
+#                             cleanup_tree = TRUE)$stdout
+# 
+#   # Extract comments from the C code
+#   stringr::str_replace_all(names(x1), setNames(b, a))
+#   comments <- stringr::str_replace_all(cpp_code, "(?<=:\\s{0,10})[^,{\\[\\r\\n]*", "\"test_replace\"")
+# 
+#   pattern <- '"(\\w+)"\\s*:\\s*(\\w+|\\d+|true|false),\\s*/\\*\\s*(.*?)\\s*\\*/'
+# 
+#   # Replace values with comments using str_replace_all and the regular expression pattern
+#   comments <- stringr::str_replace_all(cpp_code, pattern, '"\\1" : "\\3"')
+# 
+# 
+#   comments <- strsplit(comments, "\\n\\s*\\/\\/")
+#   comments <- sapply(comments, `[`, 2)
+# 
+#   # Extract values from the C code
+#   values <- gsub(".*?:\\s*(.*?)\\s*,?", "\\1", cpp_code)
+#   values <- trimws(values, which = "both")
+# 
+#   # Remove quotes from boolean values
+#   values[values == "true" | values == "false"] <- gsub("\"", "", values[values == "true" | values == "false"])
+# 
+#   # Replace values with comments from the C code
+#   config_list <- setNames(as.list(comments), values)
+# 
+# 
+#   return(config_list)
+# }
