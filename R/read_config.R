@@ -40,11 +40,11 @@ read_config <- function(filename,
 
   # Detect file type of config files - compiled json or not pre-compiled
   # (or not valid)
-  file_type <- detect_type(filename)
+  file_type <- detect_type(filename, meta = FALSE)
 
-  # Read compiled config files. detect_type returns "meta" for pure JSON without
+  # Read compiled config files. detect_type returns "json" for pure JSON without
   # comments.
-  if (file_type == "meta") {
+  if (file_type == "json") {
     tmp_json <- jsonlite::read_json(path = filename, simplify = FALSE)
 
   # Read compilable cjson or js files - the standard default config files. These
@@ -59,11 +59,12 @@ read_config <- function(filename,
   } else {
     stop("File type not supported.")
   }
-  
+
   # Elements included in LPJmL configurations differ between model versions.
   # Define a minimum set of elements that must be present to conclude that
   # filename does indeed contain an LPJmL configuration.
   required_att <- c("sim_id", "param", "soilpar", "pftpar", "input", "output")
+
   if (any(sapply(tmp_json[required_att], is.null))) { # nolint:undesirable_function_linter.
     stop(
       "File ", sQuote(filename),

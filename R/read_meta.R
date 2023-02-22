@@ -27,11 +27,12 @@
 #' @md
 #' @export
 read_meta <- function(filename, ...) {
+
   # Get and provide data path for lazy data purposes (e.g. load grid later)
   pathname <- dirname(filename)
 
   # Detect LPJmL file types - "meta", "clm" or other
-  file_type <- detect_type(filename)
+  file_type <- detect_type(filename, meta = TRUE)
 
   # Meta (JSON) file handling
   if (file_type == "meta") {

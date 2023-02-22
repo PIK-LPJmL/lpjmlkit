@@ -486,7 +486,7 @@ find_gridfile <- function(searchdir) {
     full.names = TRUE
   )
   if (length(grid_files) > 0) {
-    grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+    grid_types <- sapply(grid_files, detect_type, meta = TRUE) # nolint:undesirable_function_linter.
     # Prefer "meta" file_type if present
     if (length(which(grid_types == "meta")) == 1) {
       filename <- grid_files[match("meta", grid_types)]

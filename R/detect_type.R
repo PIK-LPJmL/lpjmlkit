@@ -5,10 +5,13 @@
 #'   simple text formats such as ".txt" or ".csv" are also detected.
 #'
 #' @param filename Character string naming the file to check.
+#'
+#' @param meta If `TRUE` return "meta" instead of json. Defaults to `FALSE`
+#'
 #' @return Character vector of length 1 giving the file type:
 #' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format).
 #' * "clm" for a binary LPJmL input/output file with header.
-#' * "meta" for a JSON meta file describing a binary LPJmL input/output file.
+#' * "json" for a JSON meta file describing a binary LPJmL input/output file.
 #' * "raw" for a binary LPJmL input/output file without header. This is also the
 #'     default if no other file type can be recognized.
 #' * "text" for any type of text-only file, e.g. ".txt" or ".csv"
@@ -19,7 +22,7 @@
 #' [1] "clm"
 #' }
 #' @noRd
-detect_type <- function(filename) {
+detect_type <- function(filename, meta = FALSE) {
 
   if (!file.exists(filename)) {
     stop("File ", filename, " does not exist.")
@@ -56,14 +59,17 @@ detect_type <- function(filename) {
     # Check if the text file is a JSON file. JSON files normally start with "{".
     # Remove any white space at the beginning of the file. This will not detect
     # a JSON if file has > 10 bytes of white space or includes comments.
-    if (length(a <- scan(
+    first_char <- scan(
       text = rawToChar(file_check),
       what = "char",
       strip.white = TRUE,
       nmax = 1,
-      quiet = TRUE)
-    ) == 1 && a == "{") {
-      return("meta")
+      quiet = TRUE
+    )
+
+    if (length(first_char) == 1 && first_char == "{") {
+      return(ifelse(meta, "meta", "json"))
+
     } else {
       # Generic text type, no further parsing
       return("text")

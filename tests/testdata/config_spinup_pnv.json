@@ -155,6 +155,7 @@
   10000.0
 ],
 "fbd_fac" : [1.0, 1.2, 1.4, 0.0],
+"pftpar" : [],
 "soilpar" :
 [
 { "id" : 0, "name" : "clark", "Ks" : 3.5, "Sf" : 243.0, "sand" : 0.22, "silt" : 0.20, "clay": 0.58, "hsg" : 1, "tdiff_0" : 0.572, "tdiff_15" : 0.571, "tdiff_100" : 0.555, "cond_pwp" : 1.388, "cond_100" : 1.719, "cond_100_ice" : 3.233, "denit_rate": 6, "a_denit": -73.5, "b_denit": 0.4804, "anion_excl": 0.4, "nitvol_temp_factor": 0.41, "vol_cation_exchange": 0.15, "denit_water_threshold": 2, "a_nit": 0.6, "b_nit": 1.27, "c_nit": 0.0012, "d_nit": 2.84,"cn_ratio": 15},
