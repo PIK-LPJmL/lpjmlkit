@@ -2,21 +2,29 @@
 % Please edit documentation in R/read_config.R
 \name{read_config}
 \alias{read_config}
-\title{Read an LPJmL config file (JSON)}
+\title{Read an LPJmL configuration file}
 \usage{
-read_config(filename)
+read_config(filename, from_restart = FALSE, macro = "")
 }
 \arguments{
 \item{filename}{Character string representing path
 (if different from current working directory) and filename.}
+
+\item{from_restart}{Logical defining whether config files should be read as
+from_restart (transient run) or without (spinup run). Defaults to \code{FALSE}
+(spinup run). Used only if file is not pre-compiled (no json).}
+
+\item{macro}{Optional character string to pass one or several macros to the
+pre-compiler, e.g. ("-DFROM_RESTART"). Used only if file is not
+pre-compiled (no json).}
 }
 \value{
-A nested list object representing the structure of \code{config_*.json}.
+A nested list object representing the LPJmL configuration read from
+\code{filename}.
 }
 \description{
-Reads a config JSON file (not \code{lpjml.js}, but its precompiled version which
-can be generated using \code{parse_config()} or running \verb{cpp -P filename.js} in
-the shell) and turns it into a nested list object.
+Reads a configuration (config) file (compilable js/csjon file or json file)
+and turns it into a nested list object.
 }
 \examples{
 \dontrun{
@@ -30,5 +38,8 @@ the shell) and turns it into a nested list object.
 
  config[["input"]][["coord"]][["name"]]
  # [1] "input_VERSION2/grid.bin"
+
+ # visualize configuration as tree view
+ View(config)
 }
 }
