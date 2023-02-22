@@ -768,69 +768,208 @@ mutate_config_param <- function(x,
 
   x[["sim_githash"]] <- commit_hash
 
-  all_names <- names(unlist(x))
+  # Get all keys of config that are possible to use
+  all_keys <- unlist(x) %>%
+    names() %>%
+    strsplit("[.]") %>%
+    unlist() %>%
+    unique()
 
   for (colname in colnames(params)) {
 
     # Use default value if NA is supplied
     param_value <- unlist(params[[colname]])
 
+    # If NA use the default value (no replacement)
     if (any(is.na(param_value))) next
 
-    # Split keys for each level
-    keys <- strsplit(colname, "[.]")[[1]]
+    # Check if common list syntax is used
+    if (grepl("\\[\\[|\\]\\]|\\$", colname)) {
+      x <- call_by_listsyntax(x, colname, param_value, all_keys)
 
-    # Test for length and digits (indices) -> handle each case.
-    if (length(keys) > 1) {
-
-      if (grepl("^[[:digit:]]+$", keys)[2]) {
-
-        if (length(keys) > 2) {
-
-          if (is.null(x[[keys[1]]][[as.integer(keys[2])]][[keys[3:length(keys)]]])) { # nolint
-            stop(paste(colname, "is not legit!"))
-
-          } else {
-            x[[keys[1]]][[as.integer(keys[2])]][[
-              keys[3:length(keys)]
-            ]] <- convert_integer(param_value, x[[keys[1]]][[
-              as.integer(keys[2])
-            ]][[keys[3:length(keys)]]])
-          }
-
-        } else {
-          if (is.null(x[[keys[1]]][[as.integer(keys[2])]])) {
-            stop(paste(colname, "is not legit!"))
-
-          } else {
-            x[[keys[1]]][[as.integer(keys[2])]] <- convert_integer(
-              param_value, x[[keys[1]]][[as.integer(keys[2])]]
-            )
-          }
-        }
-
-      } else {
-        if (!paste(keys, collapse = ".") %in% all_names ||
-            is.null(x[[keys]])) {
-          stop(paste(colname, "is not legit!"))
-
-        } else {
-          x[[keys]] <- convert_integer(param_value, x[[keys]])
-        }
-      }
-
+    # Else it is assumed point syntax is used (previous standard)
     } else {
-      if (!paste(keys, collapse = ".") %in% all_names ||
-          is.null(x[[keys]])) {
-        stop(paste(colname, "is not legit!"))
-
-      } else {
-        x[[keys]] <- convert_integer(param_value, x[[keys]])
-      }
+      x <- call_by_points(x, colname, param_value, all_keys)
     }
   }
 
   x
+}
+
+# Function to replace config/param (colname) of nested list x with param_value
+# by common list syntax
+call_by_listsyntax <- function(x, colname, param_value, all_keys) {
+  # Split each keys by "[[", "[" or "$"
+  keys <- strsplit(colname, "\\[\\[|\\]\\]|\\$")[[1]]
+  # Delete resulting non existing empty keys which are not allowed in the
+  # following
+  keys <- keys[!nchar(keys) == 0]
+
+  # Check if config/param names only consists of letters, numbers and/or "_"
+  if (all(grepl("^[[:alnum:]_]+$", keys))) {
+
+    # Keys must be either existing in the original config or an index
+    # this is also a check to not allow any bad code to be evaluated
+    if (!all(keys %in% all_keys || grepl("^[0-9]*$", keys))) {
+      stop(
+        paste(
+          col_var(colname),
+          " consists of keys that do not exist."
+        )
+      )
+    }
+
+    # Check if config/param does exists via checking if its NULL
+    # non standard evaluation here to support using indices in combination with
+    # keys in selection via "[[" and "[""
+    if (is.null(eval(rlang::parse_expr(paste0("x$", colname))))) {
+      stop(
+        paste(
+          col_var(colname),
+          "includes a combination of keys or indices that do not exist!"
+        )
+      )
+    } else {
+      # Quote character strings for replacement
+      if (!grepl("^(TRUE|FALSE|[0-9]+)$", param_value)) {
+        param_value <- dQuote(param_value)
+      }
+
+      # Again non standard evaluation with replacement of check function of
+      # original type (R lacks distinction of float/double and integer values)
+      eval(
+        rlang::parse_expr(
+          paste0(
+            "x$",
+            colname,
+            " <- convert_integer(",
+            param_value,
+            ", x$",
+            colname,
+            ")"
+          )
+        )
+      )
+    }
+  } else {
+    stop(
+      paste(
+        col_var(colname),
+        "should only consist of letters, numbers or \"_\"."
+      )
+    )
+  }
+  x
+}
+
+
+# Function to replace config/param (colname) of nested list x with param_value
+# by "." syntax -> names(unlist(x)) with indices for unnamed list items
+call_by_points <- function(x, colname, param_value, all_keys) {
+
+  # Split each keys by "."
+  keys <- strsplit(colname, "[.]")[[1]] %>%
+
+    # Keys must be either existing in the original config or an index
+    # this is also a check to not allow any bad code to be evaluated
+    sapply(function(x) { # nolint:undesirable_function_linter.
+
+      # Character strings must be in quotes
+      if (!grepl("^[0-9]*$", x) && x %in% all_keys) {
+        x <- dQuote(x)
+      } else if (!grepl("^[0-9]*$", x)) {
+        stop(
+          paste0(
+            col_var(colname),
+            " consists of key(s) (",
+            x,
+            ") that do not exist."
+          )
+        )
+      }
+      return(x)
+    })
+
+  # Check if config/param names only consists of letters, numbers and/or "_"
+  # and also "\"" in this case (forwarding character strings)
+  if (all(grepl("^[[:alnum:]_\"\\\\]+$", keys))) {
+
+    # Predefine evaluation of x and its keys
+    eval_x <- paste0(
+      "x",
+      paste0("[[", keys, "]]", collapse = "")
+    )
+
+    # Check if config/param does exists via checking if its NULL
+    # non standard evaluation here to support using indices in combination with
+    # keys in selection via "[[" and "[""
+    if (is.null(eval(rlang::parse_expr(eval_x)))) {
+      stop(
+        paste(
+          col_var(colname),
+          "include a combination of keys or indices that do not exist!"
+        )
+      )
+
+    } else {
+      # Quote character strings for replacement
+      if (!grepl("^(TRUE|FALSE|[0-9]+)$", param_value)) {
+        param_value <- dQuote(param_value)
+      }
+
+      # Again non standard evaluation with replacement of check function of
+      # original type (R lacks distinction of float/double and integer values)
+      eval(
+        rlang::parse_expr(
+          paste0(
+            eval_x,
+            " <- convert_integer(",
+            param_value,
+            ", ",
+            eval_x,
+            ")"
+          )
+        )
+      )
+    }
+  } else {
+    stop(
+      paste(
+        col_var(colname),
+        "should only consist of letters, numbers or \"_\"."
+      )
+    )
+  }
+  x
+}
+
+
+# Function to convert numerics to integers since R is missing explicit
+#   non-/decimals. Both x <- 1 as well as x <- 1.0 assigns a numeric value.
+convert_integer <- function(x, check_value) {
+
+  # Check if value is a list to replace
+  if (!is.list(check_value)) {
+
+    # Convert if target value is an integer
+    if (is.integer(check_value) ||
+       (is.character(check_value)) && is.numeric(x)) {
+      return(as.integer(x))
+
+    } else {
+      return(x)
+    }
+
+  } else {
+
+    # For list replacements, convert values if list elements are integer
+    if (all(sapply(check_value, is.integer))) {# nolint:undesirable_function_linter.
+      return(lapply(x, as.integer))
+
+    } else {
+      return(x)
+    }
+  }
 }
 
 
@@ -882,4 +1021,12 @@ get_order <- function(x) {
   dplyr::rowwise(x) %>%
     dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
     return()
+}
+
+
+# colorize variable name for messages, warning, stop
+col_var <- function(x) {
+  col_blue <- "\u001b[34m"
+  unset_col <- "\u001b[0m"
+  paste0(col_blue, x, unset_col)
 }
