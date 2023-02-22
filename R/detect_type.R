@@ -11,7 +11,7 @@
 #' @return Character vector of length 1 giving the file type:
 #' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format).
 #' * "clm" for a binary LPJmL input/output file with header.
-#' * "json" for a JSON meta file describing a binary LPJmL input/output file.
+#' * "json" or "meta" (if `meta == TRUE`) for a JSON file
 #' * "raw" for a binary LPJmL input/output file without header. This is also the
 #'     default if no other file type can be recognized.
 #' * "text" for any type of text-only file, e.g. ".txt" or ".csv"
