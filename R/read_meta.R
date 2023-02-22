@@ -32,7 +32,7 @@ read_meta <- function(filename, ...) {
   pathname <- dirname(filename)
 
   # Detect LPJmL file types - "meta", "clm" or other
-  file_type <- detect_type(filename, meta = TRUE)
+  file_type <- detect_io_type(filename)
 
   # Meta (JSON) file handling
   if (file_type == "meta") {

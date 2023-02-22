@@ -36,7 +36,8 @@ Imports:
     foreach,
     utils,
     methods,
-    abind
+    abind,
+    rlang
 Suggests:
     rmarkdown,
     knitr,

@@ -187,7 +187,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
   # Detect file_type if not provided by user
   if (is.null(file_type)) {
-    file_type <- detect_type(filename, meta = TRUE)
+    file_type <- detect_io_type(filename)
   }
   # Check valid file_type
   if (!file_type %in% supported_types) {

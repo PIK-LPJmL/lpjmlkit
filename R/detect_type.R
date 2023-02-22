@@ -6,23 +6,21 @@
 #'
 #' @param filename Character string naming the file to check.
 #'
-#' @param meta If `TRUE` return "meta" instead of json. Defaults to `FALSE`
-#'
 #' @return Character vector of length 1 giving the file type:
 #' * "cdf" for a NetCDF file (classic or NetCDF4/HDF5 format).
 #' * "clm" for a binary LPJmL input/output file with header.
-#' * "json" or "meta" (if `meta == TRUE`) for a JSON file
+#' * "meta" for a JSON meta file describing a binary LPJmL input/output file.
 #' * "raw" for a binary LPJmL input/output file without header. This is also the
 #'     default if no other file type can be recognized.
 #' * "text" for any type of text-only file, e.g. ".txt" or ".csv"
 
 #' @examples
 #' \dontrun{
-#' detect_type(filename = "filename.clm")
+#' detect_io_type(filename = "filename.clm")
 #' [1] "clm"
 #' }
 #' @noRd
-detect_type <- function(filename, meta = FALSE) {
+detect_io_type <- function(filename) {
 
   if (!file.exists(filename)) {
     stop("File ", filename, " does not exist.")
@@ -68,7 +66,7 @@ detect_type <- function(filename, meta = FALSE) {
     )
 
     if (length(first_char) == 1 && first_char == "{") {
-      return(ifelse(meta, "meta", "json"))
+      return("meta")
 
     } else {
       # Generic text type, no further parsing
