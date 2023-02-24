@@ -2,12 +2,9 @@
 % Please edit documentation in R/subset_array.R
 \name{asub}
 \alias{asub}
-\alias{asub<-}
 \title{Subset a named array}
 \usage{
 asub(x, ..., drop = TRUE)
-
-asub(x, ...) <- value
 }
 \arguments{
 \item{x}{An array with named dimensions.}
@@ -20,10 +17,6 @@ dimension. Examples: \code{cell = c(27411:27416)}, \code{band = -c(14:16, 19:32)
 
 \item{drop}{Logical. If \code{TRUE} (default), dimensions with a length of 1 are
 dropped from the result. Otherwise, they are kept.}
-
-\item{value}{Array/vector of replacement values. Note: If \code{value} does not
-have the same dimensions as selected by (\code{...}), automatic replication
-is done by \strong{R} to extend \code{value} to the required length.}
 }
 \value{
 Without replacement \code{value} returns an array (or vector if
@@ -34,11 +27,6 @@ Without replacement \code{value} returns an array (or vector if
 \description{
 Subset an array with the supplied dimnames and - if defined - replace values.
 }
-\section{Functions}{
-\itemize{
-\item \code{asub(x, ...) <- value}: Replace an array subset
-
-}}
 \examples{
 my_array <- array(1,
                   dim=c(cell = 67, month = 12, band = 3),
@@ -51,8 +39,5 @@ dimnames(my_subset)[3]
 # $ band
 #   [1] "band1"
 #   [2] "band3"
-
-# Replace subset
-asub(my_subset, band = c("band1")) <- 0
 
 }

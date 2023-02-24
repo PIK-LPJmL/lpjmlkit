@@ -13,10 +13,6 @@
 #' @param drop Logical. If `TRUE` (default), dimensions with a length of 1 are
 #'   dropped from the result. Otherwise, they are kept.
 #'
-#' @param value Array/vector of replacement values. Note: If `value` does not
-#'   have the same dimensions as selected by (`...`), automatic replication
-#'   is done by **R** to extend `value` to the required length.
-#'
 #' @return Without replacement `value` returns an array (or vector if
 #'   `drop = TRUE` and only one dimension is left) of the selected subset of
 #'   `x`. If `value` is specified, returns an array with the same dimensions as
@@ -35,9 +31,6 @@
 #' #   [1] "band1"
 #' #   [2] "band3"
 #'
-#' # Replace subset
-#' asub(my_subset, band = c("band1")) <- 0
-#'
 #' @export
 asub <- function(x,
                  ...,
@@ -48,8 +41,10 @@ asub <- function(x,
   return()
 }
 
-#' @describeIn asub Replace an array subset
-#' @export
+
+# value Array/vector of replacement values. Note: If `value` does not
+# have the same dimensions as selected by (`...`), automatic replication
+# is done by **R** to extend `value` to the required length.
 `asub<-` <- function(x, ..., value) {
   argum <- c(alist(x),
              subarray_argument(x, list(...)), alist(value))

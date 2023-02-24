@@ -39,9 +39,13 @@ read_config <- function(filename,
                         macro = "") {
 
   # get file extension
-  get_file_ext <- function(x) {
-    pos <- regexpr("\\.([[:alnum:]]+)$", x)
-    ifelse(pos > -1L, substring(x, pos + 1L), "")
+  get_file_ext <- function(filename) {
+    extension <- gsub("^.*\\.([^.]+)$", "\\1", filename)
+    if (nchar(extension) == nchar(filename)) {
+      return("")
+    } else {
+      return(extension)
+    }
   }
 
   # Detect file type of config files - compiled json or not pre-compiled

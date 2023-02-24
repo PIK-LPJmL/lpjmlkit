@@ -19,7 +19,8 @@
 #' detect_io_type(filename = "filename.clm")
 #' [1] "clm"
 #' }
-#' @noRd
+#'
+#' @export
 detect_io_type <- function(filename) {
 
   if (!file.exists(filename)) {
