@@ -3,7 +3,7 @@
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 #' specific format (see details & examples) to write the model configuration
 #' file `"config_*.json"`. Each row in the tibble corresponds to a model run.
-#' The generated `"config_*.json"` is based on a js file (e.g.: `"lpjml_*.js"`).
+#' The generated `"config_*.json"` is based on a js file (e.g. `"lpjml_*.js"`).
 #'
 #' @param params A tibble in a defined format (see details).
 #'
@@ -51,26 +51,28 @@
 #' mandatory ".js" files. The precompilation is done internally by
 #' [`write_config()`].\cr
 #' `write_config()` uses the column names of `param` as keys for the config
-#' json using an object-oriented like syntax, e.g. `"k_temp"` from `"param.js"`
-#' can be accessed with `"param.k_temp"` as the column name. \cr
+#' json using the same syntax as lists, e.g. `"k_temp"` from `"param.js"`
+#' can be accessed with `"param$k_temp"` or `"param[["k_temp"]]"` as the column
+#' name. (The former point-style syntax - `"param.k_temp"` - is still valid but
+#' deprecated) \cr
 #' For each run and thus each row, this value has to be specified in the
 #' \link[tibble]{tibble}. If the original value should instead be used, insert
 #' `NA`.\cr
-#' Each run can be identified via the `"sim_name"`, which has to be provided in
-#' the first column. \cr
+#' Each run can be identified via the `"sim_name"`, which is mandatory to
+#' specify.
 #'
 #' ```R
 #' my_params1 <- tibble(
 #'   sim_name = c("scenario1", "scenario2"),
 #'   random_seed = c(42, 404),
-#'   pftpar.1.name = c("first_tree", NA),
-#'   param.k_temp = c(NA, 0.03),
+#'   `pftpar[[1]]$name` = c("first_tree", NA),
+#'   `param$k_temp` = c(NA, 0.03),
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
 #' my_params1
 #' # A tibble: 2 x 5
-#' #   sim_name random_seed pftpar.1.name param.k_temp new_phenology
+#' #   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
 #' #   <chr>          <dbl> <chr>                <dbl> <lgl>
 #' # 1 scenario1         42 first_tree           NA    TRUE
 #' # 2 scenario2        404 NA                    0.03 FALSE
@@ -83,8 +85,9 @@
 #' the \link[tibble]{tibble} that links simulations with each other using the
 #' `"sim_name"`. \cr
 #' Do not manually set "-DFROM_RESTART" when using `"dependency"`. The same
-#' applies for LPJmL config settings "restart", "write_restart", "write_restart_filename",
-#' "restart_filename", which are set automatically by this function.
+#' applies for LPJmL config settings "restart", "write_restart",
+#' "write_restart_filename", "restart_filename", which are set automatically
+#' by this function.
 #' This way multiple runs can be performed in succession and build a
 #' conceivably endless chain or tree.
 #'
@@ -185,8 +188,8 @@
 #' my_params <- tibble(
 #'   sim_name = c("scen1", "scen2"),
 #'   random_seed = c(12, 404),
-#'   pftpar.1.name = c("first_tree", NA),
-#'   param.k_temp = c(NA, 0.03),
+#'   `pftpar[[1]]$name` = c("first_tree", NA),
+#'   `param$k_temp` = c(NA, 0.03),
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
@@ -800,7 +803,7 @@ mutate_config_param <- function(x,
 # by common list syntax
 call_by_listsyntax <- function(x, colname, param_value, all_keys) {
   # Split each keys by "[[", "[" or "$"
-  keys <- strsplit(colname, "\\[\\[|\\]\\]|\\$")[[1]]
+  keys <- strsplit(colname, "\\[\\[|\\]\\]|\\$|\\\"|\\'")[[1]]
   # Delete resulting non existing empty keys which are not allowed in the
   # following
   keys <- keys[!nchar(keys) == 0]

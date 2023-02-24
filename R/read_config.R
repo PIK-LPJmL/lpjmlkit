@@ -1,6 +1,6 @@
 #' Read an LPJmL configuration file
 #'
-#' Reads a configuration (config) file (compilable js/csjon file or json file)
+#' Reads a configuration (config) file (compilable csjon/js file or json file)
 #' and turns it into a nested list object.
 #'
 #' @param filename Character string representing path

@@ -21,8 +21,7 @@ dropped from the result. Otherwise, they are kept.}
 \value{
 Without replacement \code{value} returns an array (or vector if
 \code{drop = TRUE} and only one dimension is left) of the selected subset of
-\code{x}. If \code{value} is specified, returns an array with the same dimensions as
-\code{x} where values selected by \code{(...)} are replaced by values from \code{value}.
+\code{x}.
 }
 \description{
 Subset an array with the supplied dimnames and - if defined - replace values.

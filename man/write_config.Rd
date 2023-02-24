@@ -59,7 +59,7 @@ Run parameters \code{"order"} and \code{"dependency"} are included if defined in
 Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 specific format (see details & examples) to write the model configuration
 file \code{"config_*.json"}. Each row in the tibble corresponds to a model run.
-The generated \code{"config_*.json"} is based on a js file (e.g.: \code{"lpjml_*.js"}).
+The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.js"}).
 }
 \details{
 Supply a \link[tibble]{tibble} for \code{params}, in which each row represents
@@ -69,25 +69,27 @@ name provided as \code{js_filename} argument), which links to all other
 mandatory ".js" files. The precompilation is done internally by
 \code{\link[=write_config]{write_config()}}.\cr
 \code{write_config()} uses the column names of \code{param} as keys for the config
-json using an object-oriented like syntax, e.g. \code{"k_temp"} from \code{"param.js"}
-can be accessed with \code{"param.k_temp"} as the column name. \cr
+json using the same syntax as lists, e.g. \code{"k_temp"} from \code{"param.js"}
+can be accessed with \code{"param$k_temp"} or \verb{"param[["k_temp"]]"} as the column
+name. (The former point-style syntax - \code{"param.k_temp"} - is still valid but
+deprecated) \cr
 For each run and thus each row, this value has to be specified in the
 \link[tibble]{tibble}. If the original value should instead be used, insert
 \code{NA}.\cr
-Each run can be identified via the \code{"sim_name"}, which has to be provided in
-the first column. \cr
+Each run can be identified via the \code{"sim_name"}, which is mandatory to
+specify.
 
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params1 <- tibble(
   sim_name = c("scenario1", "scenario2"),
   random_seed = c(42, 404),
-  pftpar.1.name = c("first_tree", NA),
-  param.k_temp = c(NA, 0.03),
+  `pftpar[[1]]$name` = c("first_tree", NA),
+  `param$k_temp` = c(NA, 0.03),
   new_phenology = c(TRUE, FALSE)
 )
 
 my_params1
 # A tibble: 2 x 5
-#   sim_name random_seed pftpar.1.name param.k_temp new_phenology
+#   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
 #   <chr>          <dbl> <chr>                <dbl> <lgl>
 # 1 scenario1         42 first_tree           NA    TRUE
 # 2 scenario2        404 NA                    0.03 FALSE
@@ -99,8 +101,9 @@ the spin-up(s), a parameter \code{"dependency"}  has to be defined as a column i
 the \link[tibble]{tibble} that links simulations with each other using the
 \code{"sim_name"}. \cr
 Do not manually set "-DFROM_RESTART" when using \code{"dependency"}. The same
-applies for LPJmL config settings "restart", "write_restart", "write_restart_filename",
-"restart_filename", which are set automatically by this function.
+applies for LPJmL config settings "restart", "write_restart",
+"write_restart_filename", "restart_filename", which are set automatically
+by this function.
 This way multiple runs can be performed in succession and build a
 conceivably endless chain or tree.
 
@@ -206,8 +209,8 @@ output_path <-"./my_runs"
 my_params <- tibble(
   sim_name = c("scen1", "scen2"),
   random_seed = c(12, 404),
-  pftpar.1.name = c("first_tree", NA),
-  param.k_temp = c(NA, 0.03),
+  `pftpar[[1]]$name` = c("first_tree", NA),
+  `param$k_temp` = c(NA, 0.03),
   new_phenology = c(TRUE, FALSE)
 )
 

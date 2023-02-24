@@ -15,8 +15,7 @@
 #'
 #' @return Without replacement `value` returns an array (or vector if
 #'   `drop = TRUE` and only one dimension is left) of the selected subset of
-#'   `x`. If `value` is specified, returns an array with the same dimensions as
-#'   `x` where values selected by `(...)` are replaced by values from `value`.
+#'   `x`.
 #'
 #' @examples
 #' my_array <- array(1,
@@ -45,6 +44,8 @@ asub <- function(x,
 # value Array/vector of replacement values. Note: If `value` does not
 # have the same dimensions as selected by (`...`), automatic replication
 # is done by **R** to extend `value` to the required length.
+# If `value` is specified, returns an array with the same dimensions as
+# `x` where values selected by `(...)` are replaced by values from `value`.
 `asub<-` <- function(x, ..., value) {
   argum <- c(alist(x),
              subarray_argument(x, list(...)), alist(value))

@@ -23,7 +23,7 @@ A nested list object representing the LPJmL configuration read from
 \code{filename}.
 }
 \description{
-Reads a configuration (config) file (compilable js/csjon file or json file)
+Reads a configuration (config) file (compilable csjon/js file or json file)
 and turns it into a nested list object.
 }
 \examples{

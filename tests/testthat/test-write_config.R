@@ -1,14 +1,14 @@
 
-test_that("write correct config", {
+test_that("write correct config with dot syntax", {
 
-    test_params <- tibble::tibble(
-      sim_name = c("spinup_pnv"),
-      random_seed = as.integer(c(42)),
-      landuse = c("no"),
-      param.k_temp = c(0.03),
-      soilpar.1.name = c("clark"),
-      order = c(1),
-      dependency = c(NA),
+    test_params <- data.frame(
+      sim_name = "spinup_pnv",
+      random_seed = as.integer(42),
+      landuse = "no",
+      param.k_temp = 0.03,
+      soilpar.1.name = "clark",
+      order = 1,
+      dependency = NA
       )
 
   # create template that would usually be created by writeConfig directly
@@ -45,6 +45,44 @@ test_that("write correct config", {
       check_tibble[1, which(tmp_objects != "dependency")]))
 
 })
+
+
+test_that("write correct config with common list syntax", {
+
+    test_params <- tibble::tibble(
+      sim_name = "spinup_pnv",
+      random_seed = as.integer(42),
+      landuse = "no",
+      `param$k_temp` = 0.03,
+      `soilpar[[1]][["name"]]` = "clark",
+      dependency = NA
+      )
+
+  # create template that would usually be created by writeConfig directly
+  test_tmp <- tibble::tibble(sim_name = NA,
+                             order = NA,
+                             dependency = NA)
+  slurm_args <- c("sclass", "ntask", "wtime", "blocking")
+  test_tmp[slurm_args] <- NA
+
+  # test main function of writeConfig since writeConfig is hard to test
+  tmp_objects <- write_single_config(params = test_params,
+                                     model_path = "testthat",
+                                     output_path = "testthat",
+                                     output_list = c(),
+                                     output_list_timestep = "annual",
+                                     output_format = "clm",
+                                     js_filename = "lpjml.js",
+                                     config_tmp = test_tmp,
+                                     slurm_args = slurm_args,
+                                     test_it = TRUE)
+
+  # check json mutate functions to result in correct json file
+  check_json <- read_config("../testdata/config_spinup_pnv.json")
+  expect_true(all(unlist(tmp_objects[[1]]) %in% unlist(check_json)))
+
+})
+
 
 
 test_that("include non output defined outputvars", {
