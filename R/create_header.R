@@ -110,7 +110,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
                           nstep = 1,
                           timestep = 1,
                           endian = .Platform$endian,
-                          verbose = TRUE
+                          verbose = !testthat::is_testing()
                          ) {
   header <- list()
   if (length(name) == 1 && is.character(name)) {
@@ -201,13 +201,15 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
             datatype = as.integer(datatype)
           )
           if (verbose) {
-            cat(
-              "Setting datatype to ",
-              ifelse(get_datatype(header)$signed, "", "unsigned "),
-              typeof(get_datatype(header)$type),
-              " with size ",
-              get_datatype(header)$size, ".\n",
-              sep = ""
+            message(
+              paste0(
+                "Setting datatype to ",
+                ifelse(get_datatype(header)$signed, "", "unsigned "),
+                typeof(get_datatype(header)$type),
+                " with size ",
+                get_datatype(header)$size,
+                "."
+              )
             )
           }
         } else {

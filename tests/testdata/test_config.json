@@ -155,6 +155,7 @@
   10000.0
 ],
 "fbd_fac" : [1.0, 1.2, 1.4, 0.0],
+"fbd_int" : [1, 1, 1, 0],
 "pftpar" : [],
 "soilpar" :
 [
@@ -279,6 +280,8 @@
   "lastyear" : 1901,
   "restart" : false,
   "outputyear" : -28099,
+  "checkpoint_filename": "restart.lpj", 
+  "restart_filename" : "restart.lpj",
   "write_restart" : true,
   "write_restart_filename" : "restart/restart_1840_nv_stdfire.lpj",
   "restart_year": 1840,

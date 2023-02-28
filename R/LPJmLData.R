@@ -39,10 +39,16 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # same directory as data. This throws an error if no suitable file is
         # found.
         filename <- find_gridfile(private$.meta$._data_dir_)
-        blue_col <- "\u001b[34m"
-        unset_col <- "\u001b[0m"
-        cat(blue_col, "$grid ", unset_col, "read from ",
-            sQuote(basename(filename)), "\n", sep = "")
+
+        if (!testthat::is_testing()) {
+          message(
+            paste0(
+              col_var("grid"),
+              " read from ",
+              sQuote(basename(filename))
+            )
+          )
+        }
 
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.

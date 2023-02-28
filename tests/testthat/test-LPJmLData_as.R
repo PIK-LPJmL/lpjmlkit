@@ -16,7 +16,8 @@ test_that("basic array export", {
 test_that("array export with subset and aggregate", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_array <- output$as_array(
+  output_array <- as_array(
+    output,
     subset = list(band = "boreal needleleaved evergreen tree"),
     aggregate = list(time = mean)
   )
@@ -39,7 +40,7 @@ test_that("array export with subset and aggregate", {
 test_that("basic array export", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_tibble <- output$as_tibble()
+  output_tibble <- as_tibble(output)
 
   # read test_array and convert to tibble manually
   test_data <- readRDS("../testdata/test_array.rds")
@@ -57,7 +58,10 @@ test_that("basic array export", {
 test_that("raster export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_raster <- output$as_raster(
+  output$transform(to = "lon_lat")
+
+  output_raster <- as_raster(
+    output,
     subset = list(band = "boreal needleleaved evergreen tree"),
     aggregate = list(time = mean)
   )
@@ -137,7 +141,10 @@ test_that("raster export 3rd dim", {
 test_that("terra export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_rast <- output$as_terra(
+  output$transform(to = "lon_lat")
+
+  output_rast <- as_terra(
+    output,
     subset = list(band = "boreal needleleaved evergreen tree"),
     aggregate = list(time = mean)
   )

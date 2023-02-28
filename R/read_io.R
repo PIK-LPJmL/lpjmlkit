@@ -180,7 +180,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   descr        = NULL,
   unit         = NULL,
   name         = NULL,
-  silent       = FALSE
+  silent       = testthat::is_testing()
 ) {
   # Switch off fancy quotes but revert setting when leaving the function
   quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.
@@ -628,7 +628,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
                        additional_attributes = additional_attributes)
 
   # Convert meta data into header
-  file_header <- meta_data$as_header(silent)
+  file_header <- meta_data$as_header()
 
   # Check validity of band_names
   check_band_names(get_header_item(file_header, "nbands"),

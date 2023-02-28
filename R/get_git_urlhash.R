@@ -1,6 +1,8 @@
 # Function to get gitlab commit hash of repository path.
 #   Via include_url = TRUE url + hash is returned to be called via webbrowser.
-get_git_urlhash <- function(path, include_url = TRUE, raise_error = TRUE) {
+get_git_urlhash <- function(path = ".",
+                            include_url = TRUE,
+                            raise_error = TRUE) {
 
   # List of bash commands
   inner_commands <- paste0(
@@ -32,7 +34,8 @@ get_git_urlhash <- function(path, include_url = TRUE, raise_error = TRUE) {
   out <- processx::run(command = "bash",
                        args = c("-c", inner_commands),
                        wd = path,
-                       cleanup_tree = TRUE)
+                       cleanup_tree = TRUE,
+                       error_on_status = FALSE)
 
   # Check output, ignore errors
   if (out$stderr == "") {

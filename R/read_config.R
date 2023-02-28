@@ -64,7 +64,9 @@ read_config <- function(filename,
       path = dirname(filename),
       js_filename = basename(filename),
       from_restart = from_restart,
-      macro = macro)
+      macro = macro,
+      force_compiling = TRUE
+    )
   }
 
   # Elements included in LPJmL configurations differ between model versions.

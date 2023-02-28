@@ -13,9 +13,8 @@
 #' @param drop Logical. If `TRUE` (default), dimensions with a length of 1 are
 #'   dropped from the result. Otherwise, they are kept.
 #'
-#' @return Without replacement `value` returns an array (or vector if
-#'   `drop = TRUE` and only one dimension is left) of the selected subset of
-#'   `x`.
+#' @return array (or vector if `drop = TRUE` and only one dimension is left)
+#'   of the selected subset of `x`.
 #'
 #' @examples
 #' my_array <- array(1,
@@ -57,7 +56,7 @@ asub <- function(x,
 subset_array <- function(x,
                          subset_list = NULL,
                          drop = TRUE,
-                         silent = FALSE) {
+                         silent = testthat::is_testing()) {
 
   if (is.null(subset_list)) {
     return(x)
@@ -96,9 +95,11 @@ subset_array <- function(x,
       )
     }
   } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { # nolint:undesirable_function_linter
+
     # Remove empty subsets
     before <- names(subset_list)
     subset_list <- subset_list[which(sapply(subset_list, length) > 0)] # nolint:undesirable_function_linter.
+
     if (length(subset_list) < length(before) && !silent) {
       warning(
         paste(

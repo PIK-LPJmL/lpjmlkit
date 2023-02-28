@@ -6,23 +6,23 @@
 \usage{
 make_lpjml(
   model_path = ".",
-  nproc = NULL,
+  parallel_cores = NULL,
   make_clean = FALSE,
-  throw_error = TRUE,
+  raise_error = TRUE,
   debug = NULL
 )
 }
 \arguments{
 \item{model_path}{Character string providing the path to LPJmL
-(equal to \code{LPJROOT} environment variable)}
+(equal to \code{LPJROOT} environment variable). Defaults sto ".".}
 
-\item{nproc}{numeric. Number of N central processing units / threads to be
-used for compilation.}
+\item{parallel_cores}{Numeric defining the number of available CPU cores for
+parallelization.}
 
 \item{make_clean}{Logical. If set to \code{TRUE}, calls "make clean" first to
 remove previous installation. Defaults to \code{FALSE}.}
 
-\item{throw_error}{Logical. Whether to throw an error if sub-process has
+\item{raise_error}{Logical. Whether to raise an error if sub-process has
 non-zero exit status, hence if compilation fails. Defaults to \code{TRUE}.}
 
 \item{debug}{NULL or Logical. Whether to compile LPJmL with "-debug" flag.

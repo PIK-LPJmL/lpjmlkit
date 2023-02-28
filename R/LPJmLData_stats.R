@@ -89,7 +89,7 @@ LPJmLData$set("private",
                        cutoff = FALSE,
                        ...) {
 
-    data <- subset_array(self$data, subset)
+    data <- subset_array(self$data, subset, drop = FALSE)
 
     if (dimension %in% names(dimnames(data)) &&
         length(which(dim(data) > 1)) > 1) {
@@ -98,14 +98,16 @@ LPJmLData$set("private",
         apply(dimension, c)
 
       if (dim(mat_sum)[2] > 16 && cutoff) {
-        cat(paste0(
-          "\u001b[33;3m",
-          "Note: not printing all ",
-          dimension,
-          "s summary, use $summary() or summary() to get all.",
-          "\u001b[0m",
-          "\n")
-        )
+        if (!testthat::is_testing())
+          message(
+            paste0(
+              "\u001b[33;3m",
+              "Note: not printing all ",
+              dimension,
+              "s summary, use $summary() or summary() to get all.",
+              "\u001b[0m"
+            )
+          )
 
         mat_sum[, seq_len(16)] %>%
           summary(...)
@@ -122,25 +124,34 @@ LPJmLData$set("private",
       }
 
     } else {
-      mat_sum <- summary(matrix(data), ...)
+      # Check if dimension has length > 1 then rbind vector data to get
+      # summary for each dimension name
+      if (length(dimnames(data)[[dimension]]) > 1) {
+        mat_sum <- summary(rbind(data), ...)
+      } else {
+        mat_sum <- summary(matrix(data), ...)
+      }
+      var_name <- dimnames(data)[[dimension]]
 
+      # Handle grid data, only min and max reasonable
       if (!is.null(private$.meta$variable) &&
           private$.meta$variable == "grid") {
-        var_name <- "cell"
-        mat_sum <- mat_sum[c(1, 6), ]
-
-      } else {
-        var_name <- default(private$.meta$variable, "")
+        # Handle LPJmLGridData, "cell" for "band"
+        if (class(self)[1] == "LPJmLGridData" &&
+            private$.meta$._space_format_ == "lon_lat" &&
+            dimension == "band") {
+          var_name <- "cell"
+        }
+        mat_sum <- mat_sum[c(1, 6), , drop = FALSE]
       }
 
-      space_len <- ifelse(nchar(var_name) > 8,
-                          0,
-                          4 - sqrt(nchar(var_name)))
-
-      paste0(c(rep(" ", space_len), var_name, "\n")) %>%
-        append(paste0(mat_sum, collapse = "\n ")) %>%
-      cat()
-      return(bquote())
+      # Assign dimname(s) as name for (each) summary
+      space_len <- pmax((9 - nchar(var_name)) * 0.5, 0)
+      attr(mat_sum, "dimnames")[[2]] <- paste0(
+        sapply(space_len, function(x) paste0(rep(" ", x), collapse = "")), # nolint:undesirable_function_linter.
+        var_name
+      )
+      return(mat_sum)
     }
   }
 )

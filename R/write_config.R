@@ -421,14 +421,13 @@ write_single_config <- function(params,
                                 js_filename,
                                 config_tmp,
                                 slurm_args,
-                                test_it = FALSE,
                                 commit_hash = "") {
 
   # Read json file without simplification (to vector) to avoid destroying the
   #   original json structure (important to be readable for LPJmL).
   #   Save it as config.json (as a convention).
   if (is.null(params[["sim_name"]])) {
-    stop(cat("In params a sim_name is missing!\n"))
+    stop("In params a sim_name is missing!")
   }
 
   config_tmp$sim_name <- params[["sim_name"]]
@@ -446,14 +445,14 @@ write_single_config <- function(params,
       config_tmp$order <- params[["order"]]
 
       if (is.null(params[["dependency"]])) {
-        stop(cat(paste0(params[["sim_name"]],
-                        "'s field dependency is missing!\n")))
+        stop(paste0(params[["sim_name"]],
+                    "'s field dependency is missing!"))
       } else {
         config_tmp$dependency <- params[["dependency"]]
       }
 
     } else {
-      stop(cat(paste0(params[["sim_name"]], "'s field order not legit!\n")))
+      stop(paste0(params[["sim_name"]], "'s field order not legit!"))
     }
 
   } else {
@@ -487,8 +486,7 @@ write_single_config <- function(params,
   tmp_json <- parse_config(path = model_path,
                            from_restart = from_restart,
                            js_filename = js_filename,
-                           macro = macro,
-                           test_file = test_it) %>%
+                           macro = macro) %>%
 
     # Replace output and restart params (paths, output format & which outputs)
     mutate_config_output(params = params,
@@ -496,7 +494,7 @@ write_single_config <- function(params,
                          output_format = output_format,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
-                         dir_create = !test_it) %>%
+                         dir_create = !testthat::is_testing()) %>%
 
     # Insert parameters/keys from params data frame.
     #   Columns as keys and rows as values (values, vectors possible).
@@ -505,7 +503,7 @@ write_single_config <- function(params,
                         commit_hash = commit_hash,
                         slurm_args = slurm_args)
 
-  if (!test_it) {
+  if (!testthat::is_testing()) {
 
     # Write config json file, use sim_name for naming.
     #   Additional jsonlite::write_json arguments are very important to be
@@ -537,9 +535,9 @@ parse_config <- function(path,
                          from_restart = FALSE,
                          js_filename = "lpjml.js",
                          macro = "",
-                         test_file = FALSE) {
+                         force_compiling = FALSE) {
 
-  if (!test_file) {
+  if (!testthat::is_testing() || force_compiling) {
 
        # processx::run kills any occuring subprocesses to avoid fork bombs.
        tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
@@ -742,7 +740,8 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
   } else if (!is.null(x[["restart_filename"]]) &&
              is.null(params[["dependency"]]) &&
-             is.na(params[["restart_filename"]])) {
+             (is.na(params[["restart_filename"]]) ||
+             is.null(params[["restart_filename"]]))) {
 
     warning(paste0("With `-DFROM_RESTART` being set to TRUE",
                    " please make sure to explicitly set restart_filename in",
@@ -772,11 +771,7 @@ mutate_config_param <- function(x,
   x[["sim_githash"]] <- commit_hash
 
   # Get all keys of config that are possible to use
-  all_keys <- unlist(x) %>%
-    names() %>%
-    strsplit("[.]") %>%
-    unlist() %>%
-    unique()
+  all_keys <- names_recursively(x)
 
   for (colname in colnames(params)) {
 
@@ -808,60 +803,46 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
   # following
   keys <- keys[!nchar(keys) == 0]
 
-  # Check if config/param names only consists of letters, numbers and/or "_"
-  if (all(grepl("^[[:alnum:]_]+$", keys))) {
-
-    # Keys must be either existing in the original config or an index
-    # this is also a check to not allow any bad code to be evaluated
-    if (!all(keys %in% all_keys || grepl("^[0-9]*$", keys))) {
-      stop(
-        paste(
-          col_var(colname),
-          " consists of keys that do not exist."
-        )
-      )
-    }
-
-    # Check if config/param does exists via checking if its NULL
-    # non standard evaluation here to support using indices in combination with
-    # keys in selection via "[[" and "[""
-    if (is.null(eval(rlang::parse_expr(paste0("x$", colname))))) {
-      stop(
-        paste(
-          col_var(colname),
-          "includes a combination of keys or indices that do not exist!"
-        )
-      )
-    } else {
-      # Quote character strings for replacement
-      if (!grepl("^(TRUE|FALSE|[0-9]+)$", param_value)) {
-        param_value <- dQuote(param_value)
-      }
-
-      # Again non standard evaluation with replacement of check function of
-      # original type (R lacks distinction of float/double and integer values)
-      eval(
-        rlang::parse_expr(
-          paste0(
-            "x$",
-            colname,
-            " <- convert_integer(",
-            param_value,
-            ", x$",
-            colname,
-            ")"
-          )
-        )
-      )
-    }
-  } else {
+  # Keys must be either existing in the original config or an index
+  # this is also a check to not allow any bad code to be evaluated
+  if (!all(keys %in% all_keys || grepl("^[0-9]*$", keys))) {
     stop(
       paste(
         col_var(colname),
-        "should only consist of letters, numbers or \"_\"."
+        " consists of keys that do not exist."
       )
     )
   }
+
+  # Check if config/param does exists via checking if its NULL
+  # non standard evaluation here to support using indices in combination with
+  # keys in selection via "[[" and "[""
+  tryCatch({
+    eval(rlang::parse_expr(paste0("x$", colname)))
+    # Stop when error occures
+    }, error = function(e) {
+      stop(
+        paste(
+          col_var(colname),
+          "include a combination of keys or indices that do not exist!"
+        )
+      )
+    }
+  )
+
+  # Again non standard evaluation with replacement of check function of
+  # original type (R lacks distinction of float/double and integer values)
+  eval(
+    rlang::parse_expr(
+      paste0(
+        "x$",
+        colname,
+        " <- convert_integer(param_value, x$",
+        colname,
+        ")"
+      )
+    )
+  )
   x
 }
 
@@ -893,56 +874,40 @@ call_by_points <- function(x, colname, param_value, all_keys) {
       return(x)
     })
 
-  # Check if config/param names only consists of letters, numbers and/or "_"
-  # and also "\"" in this case (forwarding character strings)
-  if (all(grepl("^[[:alnum:]_\"\\\\]+$", keys))) {
+  # Predefine evaluation of x and its keys
+  eval_x <- paste0(
+    "x",
+    paste0("[[", keys, "]]", collapse = "")
+  )
 
-    # Predefine evaluation of x and its keys
-    eval_x <- paste0(
-      "x",
-      paste0("[[", keys, "]]", collapse = "")
-    )
-
-    # Check if config/param does exists via checking if its NULL
-    # non standard evaluation here to support using indices in combination with
-    # keys in selection via "[[" and "[""
-    if (is.null(eval(rlang::parse_expr(eval_x)))) {
+  # Check if config/param does exists via checking if its NULL
+  # non standard evaluation here to support using indices in combination with
+  # keys in selection via "[[" and "[""
+  tryCatch({
+    eval(rlang::parse_expr(eval_x))
+    # Stop when error occures
+    }, error = function(e) {
       stop(
         paste(
           col_var(colname),
           "include a combination of keys or indices that do not exist!"
         )
       )
-
-    } else {
-      # Quote character strings for replacement
-      if (!grepl("^(TRUE|FALSE|[0-9]+)$", param_value)) {
-        param_value <- dQuote(param_value)
-      }
-
-      # Again non standard evaluation with replacement of check function of
-      # original type (R lacks distinction of float/double and integer values)
-      eval(
-        rlang::parse_expr(
-          paste0(
-            eval_x,
-            " <- convert_integer(",
-            param_value,
-            ", ",
-            eval_x,
-            ")"
-          )
-        )
-      )
     }
-  } else {
-    stop(
-      paste(
-        col_var(colname),
-        "should only consist of letters, numbers or \"_\"."
+  )
+
+  # Again non standard evaluation with replacement of check function of
+  # original type (R lacks distinction of float/double and integer values)
+  eval(
+    rlang::parse_expr(
+      paste0(
+        eval_x,
+        " <- convert_integer(param_value, ",
+        eval_x,
+        ")"
       )
     )
-  }
+  )
   x
 }
 
@@ -1032,4 +997,24 @@ col_var <- function(x) {
   col_blue <- "\u001b[34m"
   unset_col <- "\u001b[0m"
   paste0(col_blue, x, unset_col)
+}
+
+
+
+# Function to get names recursively
+names_recursively <- function(x) {
+
+  # Standard names of list elements
+  y <- names(x)
+
+  # Recursion for list elements
+  y_append <- sapply(x, function(y) { # nolint:undesirable_function_linter.
+    if (is.list(y))
+      return(names_recursively(y))
+  }) %>% unlist(use.names = FALSE)
+
+  # Only return unique elements
+  append(y, y_append) %>%
+    unique() %>%
+    return()
 }

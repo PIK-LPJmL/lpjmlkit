@@ -122,9 +122,9 @@ run or submit LPJmL with each configurations (4).
 
 ```{r setup, echo = TRUE, eval = FALSE, highlight = TRUE}
 library(lpjmlkit)
-# why tibble? -> https://r4ds.had.co.nz/tibbles.html
-# tibbles also provide a better overview of the data and directly shows the type
-# of each column which is very important for integer/floating point values
+# Why tibble? -> https://r4ds.had.co.nz/tibbles.html
+# Tibbles also provide a better overview of the data and directly show the type
+# of each column, which is very important for integer/floating point values.
 library(tibble)
 
 model_path <- "./LPJmL_internal"

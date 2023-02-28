@@ -181,13 +181,10 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
-    if (model_path != "TEST/PATH") {
-      stop(
-        paste0("Folder of model_path \"", model_path, "\" does not exist!")
-      )
-    }
+    stop(
+      paste0("Folder of model_path \"", model_path, "\" does not exist!")
+    )
   }
-
   if (is.null(output_path)) output_path <- model_path
 
   # Case if character vector with file names is supplied instead of tibble
@@ -196,7 +193,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
       x,
       function(x) {
         strsplit(
-          strsplit(rev(strsplit(x, "/")[[1]])[1], "config_")[[1]][2],
+          strsplit(basename(x), "config_")[[1]][2],
           ".json"
         )[[1]]
       }
@@ -399,14 +396,15 @@ submit_run <- function(sim_name,
     # Run lpjsubmit.
     submit_status <- processx::run(command = "sh",
                                    args = c("-c", inner_command),
-                                   cleanup_tree = TRUE)
-
-    copied <- file.copy(from = paste(output_path, # nolint:object_usage_linter.
-                                     "configurations",
-                                     config_file,
-                                     sep = "/"),
-                        to = output_config)
-
+                                   cleanup_tree = TRUE,
+                                   error_on_status = FALSE)
+    if (!testthat::is_testing()) {
+      copied <- file.copy(from = paste(output_path, # nolint:object_usage_linter.
+                                       "configurations",
+                                       config_file,
+                                       sep = "/"),
+                          to = output_config)
+    }
   }, finally = {
 
     if (pre_lpjroot == "") {

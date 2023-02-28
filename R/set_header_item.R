@@ -65,8 +65,8 @@
 #'          3.0          1.0       1901.0          1.0          0.0          1.0
 #'        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
 #'          2.0          0.5          1.0          0.5          3.0          1.0
-#'     timestep 
-#'          1.0 
+#'     timestep
+#'          1.0
 #'
 #' $endian
 #' [1] "little"
@@ -124,7 +124,7 @@ set_header_item <- function(header, ...) {
   # Arguments provided to function
   args <- list(...)
   # Check that all arguments are in valid_items
-  if (any(! names(args) %in% valid_items)) {
+  if (any(! names(args) %in% c(valid_items, "verbose"))) {
     stop(
       paste(
         "Invalid item(s)",
@@ -159,9 +159,9 @@ set_header_item <- function(header, ...) {
   # datatype (these parameters can cause warnings/info prints). Otherwise,
   # suppress output of these messages.
   if (any(!sapply(args[c("name", "version", "datatype")], is.null))) { # nolint:undesirable_function_linter.
-    verbose <- TRUE
+    verbose <- ifelse(is.null(args[["verbose"]]), TRUE, args[["verbose"]])
   } else {
-    verbose <- FALSE
+    verbose <- ifelse(is.null(args[["verbose"]]), FALSE, args[["verbose"]])
   }
   tmpheader <- create_header(
     name = ifelse(is.null(args[["name"]]), header$name, args[["name"]]),

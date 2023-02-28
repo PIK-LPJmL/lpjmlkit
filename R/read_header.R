@@ -31,7 +31,10 @@
 #' * [`write_header()`] for writing headers to files.
 #'
 #' @export
-read_header <- function(filename, force_version = NULL, verbose = TRUE) {
+read_header <- function(filename,
+                        force_version = NULL,
+                        verbose = !testthat::is_testing()) {
+
   if (!file.exists(filename)) {
     stop(paste(filename, "does not exist"))
   }

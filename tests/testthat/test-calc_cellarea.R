@@ -4,13 +4,52 @@ test_that("Calculate cell area", {
   # Expect vector of floating point values with same length as lats
   testthat::expect_type(calc_cellarea(lats), "double")
   testthat::expect_length(calc_cellarea(lats), length(lats))
+
+  # Vector > 1 not supported for res_lon
+  testthat::expect_warning(
+    calc_cellarea(lats, res_lon = c(0.5, 0.5)),
+    "res_lon has length"
+  )
+
+  # Non supported type for res_lon
+  testthat::expect_error(
+    calc_cellarea(lats, res_lon = NA),
+    "Invalid longitude grid"
+  )
+
+  # Vector > 1 not supported for res_lat
+  testthat::expect_warning(
+    calc_cellarea(lats, res_lat = c(0.5, 0.5)),
+    "res_lat has length"
+  )
+
+  # Non supported type for res_lat
+  testthat::expect_error(
+    calc_cellarea(lats, res_lat = NA),
+    "Invalid latitude grid"
+  )
+
+  # Latitudes > 90 not valid
+  lats <- c(0, 24.5, 56.1, 99.4)
+  testthat::expect_error(
+    calc_cellarea(lats),
+    "Invalid latitude values in 'x'"
+  )
 })
 
 
 test_that("Calculate cell area with LPJmLData object and grid attribute", {
   output <- read_io(filename = "../testdata/output/npp.bin.json")
+
+  # Grid attribute missing
+  testthat::expect_error(
+    calc_cellarea(output),
+    "Grid attribute is missing"
+  )
+
   # perform adding a grid object
   output$add_grid()
+
   # calculate cell area for each cell
   cell_area <- calc_cellarea(output, return_unit = "km2")
 

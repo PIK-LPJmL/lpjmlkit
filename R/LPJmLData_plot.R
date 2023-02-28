@@ -199,8 +199,11 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     # (only 9 can be visualized well)
     if (z_dim %in% names(dim(data_subset)) && dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
-        subset_array(data_subset$data,
-                     as.list(stats::setNames(list(seq_len(9)), z_dim)))
+        subset_array(
+          data_subset$data,
+          as.list(stats::setNames(list(seq_len(9)), z_dim)),
+          drop = FALSE
+        )
       )
     }
 
@@ -343,7 +346,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   # Check if a supported plot type is supplied.
   if (dots$type %in% c("h", "S", "s")) {
-    stop(cat(
+    stop(
       paste0(
         "\u001b[0m",
         "Unsupported plot type ",
@@ -374,9 +377,9 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
         "\u001b[34m",
         "n",
         "\u001b[0m",
-        ".\n"
+        "."
       )
-    ))
+    )
   }
 
   opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.

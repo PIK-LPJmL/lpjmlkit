@@ -20,7 +20,7 @@ create_header(
   nstep = 1,
   timestep = 1,
   endian = .Platform$endian,
-  verbose = TRUE
+  verbose = !testthat::is_testing()
 )
 }
 \arguments{

@@ -30,7 +30,7 @@ read_io(
   descr = NULL,
   unit = NULL,
   name = NULL,
-  silent = FALSE
+  silent = testthat::is_testing()
 )
 }
 \arguments{

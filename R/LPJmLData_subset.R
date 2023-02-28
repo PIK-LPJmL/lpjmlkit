@@ -68,9 +68,9 @@ LPJmLData$set("private",
           "\u001b[34m",
           paste0(subset_dim, collapse = ", "),
           "\u001b[0m",
-          " is defined in subset_list, but x has the wrong format. Use ",
+          " is defined as subset, but x has the wrong format. Use ",
           "\u001b[34m",
-          "format(\"",
+          "transform(to = \"",
           format,
           "\")",
           "\u001b[0m",
@@ -114,24 +114,12 @@ LPJmLData$set("private",
     if ("cell" %in% names(subset_list)) {
       subset_space_dim <- "cell"
 
-      # Fail if current space_format is not "cell"
-      if (private$.meta$._space_format_ != "cell") {
-        stop_format(subset_space_dim, "cell")
-      }
+    # Assign subset_space_dim for format "lat_lon"
+    } else if (any(lon_lat %in% names(subset_list))) {
+      subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
 
     } else {
       subset_space_dim <- NULL
-    }
-
-    # Assign subset_space_dim for format "lat_lon"
-    if (any(lon_lat %in% names(subset_list))) {
-
-      subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
-
-      # Fail if current space_format is not "lon_lat"
-      if (private$.meta$._space_format_ != "lon_lat") {
-        stop_format(subset_space_dim, "lon_lat")
-      }
     }
 
     # Apply subset without coords (subsetting by coords done already)
@@ -187,7 +175,6 @@ LPJmLData$set("private",
     if (coords %in% names(subset_list)) {
       subset_list$lat <- subset_list[[coords]]$lat
       subset_list$lon <- subset_list[[coords]]$lon
-      subset_space_dim <- c("lon", "lat")
       subset_list[[coords]] <- NULL
     }
 

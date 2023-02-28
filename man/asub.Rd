@@ -19,9 +19,8 @@ dimension. Examples: \code{cell = c(27411:27416)}, \code{band = -c(14:16, 19:32)
 dropped from the result. Otherwise, they are kept.}
 }
 \value{
-Without replacement \code{value} returns an array (or vector if
-\code{drop = TRUE} and only one dimension is left) of the selected subset of
-\code{x}.
+array (or vector if \code{drop = TRUE} and only one dimension is left)
+of the selected subset of \code{x}.
 }
 \description{
 Subset an array with the supplied dimnames and - if defined - replace values.
