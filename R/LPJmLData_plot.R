@@ -85,6 +85,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
               function(subset = NULL,
                        aggregate = NULL,
                        raster_extent = NULL,
+                       sub = NULL,
                        ...) {
 
   time_dims <- strsplit(private$.meta$._time_format_, "_")[[1]]
@@ -148,6 +149,9 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
 
     # Add default axis labels to plot
     var_title <- paste0(descr, " [", unit, "]")
+
+    if (!is.null(sub))
+      dots$sub <- sub
 
     if (is.null(dots$ylab)) {
       dots$ylab <- ifelse(is.null(dots$main), "", var_title)
@@ -225,13 +229,66 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       as_raster() %>%
       `if`(!is.null(raster_extent), raster::crop(., y = raster_extent), .)
 
-    # do.call to use dots list as ellipsis, addfun is a workaround to use
-    #   country map overlay for every plot
-    do.call(raster::plot,
-            c(list(x = data_ras,
-                   main = paste0(var_title, ": ", gsub("X", "", names(data_ras))), # nolint
-                   addfun = function() maps::map(add = TRUE, lwd = 0.3)),
-              dots))
+    if (is.null(dots$zlim)) {
+       zlim <- NULL
+    } else {
+       zlim <- dots$zlim
+       dots <- dots[names(dots) != "zlim"]
+    }
+    if (is.null(dots$col)) {
+      map_col <- rev(grDevices::terrain.colors(255))
+      # Adjust color scale and zlim for plots with positive and negative values.
+      if (any((raster::minValue(data_ras)) < 0 &&
+          any(raster::maxValue(data_ras) > 0))) {
+        map_col <- replicate(n = raster::nlayers(data_ras),
+          expr = rev(grDevices::terrain.colors(255)), simplify = FALSE)
+        zlim <- mapply(FUN = c, raster::minValue(data_ras), # nolint:undesirable_function_linter.
+          raster::maxValue(data_ras), SIMPLIFY = FALSE)
+        neg_and_pos <- intersect(which(raster::minValue(data_ras) < 0),
+        which(raster::maxValue(data_ras) > 0))
+        map_col[neg_and_pos] <-
+          list(colorRampPalette(RColorBrewer::brewer.pal(10, "RdYlBu"))(60))
+        zlim[neg_and_pos] <- lapply(X = zlim[neg_and_pos],
+          FUN = function(x) {
+            return(c(-max(abs(x)), max(abs(x))))
+            })
+      }
+    } else {
+      map_col <- dots$col
+      dots <- dots[names(dots) != "col"]
+    }
+
+    nr_nc <- switch(as.character(raster::nlayers(data_ras)), "1" = c(1, 1),
+    "2" = c(1, 2),
+    "3" = c(2, 2),
+    "4" = c(2, 2),
+    "5" = c(2, 3),
+    "6" = c(2, 3),
+    c(3, 3))
+
+    if (is.list(zlim) || is.list(map_col)) {
+      withr::with_par(mfrow = nr_nc,
+        invisible(mapply(FUN = raster::plot, # nolint:undesirable_function_linter.
+          x = lapply(X = seq_len(raster::nlayers(data_ras)),
+            FUN = function(x) {
+              return(raster::subset(data_ras, x))
+            }),
+          main = paste0(var_title, ": ", gsub("X", "", names(data_ras))),
+            col = map_col, zlim = zlim,
+            MoreArgs = list(addfun = function() {
+              maps::map(add = TRUE, lwd = 0.3)},
+              dots)))
+      )
+    } else {
+      # do.call to use dots list as ellipsis, addfun is a workaround to use
+      # country map overlay for every plot
+      do.call(raster::plot,
+              c(list(x = data_ras,
+                     main = paste0(var_title, ": ", gsub("X", "", names(data_ras))), # nolint
+                     addfun = function() maps::map(add = TRUE, lwd = 0.3),
+                     col = map_col, zlim = zlim),
+                dots))
+    }
   }
 })
 
