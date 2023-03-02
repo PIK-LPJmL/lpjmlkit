@@ -85,6 +85,8 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
               function(subset = NULL,
                        aggregate = NULL,
                        raster_extent = NULL,
+                       # only to prevent a bug that sub ist interpreted as
+                       # subset by R
                        sub = NULL,
                        ...) {
 
@@ -235,6 +237,8 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
        zlim <- dots$zlim
        dots <- dots[names(dots) != "zlim"]
     }
+
+    # Set color scale of raster plot
     if (is.null(dots$col)) {
       map_col <- rev(grDevices::terrain.colors(255))
       # Adjust color scale and zlim for plots with positive and negative values.
@@ -247,7 +251,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
         neg_and_pos <- intersect(which(raster::minValue(data_ras) < 0),
         which(raster::maxValue(data_ras) > 0))
         map_col[neg_and_pos] <-
-          list(colorRampPalette(RColorBrewer::brewer.pal(10, "RdYlBu"))(60))
+          list(grDevices::cm.colors(255))
         zlim[neg_and_pos] <- lapply(X = zlim[neg_and_pos],
           FUN = function(x) {
             return(c(-max(abs(x)), max(abs(x))))
@@ -267,8 +271,8 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     c(3, 3))
 
     if (is.list(zlim) || is.list(map_col)) {
-      withr::with_par(mfrow = nr_nc,
-        invisible(mapply(FUN = raster::plot, # nolint:undesirable_function_linter.
+      withr::with_par(new = list(mfrow = nr_nc),
+        code = invisible(mapply(FUN = raster::plot, # nolint:undesirable_function_linter.
           x = lapply(X = seq_len(raster::nlayers(data_ras)),
             FUN = function(x) {
               return(raster::subset(data_ras, x))
@@ -436,53 +440,53 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     ))
   }
 
-  opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.
-
   # do.call for use of ellipsis via dots list.
   #   subset_array for dynamic subsetting of flexible legend_dim.
-  do.call(graphics::plot,
-          c(x = list(subset_array(raw_data,
-                                  as.list(stats::setNames(1, legend_dim)))),
-            col = cols[1],
-            dots))
+  withr::with_par(new = list(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE),
+    code = {
+      do.call(graphics::plot,
+            c(x = list(subset_array(raw_data,
+                                    as.list(stats::setNames(1, legend_dim)))),
+              col = cols[1],
+              dots))
 
-  # Set breaks depending on length of time series
-  if (x_dim %in% c("time", "year")) {
-    if (lpjml_data$meta$nyear > 100) {
-      brks <- 20
-    } else if (lpjml_data$meta$nyear > 50) {
-      brks <- 10
-    } else if (lpjml_data$meta$nyear > 25) {
-      brks <- 5
-    } else if (lpjml_data$meta$nyear > 10) {
-      brks <- 2
-    } else {
-      brks <- 1
+      # Set breaks depending on length of time series
+      if (x_dim %in% c("time", "year")) {
+        if (lpjml_data$meta$nyear > 100) {
+          brks <- 20
+        } else if (lpjml_data$meta$nyear > 50) {
+          brks <- 10
+        } else if (lpjml_data$meta$nyear > 25) {
+          brks <- 5
+        } else if (lpjml_data$meta$nyear > 10) {
+          brks <- 2
+        } else {
+          brks <- 1
+        }
+
+        # Set nstep only if time dimension, leads to month inbetween years
+        #   if lpjml_data$meta$nstep > 1
+        nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
+
+        # set tickmarks and label for time or year dim
+        at_ticks <- seq(1,
+                        lpjml_data$meta$nyear * nstep,
+                        by = brks * nstep)
+
+        graphics::axis(side = 1,
+                       at = at_ticks,
+                       labels = dimnames(raw_data)[[x_dim]][at_ticks])
+      }
+
+      for (i in cols[-1]) {
+      # subset_array for dynamic subsetting of flexible legend_dim
+        graphics::lines(subset_array(raw_data,
+                                     as.list(stats::setNames(i, legend_dim))),
+                        col = cols[i],
+                        type = dots$type)
+      }
     }
-
-    # Set nstep only if time dimension, leads to month inbetween years
-    #   if lpjml_data$meta$nstep > 1
-    nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
-
-    # set tickmarks and label for time or year dim
-    at_ticks <- seq(1,
-                    lpjml_data$meta$nyear * nstep,
-                    by = brks * nstep)
-
-    graphics::axis(side = 1,
-                   at = at_ticks,
-                   labels = dimnames(raw_data)[[x_dim]][at_ticks])
-  }
-
-  for (i in cols[-1]) {
-
-  # subset_array for dynamic subsetting of flexible legend_dim
-    graphics::lines(subset_array(raw_data,
-                                 as.list(stats::setNames(i, legend_dim))),
-                    col = cols[i],
-                    type = dots$type)
-  }
-
+  )
   # Calculate length of longest string in legend to not overlap
   char_len <- dimnames(raw_data)[[legend_dim]] %>%
     .[which.max(nchar(.))]
@@ -515,7 +519,6 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     legend = dimnames(raw_data)[[legend_dim]][cols],
     bty = "n"
   )
-  graphics::par(opar) %>% invisible() # nolint:undesirable_function_linter.
 
   # Create grid, special case for time, year because of specified x axis
   if (x_dim %in% c("time", "year")) {

@@ -36,7 +36,8 @@ Imports:
     foreach,
     utils,
     methods,
-    abind
+    abind,
+    withr
 Suggests:
     rmarkdown,
     knitr,
@@ -46,4 +47,4 @@ Suggests:
     reshape2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-03-01
+Date: 2023-03-02
