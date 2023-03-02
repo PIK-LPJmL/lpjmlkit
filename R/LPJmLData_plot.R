@@ -242,8 +242,8 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     if (is.null(dots$col)) {
       map_col <- rev(grDevices::terrain.colors(255))
       # Adjust color scale and zlim for plots with positive and negative values.
-      if (any((raster::minValue(data_ras)) < 0 &&
-          any(raster::maxValue(data_ras) > 0))) {
+      if (length(intersect(which(raster::minValue(data_ras) < -1e16),
+        which(raster::maxValue(data_ras) > 1e16)))) {
         map_col <- replicate(n = raster::nlayers(data_ras),
           expr = rev(grDevices::terrain.colors(255)), simplify = FALSE)
         zlim <- mapply(FUN = c, raster::minValue(data_ras), # nolint:undesirable_function_linter.
