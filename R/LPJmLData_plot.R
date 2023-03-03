@@ -357,6 +357,8 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
       ", ",
       "\u001b[34m",
       "l",
+      "\u001b[0m",
+      ", ",
       "\u001b[34m",
       "b",
       "\u001b[0m",
