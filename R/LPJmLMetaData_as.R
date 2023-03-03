@@ -45,7 +45,7 @@ LPJmLMetaData$set(
   "private",
   ".as_header",
   # as_header method roxygen documentation in LPJmlMetaData.R
-  function(silent = TRUE) {
+  function(silent = testthat::is_testing()) {
 
     header <- create_header(
       name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),
