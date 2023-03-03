@@ -472,8 +472,8 @@ LPJmLData$set("private",
 
     } else if (!is.null(aggregate)) {
       stop(
-        "Only non-spatial and existing dimensions are valid for",
-        "aggregate. Please adjust",
+        "Only non-spatial and existing dimensions are valid for ",
+        "aggregate. Please adjust ",
         toString(dQuote(names(aggregate)))
       )
     }
