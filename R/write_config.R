@@ -809,7 +809,7 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
 
   # Keys must be either existing in the original config or an index
   # this is also a check to not allow any bad code to be evaluated
-  if (!all(keys %in% all_keys || grepl("^[0-9]*$", keys))) {
+  if (!all(keys %in% all_keys | grepl("^[0-9]*$", keys))) {
     stop(
       paste(
         col_var(colname),

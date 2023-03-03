@@ -44,7 +44,8 @@ Suggests:
     testthat (>= 3.0.0),
     terra,
     raster,
-    reshape2
+    reshape2,
+    maps
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Date: 2023-02-24
