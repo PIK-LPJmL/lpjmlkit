@@ -3,6 +3,9 @@ testthat::test_that("Plot basic output", {
 
   output <- read_io(filename = "../testdata/output/npp.bin.json")
 
+  # Send to NULL file to avoid plots being written or shown
+  pdf(file = NULL)
+
   # Plot a time series
   testthat::expect_message(
     plot(output),
@@ -15,6 +18,7 @@ testthat::test_that("Plot basic output", {
     plot(output)
   )
 
+  dev.off()
 })
 
 

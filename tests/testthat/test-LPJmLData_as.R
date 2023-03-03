@@ -80,10 +80,10 @@ test_that("raster export lon_lat", {
       list(band = "boreal needleleaved evergreen tree"),
       drop = FALSE
     ) %>%
-    apply(c("lat", "lon"), mean)
+    apply(c("lon", "lat"), mean)
   # lat dimension has to be reverted to convert to raster
   test_raster <- raster::raster(
-    test_data[rev(seq_len(dim(test_data)[["lat"]])), , drop = FALSE],
+    test_data[, seq_len(dim(test_data)[["lat"]]), drop = FALSE],
     template = tmp_raster
   )
   # add variable as layer name

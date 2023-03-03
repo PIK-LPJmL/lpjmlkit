@@ -270,7 +270,7 @@
   "crop_irrigation" : false,
   "output" :
   [
-    { "id" : "grid", "file" : { "fmt" : "clm", "name" : "testthat/output/spinup_pnv/grid.clm"}}
+    { "id" : "grid", "file" : { "fmt" : "clm", "name" : "../testdata/output/spinup_pnv/grid.clm"}}
   ],
   "startgrid" : "all",
   "endgrid" : -1,
@@ -283,7 +283,7 @@
   "checkpoint_filename": "restart.lpj", 
   "restart_filename" : "restart.lpj",
   "write_restart" : true,
-  "write_restart_filename" : "testthat/restart/spinup_pnv/restart.lpj",
+  "write_restart_filename" : "../testdata/restart/spinup_pnv/restart.lpj",
   "restart_year": 1840,
   "sim_githash": ""
 }

@@ -126,7 +126,7 @@ test_that("test summary method", {
     output,
     subset = list(cell = 1, time = 1),
   )
-  output_sub <- output$subset(cell = 1, time = 1)
+  output_sub <- subset(output, cell = 1, time = 1)
   testthat::expect_equal(
     gsub(" ", "", dimnames(output_sub)$band),
     gsub(" ", "", attr(out_sum2, "dimnames")[[2]])

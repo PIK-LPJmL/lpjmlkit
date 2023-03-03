@@ -63,7 +63,7 @@ create_time_names <- function(
 
   # Currently no support for other (special) nstep cases
   } else {
-    stop(paste0("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365"))
+    stop("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365")
   }
 
   return(time_dimnames)

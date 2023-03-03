@@ -134,7 +134,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
       yearcell = 2,
       cellindex = 3,
       cellseq = 4,
-      stop(paste("Invalid order string", sQuote(order)))
+      stop("Invalid order string ", sQuote(order))
     )
   }
   if (length(datatype) == 1 && is.character(datatype)) {
@@ -145,7 +145,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
       int = 2,
       float = 3,
       double = 4,
-      stop(paste("Invalid datatype string", sQuote(datatype)))
+      stop("Invalid datatype string ", sQuote(datatype))
     )
   }
   header[["header"]] <- numeric(0)
@@ -167,7 +167,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
       header[["header"]] <- c(header[["header"]], as.integer(get(check)))
       names(header[["header"]])[length(header[["header"]])] <- check
     } else {
-      stop(paste(sQuote(check), "must be an integer of length 1"))
+      stop(sQuote(check), " must be an integer of length 1")
     }
   }
   if (version >= 2) {
@@ -178,7 +178,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         header[["header"]] <- c(header[["header"]], as.double(get(check)))
         names(header[["header"]])[length(header[["header"]])] <- check
       } else {
-        stop(paste(sQuote(check), "must be a float of length 1"))
+        stop(sQuote(check), " must be a float of length 1")
       }
     }
     # Check that valid values have been provided for additional parameters in
@@ -512,10 +512,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
     header[["endian"]] <- endian
   } else {
     stop(
-      paste0(
-        "Endian must be either 'big' or 'little'. Provided value: ",
-        sQuote(endian), "."
-      )
+      "Endian must be either 'big' or 'little'. Provided value: ",
+      sQuote(endian), "."
     )
   }
   header

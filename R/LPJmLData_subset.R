@@ -64,18 +64,16 @@ LPJmLData$set("private",
     # Function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {
       stop(
-        paste0(
-          "\u001b[34m",
-          paste0(subset_dim, collapse = ", "),
-          "\u001b[0m",
-          " is defined as subset, but x has the wrong format. Use ",
-          "\u001b[34m",
-          "transform(to = \"",
-          format,
-          "\")",
-          "\u001b[0m",
-          " to convert into suitable format."
-        ),
+        "\u001b[34m",
+        paste0(subset_dim, collapse = ", "),
+        "\u001b[0m",
+        " is defined as subset, but x has the wrong format. Use ",
+        "\u001b[34m",
+        "transform(to = \"",
+        format,
+        "\")",
+        "\u001b[0m",
+        " to convert into suitable format.",
         call. = FALSE
       )
     }

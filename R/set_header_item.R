@@ -159,9 +159,9 @@ set_header_item <- function(header, ...) {
   # datatype (these parameters can cause warnings/info prints). Otherwise,
   # suppress output of these messages.
   if (any(!sapply(args[c("name", "version", "datatype")], is.null))) { # nolint:undesirable_function_linter.
-    verbose <- ifelse(is.null(args[["verbose"]]), TRUE, args[["verbose"]])
+    verbose <- default(args[["verbose"]], TRUE)
   } else {
-    verbose <- ifelse(is.null(args[["verbose"]]), FALSE, args[["verbose"]])
+    verbose <- default(args[["verbose"]], FALSE)
   }
   tmpheader <- create_header(
     name = ifelse(is.null(args[["name"]]), header$name, args[["name"]]),

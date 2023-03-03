@@ -181,9 +181,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
-    stop(
-      paste0("Folder of model_path \"", model_path, "\" does not exist!")
-    )
+    stop("Folder of model_path \"", model_path, "\" does not exist!")
   }
   if (is.null(output_path)) output_path <- model_path
 

@@ -100,13 +100,11 @@ LPJmLData$set("private",
       if (dim(mat_sum)[2] > 16 && cutoff) {
         if (!testthat::is_testing())
           message(
-            paste0(
-              "\u001b[33;3m",
-              "Note: not printing all ",
-              dimension,
-              "s summary, use $summary() or summary() to get all.",
-              "\u001b[0m"
-            )
+            "\u001b[33;3m",
+            "Note: not printing all ",
+            dimension,
+            "s summary, use $summary() or summary() to get all.",
+            "\u001b[0m"
           )
 
         mat_sum[, seq_len(16)] %>%

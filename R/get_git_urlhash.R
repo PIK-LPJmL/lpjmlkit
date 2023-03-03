@@ -43,9 +43,9 @@ get_git_urlhash <- function(path = ".",
   } else {
 
     if (raise_error) {
-      stop(paste0("For path \"", path, "\": ", out$stderr), call. = FALSE)
+      stop("For path \"", path, "\": ", out$stderr, call. = FALSE)
     } else {
-      warning(paste0("For path \"", path, "\": ", out$stderr), call. = FALSE)
+      warning("For path \"", path, "\": ", out$stderr, call. = FALSE)
       return("")
     }
   }

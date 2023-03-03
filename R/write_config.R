@@ -265,9 +265,7 @@ write_config <- function(params,
 
   # Check if model_path is valid
   if (!dir.exists(model_path)) {
-    stop(
-      paste0("Folder of model_path \"", model_path, "\" does not exist!")
-    )
+    stop("Folder of model_path \"", model_path, "\" does not exist!")
   }
 
   # If output_path is not supplied use model_path as output_path
@@ -343,10 +341,12 @@ write_config <- function(params,
         if (e != "") {
 
           # Error with hint to use the debug argument
-          stop(paste0(e,
-                      "\nPlease use argument debug = TRUE for traceback ",
-                      "functionality"),
-               call. = FALSE)
+          stop(
+            e,
+            "Please use argument debug = TRUE for traceback ",
+            " functionality",
+            call. = FALSE
+          )
         } else {
 
           # Hint to use the debug argument
@@ -427,7 +427,7 @@ write_single_config <- function(params,
   #   original json structure (important to be readable for LPJmL).
   #   Save it as config.json (as a convention).
   if (is.null(params[["sim_name"]])) {
-    stop("In params a sim_name is missing!")
+    stop("A sim_name is missing in params.")
   }
 
   config_tmp$sim_name <- params[["sim_name"]]
@@ -445,14 +445,13 @@ write_single_config <- function(params,
       config_tmp$order <- params[["order"]]
 
       if (is.null(params[["dependency"]])) {
-        stop(paste0(params[["sim_name"]],
-                    "'s field dependency is missing!"))
+        stop(params[["sim_name"]], "'s field dependency is missing!")
       } else {
         config_tmp$dependency <- params[["dependency"]]
       }
 
     } else {
-      stop(paste0(params[["sim_name"]], "'s field order not legit!"))
+      stop(params[["sim_name"]], "'s order is not valid!")
     }
 
   } else {
@@ -534,31 +533,24 @@ write_single_config <- function(params,
 parse_config <- function(path,
                          from_restart = FALSE,
                          js_filename = "lpjml.js",
-                         macro = "",
-                         force_compiling = FALSE) {
+                         macro = "") {
 
-  if (!testthat::is_testing() || force_compiling) {
+   # processx::run kills any occuring subprocesses to avoid fork bombs.
+   tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
+                             args = c(
+                               "-c",
+                               paste0("cpp -P ./",
+                                      js_filename,
+                                      ifelse(from_restart,
+                                             " -DFROM_RESTART ",
+                                             " "),
+                                      paste(macro, collapse = " "))
+                             ),
+                             wd = path,
+                             cleanup_tree = TRUE)$stdout %>%
+    jsonlite::parse_json(simplify = FALSE)
 
-       # processx::run kills any occuring subprocesses to avoid fork bombs.
-       tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
-                                 args = c(
-                                   "-c",
-                                   paste0("cpp -P ./",
-                                          js_filename,
-                                          ifelse(from_restart,
-                                                 " -DFROM_RESTART ",
-                                                 " "),
-                                          paste(macro, collapse = " "))
-                                 ),
-                                 wd = path,
-                                 cleanup_tree = TRUE)$stdout %>%
-         jsonlite::parse_json(simplify = FALSE)
-
-  } else {
-    test_json <- read_config("../testdata/test_config.json")
-
-    return(test_json)
-  }
+  tmp_json
 }
 
 
@@ -627,9 +619,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         new_output[["file"]][["fmt"]] <- ifelse(
           length(output_format) == 1 && is.character(output_format),
           ifelse(output_list[id_ov] == "globalflux", "txt", output_format),
-          stop(paste0("No valid output_format. Please choose in from \"raw\"",
-                      " \"clm\" or \"cdf\" in form of a single character ",
-                      "string."))
+          stop(
+            "No valid output_format. Please choose in from \"raw\"",
+            " \"clm\" or \"cdf\" in form of a single character ",
+            "string."
+          )
         )
 
         # Output_timestep could be supplied as a single character string
@@ -644,9 +638,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                                       "monthly",
                                                       "annual"),
             stats::na.omit(output_timestep)[1],
-            stop(paste0("No valid output_timestep. Please choose from ",
-                        "\"daily\", \"monthly\" or \"annual\" in form of",
-                        " a single character string."))
+            stop(
+              "No valid output_timestep. Please choose from ",
+              "\"daily\", \"monthly\" or \"annual\" in form of",
+              " a single character string."
+            )
           )
 
         } else if (length_output_timestep == length(output_list) &&
@@ -655,16 +651,20 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           new_output[["file"]][["timestep"]] <- ifelse(
             output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
             output_timestep[id_ov],
-            stop(paste0("No valid output_timestep. Please choose of \"daily\"",
-                        " \"monthly\" or \"annual\" in form of a single ",
-                        "character string."))
+            stop(
+              "No valid output_timestep. Please choose of \"daily\"",
+              " \"monthly\" or \"annual\" in form of a single ",
+              "character string."
+            )
           )
 
         } else if (
           !(length_output_timestep %in% c(1, length(output_list)))) {
-          stop(paste0("output_timestep does not have a valid length. Please ",
-                      "supply either a single character string or a vector ",
-                      "matching the length of output_list."))
+          stop(
+            "output_timestep does not have a valid length. Please ",
+            "supply either a single character string or a vector ",
+            "matching the length of output_list."
+          )
         }
 
         # Adjust correct units to avoid correction factors in LPJmL
@@ -706,10 +706,12 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
       } else {
 
         # If ID not available print warning
-        warning(paste0("Output with ID ",
-                       output_list[id_ov],
-                       " is not available in current model version",
-                       " (not defined in outputvars.js)."))
+        warning(
+          "Output with ID ",
+          output_list[id_ov],
+          " is not available in current model version",
+          " (not defined in outputvars.js)."
+        )
       }
     }
   }
@@ -743,9 +745,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
              (is.na(params[["restart_filename"]]) ||
              is.null(params[["restart_filename"]]))) {
 
-    warning(paste0("With `-DFROM_RESTART` being set to TRUE",
-                   " please make sure to explicitly set restart_filename in",
-                   " params. Otherwise, the original entry is used."))
+    warning(
+      "With `-DFROM_RESTART` being set to TRUE",
+      " please make sure to explicitly set restart_filename in",
+      " params. Otherwise, the original entry is used."
+    )
   }
 
   x[["write_restart_filename"]] <- paste0(rpath, "restart.lpj")
@@ -863,12 +867,10 @@ call_by_points <- function(x, colname, param_value, all_keys) {
         x <- dQuote(x)
       } else if (!grepl("^[0-9]*$", x)) {
         stop(
-          paste0(
-            col_var(colname),
-            " consists of key(s) (",
-            x,
-            ") that do not exist."
-          )
+          col_var(colname),
+          " consists of key(s) (",
+          x,
+          ") that do not exist."
         )
       }
       return(x)
@@ -888,10 +890,8 @@ call_by_points <- function(x, colname, param_value, all_keys) {
     # Stop when error occures
     }, error = function(e) {
       stop(
-        paste(
-          col_var(colname),
-          "include a combination of keys or indices that do not exist!"
-        )
+        col_var(colname),
+        " include a combination of keys or indices that do not exist!"
       )
     }
   )

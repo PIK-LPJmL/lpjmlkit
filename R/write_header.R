@@ -51,21 +51,17 @@ write_header <- function(filename, header, overwrite = FALSE) {
   )
   if (anyNA(header$header[header_elements])) {
     stop(
-      paste0(
-        "Header values must not be set to NA. Please check: ",
-        toString(sQuote(names(which(is.na(header$header[header_elements])))))
-      )
+      "Header values must not be set to NA. Please check: ",
+      toString(sQuote(names(which(is.na(header$header[header_elements])))))
     )
   }
   if (header$header["version"] > 1) {
     if (anyNA(header$header[c("cellsize_lon", "scalar")])) {
       stop(
-        paste0(
-          "Header values must not be set to NA. Please check: ",
-          toString(
-            sQuote(
-              names(which(is.na(header$header[c("cellsize_lon", "scalar")])))
-            )
+        "Header values must not be set to NA. Please check: ",
+        toString(
+          sQuote(
+            names(which(is.na(header$header[c("cellsize_lon", "scalar")])))
           )
         )
       )
@@ -74,12 +70,10 @@ write_header <- function(filename, header, overwrite = FALSE) {
   if (header$header["version"] > 2) {
     if (anyNA(header$header[c("cellsize_lat", "datatype")])) {
       stop(
-        paste0(
-          "Header values must not be set to NA. Please check: ",
-          toString(
-            sQuote(
-              names(which(is.na(header$header[c("cellsize_lat", "datatype")])))
-            )
+        "Header values must not be set to NA. Please check: ",
+        toString(
+          sQuote(
+            names(which(is.na(header$header[c("cellsize_lat", "datatype")])))
           )
         )
       )
@@ -88,12 +82,10 @@ write_header <- function(filename, header, overwrite = FALSE) {
   if (header$header["version"] > 3) {
     if (anyNA(header$header[c("nstep", "timestep")])) {
       stop(
-        paste0(
-          "Header values must not be set to NA. Please check: ",
-          toString(
-            sQuote(
-              names(which(is.na(header$header[c("nstep", "timestep")])))
-            )
+        "Header values must not be set to NA. Please check: ",
+        toString(
+          sQuote(
+            names(which(is.na(header$header[c("nstep", "timestep")])))
           )
         )
       )
@@ -104,14 +96,12 @@ write_header <- function(filename, header, overwrite = FALSE) {
   if (file.exists(filename)) {
     if (!overwrite) {
       stop(
-        paste(
-          filename,
-          "exists already. Set overwrite to TRUE",
-          "if you want to force it to be overwritten"
-        )
+        filename,
+        " exists already. Set overwrite to TRUE",
+        " if you want to force it to be overwritten"
       )
     }
-    warning(paste(filename, "exists already and will be overwritten"))
+    warning(filename, " exists already and will be overwritten")
   }
   # Write header to file
   fp <- file(filename, "wb")

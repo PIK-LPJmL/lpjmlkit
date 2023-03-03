@@ -56,6 +56,7 @@ testthat::test_that("check submit_lpjml with character string", {
 
 testthat::test_that("raise submit_lpjml errors", {
 
+  # Check if directory is valid
   testthat::expect_error(
     submit_lpjml(
       "./config_scen1_spinup.json",
@@ -69,7 +70,7 @@ testthat::test_that("raise submit_lpjml errors", {
 
 testthat::test_that("raise run_lpjml errors", {
 
-
+  # Check if directory is valid
   testthat::expect_error(
     run_lpjml(
       "./config_scen1_spinup.json",
@@ -78,6 +79,7 @@ testthat::test_that("raise run_lpjml errors", {
     "Folder of model_path"
   )
 
+  # Check if system command failes
   testthat::expect_error(
     run_lpjml(
       "./config_scen1_spinup.json"
@@ -85,6 +87,7 @@ testthat::test_that("raise run_lpjml errors", {
     "System command"
   )
 
+  # Check if working in a SLURM job environment
   testthat::expect_error(
     run_lpjml(
       "./config_scen1_spinup.json",
@@ -99,12 +102,14 @@ testthat::test_that("raise run_lpjml errors", {
     dependency = c(NA, "scen1_spinup"),
   )
 
+  # Complete run_lpjml without raising an error when running LPJmL fails
   test_run <- run_lpjml(
     test_params,
     raise_error = FALSE
   )
   testthat::expect_true("run" %in% test_run$status)
 
+  # Check if working in a SLURM job environment (other conditions with tibble)
   testthat::expect_error(
     run_lpjml(
       test_params,

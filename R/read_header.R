@@ -36,7 +36,7 @@ read_header <- function(filename,
                         verbose = !testthat::is_testing()) {
 
   if (!file.exists(filename)) {
-    stop(paste(filename, "does not exist"))
+    stop(filename, " does not exist")
   }
   # Open binary connection to file.
   zz <- file(filename, "rb")
@@ -52,7 +52,7 @@ read_header <- function(filename,
   # Header names start with "LPJ". Test if valid value.
   if (substr(headername, 1, 3) != "LPJ") {
     close(zz)
-    stop(paste("Invalid header name", headername))
+    stop("Invalid header name ", headername)
   }
   if (headername == "LPJRESTART") {
     close(zz)

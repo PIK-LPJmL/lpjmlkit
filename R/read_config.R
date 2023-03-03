@@ -64,8 +64,7 @@ read_config <- function(filename,
       path = dirname(filename),
       js_filename = basename(filename),
       from_restart = from_restart,
-      macro = macro,
-      force_compiling = TRUE
+      macro = macro
     )
   }
 

@@ -44,7 +44,7 @@
 #' | scen2_transient |
 #'
 #' To perform subsequent or rather dependent runs the optional run parameter
-#' `"dependency"` need to be provided within the initial
+#' `"dependency"` needs to be provided within the initial
 #' \link[tibble]{tibble} supplied as `param` to [`write_config()`].
 #'
 #' | **sim_name**    | **order** | **dependency** |
@@ -151,9 +151,7 @@ run_lpjml <- function(x,
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
-    stop(
-      paste0("Folder of model_path \"", model_path, "\" does not exist.")
-    )
+    stop("Folder of model_path \"", model_path, "\" does not exist.")
   }
   if (is.null(output_path)) output_path <- model_path
 
@@ -188,9 +186,11 @@ run_lpjml <- function(x,
           sim_names, model_path, output_path, parallel_cores, raise_error
         )
       } else {
-        stop(paste0("Parallelization is only supported for slurm jobs. Also",
-                    " please set parallel_cores to a value between 1 (non",
-                    " parallel) and n parallel cores/nodes."))
+        stop(
+          "Parallelization is only supported for slurm jobs. Also",
+          " please set parallel_cores to a value between 1 (non",
+          " parallel) and n parallel cores/nodes."
+        )
       }
     }
 
@@ -204,9 +204,11 @@ run_lpjml <- function(x,
         x$sim_name, model_path, output_path, parallel_cores, raise_error
       )
     } else {
-      stop(paste0("Parallelization is only supported for slurm jobs. Also",
-                  " please set parallel_cores to a value between 1 (non",
-                  " parallel) and n parallel cores/nodes."))
+      stop(
+        "Parallelization is only supported for slurm jobs. Also",
+        " please set parallel_cores to a value between 1 (non",
+        " parallel) and n parallel cores/nodes."
+      )
     }
   }
 
@@ -348,18 +350,22 @@ do_parallel <- function(sim_names,
       if (e != "") {
 
         # Error with hint to deactivate parallelization
-        stop(paste0(e,
-                    " - Please set parallel_cores=1 for traceback ",
-                    "functionality (only available without",
-                    " parallelization)",
-                    call. = FALSE))
+        stop(
+          e,
+          " - Please set parallel_cores=1 for traceback ",
+          "functionality (only available without",
+          " parallelization)",
+          call. = FALSE
+        )
       } else {
 
         # Hint to deactivate parallelization
-        stop(paste0("This is not a common error,",
-                    " please set parallel_cores=1 for traceback ",
-                    "functionality (only available without",
-                    " parallelization"))
+        stop(
+          "This is not a common error,",
+          " please set parallel_cores=1 for traceback ",
+          "functionality (only available without",
+          " parallelization"
+        )
       }
     })
   }

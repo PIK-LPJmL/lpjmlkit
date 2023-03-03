@@ -16,31 +16,31 @@ test_that("asub", {
     )
   )
 
-  # Test warning messages where one subset remains valid
+  # Test warning message where one subset remains valid
   testthat::expect_warning(
     subset_array(my_array, list(band = c("band1", NA)), silent = FALSE),
     "Removing NA values from"
   )
 
-  # Test warning messages where a subset is empty
+  # Test warning message where a subset is empty
   testthat::expect_warning(
     subset_array(my_array, list(month = c()), silent = FALSE),
     "empty."
   )
 
-  # Test warning messages where no subset remains valid
+  # Test warning message where no subset remains valid
   testthat::expect_warning(
     subset_array(my_array, list(month = NA), silent = FALSE),
     "Removing NA values from"
   ) %>% suppressWarnings()
 
-  # Test warning messages where no subset remains valid
+  # Test error message where no subset remains valid
   testthat::expect_error(
     asub(my_array, hour = 2),
     "Please choose from available dimension names"
   )
 
-  # Test warning messages where no subset remains valid
+  # Test error message where no subset remains valid
   testthat::expect_error(
     asub(my_array, month = 42),
     "not valid."
