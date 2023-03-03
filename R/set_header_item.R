@@ -9,7 +9,7 @@
 #' @param ... Named header items to set. Can be one or several of 'name',
 #'   'version', 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 #'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
-#'   'endian'.
+#'   'endian', 'verbose'.
 #'
 #' @return Header `header` where header items supplied through the ellipsis
 #'   have been changed.
