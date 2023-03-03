@@ -627,11 +627,8 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   meta_data$initialize(x = meta_data$as_list(),
                        additional_attributes = additional_attributes)
 
-  # Convert meta data into header
-  file_header <- meta_data$as_header()
-
   # Check validity of band_names
-  check_band_names(get_header_item(file_header, "nbands"),
+  check_band_names(meta_data$nbands,
                    meta_data$band_names)
 
   meta_data
