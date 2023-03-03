@@ -36,7 +36,7 @@
 #' @md
 #' @export
 as_header <- function(x,
-                      silent = TRUE) {
+                      silent = testthat::is_testing()) {
   y <- x$as_header(silent)
   return(y)
 }
