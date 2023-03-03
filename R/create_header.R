@@ -110,7 +110,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
                           nstep = 1,
                           timestep = 1,
                           endian = .Platform$endian,
-                          verbose = !testthat::is_testing()
+                          verbose = TRUE
                          ) {
   header <- list()
   if (length(name) == 1 && is.character(name)) {

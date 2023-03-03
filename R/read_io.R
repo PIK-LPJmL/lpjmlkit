@@ -180,7 +180,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   descr        = NULL,
   unit         = NULL,
   name         = NULL,
-  silent       = testthat::is_testing()
+  silent       = FALSE
 ) {
   # Switch off fancy quotes but revert setting when leaving the function
   quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.

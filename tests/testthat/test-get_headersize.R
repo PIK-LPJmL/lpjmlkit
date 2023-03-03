@@ -3,7 +3,7 @@ test_that("get_headersize returns correct header size", {
   # Version 1 header
   # Version 1 headers return a warning on read about default parameters so
   # suppress warning.
-  h1 <- suppressWarnings(read_header("../testdata/header_v1.clm"))
+  h1 <- suppressMessages(read_header("../testdata/header_v1.clm"))
   expect_identical(
     get_headersize(h1),
     file.size("../testdata/header_v1.clm")
@@ -11,7 +11,7 @@ test_that("get_headersize returns correct header size", {
   # Version 2 header
   # Version 2 headers return a warning on read about default parameters so
   # suppress warning.
-  h2 <- suppressWarnings(read_header("../testdata/header_v2.clm"))
+  h2 <- suppressMessages(read_header("../testdata/header_v2.clm"))
   expect_identical(
     get_headersize(h2),
     file.size("../testdata/header_v2.clm")
@@ -19,7 +19,7 @@ test_that("get_headersize returns correct header size", {
   # Version 3 header
   # Version 3 headers return a warning on read about default parameters so
   # suppress warning.
-  h3 <- suppressWarnings(read_header("../testdata/header_v3.clm"))
+  h3 <- suppressMessages(read_header("../testdata/header_v3.clm"))
   expect_identical(
     get_headersize(h3),
     file.size("../testdata/header_v3.clm")
@@ -39,7 +39,7 @@ test_that("get_headersize error messages", {
   expect_error(get_headersize(h4), "must be a list")
 
   # Try giving a list with wrong elements
-  h1 <- suppressWarnings(read_header("../testdata/header_v1.clm"))
+  h1 <- suppressMessages(read_header("../testdata/header_v1.clm"))
   h5 <- h1
   h5[["holiday"]] <- h5[["name"]]
   h5[["name"]] <- NULL

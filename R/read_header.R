@@ -33,7 +33,7 @@
 #' @export
 read_header <- function(filename,
                         force_version = NULL,
-                        verbose = !testthat::is_testing()) {
+                        verbose = TRUE) {
 
   if (!file.exists(filename)) {
     stop(filename, " does not exist")

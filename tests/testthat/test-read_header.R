@@ -1,6 +1,6 @@
 test_that("read in LPJmL file header version 1", {
   # Version 1 headers give a warning, supress
-  header <- suppressWarnings(read_header("../testdata/header_v1.clm"))
+  header <- suppressMessages(read_header("../testdata/header_v1.clm"))
   # Test that header was loaded
   expect_true(exists("header"))
   # Test that header is a list
@@ -19,7 +19,7 @@ test_that("read in LPJmL file header version 1", {
 
 test_that("read in LPJmL file header version 2", {
   # Version 2 headers give a warning, suppress
-  header <- suppressWarnings(read_header("../testdata/header_v2.clm"))
+  header <- suppressMessages(read_header("../testdata/header_v2.clm"))
   # Test that header was loaded
   expect_true(exists("header"))
   # Test that header is a list
@@ -38,7 +38,7 @@ test_that("read in LPJmL file header version 2", {
 
 test_that("read in LPJmL file header version 3", {
   # Version 3 headers give a warning, suppress
-  header <- suppressWarnings(read_header("../testdata/header_v3.clm"))
+  header <- suppressMessages(read_header("../testdata/header_v3.clm"))
   # Test that header was loaded
   expect_true(exists("header"))
   # Test that header is a list

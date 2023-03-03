@@ -36,7 +36,7 @@
 #' @md
 #' @export
 as_header <- function(x,
-                      silent = testthat::is_testing()) {
+                      silent = FALSE) {
   y <- x$as_header(silent)
   return(y)
 }
@@ -45,7 +45,7 @@ LPJmLMetaData$set(
   "private",
   ".as_header",
   # as_header method roxygen documentation in LPJmlMetaData.R
-  function(silent = testthat::is_testing()) {
+  function(silent = FALSE) {
 
     header <- create_header(
       name = ifelse(is.null(private$.name), "LPJDUMMY", private$.name),

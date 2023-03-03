@@ -25,7 +25,7 @@ test_that("test LPJmLMetaData as_header", {
     filename = "../testdata/output/pft_npp.bin.json"
   ) %>%
     # export as header
-    as_header()
+    as_header(silent = TRUE)
 
   # create header object
   test_header <- create_header(
@@ -55,7 +55,7 @@ test_that("test read_meta & as_header", {
   # Read header as meta and convert to header
   meta_header <- read_meta(
     filename = "../testdata/header_v4.clm"
-  )$as_header()
+  )$as_header(silent = TRUE)
 
   # Directly read as header
   header <- read_header("../testdata/header_v4.clm")
