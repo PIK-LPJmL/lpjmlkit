@@ -22,22 +22,22 @@
 #' @param group Character string defining the user group for which the job is
 #'   submitted. Defaults to `"lpjml"`.
 #'
-#' @param sclass Character string defining the job classification. For more
-#'   information have a look at <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5>.
-#'   Defaults to `"short"`.
+#' @param sclass Character string defining the job classification. Available
+#'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
+#'   More information at <https://www.pik-potsdam.de>. Defaults to `"short"`.
 #'
-#' @param ntasks Integer defining the number of tasks/threads. For more
-#'   information have a look  at <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18>.
+#' @param ntasks Integer defining the number of tasks/threads. More information
+#'   at <https://www.pik-potsdam.de> and <https://slurm.schedmd.com>.
 #'   Defaults to `256`.
 #'
 #' @param wtime Character string defining the time limit. Setting a lower time
 #'   limit than the maximum runtime for `sclass` can reduce the wait time in the
-#'   SLURM job queue. For more information' have a look at
-#'   <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18>.
+#'   SLURM job queue. More information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com>.
 #'
-#' @param blocking Integer defining the number of cores to be blocked. For more
-#'   information have a look at
-#'   <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18>.
+#' @param blocking Integer defining the number of cores to be blocked. More
+#'   information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com>.
 #'
 #' @param no_submit Logical. Set to `TRUE` to test if `x` set correctly or
 #'   `FALSE` to actually submit job to SLURM.

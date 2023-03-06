@@ -44,7 +44,7 @@ test_that("get_headersize error messages", {
   h5[["holiday"]] <- h5[["name"]]
   h5[["name"]] <- NULL
   expect_error(get_headersize(h5), "list.*name.*header")
-  
+
   # Try giving invalid header version
   h6 <- h1
   h6[["header"]]["version"] <- 5
