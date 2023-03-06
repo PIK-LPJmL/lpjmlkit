@@ -60,7 +60,7 @@ supplied:\tabular{l}{
 
 
 To perform subsequent or rather dependent runs the optional run parameter
-\code{"dependency"} need to be provided within the initial
+\code{"dependency"} needs to be provided within the initial
 \link[tibble]{tibble} supplied as \code{param} to \code{\link[=write_config]{write_config()}}.\tabular{lrl}{
    \strong{sim_name} \tab \strong{order} \tab \strong{dependency} \cr
    scen1_spinup \tab 1 \tab NA \cr

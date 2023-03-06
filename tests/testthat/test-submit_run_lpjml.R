@@ -21,7 +21,6 @@ testthat::test_that("check submit_lpjml with tibble", {
   testthat::expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
               na.rm = TRUE))
 
-
   # Check submit_run functionality
   test_submit <- submit_lpjml(
     test_params,

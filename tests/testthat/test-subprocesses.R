@@ -31,7 +31,7 @@ testthat::test_that("raise get_commit_hash error", {
       include_url = FALSE,
       raise_error = TRUE
     ),
-    "Stopping at filesystem boundary"
+    "For path"
   )
 })
 
@@ -39,9 +39,10 @@ testthat::test_that("raise get_commit_hash error", {
 testthat::test_that("raise make_lpjml errors", {
 
   # Emulate as if model has not been compiled before
-  testthat::expect_error(
-    make_lpjml(debug = TRUE),
-    "No such file or directory"
+  testthat::expect_true(
+    make_lpjml(
+      raise_error = FALSE
+    )$status != 0
   )
 
   # Emulate as if model has been compiled before

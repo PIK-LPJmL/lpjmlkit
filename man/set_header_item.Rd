@@ -13,7 +13,7 @@ set_header_item(header, ...)
 \item{...}{Named header items to set. Can be one or several of 'name',
 'version', 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
-'endian'.}
+'endian', 'verbose'.}
 }
 \value{
 Header \code{header} where header items supplied through the ellipsis
@@ -69,8 +69,8 @@ $header
          3.0          1.0       1901.0          1.0          0.0          1.0
        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
          2.0          0.5          1.0          0.5          3.0          1.0
-    timestep 
-         1.0 
+    timestep
+         1.0
 
 $endian
 [1] "little"

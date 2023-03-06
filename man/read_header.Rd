@@ -4,7 +4,7 @@
 \alias{read_header}
 \title{Read header (any version) from LPJmL input/output file}
 \usage{
-read_header(filename, force_version = NULL, verbose = !testthat::is_testing())
+read_header(filename, force_version = NULL, verbose = TRUE)
 }
 \arguments{
 \item{filename}{Filename to read header from.}

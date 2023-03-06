@@ -62,10 +62,11 @@ make_lpjml <- function(model_path = ".",
   } else {
     init <- processx::run(command = "sh",
                           args = c("-c",
-                                   paste0("./configure.sh;",
-                                          ifelse(!is.null(debug) && debug, "-debug", ""), # nolint
+                                   paste0("./configure.sh",
+                                          ifelse(!is.null(debug) && debug, " -debug; ", "; "), # nolint
+                                          "make",
                                           ifelse(!is.null(parallel_cores),
-                                                 paste0("-j", parallel_cores),
+                                                 paste0(" -j", parallel_cores),
                                                  ""),
                                           " all;")),
                           cleanup_tree = TRUE,

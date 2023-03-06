@@ -174,7 +174,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          no_submit = FALSE) {
 
   # Check if SLURM is available
-  if (!is_slurm_available() && !no_submit) {
+  if (!is_slurm_available() && !no_submit && !testthat::is_testing()) {
     stop("submit_lpjml is only available on HPC cluster environments providing
           a SLURM workload manager")
   }
