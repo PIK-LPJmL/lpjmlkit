@@ -1,18 +1,18 @@
-# test as_array method (basic way)
+# Test as_array method (basic way)
 test_that("basic array export", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
   output_array <- output$as_array()
 
-  # read test_array
+  # Read test_array
   test_array <- readRDS("../testdata/test_array.rds")
 
-  # test for equality with test_array
+  # Test for equality with test_array
   testthat::expect_equal(output_array, test_array)
 })
 
 
-# test as_array method with subset and aggregate functionality
+# Test as_array method with subset and aggregate functionality
 test_that("array export with subset and aggregate", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
@@ -22,7 +22,7 @@ test_that("array export with subset and aggregate", {
     aggregate = list(time = mean)
   )
 
-  # read and subset, aggregate test_array
+  # Read and subset, aggregate test_array
   test_array <- readRDS("../testdata/test_array.rds") %>%
     subset_array(
       list(band = "boreal needleleaved evergreen tree"),
@@ -30,9 +30,19 @@ test_that("array export with subset and aggregate", {
     ) %>%
     apply(c("cell", "band"), mean)
 
-  # test for equality with test_array on which operations have been performed on
+  # Rest for equality with test_array on which operations have been performed on
   #   manually with explicit subset_array and apply calls
   testthat::expect_equal(output_array, test_array)
+
+  # Test aggregating a dimension that does not exist
+  testthat::expect_warning(
+    as_array(
+      output,
+      subset = list(band = "boreal needleleaved evergreen tree"),
+      aggregate = list(time = mean, non_exist = sum)
+    ),
+    "Dimension.+does not exist"
+  )
 })
 
 
@@ -141,6 +151,12 @@ test_that("raster export 3rd dim", {
 
   # test for equality with test_raster
   testthat::expect_equal(output_raster, test_raster)
+
+  # More than 3-dimensional raster not possible
+  testthat::expect_error(
+    as_raster(output),
+    "Too many dimensions"
+  )
 })
 
 
@@ -229,4 +245,16 @@ test_that("terra export 3rd dim", {
   # test for equality with test_rast
   # use base::all.equal to avoid pointer mismatches
   testthat::expect_true(all.equal(output_rast, test_rast))
+
+  # More than 3-dimensional rast not possible
+  testthat::expect_error(
+    as_terra(output),
+    "Too many dimensions"
+  )
+
+  # Must not aggregate space dimension
+  testthat::expect_error(
+    as_terra(output, aggregate = list(cell = sum)),
+    "Only non-spatial and existing dimensions are valid"
+  )
 })

@@ -113,7 +113,10 @@ test_that("test summary method", {
   )
 
   output <- read_io(filename = "../testdata/output/pft_npp.bin.json")
-  out_sum <- summary(output, cutoff = TRUE)
+  testthat::expect_message(
+    out_sum <- summary(output, cutoff = TRUE),
+    "not printing all"
+  )
 
   # For cutoff arg
   testthat::expect_equal(
@@ -186,5 +189,46 @@ test_that("test print method", {
   testthat::expect_output(
     print(output),
     "grid"
+  )
+})
+
+test_that("test find_gridfile", {
+  tmpdir <- tempfile("output")
+  dir.create(tmpdir, recursive = TRUE)
+  # No grid file at all in directory
+  testthat::expect_error(
+    find_gridfile(tmpdir),
+    "Cannot detect grid file automatically"
+  )
+  file.copy(
+    "../testdata/output/pft_npp.clm",
+    file.path(tmpdir, "grid.clm")
+  )
+  # clm file in directory matching search pattern
+  testthat::expect_equal(
+    find_gridfile(tmpdir),
+    file.path(tmpdir, "grid.clm")
+  )
+  file.copy(
+    "../testdata/output/pft_npp.clm",
+    file.path(tmpdir, "grid2.clm")
+  )
+  # Error due to two clm files present matching search pattern
+  testthat::expect_error(
+    find_gridfile(tmpdir),
+    "Cannot detect grid file automatically"
+  )
+  file.remove(
+    file.path(tmpdir, "grid.clm"),
+    file.path(tmpdir, "grid2.clm")
+  )
+  file.remove(tmpdir)
+})
+
+test_that("LPJmLData initialisation", {
+  # Meta data must be LPJmLMetaData object
+  testthat::expect_error(
+    LPJmLData$new(data = array(NA, dim = c(1, 1)), meta_data = "test"),
+    "Provide an LPJmLMetaData object for meta data"
   )
 })
