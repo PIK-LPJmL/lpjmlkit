@@ -249,10 +249,16 @@ subset_array_pair <- function(x,
     `colnames<-`(pair_names)
 
   # Create mask from dimension name pair
+  if (match(pair_names[1], names(dim(x))) > 1) {
+    dupl <- prod(dim(x)[seq_len(match(pair_names[1], names(dim(x))) - 1)])
+  } else {
+    dupl <- 1
+  }
   subset_mask <- array(NA,
                     dim = dim(x)[pair_names],
                     dimnames = dimnames(x)[pair_names]) %>%
     `[<-`(idims, 1) %>%
+    rep(each = dupl) %>%
     array(dim = dim(x), dimnames = dimnames(x)) %>%
     subset_array(as.list(pair), drop = FALSE)
 
