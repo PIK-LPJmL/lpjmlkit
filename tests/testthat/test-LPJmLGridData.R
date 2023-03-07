@@ -6,8 +6,11 @@ testthat::test_that("test add_grid method", {
     output,
     filename = "../testdata/output/grid.bin.json"
   )
-  # Perform adding a grid object
-  output$add_grid()
+  # Perform adding a grid object, which causes a message
+  testthat::expect_message(
+    output$add_grid(),
+    "grid.bin.json"
+  )
   # Read in grid directly and initialize object as LPJmLGridData
   grid <- read_io("../testdata/output/grid.bin.json") %>%
     LPJmLGridData$new()
@@ -33,7 +36,10 @@ testthat::test_that("test add_grid method", {
     filename = "../testdata/output/grid.bin.json"
   )
 
-  output$add_grid()
+  testthat::expect_message(
+    output$add_grid(),
+    "grid.bin.json"
+  )
 
   # Read in grid directly, spatial subset and initialize object as LPJmLGridData
   grid <- read_io(

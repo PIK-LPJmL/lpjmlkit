@@ -40,15 +40,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # found.
         filename <- find_gridfile(private$.meta$._data_dir_)
 
-        if (!testthat::is_testing()) {
-          message(
-            paste0(
-              col_var("grid"),
-              " read from ",
-              sQuote(basename(filename))
-            )
+        message(
+          paste0(
+            col_var("grid"),
+            " read from ",
+            sQuote(basename(filename))
           )
-        }
+        )
 
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.

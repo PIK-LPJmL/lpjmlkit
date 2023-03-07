@@ -37,7 +37,7 @@ test_that("array export with subset and aggregate", {
 
 
 # test as_tibble method (basic way)
-test_that("basic array export", {
+test_that("basic tibble export", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
   output_tibble <- as_tibble(output)
@@ -58,7 +58,11 @@ test_that("basic array export", {
 test_that("raster export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output$transform(to = "lon_lat")
+  # transform auto-loads grid, which produces a message
+  testthat::expect_message(
+    output$transform(to = "lon_lat"),
+    "grid.bin.json"
+  )
 
   output_raster <- as_raster(
     output,
@@ -98,8 +102,12 @@ test_that("raster export lon_lat", {
 test_that("raster export 3rd dim", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_raster <- output$as_raster(
-    subset = list(band = "boreal needleleaved evergreen tree")
+  # as_raster auto-loads grid, which produces a message
+  testthat::expect_message(
+    output_raster <- output$as_raster(
+      subset = list(band = "boreal needleleaved evergreen tree")
+    ),
+    "grid.bin.json"
   )
 
   # create tmp_raster with expected dimensions and coordinate ref system
@@ -141,6 +149,8 @@ test_that("raster export 3rd dim", {
 test_that("terra export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
+  # Explicitly add grid specifying grid file name
+  output$add_grid("../testdata/output/grid.bin.json")
   output$transform(to = "lon_lat")
 
   output_rast <- as_terra(
@@ -177,6 +187,8 @@ test_that("terra export lon_lat", {
 test_that("terra export 3rd dim", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
+  # Explicitly add grid specifying grid file name
+  output$add_grid("../testdata/output/grid.bin.json")
   output_rast <- output$as_terra(
     subset = list(band = "boreal needleleaved evergreen tree")
   )

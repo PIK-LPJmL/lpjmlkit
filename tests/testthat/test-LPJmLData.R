@@ -133,7 +133,10 @@ test_that("test summary method", {
   )
 
   # For underlying grid
-  output$add_grid()
+  testthat::expect_message(
+    output$add_grid(),
+    "grid.bin.json"
+  )
   grid_sum <- summary(output$grid)
   testthat::expect_equal(
     dimnames(output$grid)$band,
@@ -179,7 +182,7 @@ test_that("test print method", {
   )
 
   # Check if grid is added and printed
-  output$add_grid()
+  output$add_grid("../testdata/output/grid.bin.json")
   testthat::expect_output(
     print(output),
     "grid"

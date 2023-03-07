@@ -107,9 +107,11 @@ test_integrity <- function(output) {
 test_that("test subset method", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  # Perform adding a grid object
-  output$add_grid()
-  # Read in grid directly
+  # Perform auto-loading a grid object, which produces a message
+  testthat::expect_message(
+    output$add_grid(),
+    "grid.bin.json"
+  )
   output_sub <- subset(
     output,
     cell = 1:2,
@@ -131,8 +133,25 @@ test_that("test transform (time) method", {
     transform(to = "year_month_day")
   test_integrity(output)
 
+  output2 <- read_io(
+    filename = file_name,
+    dim_order = c("time", "band", "cell")
+  ) %>% transform(to = "year_month_day")
+  test_integrity(output2)
+  testthat::expect_identical(
+    output2$data,
+    aperm(output$data, names(dim(output2)))
+  )
+
   output$transform(to = "time")
   test_integrity(output)
+
+  output2$transform(to = "time")
+  test_integrity(output2)
+  testthat::expect_identical(
+    output2$data,
+    aperm(output$data, names(dim(output2)))
+  )
 
 })
 
@@ -141,8 +160,26 @@ test_that("test transform (time) method", {
 test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
-  output$transform(to = "lon_lat")
+  # transform auto-loads grid, which produces a message
+  testthat::expect_message(
+    output$transform(to = "lon_lat"),
+    "grid.bin.json"
+  )
   test_integrity(output)
+
+  output2 <- read_io(
+    filename = file_name,
+    dim_order = c("time", "band", "cell")
+  )
+  testthat::expect_message(
+    output2$transform(to = "lon_lat"),
+    "grid.bin.json"
+  )
+  test_integrity(output2)
+  testthat::expect_identical(
+    output2$data,
+    aperm(output$data, names(dim(output2)))
+  )
 })
 
 # Test transform_time method
@@ -168,32 +205,90 @@ test_that("test non valid transform method", {
 test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
+  # Explicitly load grid
+  output$add_grid("../testdata/output/grid.bin.json")
   output$transform(to = c("year_month_day", "lon_lat"))
   output$subset(year = as.character(2005:2008),
                 month = 6:9,
                 lat = c("55.25", "55.75", "56.25", "56.75"))
   output$transform(to = "cell")
   test_integrity(output)
+
+  output2 <- read_io(
+    filename = file_name,
+    dim_order = c("time", "band", "cell")
+  )
+  output2$add_grid("../testdata/output/grid.bin.json")
+  output2$transform(to = c("year_month_day", "lon_lat"))
+  output2$subset(year = as.character(2005:2008),
+                 month = 6:9,
+                 lat = c("55.25", "55.75", "56.25", "56.75"))
+  output2$transform(to = "cell")
+  test_integrity(output2)
+  testthat::expect_identical(
+    output2$data,
+    aperm(output$data, names(dim(output2)))
+  )
 })
 
 
 # coordinates located within the last two cells
-coordinates <- tibble::tibble(lat = c("55.9", "63.7"),
-                              lon = c("-87.3", "-87.1"))
+coordinates <- tibble::tibble(
+  lat = c("55.9", "63.7"),
+  lon = c("-87.3", "-87.1")
+)
+coordinates_numeric <- tibble::tibble(
+  lon = as.numeric(coordinates$lon),
+  lat = as.numeric(coordinates$lat)
+)
 
 # test subset method for coordinates (pair)
 test_that("test transform (space) method", {
 
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
+  output$add_grid("../testdata/output/grid.bin.json")
   output_trans <- transform(output, to = c("lon_lat"))
   output_trans$subset(coordinates = coordinates)
-  output_trans$transform(to = "cell")
+  output_back <- transform(output_trans, to = "cell")
   test_integrity(output_trans)
+  test_integrity(output_back)
+  if (!anyNA(output$data)) {
+    testthat::expect_false(anyNA(output_trans$data))
+  }
+
+  output2 <- read_io(
+    filename = file_name,
+    dim_order = c("time", "band", "cell")
+  )
+  output2$add_grid("../testdata/output/grid.bin.json")
+  output_trans2 <- transform(output2, to = "lon_lat")
+  output_trans2$subset(coordinates = coordinates)
+  output_back2 <- transform(output_trans2, to = "cell")
+  test_integrity(output_trans2)
+  test_integrity(output_back2)
+  if (!anyNA(output2$data)) {
+    testthat::expect_false(anyNA(output_trans2$data))
+  }
+  testthat::expect_identical(
+    output_trans2$data,
+    aperm(output_trans$data, names(dim(output_trans2)))
+  )
+  testthat::expect_identical(
+    output_back2$data,
+    aperm(output_back$data, names(dim(output_back2)))
+  )
 
   # For coordinate subsetting output has to be transformed first
   testthat::expect_error(
     output$subset(coordinates = coordinates),
     "convert into suitable format"
+  )
+
+  # Coordinate values must be strings, not numerical values
+  output_trans <- transform(output, to = c("lon_lat"))
+  testthat::expect_error(
+    output_trans$subset(coordinates = coordinates_numeric),
+    "Values for coordinate pairs must be supplied as strings"
   )
 })

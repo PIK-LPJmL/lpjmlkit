@@ -3,6 +3,9 @@ testthat::test_that("Plot basic output", {
 
   output <- read_io(filename = "../testdata/output/npp.bin.json")
 
+  # Explicitly add grid specifying grid file name
+  output$add_grid("../testdata/output/grid.bin.json")
+
   # Send to NULL file to avoid plots being written or shown
   pdf(file = NULL)
 
