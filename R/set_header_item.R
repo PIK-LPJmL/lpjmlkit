@@ -9,7 +9,8 @@
 #' @param ... Named header items to set. Can be one or several of 'name',
 #'   'version', 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 #'   'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
-#'   'endian', 'verbose'.
+#'   'endian'. Parameter 'verbose' can be used to control verbosity, as in
+#'   [`create_header()`].
 #'
 #' @return Header `header` where header items supplied through the ellipsis
 #'   have been changed.
@@ -74,64 +75,20 @@
 #'
 #' @export
 set_header_item <- function(header, ...) {
-  # Check header structure. Expect a list with elements "name", "header" and
-  # "endian".
-  if (!is.list(header) || any(is.null(header[c("name", "header", "endian")]))) {
-    stop(
-      paste(
-        "Header has invalid structure. Must be a list with elements",
-        "'name', 'header', 'endian'"
-      )
-    )
-  }
-  # Confirm that no other elements are in list
-  if (length(header) != 3) {
-    stop(
-      paste(
-        "Header has invalid structure. Must be a list with elements",
-        "'name', 'header', 'endian'"
-      )
-    )
-  }
-  # Expect only a single "name" and "endian"
-  if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
-    stop("Header has invalid structure. More than one 'name' or 'endian'")
-  }
-  # Expect header$header to have 13 values (some of which may be defaults)
-  if (length(header$header) != 13) {
-    stop("Header has invalid structure. Invalid header$header")
-  }
-  # Valid items that can be set in header
-  valid_items <- c(
-    "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
-    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
-    "timestep", "endian"
-  )
-  # Check that all items are present in header or header$header
-  if (any(!setdiff(valid_items, names(header)) %in% names(header$header))) {
-    stop(
-      paste(
-        "Header has invalid structure: item(s)",
-        toString(
-          sQuote(
-            setdiff(setdiff(valid_items, names(header)), names(header$header))
-          )
-        ),
-        "missing in header$header"
-      )
-    )
-  }
+  # Check header structure.
+  is_valid_header(header)
+
   # Arguments provided to function
   args <- list(...)
-  # Check that all arguments are in valid_items
-  if (any(! names(args) %in% c(valid_items, "verbose"))) {
+  # Check that all arguments are in valid_header_items
+  if (any(! names(args) %in% c(valid_header_items, "verbose"))) {
     stop(
       paste(
         "Invalid item(s)",
-        toString(sQuote(setdiff(names(args), valid_items))),
+        toString(sQuote(setdiff(names(args), valid_header_items))),
         "provided to function.\n",
         "You can set the following header items through this function:",
-        toString(sQuote(valid_items))
+        toString(sQuote(valid_header_items))
       )
     )
   }
@@ -165,72 +122,26 @@ set_header_item <- function(header, ...) {
   }
   tmpheader <- create_header(
     name = ifelse(is.null(args[["name"]]), header$name, args[["name"]]),
-    version = ifelse(
-      is.null(args[["version"]]),
-      header$header["version"],
-      args[["version"]]
+    version = default(args[["version"]], header$header["version"]),
+    order = default(args[["order"]], header$header[["order"]]),
+    firstyear = default(args[["firstyear"]], header$header["firstyear"]),
+    nyear = default(args[["nyear"]], header$header["nyear"]),
+    firstcell = default(args[["firstcell"]], header$header["firstcell"]),
+    ncell = default(args[["ncell"]], header$header["ncell"]),
+    nbands = default(args[["nbands"]], header$header["nbands"]),
+    cellsize_lon = default(
+      args[["cellsize_lon"]],
+      header$header["cellsize_lon"]
     ),
-    order = ifelse(
-      is.null(args[["order"]]),
-      header$header["order"],
-      args[["order"]]
+    scalar = default(args[["scalar"]], header$header["scalar"]),
+    cellsize_lat = default(
+      args[["cellsize_lat"]],
+      header$header["cellsize_lat"]
     ),
-    firstyear = ifelse(
-      is.null(args[["firstyear"]]),
-      header$header["firstyear"],
-      args[["firstyear"]]
-    ),
-    nyear = ifelse(
-      is.null(args[["nyear"]]),
-      header$header["nyear"],
-      args[["nyear"]]
-    ),
-    firstcell = ifelse(
-      is.null(args[["firstcell"]]),
-      header$header["firstcell"],
-      args[["firstcell"]]
-    ),
-    ncell = ifelse(
-      is.null(args[["ncell"]]),
-      header$header["ncell"],
-      args[["ncell"]]
-    ),
-    nbands = ifelse(
-      is.null(args[["nbands"]]),
-      header$header["nbands"],
-      args[["nbands"]]
-    ),
-    cellsize_lon = ifelse(
-      is.null(args[["cellsize_lon"]]),
-      header$header["cellsize_lon"],
-      args[["cellsize_lon"]]
-    ),
-    scalar = ifelse(
-      is.null(args[["scalar"]]),
-      header$header["scalar"],
-      args[["scalar"]]
-    ),
-    cellsize_lat = ifelse(
-      is.null(args[["cellsize_lat"]]),
-      header$header["cellsize_lat"],
-      args[["cellsize_lat"]]
-    ),
-    datatype = ifelse(
-      is.null(args[["datatype"]]),
-      header$header["datatype"],
-      args[["datatype"]]
-    ),
-    nstep = ifelse(
-      is.null(args[["nstep"]]),
-      header$header["nstep"],
-      args[["nstep"]]
-    ),
-    timestep = ifelse(
-      is.null(args[["timestep"]]),
-      header$header["timestep"],
-      args[["timestep"]]
-    ),
-    endian = ifelse(is.null(args[["endian"]]), header$endian, args[["endian"]]),
+    datatype = default(args[["datatype"]], header$header["datatype"]),
+    nstep = default(args[["nstep"]], header$header["nstep"]),
+    timestep = default(args[["timestep"]], header$header["timestep"]),
+    endian = default(args[["endian"]], header$endian),
     verbose = verbose
   )
   tmpheader

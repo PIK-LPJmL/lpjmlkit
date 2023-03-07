@@ -36,7 +36,7 @@ read_header <- function(filename,
                         verbose = TRUE) {
 
   if (!file.exists(filename)) {
-    stop(filename, " does not exist")
+    stop("File ", filename, " does not exist")
   }
   # Open binary connection to file.
   zz <- file(filename, "rb")
@@ -75,7 +75,7 @@ read_header <- function(filename,
     version <- readBin(zz, integer(), size = 4, n = 1, endian = endian)
   }
   # Version usually determined from file header, but can also be forced
-  if (!is.null(force_version)) {
+  if (!is.null(force_version) && force_version != version) {
     if (verbose) message("Forcing header version to ", force_version)
     version <- force_version
   }

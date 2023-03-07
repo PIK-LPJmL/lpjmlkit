@@ -150,17 +150,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   }
   header[["header"]] <- numeric(0)
   # Check that valid values have been provided for all parameters included
-  # in header version 1
-  header_elements <- c(
-    "version",
-    "order",
-    "firstyear",
-    "nyear",
-    "firstcell",
-    "ncell",
-    "nbands"
-  )
-  for (check in header_elements) {
+  # in all header versions
+  for (check in base_header_items) {
     if (length(get(check)) == 1 && is.numeric(get(check)) &&
       get(check) == as.integer(get(check))
     ) {
@@ -172,7 +163,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   }
   if (version >= 2) {
     # Check that valid values have been provided for additional parameters in
-    # header version 2
+    # header version >=2
     for (check in c("cellsize_lon", "scalar")) {
       if (length(get(check)) == 1 && is.numeric(get(check))) {
         header[["header"]] <- c(header[["header"]], as.double(get(check)))
@@ -182,7 +173,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
       }
     }
     # Check that valid values have been provided for additional parameters in
-    # header version 3
+    # header version >=3
     if (version >= 3) {
       if (length(cellsize_lat) == 1 && is.numeric(cellsize_lat)) {
         header[["header"]] <- c(
@@ -216,7 +207,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
           stop("Unknown datatype ", datatype, ".")
         }
       } else {
-        stop("datatype must be integer of length 1.")
+        stop(sQuote("datatype"), " must be an integer of length 1.")
       }
       # Check that valid values have been provided for additional parameters in
       # header version 4
@@ -241,143 +232,12 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         } else {
           stop(sQuote("timestep"), " must be an integer of length 1")
         }
-      } else {
-        # Add defaults
-        warntext <- "Type 3 header:"
-        if (missing(nstep) || length(nstep) != 1 || !is.numeric(nstep) ||
-          nstep != as.integer(nstep)
-        ) {
-          header[["header"]] <- c(
-            header[["header"]],
-            nstep = 1
-          )
-        } else {
-          header[["header"]] <- c(
-            header[["header"]],
-            nstep = as.integer(nstep)
-          )
-          if (nstep != 1) {
-            warntext <- paste0(
-              warntext,
-              "\nSetting non-default nstep ", nstep,
-              ". This information is not kept when saving header to file."
-            )
-          }
-        }
-        if (missing(timestep) || length(timestep) != 1 ||
-          !is.numeric(timestep) || timestep != as.integer(timestep)
-        ) {
-          header[["header"]] <- c(
-            header[["header"]],
-            timestep = 1
-          )
-        } else {
-          header[["header"]] <- c(
-            header[["header"]],
-            timestep = as.integer(timestep)
-          )
-          if (timestep != 1) {
-            warntext <- paste0(
-              warntext,
-              "\nSetting non-default timestep ", timestep,
-              ". This information is not kept when saving header to file."
-            )
-          }
-        }
       }
-    } else {
-      # Add defaults
-      warntext <- "Type 2 header:"
-      if (missing(cellsize_lat) || !is.numeric(cellsize_lat) ||
-        length(cellsize_lat) != 1
-      ) {
-        header[["header"]] <- c(
-          header[["header"]],
-          cellsize_lat = as.double(header[["header"]]["cellsize_lon"])
-        )
-      } else {
-        header[["header"]] <- c(
-          header[["header"]],
-          cellsize_lat = as.double(cellsize_lat)
-        )
-        if (cellsize_lat != header[["header"]]["cellsize_lon"]) {
-          warntext <- paste0(
-            warntext,
-            "\nSetting non-default cellsize_lat ", cellsize_lat,
-            ". This information is not kept when saving header to file."
-          )
-        }
-      }
-      if (missing(datatype) || length(datatype) != 1 || is.null(
-        get_datatype(c(datatype = datatype))
-      )) {
-        header[["header"]] <- c(
-          header[["header"]],
-          datatype = 1
-        )
-      } else {
-        header[["header"]] <- c(
-          header[["header"]],
-          datatype = as.integer(datatype)
-        )
-        if (datatype != 1) {
-          warntext <- paste0(
-            warntext,
-            "\nSetting datatype to non-default ", as.integer(datatype), " (",
-            ifelse(get_datatype(header)$signed, "", "unsigned "),
-            typeof(get_datatype(header)$type),
-            " with size ",
-            get_datatype(header)$size,
-            "). This information is not kept when saving header to file."
-          )
-        }
-      }
-      if (missing(nstep) || length(nstep) != 1 || !is.numeric(nstep) ||
-        nstep != as.integer(nstep)
-      ) {
-        header[["header"]] <- c(
-          header[["header"]],
-          nstep = 1
-        )
-      } else {
-        header[["header"]] <- c(
-          header[["header"]],
-          nstep = as.integer(nstep)
-        )
-        if (nstep != 1) {
-          warntext <- paste0(
-            warntext,
-            "\nSetting non-default nstep ", nstep,
-            ". This information is not kept when saving header to file."
-          )
-        }
-      }
-      if (missing(timestep) || length(timestep) != 1 || !is.numeric(timestep) ||
-        timestep != as.integer(timestep)
-      ) {
-        header[["header"]] <- c(
-          header[["header"]],
-          timestep = 1
-        )
-      } else {
-        header[["header"]] <- c(
-          header[["header"]],
-          timestep = as.integer(timestep)
-        )
-        if (timestep != 1) {
-          warntext <- paste0(
-            warntext,
-            "\nSetting non-default timestep ", timestep,
-            ". This information is not kept when saving header to file."
-          )
-        }
-      }
-      if (warntext != "Type 2 header:" && verbose)
-        warning(warntext)
     }
-  } else {
-    # Add defaults
-    warntext <- "Type 1 header:"
+  }
+  # Add defaults
+  warntext <- paste("Type", header$header["version"], "header:")
+  if (!"cellsize_lon" %in% names(header$header)) {
     if (missing(cellsize_lon) || length(cellsize_lon) != 1 ||
       !is.numeric(cellsize_lon)
     ) {
@@ -401,6 +261,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         cellsize_lat <- cellsize_lon
       }
     }
+  }
+  if (!"scalar"  %in% names(header$header)) {
     if (missing(scalar) || length(scalar) != 1 || !is.numeric(scalar)) {
       header[["header"]] <- c(
         header[["header"]],
@@ -419,6 +281,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         )
       }
     }
+  }
+  if (!"cellsize_lat" %in% names(header$header)) {
     if (missing(cellsize_lat) || length(cellsize_lat) != 1 ||
       !is.numeric(cellsize_lat)
     ) {
@@ -431,7 +295,10 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         header[["header"]],
         cellsize_lat = as.double(cellsize_lat)
       )
-      if (any(cellsize_lat != c(header[["header"]]["cellsize_lon"], 0.5))) {
+      second_res <- ifelse(version > 1, header[["header"]]["cellsize_lon"], 0.5)
+      if (
+        any(cellsize_lat != c(header[["header"]]["cellsize_lon"], second_res))
+      ) {
         warntext <- paste0(
           warntext,
           "\nSetting non-default cellsize_lat ", cellsize_lat,
@@ -439,6 +306,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         )
       }
     }
+  }
+  if (!"datatype" %in% names(header$header)) {
     if (missing(datatype) || length(datatype) != 1 || is.null(
       get_datatype(c(datatype = datatype))
     )) {
@@ -454,7 +323,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
       if (datatype != 1) {
         warntext <- paste0(
           warntext,
-          "\nSetting datatype to non-default ", as.integer(datatype), " (",
+          "\nSetting non-default datatype ", as.integer(datatype), " (",
           ifelse(get_datatype(header)$signed, "", "unsigned "),
           typeof(get_datatype(header)$type),
           " with size ",
@@ -463,6 +332,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         )
       }
     }
+  }
+  if (!"nstep" %in% names(header$header)) {
     if (missing(nstep) || length(nstep) != 1 || !is.numeric(nstep) ||
       nstep != as.integer(nstep)
     ) {
@@ -483,6 +354,8 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         )
       }
     }
+  }
+  if (!"timestep" %in% names(header$header)) {
     if (missing(timestep) || length(timestep) != 1 || !is.numeric(timestep) ||
       timestep != as.integer(timestep)
     ) {
@@ -503,8 +376,11 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
         )
       }
     }
-    if (warntext != "Type 1 header:" && verbose)
-      warning(warntext)
+  }
+  if (verbose &&
+    warntext != paste("Type", header$header["version"], "header:")
+  ) {
+    warning(warntext)
   }
   if (!is.null(endian) && length(endian) == 1 &&
     endian %in% c("big", "little")
@@ -518,3 +394,121 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   }
   header
 }
+
+#' @title Header validity check
+#'
+#' @description Check whether a header has the correct structure.
+#'
+#' @param header An LPJmL file header as returned by [`read_header()`] or
+#'   [`create_header()`].
+#'
+#' @return Returns `header` invisibly if it has a valid structure. Raises an
+#'   error otherwise.
+#' @noRd
+is_valid_header <- function(header) {
+  # Check header structure. Expect a list with elements "name", "header" and
+  # "endian".
+  if (!is.list(header) ||
+    any(sapply(header[c("name", "header", "endian")], is.null)) # nolint:undesirable_function_linter.
+  ) {
+    stop(
+      "Header has invalid structure. Must be a list with elements ",
+      "'name', 'header', 'endian'"
+    )
+  }
+  # Confirm that no other elements are in list
+  if (length(header) != 3) {
+    stop(
+      "Header has invalid structure. Must be a list with elements ",
+      "'name', 'header', 'endian'"
+    )
+  }
+  # Expect only a single "name" and "endian"
+  if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
+    stop("Header has invalid structure. More than one 'name' or 'endian'")
+  }
+  # Expect header$header to have 13 values (some of which may be defaults)
+  if (length(header$header) != 13) {
+    stop("Header has invalid structure. Invalid header$header")
+  }
+  # Check that all items are present in header or header$header
+  if (any(
+    !setdiff(valid_header_items, names(header)) %in% names(header$header)
+  )) {
+    stop(
+      "Header has invalid structure: item(s) ",
+      toString(
+        sQuote(
+          setdiff(
+            setdiff(valid_header_items, names(header)),
+            names(header$header)
+          )
+        )
+      ),
+      " missing in header$header"
+    )
+  }
+
+  if (anyNA(header$header[base_header_items])) {
+    stop(
+      "Header values must not be set to NA. Please check: ",
+      toString(sQuote(names(which(is.na(header$header[base_header_items])))))
+    )
+  }
+  if (header$header["version"] > 1) {
+    if (anyNA(header$header[c("cellsize_lon", "scalar")])) {
+      stop(
+        "Header values must not be set to NA. Please check: ",
+        toString(
+          sQuote(
+            names(which(is.na(header$header[c("cellsize_lon", "scalar")])))
+          )
+        )
+      )
+    }
+  }
+  if (header$header["version"] > 2) {
+    if (anyNA(header$header[c("cellsize_lat", "datatype")])) {
+      stop(
+        "Header values must not be set to NA. Please check: ",
+        toString(
+          sQuote(
+            names(which(is.na(header$header[c("cellsize_lat", "datatype")])))
+          )
+        )
+      )
+    }
+  }
+  if (header$header["version"] > 3) {
+    if (anyNA(header$header[c("nstep", "timestep")])) {
+      stop(
+        "Header values must not be set to NA. Please check: ",
+        toString(
+          sQuote(
+            names(which(is.na(header$header[c("nstep", "timestep")])))
+          )
+        )
+      )
+    }
+  }
+
+  invisible(header)
+}
+
+# Basic items included in all header versions
+base_header_items <- c(
+  "version",
+  "order",
+  "firstyear",
+  "nyear",
+  "firstcell",
+  "ncell",
+  "nbands"
+)
+
+# All valid items in header
+valid_header_items <- c(
+    "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
+    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
+    "timestep", "endian"
+)

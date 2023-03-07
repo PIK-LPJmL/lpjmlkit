@@ -13,7 +13,8 @@ set_header_item(header, ...)
 \item{...}{Named header items to set. Can be one or several of 'name',
 'version', 'order', 'firstyear', 'nyear', 'firstcell', 'ncell', 'nbands',
 'cellsize_lon', 'scalar', 'cellsize_lat', 'datatype', 'nstep', 'timestep',
-'endian', 'verbose'.}
+'endian'. Parameter 'verbose' can be used to control verbosity, as in
+\code{\link[=create_header]{create_header()}}.}
 }
 \value{
 Header \code{header} where header items supplied through the ellipsis
