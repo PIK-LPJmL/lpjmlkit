@@ -273,11 +273,17 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #'
     #' @param data_dir Directory containing the file this LPJmLMetaData object
     #'   refers to. Used to "lazy load" grid.
+    #'
+    #' @param format_header File format if converting a header into
+    #'   an `LPJmLMetaData` object. Adds `offset` parameter for
+    #'   `format_header = "clm"`.
     initialize = function(x,
                           additional_attributes = list(),
-                          data_dir = NULL) {
+                          data_dir = NULL,
+                          format_header = "bin") {
 
       if (all(names(x) %in% c("name", "header", "endian"))) {
+        is_valid_header(x)
         header_to_meta <- as.list(x$header) %>%
           append(list(
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
@@ -285,22 +291,39 @@ LPJmLMetaData <- R6::R6Class( # nolint
             "lastyear" = x$header[["firstyear"]] +
                          x$header[["timestep"]] *
                          (x$header[["nyear"]] - 1),
-            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
+            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name),
+            "format" = format_header,
+            "offset" = ifelse(format_header == "clm", get_headersize(x), 0)
           )) %>%
-        `[[<-`("order",
-               switch(as.character(.$order),
-                      `1` = "cellyear",
-                      `2` = "yearcell",
-                      `3` = "cellindex",
-                      `4` = "cellseq",
-                      stop(
-                        paste(
-                          "Invalid order value", sQuote(.$order), "in header"
-                        )
-                      )
-                     )
-              )
-        private$init_list(header_to_meta, additional_attributes)
+          `[[<-`("order",
+                switch(as.character(.$order),
+                       `1` = "cellyear",
+                       `2` = "yearcell",
+                       `3` = "cellindex",
+                       `4` = "cellseq",
+                       stop(
+                         paste(
+                           "Invalid order value", sQuote(.$order), "in header"
+                         )
+                       )
+                  )
+                ) %>%
+          `[[<-`("datatype",
+                switch(as.character(.$datatype),
+                       `0` = "byte",
+                       `1` = "short",
+                       `2` = "integer",
+                       `3` = "float",
+                       `4` = "double",
+                       stop(
+                         paste(
+                           "Invalid datatype value", sQuote(.$datatype),
+                           "in header"
+                         )
+                       )
+                    )
+                )
+          private$init_list(header_to_meta, additional_attributes)
 
       } else {
         private$init_list(x, additional_attributes)

@@ -42,7 +42,7 @@ read_meta <- function(filename, ...) {
   # Handling of input or output file containing a header
   } else if (file_type == "clm") {
     meta_object <- read_header(filename, ...) %>%
-      LPJmLMetaData$new(data_dir = pathname)
+      LPJmLMetaData$new(data_dir = pathname, format_header = "clm")
 
   # Other formats are not supported yet
   } else {

@@ -283,7 +283,12 @@ to update meta data. Required if year dimension is subsetted.}
 \subsection{Method \code{new()}}{
 Create a new LPJmLMetaData object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(x, additional_attributes = list(), data_dir = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLMetaData$new(
+  x,
+  additional_attributes = list(),
+  data_dir = NULL,
+  format_header = "bin"
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -297,6 +302,10 @@ that are not included in file header or JSON meta file. These are
 
 \item{\code{data_dir}}{Directory containing the file this LPJmLMetaData object
 refers to. Used to "lazy load" grid.}
+
+\item{\code{format_header}}{File format if converting a header into
+an \code{LPJmLMetaData} object. Adds \code{offset} parameter for
+\code{format_header = "clm"}.}
 }
 \if{html}{\out{</div>}}
 }
