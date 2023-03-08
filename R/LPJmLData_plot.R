@@ -222,13 +222,20 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     #   cropping via as_raster functionality is used.
     data_ras <- data_subset %>%
       as_raster() %>%
-      `if`(!is.null(raster_extent), raster::crop(., y = raster_extent), .)
+      `if`(!is.null(raster_extent), raster::extend(., y = raster_extent), .)
+
+    if (is.null(dots$main)) {
+      if (all(private$.meta$variable == names(data_ras))) {
+        dots$main <- var_title
+      } else {
+        dots$main <- paste0(var_title, ": ", gsub("X", "", names(data_ras)))
+      }
+    }
 
     # do.call to use dots list as ellipsis, addfun is a workaround to use
     #   country map overlay for every plot
     do.call(raster::plot,
             c(list(x = data_ras,
-                   main = paste0(var_title, ": ", gsub("X", "", names(data_ras))), # nolint
                    addfun = function() maps::map(add = TRUE, lwd = 0.3)),
               dots))
   }
