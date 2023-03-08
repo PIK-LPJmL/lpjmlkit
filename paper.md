@@ -51,9 +51,9 @@ bibliography: paper.bib
 
 # Summary
 
-<img src="inst/img/logo.png" alt="drawing" style="width:24%;"/>
+<img src="inst/figures/logo.png" alt="drawing" style="width:24%;"/>
 
-[//]: # (![]\(inst/img/logo.png\){width=24% align=left} -> use for final publication)
+[//]: # (![]\(inst/figures/logo.png\){width=24% align=left} -> use for final publication)
 
 The *lpjmlkit* R package [@lpjmlkit_manual] is an open source software that is
 developed for handling the open source dynamic global vegetation model (DGVM)
@@ -147,12 +147,46 @@ data.
 
 The LPJmL Runner module is designed to support Unix-based operating systems and
 includes four key functions.
-`write_config()` creates configuration files in the JSON format using a tibble
-with parameters to be changed and a base pre-configuration file.
+`write_config()` creates configuration files in the JSON format using a data
+frame with parameters to be changed and a base pre-configuration file.
 `check_config()` checks if generated config.json files are valid for LPJmL
 simulations. `run_lpjml()` runs LPJmL directly, such as for single-cell
 simulations, while `submit_lpjml()` submits LPJmL to SLURM, such as for global
 simulations.
+
+```R
+library(lpjmlkit)
+
+
+lpjml_path <- "./LPJmL_internal"
+sim_path <- "./simulations"
+
+# Define data frame with configuration parameters to be changed
+config_params <- data.frame(
+  sim_name = c("spinup", "lu", "pnv"),
+  landuse = c("no", "yes", "no"),
+  reservoir = c(FALSE, TRUE, FALSE),
+  river_routing = c(FALSE, FALSE, FALSE),
+  wateruse = c("no", "yes", "no"),
+  const_deposition = c(FALSE, FALSE, TRUE),
+  dependency = c(NA, "spinup", "spinup")
+)
+
+# Write corresponding configuration files using a base configuration file
+config_details <- write_config(config_params,
+                               model_path = lpjml_path,
+                               output_path = sim_path)
+
+# Check validity of each written configuration file using LPJmL
+check_config(config_details,
+             model_path = model_path,
+             output_path = output_path)
+
+# Submit LPJmL simulations to be run by SLURM
+submit_lpjml(config_details,
+             model_path = model_path,
+             output_path = output_path)
+```
 
 The LPJmL Data module provides various functions for reading and processing
 LPJmL data.
@@ -162,6 +196,25 @@ This object can be used for further analysis and visualization, with `plot()`,
 `summary()`, and `transform()` functions available.
 Users can also subset the data using `subset()`, or export it to common R data
 formats using as_array(), as_tibble(), and as_raster() / as_terra().
+
+```R
+# Read runoff output from corresponding 
+runoff <- read_io(filename = "./simulations/output/lu/runoff.bin.json"),
+                  subset = list(year = as.character(2010:2019)))
+
+# Transform into required format to be subsetted by months and latitudes and
+# plot aggregated years and months
+runoff %>%
+  transform(to = c("year_month_day", "lon_lat")) %>%
+  subset(month = 6:9,
+         lat = as.character(seq(0.25, 83.75, by = 0.5))) %>%
+  plot(aggregate = list(year = mean, month = sum),
+       raster_extent = raster::extent(-180, 180, 0, 60),
+       main = "Northern hemisphere summer runoff [mm]")
+abline(h = 0, lty = 2)
+```
+![example_plot_lpjml_data](inst/figures/example_plot.png)
+
 
 The `lpjmlkit` package also includes various other functions to support
 different applications when using LPJmL.
@@ -190,8 +243,7 @@ where users can also report issues and suggest improvements.
 
 # Acknowledgements
 
-We would like to thank Susanne Rolinski and Marie Hemmen for their
-contributions. Special thanks also go to Werner von Bloh for implementing new
+Special thanks go to Werner von Bloh for implementing new
 features into LPJmL to enable the development of lpjmlkit, such as writing meta
 files.
 

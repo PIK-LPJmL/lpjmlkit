@@ -6,4 +6,4 @@ AcceptedWarnings:
 AcceptedNotes: ~
 allowLinterWarnings: no
 AddInReadme: inst/README.md
-AddLogoReadme: inst/img/logo.png
+AddLogoReadme: man/figures/logo.png
