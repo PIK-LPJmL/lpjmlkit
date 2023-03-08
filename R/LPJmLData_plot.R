@@ -224,9 +224,13 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       as_raster() %>%
       `if`(!is.null(raster_extent), raster::extend(., y = raster_extent), .)
 
+    # Check if a main title has been defined if not create by meta data
     if (is.null(dots$main)) {
+
+      # If layer name equals variable name avoid double information
       if (all(private$.meta$variable == names(data_ras))) {
         dots$main <- var_title
+      # Else add layer name, e.g. band name
       } else {
         dots$main <- paste0(var_title, ": ", gsub("X", "", names(data_ras)))
       }
