@@ -27,7 +27,10 @@ get_git_urlhash <- function(path = ".",
     "url=${orig_url%%$git*}/tree/${hash}; else ",
     "url=${orig_url%%$git*}/-/tree/${hash}; fi;",
 
-    ifelse(include_url, "echo ${url//de:/de/};", "echo ${hash};")
+    # Replace ":" in URLs if SSH is used to clone repository
+    "url=${url//de:/de/}; ",
+    "url=${url//com:/com/}; ",
+    ifelse(include_url, "echo ${url};", "echo ${hash};")
   )
 
   # System call
