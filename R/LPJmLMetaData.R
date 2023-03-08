@@ -274,13 +274,9 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #' @param data_dir Directory containing the file this LPJmLMetaData object
     #'   refers to. Used to "lazy load" grid.
     #'
-    #' @param format_header File format if converting a header into
-    #'   an `LPJmLMetaData` object. Adds `offset` parameter for
-    #'   `format_header = "clm"`.
     initialize = function(x,
                           additional_attributes = list(),
-                          data_dir = NULL,
-                          format_header = "bin") {
+                          data_dir = NULL) {
 
       if (all(names(x) %in% c("name", "header", "endian"))) {
         is_valid_header(x)
@@ -291,9 +287,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
             "lastyear" = x$header[["firstyear"]] +
                          x$header[["timestep"]] *
                          (x$header[["nyear"]] - 1),
-            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name),
-            "format" = format_header,
-            "offset" = ifelse(format_header == "clm", get_headersize(x), 0)
+            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
           )) %>%
           `[[<-`("order",
                 switch(as.character(.$order),
