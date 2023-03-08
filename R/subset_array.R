@@ -56,7 +56,7 @@ asub <- function(x,
 subset_array <- function(x,
                          subset_list = NULL,
                          drop = TRUE,
-                         silent = testthat::is_testing()) {
+                         silent = FALSE) {
 
   if (is.null(subset_list)) {
     return(x)

@@ -122,39 +122,33 @@ test_that("Errors in create_header", {
 test_that("Warnings in create_header", {
   # Invalid header name
   testthat::expect_warning(
-    create_header("NONAME", ncell = 1) %>% suppressMessages(),
+    create_header("NONAME", ncell = 1),
     "Header name.+is probably invalid"
-  )
+  ) %>% testthat::expect_message("Setting datatype")
   testthat::expect_warning(
-    create_header(version = 1, ncell = 1, cellsize_lon = 0.75) %>%
-      suppressMessages(),
+    create_header(version = 1, ncell = 1, cellsize_lon = 0.75),
     "Setting non-default cellsize_lon"
   )
   testthat::expect_warning(
-    create_header(version = 1, ncell = 1, scalar = 0.75) %>%
-      suppressMessages(),
+    create_header(version = 1, ncell = 1, scalar = 0.75),
     "Setting non-default scalar"
   )
   testthat::expect_warning(
-    create_header(version = 2, ncell = 1, cellsize_lat = 0.75) %>%
-      suppressMessages(),
+    create_header(version = 2, ncell = 1, cellsize_lat = 0.75),
     "Setting non-default cellsize_lat"
   )
   testthat::expect_warning(
-    create_header(version = 2, ncell = 1, datatype = 3) %>%
-      suppressMessages(),
+    create_header(version = 2, ncell = 1, datatype = 3),
     "Setting non-default datatype"
   )
   testthat::expect_warning(
-    create_header(version = 3, ncell = 1, nstep = 12) %>%
-      suppressMessages(),
+    create_header(version = 3, ncell = 1, nstep = 12),
     "Setting non-default nstep"
-  )
+  ) %>% testthat::expect_message("Setting datatype")
   testthat::expect_warning(
-    create_header(version = 3, ncell = 1, timestep = 5) %>%
-      suppressMessages(),
+    create_header(version = 3, ncell = 1, timestep = 5),
     "Setting non-default timestep"
-  )
+  ) %>% testthat::expect_message("Setting datatype")
 })
 
 test_that("Tests for is_valid_header", {

@@ -84,7 +84,7 @@ test_that("set header item", {
   testthat::expect_error(is_valid_header(h2), NA)
   # Test updated value
   testthat::expect_equal(h2$header["cellsize_lat"], c(cellsize_lat = 2.5))
-  # Setting datatype can result in a warning, suppress
+  # Setting datatype results in a message for version >= 3
   testthat::expect_message(
     h2 <- set_header_item(h1, datatype = 4),
     "Setting datatype"

@@ -32,7 +32,7 @@ test_that("asub", {
   testthat::expect_warning(
     subset_array(my_array, list(month = NA), silent = FALSE),
     "Removing NA values from"
-  ) %>% suppressWarnings()
+  ) %>% testthat::expect_warning("empty after removal of NAs")
 
   # Test error message where no subset remains valid
   testthat::expect_error(
