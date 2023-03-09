@@ -98,7 +98,7 @@ test_that("raster export lon_lat", {
   # lat dimension has to be reverted to convert to raster
   test_raster <- raster::raster(
     test_data[, seq_len(dim(test_data)[["lat"]]), drop = FALSE],
-    template = tmp_raster,
+    template = tmp_raster
   )
   raster::crs(test_raster) <- "EPSG:4326"
   # add variable as layer name
