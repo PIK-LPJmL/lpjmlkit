@@ -158,7 +158,7 @@ LPJmLData$set("private",
     data %>%
       reshape2::melt(value.name = value_name) %>%
       tibble::as_tibble() %>%
-      dplyr::mutate(across(names(dimnames(data)), as.factor)) %>%
+      dplyr::mutate(dplyr::across(names(dimnames(data)), as.factor)) %>%
       return()
   }
 )
