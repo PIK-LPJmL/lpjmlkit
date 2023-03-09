@@ -49,6 +49,7 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
     # Handle LPJmLData objects of variable grid as LPJmLGridData objects to
     # allow for calc_cellarea
     } else if (methods::is(x, "LPJmLData") &&
+        !methods::is(x, "LPJmLGridData") &&
         any(c("grid", "LPJGRID") %in% x$meta$variable)) {
       x <- LPJmLGridData$new(x) # nolint:object_usage_linter.
     }

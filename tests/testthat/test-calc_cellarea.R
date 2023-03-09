@@ -80,6 +80,16 @@ test_that("Calculate cell area with LPJmLData object and grid attribute", {
   output$add_grid("../testdata/output/grid.bin.json")
   cell_area3 <- calc_cellarea(output, return_unit = "km2")
   testthat::expect_identical(cell_area, cell_area3)
+
+  # Test for Object of class LPJmLGridData
+  output <- read_io("../testdata/output/grid.bin.json") %>% LPJmLGridData$new()
+  cell_area4 <- calc_cellarea(output, return_unit = "km2")
+  testthat::expect_identical(cell_area, cell_area4)
+
+  # Test for grid file read as LPJmLData
+  output <- read_io("../testdata/output/grid.bin.json")
+  cell_area5 <- calc_cellarea(output, return_unit = "km2")
+  testthat::expect_identical(cell_area, cell_area5)
 })
 
 test_that("Calculate cell area with LPJmLData object of variable grid", {
