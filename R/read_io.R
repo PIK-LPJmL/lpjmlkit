@@ -187,7 +187,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
   # Detect file_type if not provided by user
   if (is.null(file_type)) {
-    file_type <- detect_type(filename)
+    file_type <- detect_io_type(filename)
   }
   # Check valid file_type
   if (!file_type %in% supported_types) {
@@ -302,14 +302,26 @@ read_io <- function( # nolint:cyclocomp_linter.
       # Set working directory to path of filename
       setwd(dirname(filename)) # nolint:undesirable_function_linter.
       # Relative path can be parsed now
-      filename <- normalizePath(meta_data$filename)
+      filename <- normalizePath(meta_data$filename, mustWork = FALSE)
       # Reset working directory
       setwd(wd) # nolint:undesirable_function_linter.
+    }
+    if (!file.exists(filename)) {
+      stop("File ", filename, " linked in meta file does not exist")
     }
   }
   # Derive file_header from meta_data. Set silent = TRUE here because any
   # warnings should have been triggered in read_io_metadata already.
   file_header <- meta_data$as_header(silent = TRUE)
+
+  # Check if file is an LPJDAMS input file, which has a different format that is
+  # not supported by this function. TODO: Implement drop-in function for LPJDAMS
+  # input.
+  if (get_header_item(file_header, "name") == "LPJDAMS") {
+    stop(
+      "This function currently does not support reading LPJDAMS input files."
+    )
+  }
 
   # Check file size
   expected_filesize <- unname(
@@ -341,15 +353,6 @@ read_io <- function( # nolint:cyclocomp_linter.
       " file consider setting \"nbands = 1\" and \"nstep = ",
       get_header_item(file_header, "nbands"),
       "\" to allow correct setting of the time axis."
-    )
-  }
-
-  # Check if file is an LPJDAMS input file, which has a different format that is
-  # not supported by this function. TODO: Implement drop-in function for LPJDAMS
-  # input.
-  if (get_header_item(file_header, "name") == "LPJDAMS") {
-    stop(
-      "This function currently does not support reading LPJDAMS input files."
     )
   }
 
@@ -420,18 +423,26 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
                    band_names)
 
   # Prepare additional attributes to be added to meta information
-  additional_attributes <- list(band_names = band_names, variable = variable,
-                                descr = descr, unit = unit)
+  additional_attributes <- list(
+    band_names = unname(band_names),
+    variable = unname(variable),
+    descr = unname(descr),
+    unit = unname(unit),
+    format = unname(file_type)
+  )
   additional_attributes <-
     additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
   # Use header name is a substitute for variable if variable is not set
   if (is.null(additional_attributes[["variable"]])) {
-    additional_attributes[["variable"]] <- get_header_item(file_header, "name")
+    additional_attributes[["variable"]] <-
+      unname(get_header_item(file_header, "name"))
   }
   # Generate meta_data
-  meta_data <- LPJmLMetaData$new(x = file_header,
-                                 additional_attributes = additional_attributes,
-                                 data_dir = dirname(filename))
+  meta_data <- LPJmLMetaData$new(
+    x = file_header,
+    additional_attributes = additional_attributes,
+    data_dir = dirname(filename)
+  )
   meta_data
 }
 
@@ -499,25 +510,32 @@ read_io_metadata_clm <- function(filename, file_type, band_names,
                    band_names)
 
   # Prepare additional attributes to be added to meta information
-  additional_attributes <- list(band_names = band_names, variable = variable,
-                                descr = descr, unit = unit)
+  additional_attributes <- list(
+    band_names = unname(band_names),
+    variable = unname(variable),
+    descr = unname(descr),
+    unit = unname(unit)
+  )
   additional_attributes <-
     additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
   # Use header name as a substitute for variable if variable is not set. Here,
   # use name argument if supplied by user.
   if (is.null(additional_attributes[["variable"]])) {
     additional_attributes[["variable"]] <- as.character(
-      default(name, get_header_item(file_header, "name"))[1]
+      unname(default(name, get_header_item(file_header, "name"))[1])
     )
   }
 
   # Offset at the start of the file before values begin
   additional_attributes[["offset"]] <- unname(get_headersize(file_header))
+  additional_attributes[["format"]] <- unname(file_type)
 
   # Generate meta_data
-  meta_data <- LPJmLMetaData$new(x = file_header,
-                                 additional_attributes = additional_attributes,
-                                 data_dir = dirname(filename))
+  meta_data <- LPJmLMetaData$new(
+    x = file_header,
+    additional_attributes = additional_attributes,
+    data_dir = dirname(filename)
+  )
   meta_data
 }
 
@@ -555,7 +573,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   }
   # Override attributes
   for (att in overwrite_set_args) {
-    meta_data$.__set_attribute__(att, get(att))
+    meta_data$.__set_attribute__(att, unname(get(att)))
   }
   # Remove arguments that are set/updated already
   set_args <- setdiff(set_args, overwrite_set_args)
@@ -563,25 +581,6 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   # If user wants band_names check consistency with nbands
   if (!"nbands" %in% set_args) {
     nbands <- default(meta_data$nbands, 1)
-  }
-  if ("band_names" %in% set_args) {
-    if (length(band_names) != nbands) {
-      stop(
-        "Provided band_names ",
-        toString(
-          dQuote(
-            if (length(band_names) > 6) {
-                c(utils::head(band_names, n = 4), "...",
-                  utils::tail(band_names, n = 1))
-            } else {
-              band_names
-            }
-          )
-        ),
-        " do not match number of bands in file: ",
-        length(band_names), "!=", nbands
-      )
-    }
   }
 
   if (!"band_names" %in% set_args && is.null(meta_data$band_names) &&
@@ -621,17 +620,18 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
     }
   }
   # Prepare additional attributes to be added to metadata
-  additional_attributes <- sapply(set_args, function(x) get(x), simplify = FALSE) # nolint
+  additional_attributes <- sapply(
+    set_args,
+    function(x) unname(get(x)),
+    simplify = FALSE
+  ) # nolint
 
   # Update meta_data
   meta_data$initialize(x = meta_data$as_list(),
                        additional_attributes = additional_attributes)
 
-  # Convert meta data into header
-  file_header <- meta_data$as_header(silent)
-
   # Check validity of band_names
-  check_band_names(get_header_item(file_header, "nbands"),
+  check_band_names(meta_data$nbands,
                    meta_data$band_names)
 
   meta_data
@@ -669,6 +669,7 @@ read_io_data <- function(
   # "time" being last dimension for code below to work.
   read_band_order <- c("cell", "band", "time")
   # Loop over subset years
+  result_is_init <- FALSE
   for (yy in years) {
     # Compute offset
     data_offset <- (yy - default(meta_data$firstyear, 1901)) /
@@ -751,7 +752,7 @@ read_io_data <- function(
       )
 
     # Concatenate years together
-    if (yy == years[1]) {
+    if (!result_is_init) {
       # Allocate full array for all years
       file_data <- array(
         dim = dim(year_data) * ifelse(
@@ -768,6 +769,7 @@ read_io_data <- function(
       # Assign year_data to time indices of first year in full array
       time_index <- seq_len(dim(year_data)["time"])
       file_data[, , time_index] <- year_data
+      result_is_init <- TRUE
     } else {
       # Increment time index
       time_index <- time_index + dim(year_data)["time"]

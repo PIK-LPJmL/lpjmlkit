@@ -22,22 +22,22 @@
 #' @param group Character string defining the user group for which the job is
 #'   submitted. Defaults to `"lpjml"`.
 #'
-#' @param sclass Character string defining the job classification. For more
-#'   information have a look at <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5>.
-#'   Defaults to `"short"`.
+#' @param sclass Character string defining the job classification. Available
+#'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
+#'   More information at <https://www.pik-potsdam.de>. Defaults to `"short"`.
 #'
-#' @param ntasks Integer defining the number of tasks/threads. For more
-#'   information have a look  at <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18>.
+#' @param ntasks Integer defining the number of tasks/threads. More information
+#'   at <https://www.pik-potsdam.de> and <https://slurm.schedmd.com>.
 #'   Defaults to `256`.
 #'
 #' @param wtime Character string defining the time limit. Setting a lower time
 #'   limit than the maximum runtime for `sclass` can reduce the wait time in the
-#'   SLURM job queue. For more information' have a look at
-#'   <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18>.
+#'   SLURM job queue. More information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com>.
 #'
-#' @param blocking Integer defining the number of cores to be blocked. For more
-#'   information have a look at
-#'   <https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18>.
+#' @param blocking Integer defining the number of cores to be blocked. More
+#'   information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com>.
 #'
 #' @param no_submit Logical. Set to `TRUE` to test if `x` set correctly or
 #'   `FALSE` to actually submit job to SLURM.
@@ -174,20 +174,15 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          no_submit = FALSE) {
 
   # Check if SLURM is available
-  if (!is_slurm_available() && !no_submit) {
+  if (!is_slurm_available() && !no_submit && !testthat::is_testing()) {
     stop("submit_lpjml is only available on HPC cluster environments providing
           a SLURM workload manager")
   }
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
-    if (model_path != "TEST/PATH") {
-      stop(
-        paste0("Folder of model_path \"", model_path, "\" does not exist!")
-      )
-    }
+    stop("Folder of model_path \"", model_path, "\" does not exist!")
   }
-
   if (is.null(output_path)) output_path <- model_path
 
   # Case if character vector with file names is supplied instead of tibble
@@ -196,7 +191,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
       x,
       function(x) {
         strsplit(
-          strsplit(rev(strsplit(x, "/")[[1]])[1], "config_")[[1]][2],
+          strsplit(basename(x), "config_")[[1]][2],
           ".json"
         )[[1]]
       }
@@ -399,14 +394,15 @@ submit_run <- function(sim_name,
     # Run lpjsubmit.
     submit_status <- processx::run(command = "sh",
                                    args = c("-c", inner_command),
-                                   cleanup_tree = TRUE)
-
-    copied <- file.copy(from = paste(output_path, # nolint:object_usage_linter.
-                                     "configurations",
-                                     config_file,
-                                     sep = "/"),
-                        to = output_config)
-
+                                   cleanup_tree = TRUE,
+                                   error_on_status = FALSE)
+    if (!testthat::is_testing()) {
+      copied <- file.copy(from = paste(output_path, # nolint:object_usage_linter.
+                                       "configurations",
+                                       config_file,
+                                       sep = "/"),
+                          to = output_config)
+    }
   }, finally = {
 
     if (pre_lpjroot == "") {

@@ -22,19 +22,19 @@ or submit LPJmL with each configurations (4).
 #### **1. 📋 Define a table of modified configuration parameters** 
 
   
-Define what LPJmL parameters/settings (here all referred to as
-parameters) to be changed. They can be changed directly in the
-corresponding `"js"` file or in a `tibble` table (see example). For a
-single simulation this is a matter of personal routine, but when it
-comes to multiple runs where these parameters differ from each other,
-they have to be specified in a `tibble`.  
+Define what LPJmL configurations/parameters to be changed. Please
+familiarize yourself with available configuration options.  
+The base configuration file (e.g.”lpjml.js”) can be read in via
+`read_config` as a nested list object. Using the same syntax
+configurations/parameters can be changed directly in the corresponding
+configuration file or in a data frame (see example).  
 `?write_config` *for more information.*
 
 ``` r
 my_params <- tibble(
   sim_name = c("scenario1", "scenario2"),
   random_seed = c(42, 404),
-  param.k_temp = c(NA, 0.03),
+  `param$k_temp` = c(NA, 0.03),
   new_phenology = c(TRUE, FALSE)
 )
 ```
@@ -43,8 +43,8 @@ my_params <- tibble(
 
   
 Now the central function is `write_config`, create and write LPJmL
-Configuration (Config) file(s) `"config_*.json"` from a table (`tibble`)
-with the parameters of a base `"lpjml.js"` file to be changed.  
+Configuration (config) file(s) `"config_*.json"` from a data frame with
+the parameters of a base config file `"lpjml.js"` to be changed.  
 `?write_config` *for more information.*
 
 ``` r
@@ -54,8 +54,8 @@ config_details <- write_config(my_params, model_path, output_path)
 #### **3. 🔍 Check validity of Configurations** 
 
   
-Check whether your Config(s) are valid for LPJmL by passing the returned
-`tibble` to `check_lpjml`. It won’t raise an error (dependencies might
+Check whether your config(s) are valid for LPJmL by passing the returned
+data frame to `check_lpjml`. It won’t raise an error (dependencies might
 not be satisfied yet) but will print/return the information of
 `lpjcheck`.
 
@@ -85,8 +85,7 @@ submit_details <- submit_lpjml(config_details, model_path, output_path)
   
 More helpful functions that come with LPJmL Runner are:
 
--   `read_config` to read a `"config_*.json"` file as a nested R list
-    object
+-   `read_config` to read a configuration file as a nested R list object
 
 -   use the R internal `View` function for a tree visualization of a
     `"config_*.json"` file
@@ -99,7 +98,9 @@ More helpful functions that come with LPJmL Runner are:
 
 ``` r
 library(lpjmlkit)
-# why tibble? -> https://r4ds.had.co.nz/tibbles.html
+# Why tibble? -> https://r4ds.had.co.nz/tibbles.html
+# Tibbles also provide a better overview of the data and directly show the type
+# of each column, which is very important for integer/floating point values.
 library(tibble)
 
 model_path <- "./LPJmL_internal"
@@ -142,7 +143,7 @@ config_details <- write_config(
   params = params, # pass the defined parameter tibble
   model_path = model_path,
   output_path = output_path,
-  js_filename = "lpjml.js" # (default) the base js file
+  js_filename = "lpjml.js" # (default) the base config file
 )
 
 # read and view config

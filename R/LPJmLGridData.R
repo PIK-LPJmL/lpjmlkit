@@ -123,7 +123,7 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
           stop(
             paste0(
               "Invalid variable ",
-              sQuote(variable),
+              sQuote(private$.meta$variable),
               ". Supported variables are ",
               sQuote("grid"),
               " and ",
