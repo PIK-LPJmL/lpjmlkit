@@ -34,22 +34,22 @@ and a configuration folder are created to store respective data. If \code{NULL},
 \item{group}{Character string defining the user group for which the job is
 submitted. Defaults to \code{"lpjml"}.}
 
-\item{sclass}{Character string defining the job classification. For more
-information have a look at \url{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-5}.
-Defaults to \code{"short"}.}
+\item{sclass}{Character string defining the job classification. Available
+options at PIK: \code{c("short", "medium", "long", "priority", "standby", "io")}
+More information at \url{https://www.pik-potsdam.de}. Defaults to \code{"short"}.}
 
-\item{ntasks}{Integer defining the number of tasks/threads. For more
-information have a look  at \url{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}.
+\item{ntasks}{Integer defining the number of tasks/threads. More information
+at \url{https://www.pik-potsdam.de} and \url{https://slurm.schedmd.com}.
 Defaults to \code{256}.}
 
 \item{wtime}{Character string defining the time limit. Setting a lower time
 limit than the maximum runtime for \code{sclass} can reduce the wait time in the
-SLURM job queue. For more information' have a look at
-\url{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}.}
+SLURM job queue. More information at \url{https://www.pik-potsdam.de} and
+\url{https://slurm.schedmd.com}.}
 
-\item{blocking}{Integer defining the number of cores to be blocked. For more
-information have a look at
-\url{https://www.pik-potsdam.de/en/institute/about/it-services/hpc/user-guides/slurm#section-18}.}
+\item{blocking}{Integer defining the number of cores to be blocked. More
+information at \url{https://www.pik-potsdam.de} and
+\url{https://slurm.schedmd.com}.}
 
 \item{no_submit}{Logical. Set to \code{TRUE} to test if \code{x} set correctly or
 \code{FALSE} to actually submit job to SLURM.}

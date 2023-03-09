@@ -4,15 +4,15 @@
 #' "make all" on the operating system shell.
 #'
 #' @param model_path Character string providing the path to LPJmL
-#' (equal to `LPJROOT` environment variable)
+#' (equal to `LPJROOT` environment variable). Defaults sto ".".
 #'
-#' @param nproc numeric. Number of N central processing units / threads to be
-#'   used for compilation.
+#' @param parallel_cores Numeric defining the number of available CPU cores for
+#'   parallelization.
 #'
 #' @param make_clean Logical. If set to `TRUE`, calls "make clean" first to
 #'   remove previous installation. Defaults to `FALSE`.
 #'
-#' @param throw_error Logical. Whether to throw an error if sub-process has
+#' @param raise_error Logical. Whether to raise an error if sub-process has
 #'   non-zero exit status, hence if compilation fails. Defaults to `TRUE`.
 #'
 #' @param debug NULL or Logical. Whether to compile LPJmL with "-debug" flag.
@@ -30,9 +30,9 @@
 #'
 #' @export
 make_lpjml <- function(model_path = ".",
-                       nproc = NULL,
+                       parallel_cores = NULL,
                        make_clean = FALSE,
-                       throw_error = TRUE,
+                       raise_error = TRUE,
                        debug = NULL) {
 
   if (!is.null(debug)) { # nolint:undesirable_function_linter.
@@ -50,28 +50,29 @@ make_lpjml <- function(model_path = ".",
                                             ""
                                           ),
                                           "make ",
-                                          ifelse(!is.null(nproc),
-                                                 paste0("-j", nproc),
+                                          ifelse(!is.null(parallel_cores),
+                                                 paste0("-j", parallel_cores),
                                                  ""),
                                           " all;")),
                           cleanup_tree = TRUE,
-                          error_on_status = throw_error,
+                          error_on_status = raise_error,
                           wd = model_path,
-                          echo = TRUE)
+                          echo = !testthat::is_testing())
 
   } else {
     init <- processx::run(command = "sh",
                           args = c("-c",
-                                   paste0("./configure.sh;",
-                                          ifelse(!is.null(debug) && debug, "-debug", ""), # nolint
-                                          ifelse(!is.null(nproc),
-                                                 paste0("-j", nproc),
+                                   paste0("./configure.sh",
+                                          ifelse(!is.null(debug) && debug, " -debug; ", "; "), # nolint
+                                          "make",
+                                          ifelse(!is.null(parallel_cores),
+                                                 paste0(" -j", parallel_cores),
                                                  ""),
                                           " all;")),
                           cleanup_tree = TRUE,
-                          error_on_status = throw_error,
+                          error_on_status = raise_error,
                           wd = model_path,
-                          echo = TRUE)
+                          echo = !testthat::is_testing())
   }
 
   init

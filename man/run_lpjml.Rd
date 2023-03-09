@@ -6,10 +6,11 @@
 \usage{
 run_lpjml(
   x,
-  model_path,
+  model_path = ".",
   output_path = NULL,
   parallel_cores = 1,
-  write_stdout = FALSE
+  write_stdout = FALSE,
+  raise_error = TRUE
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ OR provide a character string (vector) with the file name of one or
 multiple generated configuration file(s).}
 
 \item{model_path}{Character string providing the path to LPJmL
-(equal to \code{LPJROOT} environment variable).}
+(equal to \code{LPJROOT} environment variable). Defaults to "."}
 
 \item{output_path}{Character string providing path where an output, a restart
 and a configuration folder are created to store respective data. If \code{NULL},
@@ -35,6 +36,9 @@ for interactive runs.}
 \item{write_stdout}{Logical. If \code{TRUE}, \code{stdout} as well as \code{stderr} files
 are written. If \code{FALSE} (default), these are printed instead. Within a
 SLURM job \code{write_stdout} is automatically set to \code{TRUE}.}
+
+\item{raise_error}{Logical. Whether to raise an error if sub-process has
+non-zero exit status. Defaults to \code{TRUE}.}
 }
 \value{
 See \code{x}, extended by columns \code{"type"}, \code{"job_id"} and \code{"status"}.
@@ -55,8 +59,8 @@ supplied:\tabular{l}{
 }
 
 
-To perform subsequent or rather dependent runs optional run parameters
-\code{"order"} and \code{"dependency"} need to be provided within the initial
+To perform subsequent or rather dependent runs the optional run parameter
+\code{"dependency"} needs to be provided within the initial
 \link[tibble]{tibble} supplied as \code{param} to \code{\link[=write_config]{write_config()}}.\tabular{lrl}{
    \strong{sim_name} \tab \strong{order} \tab \strong{dependency} \cr
    scen1_spinup \tab 1 \tab NA \cr
@@ -112,7 +116,6 @@ my_params2 <- tibble(
   startgrid = c(27410, 27410)
   river_routing = c(FALSE, FALSE),
   random_seed = c(42, 404),
-  order = c(1, 2),
   dependency = c(NA, "scen1_spinup")
 )
 
@@ -131,7 +134,6 @@ run_details2
 run_details2 <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = as.integer(c(1, 42)),
-  order = c(1, 2),
   dependency = c(NA, "scen1_spinup")
 ) \%>\%
   write_config(model_path, output_path) \%>\%

@@ -1,7 +1,7 @@
 Package: lpjmlkit
 Type: Package
 Title: Toolkit for basic LPJmL handling
-Version: 0.7.1
+Version: 0.8.0
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
@@ -36,14 +36,16 @@ Imports:
     foreach,
     utils,
     methods,
-    abind
+    abind,
+    rlang
 Suggests:
     rmarkdown,
     knitr,
     testthat (>= 3.0.0),
     terra,
     raster,
-    reshape2
+    reshape2,
+    maps
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-02-15
+Date: 2023-03-09

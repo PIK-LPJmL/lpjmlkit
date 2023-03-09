@@ -1,27 +1,28 @@
-# test as_array method (basic way)
+# Test as_array method (basic way)
 test_that("basic array export", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
   output_array <- output$as_array()
 
-  # read test_array
+  # Read test_array
   test_array <- readRDS("../testdata/test_array.rds")
 
-  # test for equality with test_array
+  # Test for equality with test_array
   testthat::expect_equal(output_array, test_array)
 })
 
 
-# test as_array method with subset and aggregate functionality
+# Test as_array method with subset and aggregate functionality
 test_that("array export with subset and aggregate", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_array <- output$as_array(
+  output_array <- as_array(
+    output,
     subset = list(band = "boreal needleleaved evergreen tree"),
     aggregate = list(time = mean)
   )
 
-  # read and subset, aggregate test_array
+  # Read and subset, aggregate test_array
   test_array <- readRDS("../testdata/test_array.rds") %>%
     subset_array(
       list(band = "boreal needleleaved evergreen tree"),
@@ -29,17 +30,27 @@ test_that("array export with subset and aggregate", {
     ) %>%
     apply(c("cell", "band"), mean)
 
-  # test for equality with test_array on which operations have been performed on
+  # Rest for equality with test_array on which operations have been performed on
   #   manually with explicit subset_array and apply calls
   testthat::expect_equal(output_array, test_array)
+
+  # Test aggregating a dimension that does not exist
+  testthat::expect_warning(
+    as_array(
+      output,
+      subset = list(band = "boreal needleleaved evergreen tree"),
+      aggregate = list(time = mean, non_exist = sum)
+    ),
+    "Dimension.+does not exist"
+  )
 })
 
 
 # test as_tibble method (basic way)
-test_that("basic array export", {
+test_that("basic tibble export", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_tibble <- output$as_tibble()
+  output_tibble <- as_tibble(output)
 
   # read test_array and convert to tibble manually
   test_data <- readRDS("../testdata/test_array.rds")
@@ -57,7 +68,14 @@ test_that("basic array export", {
 test_that("raster export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_raster <- output$as_raster(
+  # transform auto-loads grid, which produces a message
+  testthat::expect_message(
+    output$transform(to = "lon_lat"),
+    "grid.bin.json"
+  )
+
+  output_raster <- as_raster(
+    output,
     subset = list(band = "boreal needleleaved evergreen tree"),
     aggregate = list(time = mean)
   )
@@ -76,10 +94,10 @@ test_that("raster export lon_lat", {
       list(band = "boreal needleleaved evergreen tree"),
       drop = FALSE
     ) %>%
-    apply(c("lat", "lon"), mean)
+    apply(c("lon", "lat"), mean)
   # lat dimension has to be reverted to convert to raster
   test_raster <- raster::raster(
-    test_data[rev(seq_len(dim(test_data)[["lat"]])), , drop = FALSE],
+    test_data[, seq_len(dim(test_data)[["lat"]]), drop = FALSE],
     template = tmp_raster
   )
   # add variable as layer name
@@ -94,8 +112,12 @@ test_that("raster export lon_lat", {
 test_that("raster export 3rd dim", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_raster <- output$as_raster(
-    subset = list(band = "boreal needleleaved evergreen tree")
+  # as_raster auto-loads grid, which produces a message
+  testthat::expect_message(
+    output_raster <- output$as_raster(
+      subset = list(band = "boreal needleleaved evergreen tree")
+    ),
+    "grid.bin.json"
   )
 
   # create tmp_raster with expected dimensions and coordinate ref system
@@ -129,6 +151,12 @@ test_that("raster export 3rd dim", {
 
   # test for equality with test_raster
   testthat::expect_equal(output_raster, test_raster)
+
+  # More than 3-dimensional raster not possible
+  testthat::expect_error(
+    as_raster(output),
+    "Too many dimensions"
+  )
 })
 
 
@@ -137,7 +165,12 @@ test_that("raster export 3rd dim", {
 test_that("terra export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_rast <- output$as_terra(
+  # Explicitly add grid specifying grid file name
+  output$add_grid("../testdata/output/grid.bin.json")
+  output$transform(to = "lon_lat")
+
+  output_rast <- as_terra(
+    output,
     subset = list(band = "boreal needleleaved evergreen tree"),
     aggregate = list(time = mean)
   )
@@ -170,6 +203,8 @@ test_that("terra export lon_lat", {
 test_that("terra export 3rd dim", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
+  # Explicitly add grid specifying grid file name
+  output$add_grid("../testdata/output/grid.bin.json")
   output_rast <- output$as_terra(
     subset = list(band = "boreal needleleaved evergreen tree")
   )
@@ -210,4 +245,16 @@ test_that("terra export 3rd dim", {
   # test for equality with test_rast
   # use base::all.equal to avoid pointer mismatches
   testthat::expect_true(all.equal(output_rast, test_rast))
+
+  # More than 3-dimensional rast not possible
+  testthat::expect_error(
+    as_terra(output),
+    "Too many dimensions"
+  )
+
+  # Must not aggregate space dimension
+  testthat::expect_error(
+    as_terra(output, aggregate = list(cell = sum)),
+    "Only non-spatial and existing dimensions are valid"
+  )
 })

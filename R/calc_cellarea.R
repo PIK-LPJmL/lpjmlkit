@@ -57,13 +57,6 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
 
-    # Initialize LPJmLData object as grid if necessary. Make a copy in order not
-    # to change the original.
-    if (!is.null(x$meta$nyear)) {
-      x <- x$clone(deep = TRUE)
-      x$init_grid()
-    }
-
     if (!is.null(x$meta$cellsize_lon) && any(res_lon != x$meta$cellsize_lon)) {
       res_lon <- x$meta$cellsize_lon
       warning("Using x$meta$cellsize_lon instead of supplied res_lon.")

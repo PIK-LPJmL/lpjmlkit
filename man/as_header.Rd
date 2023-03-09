@@ -4,7 +4,7 @@
 \alias{as_header}
 \title{Coerce LPJmLMetaData to an LPJmL header object}
 \usage{
-as_header(x, silent = TRUE)
+as_header(x, silent = FALSE)
 }
 \arguments{
 \item{x}{An \link{LPJmLMetaData} object}
