@@ -51,9 +51,9 @@ bibliography: paper.bib
 
 # Summary
 
-<img src="inst/figures/logo.png" alt="drawing" style="width:24%;"/>
+<img src="inst/img/logo.png" alt="drawing" style="width:24%;"/>
 
-[//]: # (![]\(inst/figures/logo.png\){width=24% align=left} -> use for final publication)
+[//]: # (![]\(inst/img/logo.png\){width=24% align=left} -> use for final publication)
 
 The *lpjmlkit* R package [@lpjmlkit_manual] is an open source software that is
 developed for handling the open source dynamic global vegetation model (DGVM)
@@ -213,7 +213,7 @@ runoff %>%
        main = "Northern hemisphere summer runoff [mm]")
 abline(h = 0, lty = 2)
 ```
-![example_plot_lpjml_data](inst/figures/example_plot.png)
+![example_plot_lpjml_data](inst/img/example_plot.png)
 
 
 The `lpjmlkit` package also includes various other functions to support
