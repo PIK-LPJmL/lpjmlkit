@@ -261,8 +261,8 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
           n = raster::nlayers(data_ras),
           expr = rev(grDevices::terrain.colors(255)), simplify = FALSE
         )
-        zlim <- mapply(
-          FUN = c, raster::minValue(data_ras), # nolint:undesirable_function_linter.
+        zlim <- mapply( # nolint:undesirable_function_linter.
+          FUN = c, raster::minValue(data_ras),
           raster::maxValue(data_ras), SIMPLIFY = FALSE
         )
         neg_and_pos <- intersect(
