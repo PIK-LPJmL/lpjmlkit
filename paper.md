@@ -51,9 +51,7 @@ bibliography: paper.bib
 
 # Summary
 
-<img src="inst/img/logo.png" alt="drawing" style="width:24%;"/>
-
-[//]: # (![]\(inst/img/logo.png\){width=24% align=left} -> use for final publication)
+![](inst/img/logo.png){width=24% align=left}
 
 The *lpjmlkit* R package [@lpjmlkit_manual] is an open source software that is
 developed for handling the open source dynamic global vegetation model (DGVM)
@@ -76,7 +74,6 @@ use cases of LPJmL.
 This article introduces *lpjmlkit*, an R package that serves as an interface to
 LPJmL to simplify direct work with the model and to enable new generic software
 developments based on LPJmL simulations or data.
-
 
 # Statement of need
 
@@ -145,7 +142,9 @@ output or input data from LPJmL simulations.
 Together, these modules cover the main applications of the LPJmL model and its
 data.
 
-The LPJmL Runner module is designed to support Unix-based operating systems and
+## LPJmL Runner
+
+The Runner module ([vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-runner.html)) is designed to support Unix-based operating systems and
 includes four key functions.
 `write_config()` creates configuration files in the JSON format using a data
 frame with parameters to be changed and a base pre-configuration file.
@@ -155,18 +154,17 @@ simulations, while `submit_lpjml()` submits LPJmL to SLURM, such as for global
 simulations.
 
 ```R
-library(lpjmlkit)
-
+library("lpjmlkit")
 
 lpjml_path <- "./LPJmL_internal"
 sim_path <- "./simulations"
 
 # Define data frame with configuration parameters to be changed
 config_params <- data.frame(
-  sim_name = c("spinup", "lu", "pnv"),
+  sim_name = c("spinup", "landuse", "natural_vegetation"),
   landuse = c("no", "yes", "no"),
   reservoir = c(FALSE, TRUE, FALSE),
-  river_routing = c(FALSE, FALSE, FALSE),
+  river_routing = c(FALSE, FALSE, FALSE), %>% 
   wateruse = c("no", "yes", "no"),
   const_deposition = c(FALSE, FALSE, TRUE),
   dependency = c(NA, "spinup", "spinup")
@@ -188,11 +186,14 @@ submit_lpjml(config_details,
              output_path = output_path)
 ```
 
-The LPJmL Data module provides various functions for reading and processing
+## LPJmL Data
+
+The Data module ([vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-data.html)) provides various functions for reading and processing
 LPJmL data.
 `read_io()` reads LPJmL input and output data as an `LPJmLData` object, which
 contains the data `array` and corresponding meta data (`LPJmLMetaData`).
-`LPJmLData` objects can be used for further analysis and visualization, with 
+
+`LPJmLData` objects can be used for further analysis and visualization, with
 `plot()`, `summary()`, and other basic statistic functions available.
 Users can also `transform()` the data into other array formats and `subset()`
 it explicitly by its dimension names.
@@ -200,23 +201,40 @@ An LPJmLData object can be exported it to common R data formats using
 `as_array()`, `as_tibble()`, and `as_raster()` / `as_terra()`.
 
 ```R
-# Read runoff output from corresponding 
+# Read runoff output from corresponding LPJmL output file
 runoff <- read_io(filename = "./simulations/output/lu/runoff.bin.json"),
                   subset = list(year = as.character(2010:2019)))
 
 # Transform into required format to be subsetted by months and latitudes and
-# plot aggregated years and months
-runoff %>%
-  transform(to = c("year_month_day", "lon_lat")) %>%
+# plot aggregated years and months by using the pipe operator
+runoff |>
+  transform(to = c("year_month_day", "lon_lat")) |>
   subset(month = 6:9,
-         lat = as.character(seq(0.25, 83.75, by = 0.5))) %>%
+         lat = as.character(seq(0.25, 83.75, by = 0.5))) |>
   plot(aggregate = list(year = mean, month = sum),
-       raster_extent = raster::extent(-180, 180, 0, 60),
+       raster_extent = raster::extent(-180, 180, 0, 84),
        main = "Northern hemisphere summer runoff [mm]")
 abline(h = 0, lty = 2)
 ```
+
 ![example_plot_lpjml_data](inst/img/example_plot.png)
 
+Both classes, `LPJmLData` and `LPJmLMetaData` have been implemented using the
+R6 class system [@Chang2022], which allows, for example, methods to be
+executed directly on the object instead of creating temporary objects.
+
+```R
+# Same functionality but usage of the underyling R6 class implementation
+runoff$transform(to = c("year_month_day", "lon_lat"))
+runoff$subset(month = 6:9,
+              lat = as.character(seq(0.25, 83.75, by = 0.5)))
+runoff$plot(aggregate = list(year = mean, month = sum),
+            raster_extent = raster::extent(-180, 180, 0, 84),
+            main = "Northern hemisphere summer runoff [mm]")
+abline(h = 0, lty = 2)
+```
+
+## Miscellaneos
 
 The `lpjmlkit` package also includes various other functions to support
 different applications of LPJmL and its data.
