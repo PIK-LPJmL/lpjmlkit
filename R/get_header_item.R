@@ -28,52 +28,16 @@
 #' nyear <- get_header_item(header = header, item = "nyear")
 #' }
 get_header_item <- function(header, item) {
-  # Check header structure. Expect a list with elements "name", "header" and
-  # "endian".
-  if (!is.list(header) || any(is.null(header[c("name", "header", "endian")]))) {
-    stop(
-      paste(
-        "Header has invalid structure. Must be a list with elements",
-        "'name', 'header', 'endian'"
-      )
-    )
-  }
-  # Confirm that no other elements are in list
-  if (length(header) != 3) {
-    stop(
-      paste(
-        "Header has invalid structure. Must be a list with elements",
-        "'name', 'header', 'endian'"
-      )
-    )
-  }
-  # Expect only a single "name" and "endian"
-  if (any(sapply(header[c("name", "endian")], length) != 1)) { # nolint:undesirable_function_linter.
-    stop("Header has invalid structure. More than one 'name' or 'endian'")
-  }
-  # Expect header$header to have 13 values (some of which may be defaults)
-  if (length(header$header) != 13) {
-    stop("Header has invalid structure. Invalid header$header")
-  }
-  # Valid items that can be queried from a header
-  valid_items <- c(
-    "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
-    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
-    "timestep", "endian"
-  )
+  # Check header structure.
+  is_valid_header(header)
+
   # Check that user provided valid item (and no more than one item)
-  if (length(item) != 1 || any(!item %in% valid_items)) {
+  if (length(item) != 1 || any(!item %in% valid_header_items)) {
     stop(
       paste(
         "Invalid item", toString(sQuote(item)), "\n",
-        "item must be one of:", toString(sQuote(valid_items))
+        "item must be one of:", toString(sQuote(valid_header_items))
       )
-    )
-  }
-  # Check that item is also in header (header elements are named correctly)
-  if (!item %in% names(header) && !item %in% names(header$header)) {
-    stop(
-      paste("Header has invalid structure: item", sQuote(item), "is missing")
     )
   }
   switch(

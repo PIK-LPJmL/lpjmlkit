@@ -71,32 +71,11 @@ test_that("composition basic multiple band output", {
 })
 
 
-# test add_grid method
-test_that("test add_grid method", {
-  file_name <- "../testdata/output/npp.bin.json"
-  output <- read_io(filename = file_name)
-  # perform adding a grid object
-  output$add_grid()
-  # read in grid directly and initialize object as LPJmLGridData
-  grid <- read_io("../testdata/output/grid.bin.json") %>%
-    LPJmLGridData$new()
-  # check if added grid equals grid file (read in separately)
-  expect_equal(output$grid, grid)
-  # check grid cells with those of objects meta data
-  expect_equal(
-    dimnames(output$grid$data)$cell,
-    format(
-      seq(output$meta$firstcell, length.out = output$meta$ncell),
-      trim = TRUE, scientific = FALSE
-    )
-  )
-})
-
 # test length method
 test_that("test length method", {
   file_name <- "../testdata/output/npp.bin.json"
   output <- read_io(filename = file_name)
-  expect_equal(length(output), length(output$data))
+  testthat::expect_equal(length(output), length(output$data))
 })
 
 
@@ -104,7 +83,7 @@ test_that("test length method", {
 test_that("test dim method", {
   file_name <- "../testdata/output/npp.bin.json"
   output <- read_io(filename = file_name)
-  expect_equal(dim(output), dim(output$data))
+  testthat::expect_equal(dim(output), dim(output$data))
 })
 
 
@@ -112,5 +91,144 @@ test_that("test dim method", {
 test_that("test dimnames method", {
   file_name <- "../testdata/output/npp.bin.json"
   output <- read_io(filename = file_name)
-  expect_equal(dimnames(output), dimnames(output$data))
+  testthat::expect_equal(dimnames(output), dimnames(output$data))
+})
+
+
+# Test summary method
+test_that("test summary method", {
+  output <- read_io(filename = "../testdata/output/npp.bin.json")
+
+  # For dimension time
+  out_sum <- summary(output, dimension = "time")
+  testthat::expect_equal(
+    dimnames(output)$time,
+    gsub(" ", "", attr(out_sum, "dimnames")[[2]])
+  )
+
+  out_sum <- summary(output)
+  testthat::expect_match(
+    out_sum[4],
+    regexp = as.character(round(mean(output$data), digits = 1))
+  )
+
+  output <- read_io(filename = "../testdata/output/pft_npp.bin.json")
+  testthat::expect_message(
+    out_sum <- summary(output, cutoff = TRUE),
+    "not printing all"
+  )
+
+  # For cutoff arg
+  testthat::expect_equal(
+    gsub(" ", "", dimnames(output)$band[1:16]),
+    gsub(" ", "", attr(out_sum, "dimnames")[[2]])
+  )
+
+  # For subsets
+  out_sum2 <- summary(
+    output,
+    subset = list(cell = 1, time = 1),
+  )
+  output_sub <- subset(output, cell = 1, time = 1)
+  testthat::expect_equal(
+    gsub(" ", "", dimnames(output_sub)$band),
+    gsub(" ", "", attr(out_sum2, "dimnames")[[2]])
+  )
+
+  # For underlying grid
+  testthat::expect_message(
+    output$add_grid(),
+    "grid.bin.json"
+  )
+  grid_sum <- summary(output$grid)
+  testthat::expect_equal(
+    dimnames(output$grid)$band,
+    gsub(" ", "", attr(grid_sum, "dimnames")[[2]])
+  )
+
+  grid <- read_io(
+    filename = "../testdata/output/grid.bin.json",
+    subset = list(cell = 1),
+    band_names = c("lon", "lat")
+  )
+
+  grid_sum <- summary(grid)
+  testthat::expect_equal(
+    dimnames(grid)$band,
+    gsub(" ", "", attr(grid_sum, "dimnames")[[2]])
+  )
+
+})
+
+
+test_that("test print method", {
+  output <- read_io(filename = "../testdata/output/npp.bin.json")
+
+  # Check if meta data printed
+  testthat::expect_output(
+    print(output),
+    "meta"
+  )
+  testthat::expect_output(
+    print(output),
+    "subset"
+  )
+
+  # Check if data printed
+  testthat::expect_output(
+    print(output),
+    "data"
+  )
+  testthat::expect_output(
+    print(output),
+    "time"
+  )
+
+  # Check if grid is added and printed
+  output$add_grid("../testdata/output/grid.bin.json")
+  testthat::expect_output(
+    print(output),
+    "grid"
+  )
+})
+
+test_that("test find_gridfile", {
+  tmpdir <- tempfile("output")
+  dir.create(tmpdir, recursive = TRUE)
+  # No grid file at all in directory
+  testthat::expect_error(
+    find_gridfile(tmpdir),
+    "Cannot detect grid file automatically"
+  )
+  file.copy(
+    "../testdata/output/pft_npp.clm",
+    file.path(tmpdir, "grid.clm")
+  )
+  # clm file in directory matching search pattern
+  testthat::expect_equal(
+    find_gridfile(tmpdir),
+    file.path(tmpdir, "grid.clm")
+  )
+  file.copy(
+    "../testdata/output/pft_npp.clm",
+    file.path(tmpdir, "grid2.clm")
+  )
+  # Error due to two clm files present matching search pattern
+  testthat::expect_error(
+    find_gridfile(tmpdir),
+    "Cannot detect grid file automatically"
+  )
+  file.remove(
+    file.path(tmpdir, "grid.clm"),
+    file.path(tmpdir, "grid2.clm")
+  )
+  file.remove(tmpdir)
+})
+
+test_that("LPJmLData initialisation", {
+  # Meta data must be LPJmLMetaData object
+  testthat::expect_error(
+    LPJmLData$new(data = array(NA, dim = c(1, 1)), meta_data = "test"),
+    "Provide an LPJmLMetaData object for meta data"
+  )
 })

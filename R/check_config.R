@@ -9,7 +9,7 @@
 #'   (hint: returns `x` as a list entry).
 #'
 #' @param model_path Character string providing the path to LPJmL
-#'   (equal to `LPJROOT` environment variable).
+#'   (equal to `LPJROOT` environment variable). Defaults to ".".
 #'
 #' @param output_path Character string providing path where an output, a restart
 #'   and a configuration folder are created. If `NULL`, `model_path` is used.
@@ -17,6 +17,9 @@
 #' @param return_output Parameter affecting the output. If `FALSE` print
 #'   stdout/stderr message. If `TRUE`, return the result of the check.
 #'   Defaults to `FALSE`.
+#'
+#' @param raise_error Logical. Whether to raise an error if sub-process has
+#'   non-zero exit status. Defaults to `FALSE`.
 #'
 #' @return NULL.
 #'
@@ -52,9 +55,10 @@
 #' }
 #' @export
 check_config <- function(x,
-                         model_path,
+                         model_path = ".",
                          output_path = NULL,
-                         return_output = FALSE) {
+                         return_output = FALSE,
+                         raise_error = FALSE) {
 
   if (is.null(output_path)) output_path <- model_path
 
@@ -102,7 +106,7 @@ check_config <- function(x,
   #   background: process limit on the cluster
   check <- processx::run(command = "sh",
                          args = c("-c", inner_command),
-                         error_on_status = FALSE,
+                         error_on_status = raise_error,
                          cleanup_tree = TRUE)
 
   if (!return_output) {

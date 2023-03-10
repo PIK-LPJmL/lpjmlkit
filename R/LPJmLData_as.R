@@ -158,7 +158,7 @@ LPJmLData$set("private",
     data %>%
       reshape2::melt(value.name = value_name) %>%
       tibble::as_tibble() %>%
-      dplyr::mutate(across(names(dimnames(data)), as.factor)) %>%
+      dplyr::mutate(dplyr::across(names(dimnames(data)), as.factor)) %>%
       return()
   }
 )
@@ -471,9 +471,11 @@ LPJmLData$set("private",
       )
 
     } else if (!is.null(aggregate)) {
-      stop(paste("Only non-spatial and existing dimensions are valid for",
-                 "aggregate. Please adjust",
-                 toString(dQuote(names(aggregate)))))
+      stop(
+        "Only non-spatial and existing dimensions are valid for ",
+        "aggregate. Please adjust ",
+        toString(dQuote(names(aggregate)))
+      )
     }
 
     return(data_subset)

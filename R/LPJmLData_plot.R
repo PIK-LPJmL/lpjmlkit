@@ -104,26 +104,24 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                                    time_dims,
                                    "band"))) {
     stop(
-      paste0(
-        "\u001b[0m",
-        "Undefined aggregation dimension ",
-        "\u001b[34m",
-        paste0(names(aggregate), collapse = ", "),
-        "\u001b[0m",
-        " supplied.\nMust be one of ",
-        "\u001b[34m",
-        paste0(space_dims, collapse = ", "),
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        paste0(time_dims, collapse = ", "),
-        "\u001b[0m",
-        " or ",
-        "\u001b[34m",
-        "band",
-        "\u001b[0m",
-        ".\n"
-      )
+      "\u001b[0m",
+      "Undefined aggregation dimension ",
+      "\u001b[34m",
+      paste0(names(aggregate), collapse = ", "),
+      "\u001b[0m",
+      " supplied.\nMust be one of ",
+      "\u001b[34m",
+      paste0(space_dims, collapse = ", "),
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      paste0(time_dims, collapse = ", "),
+      "\u001b[0m",
+      " or ",
+      "\u001b[34m",
+      "band",
+      "\u001b[0m",
+      ".\n"
     )
   }
 
@@ -167,11 +165,9 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                  aggregate = aggregate,
                  dots = dots)
     message(
-      paste0(
-        "\u001b[33;3m",
-        "Note: spatial aggregation is not weighted by grid area.",
-        "\u001b[0m"
-      )
+      "\u001b[33;3m",
+      "Note: spatial aggregation is not weighted by grid area.",
+      "\u001b[0m"
     )
 
   # Plot map(s) for temporal aggregation or aggregation by band
@@ -199,8 +195,11 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     # (only 9 can be visualized well)
     if (z_dim %in% names(dim(data_subset)) && dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
-        subset_array(data_subset$data,
-                     as.list(stats::setNames(list(seq_len(9)), z_dim)))
+        subset_array(
+          data_subset$data,
+          as.list(stats::setNames(list(seq_len(9)), z_dim)),
+          drop = FALSE
+        )
       )
     }
 
@@ -223,13 +222,24 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     #   cropping via as_raster functionality is used.
     data_ras <- data_subset %>%
       as_raster() %>%
-      `if`(!is.null(raster_extent), raster::crop(., y = raster_extent), .)
+      `if`(!is.null(raster_extent), raster::extend(., y = raster_extent), .)
+
+    # Check if a main title has been defined if not create by meta data
+    if (is.null(dots$main)) {
+
+      # If layer name equals variable name avoid double information
+      if (all(private$.meta$variable == names(data_ras))) {
+        dots$main <- var_title
+      # Else add layer name, e.g. band name
+      } else {
+        dots$main <- paste0(var_title, ": ", gsub("X", "", names(data_ras)))
+      }
+    }
 
     # do.call to use dots list as ellipsis, addfun is a workaround to use
     #   country map overlay for every plot
     do.call(raster::plot,
             c(list(x = data_ras,
-                   main = paste0(var_title, ": ", gsub("X", "", names(data_ras))), # nolint
                    addfun = function() maps::map(add = TRUE, lwd = 0.3)),
               dots))
   }
@@ -248,37 +258,39 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   if (length(which(dim(raw_data) > 2)) > 2) {
     stop(
-      paste0(
-        "\u001b[0m",
-        "Too many dimensions for 2D time series plot. Please reduce ",
-        "\u001b[34m",
-        paste0(dim_names, collapse = ", "),
-        "\u001b[0m",
-        " to 2.\nMust be at least one temporal dimension (x axis) of ",
-        "\u001b[34m",
-        paste0(time_dims, collapse = ", "),
-        "\u001b[0m",
-        ", and could be ",
-        "\u001b[34m",
-        "band",
-        "\u001b[0m ",
-        "or a temporal dimension, e.g. \u001b[34mmonth\u001b[0m for the y axis",
-        ".\n"
-      )
+      "\u001b[0m",
+      "Too many dimensions for 2D time series plot. Please reduce ",
+      "\u001b[34m",
+      paste0(dim_names, collapse = ", "),
+      "\u001b[0m",
+      " to 2.\nMust be at least one temporal dimension (x axis) of ",
+      "\u001b[34m",
+      paste0(time_dims, collapse = ", "),
+      "\u001b[0m",
+      ", and could be ",
+      "\u001b[34m",
+      "band",
+      "\u001b[0m ",
+      "or a temporal dimension, e.g. \u001b[34mmonth\u001b[0m for the y axis",
+      ".\n"
     )
   } else if (length(dim(raw_data)) < 2) {
-    stop(paste0("Only one dimensional data supplied. Data must have two ",
-                "dimensions with a minimum of one temporal dimension."))
+    stop(
+      "Only one dimensional data supplied. Data must have two ",
+      "dimensions with a minimum of one temporal dimension."
+    )
   }
 
   if (!any(time_dims %in% dim_names) &&
       (lpjml_data$meta$._space_format_ == "cell" ||
        any(space_dims %in% names(aggregate)))) {
-    stop(paste0("At least one temporal dimension of ",
-                "\u001b[34m",
-                 paste0(time_dims, collapse = ", "),
-                 "\u001b[0m",
-                 " has to be provided by the data."))
+    stop(
+      "At least one temporal dimension of ",
+      "\u001b[34m",
+       paste0(time_dims, collapse = ", "),
+       "\u001b[0m",
+       " has to be provided by the data."
+      )
   }
 
   # Hierarchical ordering of what to display on the x axis
@@ -343,40 +355,40 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   # Check if a supported plot type is supplied.
   if (dots$type %in% c("h", "S", "s")) {
-    stop(cat(
-      paste0(
-        "\u001b[0m",
-        "Unsupported plot type ",
-        "\u001b[34m",
-        dots$type,
-        "\u001b[0m",
-        " supplied.\nMust be one of ",
-        "\u001b[34m",
-        "p",
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        "l",
-        "\u001b[34m",
-        "b",
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        "c",
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        "o",
-        "\u001b[0m",
-        ", ",
-        "\u001b[0m",
-        " or ",
-        "\u001b[34m",
-        "n",
-        "\u001b[0m",
-        ".\n"
-      )
-    ))
+    stop(
+      "\u001b[0m",
+      "Unsupported plot type ",
+      "\u001b[34m",
+      dots$type,
+      "\u001b[0m",
+      " supplied.\nMust be one of ",
+      "\u001b[34m",
+      "p",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "l",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "b",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "c",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "o",
+      "\u001b[0m",
+      ", ",
+      "\u001b[0m",
+      " or ",
+      "\u001b[34m",
+      "n",
+      "\u001b[0m",
+      "."
+    )
   }
 
   opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.
