@@ -190,12 +190,14 @@ submit_lpjml(config_details,
 
 The LPJmL Data module provides various functions for reading and processing
 LPJmL data.
-`read_io()` reads LPJmL input and output as an LPJmLData object, which contains
-the data `array` and `LPJmLMetaData`.
-This object can be used for further analysis and visualization, with `plot()`,
-`summary()`, and `transform()` functions available.
-Users can also subset the data using `subset()`, or export it to common R data
-formats using as_array(), as_tibble(), and as_raster() / as_terra().
+`read_io()` reads LPJmL input and output data as an `LPJmLData` object, which
+contains the data `array` and corresponding meta data (`LPJmLMetaData`).
+`LPJmLData` objects can be used for further analysis and visualization, with 
+`plot()`, `summary()`, and other basic statistic functions available.
+Users can also `transform()` the data into other array formats and `subset()`
+it explicitly by its dimension names.
+An LPJmLData object can be exported it to common R data formats using
+`as_array()`, `as_tibble()`, and `as_raster()` / `as_terra()`.
 
 ```R
 # Read runoff output from corresponding 
@@ -217,11 +219,11 @@ abline(h = 0, lty = 2)
 
 
 The `lpjmlkit` package also includes various other functions to support
-different applications when using LPJmL.
+different applications of LPJmL and its data.
 For example, `calc_cellarea()` calculates the area of LPJmLData objects'
 underlying grid or for other objects' latitudes.
 Functions to handle LPJmL file headers, such as `read_header()`,
-`get_headersize()`, and create_header(), are also included.
+`get_headersize()`, and `create_header()`, are also included.
 `get_datatype()` gets information on the data type used in different LPJmL
 files, while `asub()` provides the functionality of the subset method to be
 used on a base array.
