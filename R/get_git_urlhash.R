@@ -1,6 +1,8 @@
 # Function to get gitlab commit hash of repository path.
 #   Via include_url = TRUE url + hash is returned to be called via webbrowser.
-get_git_urlhash <- function(path, include_url = TRUE, raise_error = TRUE) {
+get_git_urlhash <- function(path = ".",
+                            include_url = TRUE,
+                            raise_error = TRUE) {
 
   # List of bash commands
   inner_commands <- paste0(
@@ -25,14 +27,18 @@ get_git_urlhash <- function(path, include_url = TRUE, raise_error = TRUE) {
     "url=${orig_url%%$git*}/tree/${hash}; else ",
     "url=${orig_url%%$git*}/-/tree/${hash}; fi;",
 
-    ifelse(include_url, "echo ${url//de:/de/};", "echo ${hash};")
+    # Replace ":" in URLs if SSH is used to clone repository
+    "url=${url//de:/de/}; ",
+    "url=${url//com:/com/}; ",
+    ifelse(include_url, "echo ${url};", "echo ${hash};")
   )
 
   # System call
   out <- processx::run(command = "bash",
                        args = c("-c", inner_commands),
                        wd = path,
-                       cleanup_tree = TRUE)
+                       cleanup_tree = TRUE,
+                       error_on_status = FALSE)
 
   # Check output, ignore errors
   if (out$stderr == "") {
@@ -40,9 +46,9 @@ get_git_urlhash <- function(path, include_url = TRUE, raise_error = TRUE) {
   } else {
 
     if (raise_error) {
-      stop(paste0("For path \"", path, "\": ", out$stderr), call. = FALSE)
+      stop("For path \"", path, "\": ", out$stderr, call. = FALSE)
     } else {
-      warning(paste0("For path \"", path, "\": ", out$stderr), call. = FALSE)
+      warning("For path \"", path, "\": ", out$stderr, call. = FALSE)
       return("")
     }
   }

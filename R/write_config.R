@@ -3,7 +3,7 @@
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 #' specific format (see details & examples) to write the model configuration
 #' file `"config_*.json"`. Each row in the tibble corresponds to a model run.
-#' The generated `"config_*.json"` is based on a js file (e.g.: `"lpjml_*.js"`).
+#' The generated `"config_*.json"` is based on a js file (e.g. `"lpjml_*.js"`).
 #'
 #' @param params A tibble in a defined format (see details).
 #'
@@ -51,26 +51,28 @@
 #' mandatory ".js" files. The precompilation is done internally by
 #' [`write_config()`].\cr
 #' `write_config()` uses the column names of `param` as keys for the config
-#' json using an object-oriented like syntax, e.g. `"k_temp"` from `"param.js"`
-#' can be accessed with `"param.k_temp"` as the column name. \cr
+#' json using the same syntax as lists, e.g. `"k_temp"` from `"param.js"`
+#' can be accessed with `"param$k_temp"` or `"param[["k_temp"]]"` as the column
+#' name. (The former point-style syntax - `"param.k_temp"` - is still valid but
+#' deprecated) \cr
 #' For each run and thus each row, this value has to be specified in the
 #' \link[tibble]{tibble}. If the original value should instead be used, insert
 #' `NA`.\cr
-#' Each run can be identified via the `"sim_name"`, which has to be provided in
-#' the first column. \cr
+#' Each run can be identified via the `"sim_name"`, which is mandatory to
+#' specify.
 #'
 #' ```R
 #' my_params1 <- tibble(
 #'   sim_name = c("scenario1", "scenario2"),
 #'   random_seed = c(42, 404),
-#'   pftpar.1.name = c("first_tree", NA),
-#'   param.k_temp = c(NA, 0.03),
+#'   `pftpar[[1]]$name` = c("first_tree", NA),
+#'   `param$k_temp` = c(NA, 0.03),
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
 #' my_params1
 #' # A tibble: 2 x 5
-#' #   sim_name random_seed pftpar.1.name param.k_temp new_phenology
+#' #   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
 #' #   <chr>          <dbl> <chr>                <dbl> <lgl>
 #' # 1 scenario1         42 first_tree           NA    TRUE
 #' # 2 scenario2        404 NA                    0.03 FALSE
@@ -83,8 +85,9 @@
 #' the \link[tibble]{tibble} that links simulations with each other using the
 #' `"sim_name"`. \cr
 #' Do not manually set "-DFROM_RESTART" when using `"dependency"`. The same
-#' applies for LPJmL config settings "restart", "write_restart", "write_restart_filename",
-#' "restart_filename", which are set automatically by this function.
+#' applies for LPJmL config settings "restart", "write_restart",
+#' "write_restart_filename", "restart_filename", which are set automatically
+#' by this function.
 #' This way multiple runs can be performed in succession and build a
 #' conceivably endless chain or tree.
 #'
@@ -185,8 +188,8 @@
 #' my_params <- tibble(
 #'   sim_name = c("scen1", "scen2"),
 #'   random_seed = c(12, 404),
-#'   pftpar.1.name = c("first_tree", NA),
-#'   param.k_temp = c(NA, 0.03),
+#'   `pftpar[[1]]$name` = c("first_tree", NA),
+#'   `param$k_temp` = c(NA, 0.03),
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
@@ -262,9 +265,7 @@ write_config <- function(params,
 
   # Check if model_path is valid
   if (!dir.exists(model_path)) {
-    stop(
-      paste0("Folder of model_path \"", model_path, "\" does not exist!")
-    )
+    stop("Folder of model_path \"", model_path, "\" does not exist!")
   }
 
   # If output_path is not supplied use model_path as output_path
@@ -340,10 +341,12 @@ write_config <- function(params,
         if (e != "") {
 
           # Error with hint to use the debug argument
-          stop(paste0(e,
-                      "\nPlease use argument debug = TRUE for traceback ",
-                      "functionality"),
-               call. = FALSE)
+          stop(
+            e,
+            "Please use argument debug = TRUE for traceback ",
+            " functionality",
+            call. = FALSE
+          )
         } else {
 
           # Hint to use the debug argument
@@ -418,14 +421,13 @@ write_single_config <- function(params,
                                 js_filename,
                                 config_tmp,
                                 slurm_args,
-                                test_it = FALSE,
                                 commit_hash = "") {
 
   # Read json file without simplification (to vector) to avoid destroying the
   #   original json structure (important to be readable for LPJmL).
   #   Save it as config.json (as a convention).
   if (is.null(params[["sim_name"]])) {
-    stop(cat("In params a sim_name is missing!\n"))
+    stop("A sim_name is missing in params.")
   }
 
   config_tmp$sim_name <- params[["sim_name"]]
@@ -443,14 +445,13 @@ write_single_config <- function(params,
       config_tmp$order <- params[["order"]]
 
       if (is.null(params[["dependency"]])) {
-        stop(cat(paste0(params[["sim_name"]],
-                        "'s field dependency is missing!\n")))
+        stop(params[["sim_name"]], "'s field dependency is missing!")
       } else {
         config_tmp$dependency <- params[["dependency"]]
       }
 
     } else {
-      stop(cat(paste0(params[["sim_name"]], "'s field order not legit!\n")))
+      stop(params[["sim_name"]], "'s order is not valid!")
     }
 
   } else {
@@ -484,8 +485,7 @@ write_single_config <- function(params,
   tmp_json <- parse_config(path = model_path,
                            from_restart = from_restart,
                            js_filename = js_filename,
-                           macro = macro,
-                           test_file = test_it) %>%
+                           macro = macro) %>%
 
     # Replace output and restart params (paths, output format & which outputs)
     mutate_config_output(params = params,
@@ -493,7 +493,7 @@ write_single_config <- function(params,
                          output_format = output_format,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
-                         dir_create = !test_it) %>%
+                         dir_create = !testthat::is_testing()) %>%
 
     # Insert parameters/keys from params data frame.
     #   Columns as keys and rows as values (values, vectors possible).
@@ -502,7 +502,7 @@ write_single_config <- function(params,
                         commit_hash = commit_hash,
                         slurm_args = slurm_args)
 
-  if (!test_it) {
+  if (!testthat::is_testing()) {
 
     # Write config json file, use sim_name for naming.
     #   Additional jsonlite::write_json arguments are very important to be
@@ -533,31 +533,24 @@ write_single_config <- function(params,
 parse_config <- function(path,
                          from_restart = FALSE,
                          js_filename = "lpjml.js",
-                         macro = "",
-                         test_file = FALSE) {
+                         macro = "") {
 
-  if (!test_file) {
+   # processx::run kills any occuring subprocesses to avoid fork bombs.
+   tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
+                             args = c(
+                               "-c",
+                               paste0("cpp -P ./",
+                                      js_filename,
+                                      ifelse(from_restart,
+                                             " -DFROM_RESTART ",
+                                             " "),
+                                      paste(macro, collapse = " "))
+                             ),
+                             wd = path,
+                             cleanup_tree = TRUE)$stdout %>%
+    jsonlite::parse_json(simplify = FALSE)
 
-       # processx::run kills any occuring subprocesses to avoid fork bombs.
-       tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
-                                 args = c(
-                                   "-c",
-                                   paste0("cpp -P ./",
-                                          js_filename,
-                                          ifelse(from_restart,
-                                                 " -DFROM_RESTART ",
-                                                 " "),
-                                          paste(macro, collapse = " "))
-                                 ),
-                                 wd = path,
-                                 cleanup_tree = TRUE)$stdout %>%
-         jsonlite::parse_json(simplify = FALSE)
-
-  } else {
-    test_json <- read_config("../testdata/test_config.json")
-
-    return(test_json)
-  }
+  tmp_json
 }
 
 
@@ -626,9 +619,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         new_output[["file"]][["fmt"]] <- ifelse(
           length(output_format) == 1 && is.character(output_format),
           ifelse(output_list[id_ov] == "globalflux", "txt", output_format),
-          stop(paste0("No valid output_format. Please choose in from \"raw\"",
-                      " \"clm\" or \"cdf\" in form of a single character ",
-                      "string."))
+          stop(
+            "No valid output_format. Please choose in from \"raw\"",
+            " \"clm\" or \"cdf\" in form of a single character ",
+            "string."
+          )
         )
 
         # Output_timestep could be supplied as a single character string
@@ -643,9 +638,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                                       "monthly",
                                                       "annual"),
             stats::na.omit(output_timestep)[1],
-            stop(paste0("No valid output_timestep. Please choose from ",
-                        "\"daily\", \"monthly\" or \"annual\" in form of",
-                        " a single character string."))
+            stop(
+              "No valid output_timestep. Please choose from ",
+              "\"daily\", \"monthly\" or \"annual\" in form of",
+              " a single character string."
+            )
           )
 
         } else if (length_output_timestep == length(output_list) &&
@@ -654,16 +651,20 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           new_output[["file"]][["timestep"]] <- ifelse(
             output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
             output_timestep[id_ov],
-            stop(paste0("No valid output_timestep. Please choose of \"daily\"",
-                        " \"monthly\" or \"annual\" in form of a single ",
-                        "character string."))
+            stop(
+              "No valid output_timestep. Please choose of \"daily\"",
+              " \"monthly\" or \"annual\" in form of a single ",
+              "character string."
+            )
           )
 
         } else if (
           !(length_output_timestep %in% c(1, length(output_list)))) {
-          stop(paste0("output_timestep does not have a valid length. Please ",
-                      "supply either a single character string or a vector ",
-                      "matching the length of output_list."))
+          stop(
+            "output_timestep does not have a valid length. Please ",
+            "supply either a single character string or a vector ",
+            "matching the length of output_list."
+          )
         }
 
         # Adjust correct units to avoid correction factors in LPJmL
@@ -705,10 +706,12 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
       } else {
 
         # If ID not available print warning
-        warning(paste0("Output with ID ",
-                       output_list[id_ov],
-                       " is not available in current model version",
-                       " (not defined in outputvars.js)."))
+        warning(
+          "Output with ID ",
+          output_list[id_ov],
+          " is not available in current model version",
+          " (not defined in outputvars.js)."
+        )
       }
     }
   }
@@ -739,11 +742,14 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
   } else if (!is.null(x[["restart_filename"]]) &&
              is.null(params[["dependency"]]) &&
-             is.na(params[["restart_filename"]])) {
+             (is.na(params[["restart_filename"]]) ||
+             is.null(params[["restart_filename"]]))) {
 
-    warning(paste0("With `-DFROM_RESTART` being set to TRUE",
-                   " please make sure to explicitly set restart_filename in",
-                   " params. Otherwise, the original entry is used."))
+    warning(
+      "With `-DFROM_RESTART` being set to TRUE",
+      " please make sure to explicitly set restart_filename in",
+      " params. Otherwise, the original entry is used."
+    )
   }
 
   x[["write_restart_filename"]] <- paste0(rpath, "restart.lpj")
@@ -768,69 +774,170 @@ mutate_config_param <- function(x,
 
   x[["sim_githash"]] <- commit_hash
 
-  all_names <- names(unlist(x))
+  # Get all keys of config that are possible to use
+  all_keys <- names_recursively(x)
 
   for (colname in colnames(params)) {
 
     # Use default value if NA is supplied
     param_value <- unlist(params[[colname]])
 
+    # If NA use the default value (no replacement)
     if (any(is.na(param_value))) next
 
-    # Split keys for each level
-    keys <- strsplit(colname, "[.]")[[1]]
+    # Check if common list syntax is used
+    if (grepl("\\[\\[|\\]\\]|\\$", colname)) {
+      x <- call_by_listsyntax(x, colname, param_value, all_keys)
 
-    # Test for length and digits (indices) -> handle each case.
-    if (length(keys) > 1) {
-
-      if (grepl("^[[:digit:]]+$", keys)[2]) {
-
-        if (length(keys) > 2) {
-
-          if (is.null(x[[keys[1]]][[as.integer(keys[2])]][[keys[3:length(keys)]]])) { # nolint
-            stop(paste(colname, "is not legit!"))
-
-          } else {
-            x[[keys[1]]][[as.integer(keys[2])]][[
-              keys[3:length(keys)]
-            ]] <- convert_integer(param_value, x[[keys[1]]][[
-              as.integer(keys[2])
-            ]][[keys[3:length(keys)]]])
-          }
-
-        } else {
-          if (is.null(x[[keys[1]]][[as.integer(keys[2])]])) {
-            stop(paste(colname, "is not legit!"))
-
-          } else {
-            x[[keys[1]]][[as.integer(keys[2])]] <- convert_integer(
-              param_value, x[[keys[1]]][[as.integer(keys[2])]]
-            )
-          }
-        }
-
-      } else {
-        if (!paste(keys, collapse = ".") %in% all_names ||
-            is.null(x[[keys]])) {
-          stop(paste(colname, "is not legit!"))
-
-        } else {
-          x[[keys]] <- convert_integer(param_value, x[[keys]])
-        }
-      }
-
+    # Else it is assumed point syntax is used (previous standard)
     } else {
-      if (!paste(keys, collapse = ".") %in% all_names ||
-          is.null(x[[keys]])) {
-        stop(paste(colname, "is not legit!"))
-
-      } else {
-        x[[keys]] <- convert_integer(param_value, x[[keys]])
-      }
+      x <- call_by_points(x, colname, param_value, all_keys)
     }
   }
 
   x
+}
+
+# Function to replace config/param (colname) of nested list x with param_value
+# by common list syntax
+call_by_listsyntax <- function(x, colname, param_value, all_keys) {
+  # Split each keys by "[[", "[" or "$"
+  keys <- strsplit(colname, "\\[\\[|\\]\\]|\\$|\\\"|\\'")[[1]]
+  # Delete resulting non existing empty keys which are not allowed in the
+  # following
+  keys <- keys[!nchar(keys) == 0]
+
+  # Keys must be either existing in the original config or an index
+  # this is also a check to not allow any bad code to be evaluated
+  if (!all(keys %in% all_keys | grepl("^[0-9]*$", keys))) {
+    stop(
+      paste(
+        col_var(colname),
+        " consists of keys that do not exist."
+      )
+    )
+  }
+
+  # Check if config/param does exists via checking if its NULL
+  # non standard evaluation here to support using indices in combination with
+  # keys in selection via "[[" and "[""
+  tryCatch({
+    eval(rlang::parse_expr(paste0("x$", colname)))
+    # Stop when error occures
+    }, error = function(e) {
+      stop(
+        paste(
+          col_var(colname),
+          "include a combination of keys or indices that do not exist!"
+        )
+      )
+    }
+  )
+
+  # Again non standard evaluation with replacement of check function of
+  # original type (R lacks distinction of float/double and integer values)
+  eval(
+    rlang::parse_expr(
+      paste0(
+        "x$",
+        colname,
+        " <- convert_integer(param_value, x$",
+        colname,
+        ")"
+      )
+    )
+  )
+  x
+}
+
+
+# Function to replace config/param (colname) of nested list x with param_value
+# by "." syntax -> names(unlist(x)) with indices for unnamed list items
+call_by_points <- function(x, colname, param_value, all_keys) {
+
+  # Split each keys by "."
+  keys <- strsplit(colname, "[.]")[[1]] %>%
+
+    # Keys must be either existing in the original config or an index
+    # this is also a check to not allow any bad code to be evaluated
+    sapply(function(x) { # nolint:undesirable_function_linter.
+
+      # Character strings must be in quotes
+      if (!grepl("^[0-9]*$", x) && x %in% all_keys) {
+        x <- dQuote(x)
+      } else if (!grepl("^[0-9]*$", x)) {
+        stop(
+          col_var(colname),
+          " consists of key(s) (",
+          x,
+          ") that do not exist."
+        )
+      }
+      return(x)
+    })
+
+  # Predefine evaluation of x and its keys
+  eval_x <- paste0(
+    "x",
+    paste0("[[", keys, "]]", collapse = "")
+  )
+
+  # Check if config/param does exists via checking if its NULL
+  # non standard evaluation here to support using indices in combination with
+  # keys in selection via "[[" and "[""
+  tryCatch({
+    eval(rlang::parse_expr(eval_x))
+    # Stop when error occures
+    }, error = function(e) {
+      stop(
+        col_var(colname),
+        " include a combination of keys or indices that do not exist!"
+      )
+    }
+  )
+
+  # Again non standard evaluation with replacement of check function of
+  # original type (R lacks distinction of float/double and integer values)
+  eval(
+    rlang::parse_expr(
+      paste0(
+        eval_x,
+        " <- convert_integer(param_value, ",
+        eval_x,
+        ")"
+      )
+    )
+  )
+  x
+}
+
+
+# Function to convert numerics to integers since R is missing explicit
+#   non-/decimals. Both x <- 1 as well as x <- 1.0 assigns a numeric value.
+convert_integer <- function(x, check_value) {
+
+  # Check if value is a list to replace
+  if (!is.list(check_value)) {
+
+    # Convert if target value is an integer
+    if (is.integer(check_value) ||
+       (is.character(check_value)) && is.numeric(x)) {
+      return(as.integer(x))
+
+    } else {
+      return(x)
+    }
+
+  } else {
+
+    # For list replacements, convert values if list elements are integer
+    if (all(sapply(check_value, is.integer))) {# nolint:undesirable_function_linter.
+      return(lapply(x, as.integer))
+
+    } else {
+      return(x)
+    }
+  }
 }
 
 
@@ -881,5 +988,33 @@ get_order <- function(x) {
 
   dplyr::rowwise(x) %>%
     dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
+    return()
+}
+
+
+# colorize variable name for messages, warning, stop
+col_var <- function(x) {
+  col_blue <- "\u001b[34m"
+  unset_col <- "\u001b[0m"
+  paste0(col_blue, x, unset_col)
+}
+
+
+
+# Function to get names recursively
+names_recursively <- function(x) {
+
+  # Standard names of list elements
+  y <- names(x)
+
+  # Recursion for list elements
+  y_append <- sapply(x, function(y) { # nolint:undesirable_function_linter.
+    if (is.list(y))
+      return(names_recursively(y))
+  }) %>% unlist(use.names = FALSE)
+
+  # Only return unique elements
+  append(y, y_append) %>%
+    unique() %>%
     return()
 }

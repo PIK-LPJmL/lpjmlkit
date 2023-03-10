@@ -135,7 +135,7 @@ base functions: `length()`, `dim()`, `dimension()`, `summary()` and
 ``` r
 # Self print; also via print(runoff).
 runoff
-# $meta %>%
+# $meta |>
 #   .$sim_name "lu_cf"
 #   .$variable "runoff"
 #   .$descr "monthly runoff"
@@ -148,8 +148,8 @@ runoff
 #   .$cellsize_lon 0.5
 #   .$cellsize_lat 0.5
 # Note: not printing all meta data, use $meta to get all.
-# $data %>%
-#   dimnames() %>%
+# $data |>
+#   dimnames() |>
 #     .$cell  "0" "1" "2" "3" ... "67419"
 #     .$time  ""1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2011-12-31"
 #     .$band  "1"
@@ -210,8 +210,8 @@ state: `add_grid()`, `transform()` and `subset()`.
     runoff <- transform(runoff, to = "lon_lat")
     runoff
     # [...]
-    # $data %>%
-    #   dimnames() %>%
+    # $data |>
+    #   dimnames() |>
     #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
     #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
     #     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2011-12-31"
@@ -223,8 +223,8 @@ state: `add_grid()`, `transform()` and `subset()`.
     runoff <- transform(runoff, to = "year_month_day")
     runoff
     # [...]
-    # $data %>%
-    #   dimnames() %>%
+    # $data |>
+    #   dimnames() |>
     #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
     #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
     #     .$month  "1" "2" "3" "4" ... "12"
@@ -236,8 +236,8 @@ state: `add_grid()`, `transform()` and `subset()`.
     runoff <- transform(runoff, to = c("cell", "time"))
     runoff
     # [...]
-    # $data %>%
-    #   dimnames() %>%
+    # $data |>
+    #   dimnames() |>
     #     .$cell  "0" "1" "2" "3" ... "67419"
     #     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2100-12-31"
     #     .$band  "1"
@@ -254,14 +254,14 @@ state: `add_grid()`, `transform()` and `subset()`.
     # Subset by dimnames (character string).
     runoff <- subset(runoff, time = "1991-05-31")
     runoff
-    # $meta %>%
+    # $meta |>
     #   .$nyear 1
     #   .$ncell 67420
     #   .$subset TRUE
     # [...]
     # Note: not printing all meta data, use $meta to get all.
-    # $data %>%
-    #   dimnames() %>%
+    # $data |>
+    #   dimnames() |>
     #     .$cell  "0" "1" "2" "3" ... "67419"
     #     .$time  "1991-05-31"
     #     .$band  "1"
@@ -270,14 +270,14 @@ state: `add_grid()`, `transform()` and `subset()`.
     # Subset by indices
     runoff <- subset(runoff, cell = 28697:28700)
     runoff
-    # $meta %>%
+    # $meta |>
     #   .$nyear 1
     #   .$ncell 4
     #   .$subset TRUE
     # [...]
     # Note: not printing all meta data, use $meta to get all.
-    # $data %>%
-    #   dimnames() %>%
+    # $data |>
+    #   dimnames() |>
     #     .$cell  "28696" "28697" "28698" "28699"
     #     .$time  "1991-05-31"
     #     .$band  "1"
@@ -450,18 +450,17 @@ global_npp_trend <- as_array(npp,
  
 
 ``` r
-# Alternative function notation via %>% operator (in magrittr package)
-library("magrittr")
 runoff <- read_io(filename = "./output/runoff.bin.json",
                subset = list(year = 2002:2011))
 
-runoff %>%
+# Usage of pipe operator operator |> (%>% via package magrittr R version < 4.1)
+runoff |>
   # Transform the time and space dimensions ...
-  transform(to = c("year_month_day", "lon_lat")) %>%
+  transform(to = c("year_month_day", "lon_lat")) |>
   # ... to subset summer months as well as northern hemisphere (positive)
   #   latitudes.
   subset(month = 6:9,
-         lat = seq(0.25, 83.75, by = 0.5)) %>%
+         lat = seq(0.25, 83.75, by = 0.5)) |>
   # for plotting sum up summer month and take the average over the years
   plot(aggregate = list(year = mean, month = sum))
 ```
@@ -494,10 +493,10 @@ coordinates <- tibble::tibble(lat = c(52.25, 52.400922, 53.25),
 read_io(
   filename = glue("{output_path}/cftfrac.bin.json"),
   subset = list(year = 2000:2018)
-) %>%
-  transform(to = "lon_lat") %>%
+) |>
+  transform(to = "lon_lat") |>
   # Special case for subsetting of lat and lon pairs
-  subset(coords = coordinates) %>%
+  subset(coords = coordinates) |>
   # Mean across spatial dimensions
   plot(aggregate = list(lon = mean, lat = mean))
 ```
