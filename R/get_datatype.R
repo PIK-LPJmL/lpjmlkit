@@ -68,7 +68,7 @@ get_datatype <- function(header, fail = TRUE) {
     )
     if (is.character(header)) {
       if (fail) {
-        stop(paste("Invalid datatype string", sQuote(header)))
+        stop("Invalid datatype string ", sQuote(header))
       } else {
         return(NULL)
       }
