@@ -228,7 +228,11 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     #   cropping via as_raster functionality is used.
     data_ras <- data_subset %>%
       as_raster() %>%
-      `if`(!is.null(raster_extent), raster::extend(., y = raster_extent), .)
+      `if`(
+        !is.null(raster_extent),
+        raster::crop(raster::extend(., y = raster_extent), y = raster_extent),
+        .
+      )
 
     # Check if a main title has been defined if not create by meta data
     if (is.null(dots$main)) {

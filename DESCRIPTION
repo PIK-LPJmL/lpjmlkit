@@ -16,7 +16,7 @@ Description: A collection of basic functions to facilitate the work with the
     It provides functions for performing LPJmL simulations, as well as reading,
     processing and writing model-related data such as inputs and outputs or
     configuration files.
-License: GPL-3
+License: AGPL-3
 LazyData: true
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE,
