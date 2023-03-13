@@ -463,13 +463,20 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   # do.call for use of ellipsis via dots list.
   #   subset_array for dynamic subsetting of flexible legend_dim.
-  withr::with_par(new = list(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE),
+  withr::with_par(
+    new = list(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE),
     code = {
-      do.call(graphics::plot,
-            c(x = list(subset_array(raw_data,
-                                    as.list(stats::setNames(1, legend_dim)))),
-              col = cols[1],
-              dots))
+      do.call(
+        graphics::plot,
+        c(
+          x = list(subset_array(
+            raw_data,
+            as.list(stats::setNames(1, legend_dim))
+          )),
+          col = cols[1],
+          dots
+        )
+      )
 
       # Set breaks depending on length of time series
       if (x_dim %in% c("time", "year")) {
@@ -491,54 +498,61 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
         # set tickmarks and label for time or year dim
         at_ticks <- seq(1,
-                        lpjml_data$meta$nyear * nstep,
-                        by = brks * nstep)
+          lpjml_data$meta$nyear * nstep,
+          by = brks * nstep
+        )
 
-        graphics::axis(side = 1,
-                       at = at_ticks,
-                       labels = dimnames(raw_data)[[x_dim]][at_ticks])
+        graphics::axis(
+          side = 1,
+          at = at_ticks,
+          labels = dimnames(raw_data)[[x_dim]][at_ticks]
+        )
       }
 
       for (i in cols[-1]) {
-      # subset_array for dynamic subsetting of flexible legend_dim
-        graphics::lines(subset_array(raw_data,
-                                     as.list(stats::setNames(i, legend_dim))),
-                        col = cols[i],
-                        type = dots$type)
+        # subset_array for dynamic subsetting of flexible legend_dim
+        graphics::lines(subset_array(
+          raw_data,
+          as.list(stats::setNames(i, legend_dim))
+        ),
+        col = cols[i],
+        type = dots$type
+        )
       }
-    }
-  )
-  # Calculate length of longest string in legend to not overlap
-  char_len <- dimnames(raw_data)[[legend_dim]] %>%
-    .[which.max(nchar(.))]
 
-  # Legend at the bottom left side of the graphic device.
-  #   Calculations ensure placement within margins.
-  # TODO: replace with withr::with_par for temporarily changing pars # nolint
-  graphics::legend(
-    x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
-    y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
-      graphics::par("plt")[3] * # nolint:undesirable_function_linter.
-      ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
-         (
-           grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
-                                             graphics::par("plt")[3]) # nolint:undesirable_function_linter.
-         )
-      ),
-    y.intersp = 1.5,
-    title = tools::toTitleCase(legend_dim),
-    ncol = 2,
-    text.width = graphics::strwidth(char_len) * 2,
-    col = cols,
-    lty = unlist(ifelse(
-      dots$type %in% c("l", "b", "c", "o"),
-      list(rep(1, legend_length)), list(NULL)
-    )),
-    pch = unlist(ifelse(
-      dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
-    )),
-    legend = dimnames(raw_data)[[legend_dim]][cols],
-    bty = "n"
+      # Calculate length of longest string in legend to not overlap
+      char_len <- dimnames(raw_data)[[legend_dim]] %>%
+        .[which.max(nchar(.))]
+
+      # Legend at the bottom left side of the graphic device.
+      #   Calculations ensure placement within margins.
+      # TODO: replace with withr::with_par for temporarily changing pars # nolint
+      graphics::legend(
+        x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
+        y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
+          graphics::par("plt")[3] * # nolint:undesirable_function_linter.
+          ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
+            (
+              grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
+                graphics::par("plt")[3]) # nolint:undesirable_function_linter.
+            )
+          ),
+        y.intersp = 1.5,
+        title = tools::toTitleCase(legend_dim),
+        ncol = 2,
+        text.width = graphics::strwidth(char_len) * 2,
+        col = cols,
+        lty = unlist(ifelse(
+          dots$type %in% c("l", "b", "c", "o"),
+          list(rep(1, legend_length)), list(NULL)
+        )),
+        pch = unlist(ifelse(
+          dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
+        )),
+        legend = dimnames(raw_data)[[legend_dim]][cols],
+        bty = "n"
+      )
+    }
   )
 
   # Create grid, special case for time, year because of specified x axis
