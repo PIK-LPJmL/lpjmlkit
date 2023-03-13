@@ -46,8 +46,12 @@ asub <- function(x,
 # If `value` is specified, returns an array with the same dimensions as
 # `x` where values selected by `(...)` are replaced by values from `value`.
 `asub<-` <- function(x, ..., value) {
+
+  # check for valid subsets (filter empty and NA subsets)
+  subset_list <- clean_subset(x, list(...))
+
   argum <- c(alist(x),
-             subarray_argument(x, list(...)), alist(value))
+             subarray_argument(x, subset_list), alist(value))
   do.call("[<-", argum) %>%
     return()
 }
@@ -62,6 +66,140 @@ subset_array <- function(x,
     return(x)
   }
 
+  # check for valid subsets (filter empty and NA subsets)
+  subset_list <- clean_subset(x, subset_list, silent)
+
+  # Coordinate subsetting handled before, not compatible with subarray_argument
+  if (any(c("coords", "coordinates") %in% names(subset_list))) {
+    # Get term used for subsetting ("coords" or "coordinates" legit)
+    coords <- c("coords", "coordinates")[
+      c("coords", "coordinates") %in% names(subset_list)
+    ]
+
+    # Fail if current space_format is not "lon_lat"
+    if (!all(c("lon", "lat") %in% names(dimnames(x)))) {
+      stop_format(coords, "lon_lat")
+    }
+
+    x <- subset_array_pair(x = x,
+                           pair = subset_list[[coords]])
+
+    if (any(c("lon", "lat") %in% names(subset_list))) {
+      stop(
+        "Dimensions ", col_var("lon"), " & ", col_var("lat"),
+        " will be ignored when ", col_var("coordinates"), " are also defined."
+      )
+      subset_list$lat <- NULL
+      subset_list$lon <- NULL
+    }
+    subset_list[[coords]] <- NULL
+  }
+
+  if (drop) {
+    argum <- c(alist(x),
+               subarray_argument(x, subset_list))
+
+  } else {
+    argum <- c(alist(x),
+               subarray_argument(x, subset_list),
+               drop = FALSE)
+  }
+
+  do.call("[", argum) %>%
+    return()
+}
+
+
+# https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically # nolint
+subarray_argument <- function(x, subset_list) {
+
+  # DRY
+  dim_names <- names(dimnames(x))
+  subset_names <- names(subset_list)
+
+  # Check matching of subset names and dim_names
+  match_x <- which(dim_names %in% subset_names)
+  match_subset <- stats::na.omit(match(dim_names, subset_names))
+
+  # Check for non matching dimensions
+  valids <- subset_names %in% dim_names
+
+  if (!all(valids)) {
+    nonvalids <- which(!valids)
+    stop(
+      ifelse(length(nonvalids) > 1, "Dimension names ", "Dimension name "),
+      "\u001b[34m",
+      paste0(subset_names[nonvalids], collapse = ", "),
+      "\u001b[0m",
+      ifelse(length(nonvalids) > 1, " are ", " is "),
+      "not valid. Please choose from available dimension names ",
+      "\u001b[34m",
+      paste0(dim_names, collapse = ", "),
+      "\u001b[0m.",
+      call. = FALSE
+    )
+  }
+
+  subset_list <- mapply(  # nolint:undesirable_function_linter.
+
+    function(x, y, dim_name) {
+
+      # Convert booleans to indices
+      if (is.logical(x)) {
+        return(which(x))
+      }
+
+      # For lon, lat calculate nearest neighbor for each provided value if not
+      #   character.
+
+      if (dim_name %in% c("lon", "lat") && is.character(x)) {
+
+        return(
+          sapply(x, # nolint:undesirable_function_linter.
+            function(x, y) {
+                which.min(abs(as.numeric(y) - as.numeric(x)))
+              },
+            y) %>%
+              unique()
+        )
+      }
+
+      # Subsetting with character strings (directly dimnames)
+      if (is.character(x)) {
+
+        # Get valid subsets - non valids are NA
+        valid_sub <- match(tolower(x), tolower(y))
+
+        # Check if it contains NA - if so stop and print non valid subsets
+        check_string_index(x, valid_sub, dim_name)
+        return(valid_sub)
+
+      } else {
+        # Check if indices are valid - if not stop and print non valid indices
+        check_index(x, y, dim_name)
+
+        return(x)
+      }
+    },
+
+    x = subset_list[match_subset],
+    y = dimnames(x)[match_x],
+    dim_name = dim_names[match_x],
+    SIMPLIFY = FALSE
+  )
+
+  argument <- rep(list(bquote()), length(dim(x)))
+
+  # Insert the wanted dimension slices
+  argument[match_x] <- subset_list
+
+  argument
+}
+
+
+clean_subset <- function(x,
+                         subset_list = NULL,
+                         silent = FALSE) {
   # Filter for NAs in subset_list
   if (length(subset_list) > 0 && any(sapply(subset_list, anyNA))) { # nolint:undesirable_function_linter.
     if (!silent) {
@@ -115,101 +253,8 @@ subset_array <- function(x,
     }
   }
 
-  if (drop) {
-    argum <- c(alist(x),
-               subarray_argument(x, subset_list))
-
-  } else {
-    argum <- c(alist(x),
-               subarray_argument(x, subset_list),
-               drop = FALSE)
-  }
-
-  do.call("[", argum) %>%
-    return()
+  return(subset_list)
 }
-
-
-# https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically # nolint
-subarray_argument <- function(x, subset_list) {
-
-  # DRY
-  dim_names <- names(dimnames(x))
-  subset_names <- names(subset_list)
-
-  # Check matching of subset names and dim_names
-  match_x <- which(dim_names %in% subset_names)
-  match_subset <- stats::na.omit(match(dim_names, subset_names))
-
-  # Check for non matching dimensions
-  valids <- subset_names %in% dim_names
-
-  if (!all(valids)) {
-    nonvalids <- which(!valids)
-    stop(
-      ifelse(length(nonvalids) > 1, "Dimension names ", "Dimension name "),
-      "\u001b[34m",
-      paste0(subset_names[nonvalids], collapse = ", "),
-      "\u001b[0m",
-      ifelse(length(nonvalids) > 1, " are ", " is "),
-      "not valid. Please choose from available dimension names ",
-      "\u001b[34m",
-      paste0(dim_names, collapse = ", "),
-      "\u001b[0m.",
-      call. = FALSE
-    )
-  }
-
-  subset_list <- mapply(  # nolint:undesirable_function_linter.
-
-    function(x, y, dim_name) {
-      # For lon, lat calculate nearest neighbor for each provided value if not
-      #   character.
-
-      if (dim_name %in% c("lon", "lat") && is.character(x)) {
-
-        return(
-          sapply(x, # nolint:undesirable_function_linter.
-            function(x, y) {
-                which.min(abs(as.numeric(y) - as.numeric(x)))
-              },
-            y) %>%
-              unique()
-        )
-      }
-
-      # Subsetting with character strings (directly dimnames)
-      if (is.character(x)) {
-
-        # Get valid subsets - non valids are NA
-        valid_sub <- match(tolower(x), tolower(y))
-
-        # Check if it contains NA - if so stop and print non valid subsets
-        check_string_index(x, valid_sub, dim_name)
-        return(valid_sub)
-
-      } else {
-        # Check if indices are valid - if not stop and print non valid indices
-        check_index(x, y, dim_name)
-
-        return(x)
-      }
-    },
-
-    subset_list[match_subset],
-    dimnames(x)[match_x],
-    dim_names[match_x],
-    SIMPLIFY = FALSE
-  )
-
-  argument <- rep(list(bquote()), length(dim(x)))
-
-  # Insert the wanted dimension slices
-  argument[match_x] <- subset_list
-
-  argument
-}
-
 
 subset_array_pair <- function(x,
                               pair = NULL) {
@@ -315,6 +360,24 @@ stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
     "\u001b[0m",
     ifelse(length(nonvalids) > 1, " are", " is"),
     " not valid.",
+    call. = FALSE
+  )
+}
+
+
+# Function to throw error if subset dimension does not fit the format
+stop_format <- function(subset_dim, format) {
+  stop(
+    "\u001b[34m",
+    paste0(subset_dim, collapse = ", "),
+    "\u001b[0m",
+    " is defined as subset, but x has the wrong format. Use ",
+    "\u001b[34m",
+    "transform(to = \"",
+    format,
+    "\")",
+    "\u001b[0m",
+    " to convert into suitable format.",
     call. = FALSE
   )
 }
