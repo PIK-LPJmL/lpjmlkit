@@ -82,7 +82,7 @@ test_that("raster export lon_lat", {
 
   # create tmp_raster with expected dimensions and coordinate ref system
   tmp_raster <- raster::raster(res = 0.5,
-                               crs = "EPSG:4326",
+                               crs = projstring,
                                xmn = -87.5,
                                xmx = -87,
                                ymn = 55,
@@ -100,12 +100,28 @@ test_that("raster export lon_lat", {
     test_data[, seq_len(dim(test_data)[["lat"]]), drop = FALSE],
     template = tmp_raster
   )
-  raster::crs(test_raster) <- "EPSG:4326"
+  raster::crs(test_raster) <- projstring
   # add variable as layer name
   names(test_raster) <- output$meta$variable
 
   # test for equality with test_raster
   testthat::expect_equal(output_raster, test_raster)
+
+  # Reduce all dimensions except cells by aggregation
+  output_raster2 <- as_raster(
+    output,
+    aggregate = list(band = sum, time = mean)
+  )
+  test_data2 <- readRDS("../testdata/test_array_lonlat.rds") %>%
+    apply(c("lon", "lat", "time"), sum) %>%
+    apply(c("lon", "lat"), mean)
+  test_raster2 <- raster::raster(
+    test_data2[, seq_len(dim(test_data2)[["lat"]]), drop = FALSE],
+    template = tmp_raster
+  )
+  raster::crs(test_raster2) <- projstring
+  names(test_raster2) <- output$meta$variable
+  testthat::expect_equal(output_raster2, test_raster2)
 })
 
 
@@ -123,7 +139,7 @@ test_that("raster export 3rd dim", {
 
   # create tmp_raster with expected dimensions and coordinate ref system
   tmp_raster <- raster::raster(res = 0.5,
-                               crs = "EPSG:4326",
+                               crs = projstring,
                                xmn = -87.5,
                                xmx = -87,
                                ymn = 55,
@@ -158,6 +174,14 @@ test_that("raster export 3rd dim", {
     as_raster(output),
     "Too many dimensions"
   )
+
+  # Reduce all dimensions except cells by aggregation
+  testthat::expect_silent({
+    output_raster2 <- as_terra(
+      output,
+      aggregate = list(band = sum, time = mean)
+    )
+  })
 })
 
 

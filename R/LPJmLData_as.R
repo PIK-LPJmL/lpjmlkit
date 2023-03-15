@@ -423,15 +423,25 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
-      tmp_rast[
-        terra::cellFromXY(
-          tmp_rast,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>%
-      drop()
+      if (is.array(data_subset$data)) {
+        tmp_rast[
+          terra::cellFromXY(
+            tmp_rast,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- aperm(data_subset$data,
+                  perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>% # nolint
+        drop()
+      } else {
+        tmp_rast[
+          terra::cellFromXY(
+            tmp_rast,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- data_subset$data
+      }
     }
 
     # Assign units (meta data)
@@ -524,7 +534,7 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       xmx = grid_extent[2, 1],
       ymn = grid_extent[1, 2],
       ymx = grid_extent[2, 2],
-      crs = "EPSG:4326"
+      crs = projstring
     )
   }
 
@@ -539,4 +549,18 @@ get_multidims <- function(x) {
   multi_dims <- names(which(dim(x$data) > 1))
 
   union(multi_dims, space_dims)
+}
+
+# "EPSG:4326" is not supported by as CRS by all versions of the raster package.
+# Fallback to lonlat projection string
+capture.output(
+  {
+    success <- try(raster::crs("EPSG:4326"))
+  },
+  type = "message"
+)
+if (class(success) == "try-error") {
+  projstring <- "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+} else {
+  projstring <- "EPSG:4326"
 }
