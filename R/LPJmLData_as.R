@@ -284,14 +284,24 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
-      tmp_raster[
-        raster::cellFromXY(
-          tmp_raster,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
+      if (is.array(data_subset$data)) {
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- aperm(data_subset$data,
+                  perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
+      } else {
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- data_subset$data
+      }
     }
 
     return(tmp_raster)

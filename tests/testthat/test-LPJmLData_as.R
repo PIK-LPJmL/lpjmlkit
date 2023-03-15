@@ -108,6 +108,7 @@ test_that("raster export lon_lat", {
   testthat::expect_equal(output_raster, test_raster)
 
   # Reduce all dimensions except cells by aggregation
+  output$transform(to = "cell")
   output_raster2 <- as_raster(
     output,
     aggregate = list(band = sum, time = mean)
@@ -174,14 +175,6 @@ test_that("raster export 3rd dim", {
     as_raster(output),
     "Too many dimensions"
   )
-
-  # Reduce all dimensions except cells by aggregation
-  testthat::expect_silent({
-    output_raster2 <- as_terra(
-      output,
-      aggregate = list(band = sum, time = mean)
-    )
-  })
 })
 
 
@@ -282,4 +275,12 @@ test_that("terra export 3rd dim", {
     as_terra(output, aggregate = list(cell = sum)),
     "Only non-spatial and existing dimensions are valid"
   )
+
+  # Reduce all dimensions except cells by aggregation
+  testthat::expect_silent({
+    output_raster2 <- as_terra(
+      output,
+      aggregate = list(band = sum, time = mean)
+    )
+  })
 })
