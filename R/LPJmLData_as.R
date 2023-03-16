@@ -292,13 +292,13 @@ LPJmLData$set("private",
       } else {
         tmp_data <- data_subset$data
       }
-        tmp_raster[
-          raster::cellFromXY(
-            tmp_raster,
-            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                  subset_array(data_subset$grid$data, list(band = "lat")))
-          )
-        ] <- tmp_data
+      tmp_raster[
+        raster::cellFromXY(
+          tmp_raster,
+          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                subset_array(data_subset$grid$data, list(band = "lat")))
+        )
+      ] <- tmp_data
     }
 
     return(tmp_raster)
