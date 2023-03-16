@@ -284,24 +284,22 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
-      if (is.array(data_subset$data)) {
-        tmp_raster[
-          raster::cellFromXY(
-            tmp_raster,
-            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                  subset_array(data_subset$grid$data, list(band = "lat")))
+      tmp_rast[
+        terra::cellFromXY(
+          tmp_rast,
+          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                subset_array(data_subset$grid$data, list(band = "lat")))
+        )
+      ] <- `if`(
+        is.array(data_subset$data),
+        drop(
+          aperm(
+            data_subset$data,
+            perm = c("cell", setdiff(names(dim(data_subset)), "cell"))
           )
-        ] <- aperm(data_subset$data,
-                  perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
-      } else {
-        tmp_raster[
-          raster::cellFromXY(
-            tmp_raster,
-            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                  subset_array(data_subset$grid$data, list(band = "lat")))
-          )
-        ] <- data_subset$data
-      }
+        ),
+        data_subset$data
+      )
     }
 
     return(tmp_raster)
@@ -433,25 +431,22 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
-      if (is.array(data_subset$data)) {
-        tmp_rast[
-          terra::cellFromXY(
-            tmp_rast,
-            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                  subset_array(data_subset$grid$data, list(band = "lat")))
+      tmp_rast[
+        terra::cellFromXY(
+          tmp_rast,
+          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                subset_array(data_subset$grid$data, list(band = "lat")))
+        )
+      ] <- `if`(
+        is.array(data_subset$data),
+        drop(
+          aperm(
+            data_subset$data,
+            perm = c("cell", setdiff(names(dim(data_subset)), "cell"))
           )
-        ] <- aperm(data_subset$data,
-                  perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>% # nolint
-        drop()
-      } else {
-        tmp_rast[
-          terra::cellFromXY(
-            tmp_rast,
-            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                  subset_array(data_subset$grid$data, list(band = "lat")))
-          )
-        ] <- data_subset$data
-      }
+        ),
+        data_subset$data
+      )
     }
 
     # Assign units (meta data)
