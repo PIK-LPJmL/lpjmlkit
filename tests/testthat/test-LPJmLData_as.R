@@ -82,7 +82,7 @@ test_that("raster export lon_lat", {
 
   # create tmp_raster with expected dimensions and coordinate ref system
   tmp_raster <- raster::raster(res = 0.5,
-                               crs = projstring,
+                               crs = raster_crs_fallback("EPSG:4326"),
                                xmn = -87.5,
                                xmx = -87,
                                ymn = 55,
@@ -100,7 +100,7 @@ test_that("raster export lon_lat", {
     test_data[, seq_len(dim(test_data)[["lat"]]), drop = FALSE],
     template = tmp_raster
   )
-  raster::crs(test_raster) <- projstring
+  raster::crs(test_raster) <- raster_crs_fallback("EPSG:4326")
   # add variable as layer name
   names(test_raster) <- output$meta$variable
 
@@ -120,7 +120,7 @@ test_that("raster export lon_lat", {
     test_data2[, seq_len(dim(test_data2)[["lat"]]), drop = FALSE],
     template = tmp_raster
   )
-  raster::crs(test_raster2) <- projstring
+  raster::crs(test_raster2) <- raster_crs_fallback("EPSG:4326")
   names(test_raster2) <- output$meta$variable
   testthat::expect_equal(output_raster2, test_raster2)
 })
@@ -140,7 +140,7 @@ test_that("raster export 3rd dim", {
 
   # create tmp_raster with expected dimensions and coordinate ref system
   tmp_raster <- raster::raster(res = 0.5,
-                               crs = projstring,
+                               crs = raster_crs_fallback("EPSG:4326"),
                                xmn = -87.5,
                                xmx = -87,
                                ymn = 55,
