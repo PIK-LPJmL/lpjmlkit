@@ -563,7 +563,7 @@ raster_crs_fallback <- function(projstring) {
     },
     type = "message"
   )
-  if (class(success) == "try-error") {
+  if (methods::is(success, "try-error")) {
     projstring <- "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
   }
   projstring
