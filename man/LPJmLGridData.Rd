@@ -42,6 +42,7 @@ the meta data via \verb{$meta}.
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_tibble"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_tibble'><code>lpjmlkit::LPJmLData$as_tibble()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dim"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dim'><code>lpjmlkit::LPJmLData$dim()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dimnames"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dimnames'><code>lpjmlkit::LPJmLData$dimnames()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dn"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dn'><code>lpjmlkit::LPJmLData$dn()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="length"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-length'><code>lpjmlkit::LPJmLData$length()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="plot"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-plot'><code>lpjmlkit::LPJmLData$plot()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="summary"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-summary'><code>lpjmlkit::LPJmLData$summary()</code></a></span></li>

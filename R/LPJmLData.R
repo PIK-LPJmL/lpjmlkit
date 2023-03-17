@@ -189,6 +189,16 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
 
     #' @description
+    #' Method to get the dimnames (list) of the data array of an
+    #' `LPJmLData` object as numeric vector where possible.
+    #'
+    #' @param ... See [`dimnames.LPJmLData()`].
+    dn = function(...) {
+      private$.dn(...)
+    },
+
+
+    #' @description
     #' Method to get the summary of the data array of an
     #' `LPJmLData` object.
     #'

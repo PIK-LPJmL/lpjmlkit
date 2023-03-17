@@ -94,6 +94,24 @@ test_that("test dimnames method", {
   testthat::expect_equal(dimnames(output), dimnames(output$data))
 })
 
+# test dimnames method
+test_that("test dn method", {
+  file_name <- "../testdata/output/npp.bin.json"
+  output <- read_io(filename = file_name)
+
+  testthat::expect_equal(
+    dn(output)$cell,
+    as.numeric(dimnames(output$data)$cell)
+  )
+
+  testthat::expect_equal(
+    dn(output)$time,
+    dimnames(output$data)$time
+  )
+})
+
+
+
 
 # Test summary method
 test_that("test summary method", {

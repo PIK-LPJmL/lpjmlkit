@@ -40,6 +40,7 @@ or \code{\link[=as_raster]{as_raster()}} to export it into common working format
 \item \href{#method-LPJmLData-length}{\code{LPJmLData$length()}}
 \item \href{#method-LPJmLData-dim}{\code{LPJmLData$dim()}}
 \item \href{#method-LPJmLData-dimnames}{\code{LPJmLData$dimnames()}}
+\item \href{#method-LPJmLData-dn}{\code{LPJmLData$dn()}}
 \item \href{#method-LPJmLData-summary}{\code{LPJmLData$summary()}}
 \item \href{#method-LPJmLData-print}{\code{LPJmLData$print()}}
 \item \href{#method-LPJmLData-.__set_data__}{\code{LPJmLData$.__set_data__()}}
@@ -226,6 +227,24 @@ Method to get the dimnames (list) of the data array of an
 \code{LPJmLData} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LPJmLData$dimnames(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{See \code{\link[=dimnames.LPJmLData]{dimnames.LPJmLData()}}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LPJmLData-dn"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLData-dn}{}}}
+\subsection{Method \code{dn()}}{
+Method to get the dimnames (list) of the data array of an
+\code{LPJmLData} object as numeric vector where possible.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLData$dn(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

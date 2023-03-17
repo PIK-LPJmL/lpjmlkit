@@ -55,6 +55,43 @@ LPJmLData$set("private",
 )
 
 
+#' Shortcut dimnames (type-corrected) of an LPJmLData data array
+#'
+#' Function to get the dimnames (list) of the data array of an LPJmLData object
+#' as numeric where vector where possible.
+#'
+#' @param x [LPJmLData] object
+#'
+#' @md
+#' @export
+dn <- function(x) x$dn()
+
+# dimnames (list) of the data array of an LPJmLData object as numeric where
+# vector where possible.
+LPJmLData$set("private",
+              ".dn",
+              function() {
+    private$.dimnames() %>%
+    # Convert default character vectors into numeric if possible
+    lapply(
+      function(x) {
+        # Convert to numeric
+        y <- suppressWarnings(as.numeric(x))
+
+        # Check if any values are NA return original character value
+        if (any(is.na(y))) {
+          return(x)
+
+        # Return converted value if no NAs
+        } else {
+          return(y)
+        }
+      }
+    )
+  }
+)
+
+
 #' LPJmLData object summary
 #'
 #' Function to get the summary of the data array of an LPJmLData object.
