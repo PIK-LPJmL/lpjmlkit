@@ -384,7 +384,7 @@ submit_run <- function(sim_name,
 
   if (is.list(slurm_options) && length(slurm_options) > 0) {
     further_slurm_options <- paste0(
-      "-option ", names(slurm_options), "=", slurm_options, collapse = " "
+      " -option ", names(slurm_options), "=", slurm_options, collapse = " "
     )
   } else {
     further_slurm_options <- ""
