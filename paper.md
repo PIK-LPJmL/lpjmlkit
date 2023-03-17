@@ -80,14 +80,14 @@ developments based on LPJmL simulations or data.
 A simple interface facilitates the use of software and improves accessibility,
 user experience, and overall adoption.
 Scientific software should also be findable, accessible, interoperable and
-resusable, according to the FAIR principles for research software
+reusable, according to the FAIR principles for research software
 [@barker_introducing_2022].
 Numerical models based on process-based approaches and implemented in low-level
 programming languages are often characterised by a long history and long
 development cycles, that affect operability.
 These models therefore often lack simple and reliable interfaces that are also
 FAIR [@wilson_best_2014; @barker_introducing_2022].
-LPJmL is a well-established and widely-used dynamic global vegetation,
+LPJmL is a well-established dynamic global vegetation,
 hydrological and crop model, widely used in the scientific community.\
 LPJmL has been used for more than a decade and was employed by researchers
 to conduct numerous studies in various research areas related to the
@@ -106,7 +106,7 @@ implemented features of sustainable agriculture in LPJmL
 within a DGVM.
 There are many other examples of different scientific studies based on LPJmL
 simulations, all using individual scripts to create inputs for the model or
-analyze outputs with the risks already described.
+analyze outputs.
 Unlike its sister model LPJ-GUESS [@bagnara_r_2019] or other models, such as
 MAgPIE [@dietrich_magpie_2019], LPJmL was never equipped with standardised
 interfaces for higher level programming languages to either run simulations or
@@ -186,7 +186,7 @@ check_config(config_details,
              model_path = lpjml_path,
              output_path = sim_path)
 
-# Submit LPJmL simulations to SLURM on a HPC cluster
+# Submit LPJmL simulations to SLURM on an HPC cluster
 submit_lpjml(config_details,
              model_path = lpjml_path,
              output_path = sim_path)
@@ -198,7 +198,7 @@ The Data module
 ([vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-data.html))
 provides various functions for reading and processing LPJmL data.
 The function `read_io()` reads LPJmL input and output data as an `LPJmLData`
-object, which contains the data `array` and corresponding meta data
+object, which contains the data array and corresponding meta data
 (`LPJmLMetaData`).
 
 `LPJmLData` objects can be used for further analysis and visualization, such as
@@ -220,7 +220,7 @@ runoff <- read_io(filename = "./simulations/output/lu/runoff.bin.json"),
 runoff |>
   transform(to = c("year_month_day", "lon_lat")) |>
   subset(month = 6:9,
-         lat = as.character(seq(0.25, 83.75, by = 0.5))) |>
+         lat = dimnames(runoff)$lat > 0) |>
   plot(aggregate = list(year = mean, month = sum),
        raster_extent = raster::extent(-180, 180, 0, 84),
        main = "Northern hemisphere summer runoff [mm]")
@@ -239,7 +239,7 @@ functionality.
 # Same functionality but usage of the underyling R6 class implementation
 runoff$transform(to = c("year_month_day", "lon_lat"))
 runoff$subset(month = 6:9,
-              lat = as.character(seq(0.25, 83.75, by = 0.5)))
+              lat = runoff$dimnames()$lat > 0)
 runoff$plot(aggregate = list(year = mean, month = sum),
             raster_extent = raster::extent(-180, 180, 0, 84),
             main = "Northern hemisphere summer runoff [mm]")
