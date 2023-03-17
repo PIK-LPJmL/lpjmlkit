@@ -220,7 +220,7 @@ runoff <- read_io(filename = "./simulations/output/lu/runoff.bin.json"),
 runoff |>
   transform(to = c("year_month_day", "lon_lat")) |>
   subset(month = 6:9,
-         lat = dimnames(runoff)$lat > 0) |>
+         lat = as.character(seq(0.25, 83.75, by = 0.5))) |>
   plot(aggregate = list(year = mean, month = sum),
        raster_extent = raster::extent(-180, 180, 0, 84),
        main = "Northern hemisphere summer runoff [mm]")
@@ -239,7 +239,7 @@ functionality.
 # Same functionality but usage of the underyling R6 class implementation
 runoff$transform(to = c("year_month_day", "lon_lat"))
 runoff$subset(month = 6:9,
-              lat = runoff$dimnames()$lat > 0)
+              lat = as.character(seq(0.25, 83.75, by = 0.5)))
 runoff$plot(aggregate = list(year = mean, month = sum),
             raster_extent = raster::extent(-180, 180, 0, 84),
             main = "Northern hemisphere summer runoff [mm]")
