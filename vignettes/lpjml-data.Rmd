@@ -496,7 +496,7 @@ coordinates <- tibble::tibble(lat = c(52.25, 52.400922, 53.25),
 
 # Complete pipe notation, from reading to plotting data.
 read_io(
-  filename = glue("{output_path}/cftfrac.bin.json"),
+  filename = glue("./cftfrac.bin.json"),
   subset = list(year = 2000:2018)
 ) |>
   transform(to = "lon_lat") |>

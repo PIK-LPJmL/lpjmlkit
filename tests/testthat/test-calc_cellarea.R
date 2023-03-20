@@ -5,27 +5,27 @@ test_that("Calculate cell area", {
   testthat::expect_type(calc_cellarea(lats), "double")
   testthat::expect_length(calc_cellarea(lats), length(lats))
 
-  # Vector > 1 not supported for res_lon
+  # Vector > 1 not supported for cellsize_lon
   testthat::expect_warning(
-    calc_cellarea(lats, res_lon = c(0.5, 0.5)),
-    "res_lon has length"
+    calc_cellarea(lats, cellsize_lon = c(0.5, 0.5)),
+    "cellsize_lon has length"
   )
 
-  # Non-supported type for res_lon
+  # Non-supported type for cellsize_lon
   testthat::expect_error(
-    calc_cellarea(lats, res_lon = NA),
+    calc_cellarea(lats, cellsize_lon = NA),
     "Invalid longitude grid"
   )
 
-  # Vector > 1 not supported for res_lat
+  # Vector > 1 not supported for cellsize_lat
   testthat::expect_warning(
-    calc_cellarea(lats, res_lat = c(0.5, 0.5)),
-    "res_lat has length"
+    calc_cellarea(lats, cellsize_lat = c(0.5, 0.5)),
+    "cellsize_lat has length"
   )
 
-  # Non-supported type for res_lat
+  # Non-supported type for cellsize_lat
   testthat::expect_error(
-    calc_cellarea(lats, res_lat = NA),
+    calc_cellarea(lats, cellsize_lat = NA),
     "Invalid latitude grid"
   )
 
@@ -62,14 +62,14 @@ test_that("Calculate cell area with LPJmLData object and grid attribute", {
     as.vector(cell_area2[match(names(cell_area), output$grid$data)])
   )
 
-  # Test that function arguments res_lon and res_lat are ignored for LPJmLData
+  # Test that function arguments cellsize_lon and cellsize_lat are ignored for LPJmLData
   testthat::expect_warning(
-    calc_cellarea(output, res_lon = 0.25),
-    "Using .+ instead of supplied res_lon"
+    calc_cellarea(output, cellsize_lon = 0.25),
+    "Using .+ instead of supplied cellsize_lon"
   )
   testthat::expect_warning(
-    calc_cellarea(output, res_lat = 0.25),
-    "Using .+ instead of supplied res_lat"
+    calc_cellarea(output, cellsize_lat = 0.25),
+    "Using .+ instead of supplied cellsize_lat"
   )
 
   # Test alternative dim_order

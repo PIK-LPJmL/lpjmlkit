@@ -515,6 +515,3 @@ find_gridfile <- function(searchdir) {
 
   filename
 }
-
-# Avoid note for "."...
-utils::globalVariables(".") # nolint:undesirable_function_linter
