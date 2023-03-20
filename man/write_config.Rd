@@ -5,26 +5,29 @@
 \title{Write LPJmL config files (JSON)}
 \usage{
 write_config(
-  params,
+  x,
   model_path,
-  output_path = NULL,
+  sim_path = NULL,
   output_list = c(),
   output_list_timestep = "annual",
   output_format = "raw",
   js_filename = "lpjml.js",
   parallel_cores = 4,
-  debug = FALSE
+  debug = FALSE,
+  params = NULL,
+  output_path = NULL
 )
 }
 \arguments{
-\item{params}{A tibble in a defined format (see details).}
+\item{x}{A tibble in a defined format (see details).}
 
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable).}
 
-\item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created to store respective data. If \code{NULL},
-\code{model_path} is used.}
+\item{sim_path}{Character string defining path where all simulation data
+are written. Also an output, a restart and a configuration folder are
+created in \code{sim_path} to store respective data. If \code{NULL}, \code{model_path} is
+used.}
 
 \item{output_list}{Character vector containing the \code{"id"} of outputvars.
 If defined, only these defined outputs will be written. Otherwise, all
@@ -48,11 +51,17 @@ parallelization. Defaults to \code{4}.}
 
 \item{debug}{logical If \code{TRUE}, the inner parallelization is switched off
 to enable tracebacks and all types of error messages. Defaults to \code{FALSE}.}
+
+\item{params}{Argument is deprecated as of version 1.0; use x
+instead.}
+
+\item{output_path}{Argument is deprecated as of version 1.0; use sim_path
+instead.}
 }
 \value{
 \link[tibble]{tibble} with at least one column named \code{"sim_name"}.
 Run parameters \code{"order"} and \code{"dependency"} are included if defined in
-\code{params}. \link[tibble]{tibble} in this format is required for
+\code{x}. \link[tibble]{tibble} in this format is required for
 \code{\link[=submit_lpjml]{submit_lpjml()}}.
 }
 \description{
@@ -62,7 +71,7 @@ file \code{"config_*.json"}. Each row in the tibble corresponds to a model run.
 The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.js"}).
 }
 \details{
-Supply a \link[tibble]{tibble} for \code{params}, in which each row represents
+Supply a \link[tibble]{tibble} for \code{x}, in which each row represents
 a configuration (config) for an LPJmL simulation. \cr
 Here a config is referred to as the precompiled \code{"lpjml.js"} file (or file
 name provided as \code{js_filename} argument), which links to all other
@@ -174,7 +183,7 @@ my_params2
 
 \subsection{In short}{
 \itemize{
-\item \code{write_config()} creates subdirectories within the \code{output_path} directory
+\item \code{write_config()} creates subdirectories within the \code{sim_path} directory
 \itemize{
 \item \code{"./configurations"} to store the config files.
 \item \code{"./output"} to store the output within subdirectories for each
@@ -202,7 +211,7 @@ library(tibble)
 library(lpjmlkit)
 
 model_path <- "./LPJmL_internal"
-output_path <-"./my_runs"
+sim_path <-"./my_runs"
 
 
 # Basic usage
@@ -215,9 +224,9 @@ my_params <- tibble(
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 config_details
@@ -235,9 +244,9 @@ my_params <- tibble(
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 config_details
@@ -256,9 +265,9 @@ my_params <- tibble(
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 config_details
