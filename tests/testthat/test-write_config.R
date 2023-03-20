@@ -23,9 +23,9 @@ testthat::test_that("write correct config with dot syntax", {
 
   # Test main function of write_config since write_config is hard to test
   tmp_objects <- write_single_config(
-    params = test_params,
+    x = test_params,
     model_path = "../testdata",
-    output_path = "../testdata",
+    sim_path = "../testdata",
     output_list = c(),
     output_list_timestep = "annual",
     output_format = "clm",
@@ -55,9 +55,9 @@ testthat::test_that("write correct config with dot syntax", {
   test_params["test_param"] <- TRUE
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -73,9 +73,9 @@ testthat::test_that("write correct config with dot syntax", {
   test_params["sim_name.landuse"] <- TRUE
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -110,9 +110,9 @@ testthat::test_that("write correct config with common list syntax", {
 
   # Test main function of write_config since write_config is hard to test
   tmp_objects <- write_single_config(
-    params = test_params,
+    x = test_params,
     model_path = "../testdata",
-    output_path = "../testdata",
+    sim_path = "../testdata",
     output_list = c(),
     output_list_timestep = "annual",
     output_format = "clm",
@@ -129,9 +129,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["test_param$check"] <- TRUE
   expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -147,9 +147,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["sim_name$landuse"] <- TRUE
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -165,9 +165,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["sim_name"] <- NULL
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -175,7 +175,7 @@ testthat::test_that("write correct config with common list syntax", {
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
-    "A sim_name is missing in params."
+    "A sim_name is missing in"
   )
   test_params["sim_name"] <- "spinup_pnv"
 
@@ -185,9 +185,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["dependency"] <- NULL
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -202,9 +202,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["order"] <- -1
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -220,9 +220,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["restart_filename"] <- NULL
   testthat::expect_warning(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -239,9 +239,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["dependency"] <- "spinup_spinup"
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c("irrig", "irrig"),
       output_list_timestep = c("subannual", "subannual"),
       output_format = "clm",
@@ -256,9 +256,9 @@ testthat::test_that("write correct config with common list syntax", {
   # Non matching length if output_list and output_list_timestep
   testthat::expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c("irrig"),
       output_list_timestep = c("annual", "annual"),
       output_format = "cdf",
@@ -272,9 +272,9 @@ testthat::test_that("write correct config with common list syntax", {
   # Non valid output
   testthat::expect_warning(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c("soil_health"),
       output_list_timestep = c("annual"),
       output_format = "cdf",
@@ -290,9 +290,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["wtime"] <- "10:00:00"
   test_params["-DMY_MACRO"] <- TRUE
   tmp_objects <- write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -321,9 +321,9 @@ testthat::test_that("include non output defined outputvars", {
 
   # test main function of write_config since write_config is hard to test
   tmp_objects <- write_single_config(
-    params = test_params,
+    x = test_params,
     model_path = "../testdata",
-    output_path = "../testdata",
+    sim_path = "../testdata",
     output_list = c("grid", "irrig"),
     output_list_timestep = "annual",
     output_format = "clm",

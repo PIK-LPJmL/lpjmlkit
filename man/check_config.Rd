@@ -7,9 +7,10 @@
 check_config(
   x,
   model_path = ".",
-  output_path = NULL,
+  sim_path = NULL,
   return_output = FALSE,
-  raise_error = FALSE
+  raise_error = FALSE,
+  output_path = NULL
 )
 }
 \arguments{
@@ -20,8 +21,9 @@ character vector providing the config file names
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable). Defaults to ".".}
 
-\item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created. If \code{NULL}, \code{model_path} is used.}
+\item{sim_path}{Character string defining path where all simulation data is
+written, including outputs, restart files and a configurations. If \code{NULL},
+\code{model_path} is used. See also \link{write_config}}
 
 \item{return_output}{Parameter affecting the output. If \code{FALSE} print
 stdout/stderr message. If \code{TRUE}, return the result of the check.
@@ -29,6 +31,9 @@ Defaults to \code{FALSE}.}
 
 \item{raise_error}{Logical. Whether to raise an error if sub-process has
 non-zero exit status. Defaults to \code{FALSE}.}
+
+\item{output_path}{Argument is deprecated as of version 1.0; use sim_path
+instead.}
 }
 \value{
 NULL.
@@ -44,7 +49,7 @@ library(tibble)
 library(lpjmlkit)
 
 model_path <- "./LPJmL_internal"
-output_path <-"./my_runs"
+sim_path <-"./my_runs"
 
 
 # Basic usage
@@ -57,14 +62,14 @@ my_params <- tibble(
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 check_config(x = config_details,
   model_path = model_path,
-  output_path = output_path,
+  sim_path = sim_path,
   return_output = FALSE
 )
 }

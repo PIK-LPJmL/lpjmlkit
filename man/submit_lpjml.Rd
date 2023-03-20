@@ -7,13 +7,14 @@
 submit_lpjml(
   x,
   model_path,
-  output_path = NULL,
+  sim_path = NULL,
   group = "lpjml",
   sclass = "short",
   ntasks = 256,
   wtime = "",
   blocking = "",
-  no_submit = FALSE
+  no_submit = FALSE,
+  output_path = NULL
 )
 }
 \arguments{
@@ -27,9 +28,9 @@ multiple generated config file(s).}
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable).}
 
-\item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created to store respective data. If \code{NULL},
-\code{model_path} is used.}
+\item{sim_path}{Character string defining path where all simulation data is
+written, including outputs, restart files and a configurations. If \code{NULL},
+\code{model_path} is used. See also \link{write_config}}
 
 \item{group}{Character string defining the user group for which the job is
 submitted. Defaults to \code{"lpjml"}.}
@@ -53,6 +54,9 @@ information at \url{https://www.pik-potsdam.de} and
 
 \item{no_submit}{Logical. Set to \code{TRUE} to test if \code{x} set correctly or
 \code{FALSE} to actually submit job to SLURM.}
+
+\item{output_path}{Argument is deprecated as of version 1.0; use sim_path
+instead.}
 }
 \value{
 See \code{x}, extended by columns \code{"type"}, \code{"job_id"} and \code{"status"}.
@@ -107,7 +111,7 @@ library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
-output_path <-"./my_runs"
+sim_path <-"./my_runs"
 
 
 # Basic usage
@@ -119,12 +123,12 @@ my_params <- tibble(
  new_phenology = c(TRUE, FALSE)
 )
 
-config_details <- write_config(my_params, model_path, output_path)
+config_details <- write_config(my_params, model_path, sim_path)
 
  run_details <- submit_lpjml(
   x = config_details,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 run_details
@@ -143,9 +147,9 @@ my_params <- tibble(
   wtime = c("8:00:00", "4:00:00"),
 )
 
-config_details2 <- write_config(my_params2, model_path, output_path)
+config_details2 <- write_config(my_params2, model_path, sim_path)
 
-run_details2 <- submit_lpjml(config_details2, model_path, output_path)
+run_details2 <- submit_lpjml(config_details2, model_path, sim_path)
 
 run_details2
 #   sim_name        order dependency   wtime   type       job_id   status
@@ -161,21 +165,21 @@ run_details <- tibble(
   dependency = c(NA, "scen1_spinup"),
   wtime = c("8:00:00", "4:00:00"),
 ) \%>\%
-  write_config(model_path, output_path) \%>\%
-  submit_lpjml(model_path, output_path)
+  write_config(model_path, sim_path) \%>\%
+  submit_lpjml(model_path, sim_path)
 
 
 # Shortcut approach
 run_details <- submit_lpjml(
   x = "./config_scen1_transient.json",
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 run_details <- submit_lpjml(
   c("./config_scen1_spinup.json", "./config_scen1_transient.json"),
   model_path,
-  output_path
+  sim_path
 )
 
 }

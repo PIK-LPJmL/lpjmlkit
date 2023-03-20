@@ -15,9 +15,9 @@
 #' @param model_path Character string providing the path to LPJmL
 #'   (equal to `LPJROOT` environment variable). Defaults to "."
 #'
-#' @param output_path Character string providing path where an output, a restart
-#'   and a configuration folder are created to store respective data. If `NULL`,
-#'   `model_path` is used.
+#' @param sim_path Character string defining path where all simulation data is
+#'   written, including outputs, restart files and a configurations. If `NULL`,
+#'   `model_path` is used. See also [write_config]
 #'
 #' @param parallel_cores Integer defining the number of available CPU
 #'   cores/nodes for parallelization. Defaults to `1` (no parallelization).
@@ -30,6 +30,9 @@
 #'
 #' @param raise_error Logical. Whether to raise an error if sub-process has
 #'   non-zero exit status. Defaults to `TRUE`.
+#'
+#' @param output_path Argument is deprecated as of version 1.0; use sim_path
+#'   instead.
 #'
 #' @return See `x`, extended by columns `"type"`, `"job_id"` and `"status"`.
 #'
@@ -66,7 +69,7 @@
 #' library(tibble)
 #'
 #' model_path <- "./LPJmL_internal"
-#' output_path <-"./my_runs"
+#' sim_path <-"./my_runs"
 #'
 #' # Basic usage
 #' my_params1 <- tibble(
@@ -79,12 +82,12 @@
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
-#' config_details1 <- write_config(my_params1, model_path, output_path)
+#' config_details1 <- write_config(my_params1, model_path, sim_path)
 #'
 #'  run_details1 <- run_lpjml(
 #'   x = config_details1,
 #'   model_path = model_path,
-#'   output_path = output_path
+#'   sim_path = sim_path
 #' )
 #'
 #' run_details1
@@ -104,9 +107,9 @@
 #'   dependency = c(NA, "scen1_spinup")
 #' )
 #'
-#' config_details2 <- write_config(my_params2, model_path, output_path)
+#' config_details2 <- write_config(my_params2, model_path, sim_path)
 #'
-#' run_details2 <- run_lpjml(config_details2, model_path, output_path)
+#' run_details2 <- run_lpjml(config_details2, model_path, sim_path)
 #'
 #' run_details2
 #' #   sim_name        order dependency   type       job_id   status
@@ -121,21 +124,21 @@
 #'   random_seed = as.integer(c(1, 42)),
 #'   dependency = c(NA, "scen1_spinup")
 #' ) %>%
-#'   write_config(model_path, output_path) %>%
-#'   run_lpjml(model_path, output_path)
+#'   write_config(model_path, sim_path) %>%
+#'   run_lpjml(model_path, sim_path)
 #'
 #'
 #' # Shortcut approaches
 #' run_details3 <- run_lpjml(
 #'   x = "./config_scen1_transient.json",
 #'   model_path = model_path,
-#'   output_path = output_path
+#'   sim_path = sim_path
 #' )
 #'
 #' run_details4 <- run_lpjml(
 #'   c("./config_scen1_spinup.json", "./config_scen1_transient.json"),
 #'   model_path,
-#'   output_path
+#'   sim_path
 #' )
 #'
 #' }
@@ -144,16 +147,21 @@
 #' @export
 run_lpjml <- function(x,
                       model_path = ".",
-                      output_path = NULL,
+                      sim_path = NULL,
                       parallel_cores = 1,
                       write_stdout = FALSE,
-                      raise_error = TRUE) {
+                      raise_error = TRUE,
+                      output_path = NULL) {
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
     stop("Folder of model_path \"", model_path, "\" does not exist.")
   }
-  if (is.null(output_path)) output_path <- model_path
+
+  sim_path <- deprecate_arg(new_arg = sim_path,
+                            deprec_arg = output_path)
+
+  if (is.null(sim_path)) sim_path <- model_path
 
   # Case if character vector with file names is supplied instead of tibble
   if (methods::is(x, "character")) {
@@ -179,11 +187,11 @@ run_lpjml <- function(x,
 
       if (parallel_cores == 1) {
         do_sequential(
-          sim_names, model_path, output_path, write_stdout, raise_error
+          sim_names, model_path, sim_path, write_stdout, raise_error
         )
       } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
         do_parallel(
-          sim_names, model_path, output_path, parallel_cores, raise_error
+          sim_names, model_path, sim_path, parallel_cores, raise_error
         )
       } else {
         stop(
@@ -197,11 +205,11 @@ run_lpjml <- function(x,
   } else {
     if (parallel_cores == 1) {
       do_sequential(
-        x$sim_name, model_path, output_path, write_stdout, raise_error
+        x$sim_name, model_path, sim_path, write_stdout, raise_error
       )
     } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
       do_parallel(
-        x$sim_name, model_path, output_path, parallel_cores, raise_error
+        x$sim_name, model_path, sim_path, parallel_cores, raise_error
       )
     } else {
       stop(
@@ -220,7 +228,7 @@ run_lpjml <- function(x,
 # Inner run function
 do_run <- function(sim_name,
                    model_path,
-                   output_path,
+                   sim_path,
                    write_stdout,
                    raise_error) {
 
@@ -240,12 +248,12 @@ do_run <- function(sim_name,
                                   "srun --propagate "),
                            model_path,
                            "/bin/lpjml ", # nolint:absolute_path_linter.
-                           output_path,
+                           sim_path,
                            "/configurations/",
                            config_file)
 
   stdout_file <- ifelse(write_stdout,
-                        paste0(output_path,
+                        paste0(sim_path,
                                "/output/",
                                sim_name,
                                "/",
@@ -266,7 +274,7 @@ do_run <- function(sim_name,
                 args = c("-c", inner_command),
                 stdout = stdout_file,
                 stderr = ifelse(write_stdout,
-                                paste0(output_path,
+                                paste0(sim_path,
                                        "/output/",
                                        sim_name,
                                        "/",
@@ -280,7 +288,8 @@ do_run <- function(sim_name,
                                  Sys.getenv("SLURM_JOB_ID") == "",
                                             TRUE,
                                             FALSE),
-                error_on_status = raise_error)
+                error_on_status = raise_error,
+                wd = sim_path)
 }
 
 
@@ -288,7 +297,7 @@ do_run <- function(sim_name,
 # node.
 do_sequential <- function(sim_names,
                           model_path,
-                          output_path,
+                          sim_path,
                           write_stdout,
                           raise_error) {
 
@@ -304,7 +313,7 @@ do_sequential <- function(sim_names,
                  I_MPI_DAPL_FABRIC = "shm:sh")
     }
     for (sim_name in sim_names) {
-      do_run(sim_name, model_path, output_path, write_stdout, raise_error)
+      do_run(sim_name, model_path, sim_path, write_stdout, raise_error)
     }
   }, finally = {
     # Check if slurm is available
@@ -320,7 +329,7 @@ do_sequential <- function(sim_names,
 # Conduct parallel runs.
 do_parallel <- function(sim_names,
                         model_path,
-                        output_path,
+                        sim_path,
                         parallel_cores,
                         raise_error) {
 
@@ -340,7 +349,7 @@ do_parallel <- function(sim_names,
     # Write single call
     tryCatch({
       do_run(
-        sim_name, model_path, output_path, write_stdout = TRUE, raise_error
+        sim_name, model_path, sim_path, write_stdout = TRUE, raise_error
       )
 
     # Stop when error occures
