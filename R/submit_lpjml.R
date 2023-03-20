@@ -189,7 +189,8 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
   }
 
   sim_path <- deprecate_arg(new_arg = sim_path,
-                            deprec_arg = output_path)
+                            deprec_arg = output_path,
+                            version = "1.0.0")
 
   if (is.null(sim_path)) sim_path <- model_path
 

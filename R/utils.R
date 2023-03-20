@@ -1,7 +1,7 @@
 # Collection of small utility function applied across the package
 
 # Function to deprecate a function argument that is replaced by a new one
-deprecate_arg <- function(new_arg, deprec_arg) {
+deprecate_arg <- function(new_arg, deprec_arg, version = "1.0.0") {
 
   new_name <- deparse(substitute(new_arg))
   deprec_name <- deparse(substitute(deprec_arg))
@@ -20,8 +20,8 @@ deprecate_arg <- function(new_arg, deprec_arg) {
     }
 
     message(
-      "Argument `", deprec_name, "` is deprecated as of version 1.0; ",
-      "use `", new_name, "` instead."
+      "Argument `", deprec_name, "` is deprecated as of version ", version, ";",
+      " use `", new_name, "` instead."
     )
   }
 

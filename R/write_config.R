@@ -275,7 +275,8 @@ write_config <- function(x,
   # Deprecate argument params
   if (missing("x")) x <- NULL
   x <- deprecate_arg(new_arg = x,
-                     deprec_arg = params)
+                     deprec_arg = params,
+                     version = "1.0.0")
 
   # Check if model_path is valid
   if (!dir.exists(model_path)) {
@@ -284,7 +285,8 @@ write_config <- function(x,
 
   # Deprecate argument output_path
   sim_path <- deprecate_arg(new_arg = sim_path,
-                            deprec_arg = output_path)
+                            deprec_arg = output_path,
+                            version = "1.0.0")
 
   if (is.null(sim_path)) sim_path <- model_path
 

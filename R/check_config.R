@@ -66,7 +66,8 @@ check_config <- function(x,
                          output_path = NULL) {
 
   sim_path <- deprecate_arg(new_arg = sim_path,
-                            deprec_arg = output_path)
+                            deprec_arg = output_path,
+                            version = "1.0.0")
 
   if (is.null(sim_path)) sim_path <- model_path
 
