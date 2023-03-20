@@ -3,6 +3,7 @@
 ^LICENSE\.md$
 ^CONTRIBUTING\.md$
 ^INSTALL\.md$
+^paper\.md$
 ^\.github$
 ^\.buildlibrary$
 ^\.pre-commit-config\.yaml$
