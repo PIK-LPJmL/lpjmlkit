@@ -179,17 +179,17 @@ config_params <- data.frame(
 # configuration file
 config_details <- write_config(config_params,
                                model_path = lpjml_path,
-                               output_path = sim_path)
+                               sim_path = sim_path)
 
 # Check validity of each written configuration file
 check_config(config_details,
              model_path = lpjml_path,
-             output_path = sim_path)
+             sim_path = sim_path)
 
 # Submit LPJmL simulations to SLURM on an HPC cluster
 submit_lpjml(config_details,
              model_path = lpjml_path,
-             output_path = sim_path)
+             sim_path = sim_path)
 ```
 
 ## LPJmL Data
