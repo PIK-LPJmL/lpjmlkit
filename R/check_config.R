@@ -11,8 +11,8 @@
 #' @param model_path Character string providing the path to LPJmL
 #'   (equal to `LPJROOT` environment variable). Defaults to ".".
 #'
-#' @param sim_path Character string defining path where all simulation data is
-#'   written, including outputs, restart files and a configurations. If `NULL`,
+#' @param sim_path Character string defining path where all simulation data are
+#'   written, including outputs, restart files and configurations. If `NULL`,
 #'   `model_path` is used. See also [write_config]
 #'
 #' @param return_output Parameter affecting the output. If `FALSE` print

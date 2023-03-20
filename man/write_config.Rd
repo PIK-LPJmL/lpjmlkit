@@ -25,8 +25,9 @@ write_config(
 (equal to \code{LPJROOT} environment variable).}
 
 \item{sim_path}{Character string defining path where all simulation data
-is written. Also an output, a restart and a configuration folder are
-created inside to store respective data. If \code{NULL}, \code{model_path} is used.}
+are written. Also an output, a restart and a configuration folder are
+created in \code{sim_path} to store respective data. If \code{NULL}, \code{model_path} is
+used.}
 
 \item{output_list}{Character vector containing the \code{"id"} of outputvars.
 If defined, only these defined outputs will be written. Otherwise, all

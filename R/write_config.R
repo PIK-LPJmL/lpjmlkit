@@ -11,8 +11,9 @@
 #' (equal to `LPJROOT` environment variable).
 #'
 #' @param sim_path Character string defining path where all simulation data
-#'   is written. Also an output, a restart and a configuration folder are
-#'   created inside to store respective data. If `NULL`, `model_path` is used.
+#'   are written. Also an output, a restart and a configuration folder are
+#'   created in `sim_path` to store respective data. If `NULL`, `model_path` is
+#'   used.
 #'
 #' @param output_list Character vector containing the `"id"` of outputvars.
 #'   If defined, only these defined outputs will be written. Otherwise, all

@@ -21,8 +21,8 @@ character vector providing the config file names
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable). Defaults to ".".}
 
-\item{sim_path}{Character string defining path where all simulation data is
-written, including outputs, restart files and a configurations. If \code{NULL},
+\item{sim_path}{Character string defining path where all simulation data are
+written, including outputs, restart files and configurations. If \code{NULL},
 \code{model_path} is used. See also \link{write_config}}
 
 \item{return_output}{Parameter affecting the output. If \code{FALSE} print

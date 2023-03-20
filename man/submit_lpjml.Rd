@@ -28,8 +28,8 @@ multiple generated config file(s).}
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable).}
 
-\item{sim_path}{Character string defining path where all simulation data is
-written, including outputs, restart files and a configurations. If \code{NULL},
+\item{sim_path}{Character string defining path where all simulation data are
+written, including outputs, restart files and configurations. If \code{NULL},
 \code{model_path} is used. See also \link{write_config}}
 
 \item{group}{Character string defining the user group for which the job is
