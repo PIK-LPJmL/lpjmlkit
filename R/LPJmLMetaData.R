@@ -306,7 +306,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
                 switch(as.character(.$datatype),
                        `0` = "byte",
                        `1` = "short",
-                       `2` = "integer",
+                       `2` = "int",
                        `3` = "float",
                        `4` = "double",
                        stop(
