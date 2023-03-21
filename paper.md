@@ -282,8 +282,11 @@ where users can also report issues and suggest improvements.
 
 # Acknowledgements
 
-Special thanks go to Werner von Bloh for implementing new
-features into LPJmL to enable the development of lpjmlkit, such as writing meta
+We would to thank Pascal Führlich and Jan Philipp Dietrich for providing access
+to PIK Research Software Engineering ressources and additional support within
+the development process.
+Special thanks also go to Werner von Bloh for implementing new features into
+LPJmL to enable the development of lpjmlkit, such as writing meta
 files.
 
 # References
