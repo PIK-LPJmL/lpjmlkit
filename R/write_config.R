@@ -555,7 +555,7 @@ parse_config <- function(path,
                          macro = "") {
 
    # processx::run kills any occuring subprocesses to avoid fork bombs.
-   tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
+   tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
                              args = c(
                                "-c",
                                paste0("cpp -P ./",
@@ -883,7 +883,7 @@ call_by_points <- function(x, colname, param_value, all_keys) {
 
       # Character strings must be in quotes
       if (!grepl("^[0-9]*$", x) && x %in% all_keys) {
-        x <- dQuote(x)
+        x <- dQuote(x, q = FALSE)
       } else if (!grepl("^[0-9]*$", x)) {
         stop(
           col_var(colname),

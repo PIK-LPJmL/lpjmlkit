@@ -134,7 +134,7 @@ get_git_urlhash <- function(path = ".",
 
 # Function checks and returns whether SLURM is available
 is_slurm_available <- function() {
-  processx::run(command = "sh",
+  processx::run(command = "bash",
                 args = c("-c", "sinfo"),
                 error_on_status = FALSE) %>%
   .$status == 0 %>%

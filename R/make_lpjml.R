@@ -40,7 +40,7 @@ make_lpjml <- function(model_path = ".",
   }
   # Take precompiled config.json as proxy if LPJmL was already configured
   if (file.exists(paste0(model_path, "/Makefile.inc"))) {  # nolint:absolute_path_linter.
-    init <- processx::run(command = "sh",
+    init <- processx::run(command = "bash",
                           args = c("-c",
                                    paste0(ifelse(make_clean,
                                                  "make clean;",
@@ -60,7 +60,7 @@ make_lpjml <- function(model_path = ".",
                           echo = !testthat::is_testing())
 
   } else {
-    init <- processx::run(command = "sh",
+    init <- processx::run(command = "bash",
                           args = c("-c",
                                    paste0("./configure.sh",
                                           ifelse(!is.null(debug) && debug, " -debug; ", "; "), # nolint

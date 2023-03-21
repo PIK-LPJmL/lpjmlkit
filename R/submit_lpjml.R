@@ -401,7 +401,7 @@ submit_run <- function(sim_name,
     Sys.setenv(LPJROOT = model_path) # nolint:undesirable_function_linter.
 
     # Run lpjsubmit.
-    submit_status <- processx::run(command = "sh",
+    submit_status <- processx::run(command = "bash",
                                    args = c("-c", inner_command),
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
