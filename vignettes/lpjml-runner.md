@@ -48,7 +48,7 @@ the parameters of a base config file `"lpjml.js"` to be changed.
 `?write_config` *for more information.*
 
 ``` r
-config_details <- write_config(my_params, model_path, output_path)
+config_details <- write_config(my_params, model_path, sim_path)
 ```
 
 #### **3. 🔍 Check validity of Configurations** 
@@ -60,7 +60,7 @@ not be satisfied yet) but will print/return the information of
 `lpjcheck`.
 
 ``` r
-lpjml_check(config_details, model_path, output_path)
+lpjml_check(config_details, model_path, sim_path)
 ```
 
 #### **4. ▶ Run or 🚀 submit LPJmL** 
@@ -74,10 +74,10 @@ runs.
 
 ``` r
 # run interactively
-run_details <- run_lpjml(config_details, model_path, output_path)
+run_details <- run_lpjml(config_details, model_path, sim_path)
 
 # OR submit to SLURM
-submit_details <- submit_lpjml(config_details, model_path, output_path)
+submit_details <- submit_lpjml(config_details, model_path, sim_path)
 ```
 
 #### **miscellaneous** 
@@ -104,7 +104,7 @@ library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
-output_path <- "./my_runs"
+sim_path <- "./my_runs"
 ```
 
    
@@ -140,15 +140,15 @@ params <- tibble(
 
 # write config files
 config_details <- write_config(
-  params = params, # pass the defined parameter tibble
+  x = params, # pass the defined parameter tibble
   model_path = model_path,
-  output_path = output_path,
+  sim_path = sim_path,
   js_filename = "lpjml.js" # (default) the base config file
 )
 
 # read and view config
 config_lu <- read_config(
-  filename = paste0(output_path, "/configurations/config_lu.json") # nolint:absolute_path_linter.
+  filename = paste0(sim_path, "/configurations/config_lu.json") # nolint:absolute_path_linter.
 )
 View(config_lu)
 
@@ -156,14 +156,14 @@ View(config_lu)
 check_config(
   x = config_details, # can be filename (vector) or tibble
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 # execute runs sequentially
 run_details <- run_lpjml(
   config_details,
   model_path = model_path,
-  output_path = output_path)
+  sim_path = sim_path)
 ```
 
 #### **Example** *Old vs. new phenology and old land-use vs. input toolbox*
@@ -194,13 +194,13 @@ params <- tibble(
 )
 
 # write config files
-config_details <- write_config(params, model_path, output_path)
+config_details <- write_config(params, model_path, sim_path)
 
 # check config & LPJmL
-check_config(config_details, model_path, output_path)
+check_config(config_details, model_path, sim_path)
 
 # execute runs sequentially
-run_details <- run_lpjml(config_details, model_path, output_path)
+run_details <- run_lpjml(config_details, model_path, sim_path)
 ```
 
      
@@ -237,22 +237,22 @@ params <- tibble(
 
 # write config files
 config_details <- write_config(
-  params = params,
+  x = params,
   model_path = model_path,
-  output_path = output_path,
+  sim_path = sim_path,
   output_list = c("vegc", "soilc", "cftfrac", "pft_harvestc", "irrig"),
   output_list_timestep = c("annual", "annual", "annual", "annual", "monthly"),
   output_format = "clm"
 )
 
 # check config & LPJmL
-check_config(config_details, model_path, output_path)
+check_config(config_details, model_path, sim_path)
 
 # submit runs to slurm
 run_details <- submit_lpjml(
   x = config_details,
   model_path = model_path,
-  output_path = output_path,
+  sim_path = sim_path,
   group = "open")
 ```
 
@@ -265,10 +265,10 @@ run_details <- submit_lpjml(
 
     ``` r
     saveRDS(config_details,
-            paste0(output_path, "/configurations/config_details.rds")) # nolint:absolute_path_linter.
+            paste0(sim_path, "/configurations/config_details.rds")) # nolint:absolute_path_linter.
 
     # next time ...
-    config_details <- readRDS(paste0(output_path,
+    config_details <- readRDS(paste0(sim_path,
                                 "/configurations/config_details.rds")) # nolint:absolute_path_linter.
     ```
 
@@ -280,11 +280,11 @@ run_details <- submit_lpjml(
     run_details <- submit_lpjml(
       x = config_details[2:3, ],
       model_path = model_path,
-      output_path = output_path,
+      sim_path = sim_path,
       group = "open")
     ```
 
 3.  *a bit dirty though* If you want to reuse an old spinup simulation,
     you can copy the file or create a symlink of the file to
-    `"<output_path>/restart/<spinup_sim_name>/restart.lpj"`. Make sure
-    the file/symlink is named `"restart.lpj"`
+    `"<sim_path>/restart/<spinup_sim_name>/restart.lpj"`. Make sure the
+    file/symlink is named `"restart.lpj"`

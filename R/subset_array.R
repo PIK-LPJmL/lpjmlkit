@@ -271,14 +271,6 @@ subset_array_pair <- function(x,
 }
 
 
-# Drop dimensions of length 1 except those that are selected by name
-drop_omit <- function(x, omit_dim) {
-  dims <- dim(x)
-  dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
-
-  abind::adrop(x, dims_check)
-}
-
 # Check if indices exist in dimension of array
 check_index <- function(x, y, dim_name) {
   if (any(abs(x) > length(y) | x == 0)) {
@@ -287,6 +279,7 @@ check_index <- function(x, y, dim_name) {
   }
 }
 
+
 # Check if character vector elements exist in dimension of array
 check_string_index <- function(x, valids, dim_name) {
   if (any(is.na(valids))) {
@@ -294,6 +287,7 @@ check_string_index <- function(x, valids, dim_name) {
     stop_subset(x, nonvalids, dim_name, TRUE)
   }
 }
+
 
 # Print error for non valid elements of dimension
 stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
