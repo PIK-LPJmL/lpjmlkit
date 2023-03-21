@@ -271,7 +271,7 @@ do_run <- function(sim_name,
     cat(paste0("View output at \"", stdout_file, "\"\n"))
   }
 
-  processx::run(command = "sh",
+  processx::run(command = "bash",
                 args = c("-c", inner_command),
                 stdout = stdout_file,
                 stderr = ifelse(write_stdout,

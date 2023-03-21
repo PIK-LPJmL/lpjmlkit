@@ -113,7 +113,7 @@ check_config <- function(x,
 
   # Call sh command via processx to kill any subprocesses after
   #   background: process limit on the cluster
-  check <- processx::run(command = "sh",
+  check <- processx::run(command = "bash",
                          args = c("-c", inner_command),
                          error_on_status = raise_error,
                          cleanup_tree = TRUE,
