@@ -1,4 +1,4 @@
-# Toolkit for basic LPJmL handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
+# Toolkit for Basic LPJmL Handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
 R package **lpjmlkit**, version **1.0.1**
 
@@ -76,13 +76,13 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Müller C (2023). _lpjmlkit: Toolkit for basic LPJmL handling_. doi: 10.5281/zenodo.7752812 (URL: https://doi.org/10.5281/zenodo.7752812), R package version 1.0.1, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Müller C (2023). _lpjmlkit: Toolkit for Basic LPJmL Handling_. doi: 10.5281/zenodo.7752812 (URL: https://doi.org/10.5281/zenodo.7752812), R package version 1.0.1, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
 @Manual{,
-  title = {lpjmlkit: Toolkit for basic LPJmL handling},
+  title = {lpjmlkit: Toolkit for Basic LPJmL Handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Björn Wirth and Sara Minoli and Fabian Stenzel and Christoph Müller},
   year = {2023},
   note = {R package version 1.0.1},
