@@ -153,6 +153,8 @@ run_lpjml <- function(x,
                       raise_error = TRUE,
                       output_path = NULL) {
 
+  warn_runner_os("run_lpjml")
+
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
     stop("Folder of model_path \"", model_path, "\" does not exist.")

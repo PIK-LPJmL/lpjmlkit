@@ -65,6 +65,8 @@ check_config <- function(x,
                          raise_error = FALSE,
                          output_path = NULL) {
 
+  warn_runner_os("check_config")
+
   sim_path <- deprecate_arg(new_arg = sim_path,
                             deprec_arg = output_path,
                             version = "1.0.0")

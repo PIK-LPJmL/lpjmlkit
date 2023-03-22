@@ -4,7 +4,7 @@
 \name{lpjmlkit-package}
 \alias{lpjmlkit}
 \alias{lpjmlkit-package}
-\title{lpjmlkit: Toolkit for basic LPJmL handling}
+\title{lpjmlkit: Toolkit for Basic LPJmL Handling}
 \description{
 A collection of basic functions to facilitate the work with the Dynamic Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land (LPJmL) hosted at the Potsdam Institute for Climate Impact Research (PIK). It provides functions for performing LPJmL simulations, as well as reading, processing and writing model-related data such as inputs and outputs or configuration files.
 }
@@ -12,6 +12,7 @@ A collection of basic functions to facilitate the work with the Dynamic Global V
 Useful links:
 \itemize{
   \item \url{https://github.com/PIK-LPJmL/lpjmlkit}
+  \item \doi{10.5281/zenodo.7752812}
   \item Report bugs at \url{https://github.com/PIK-LPJmL/lpjmlkit/issues}
 }
 

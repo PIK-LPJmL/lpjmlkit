@@ -35,6 +35,8 @@ make_lpjml <- function(model_path = ".",
                        raise_error = TRUE,
                        debug = NULL) {
 
+  warn_runner_os("make_lpjml")
+
   if (!is.null(debug)) { # nolint:undesirable_function_linter.
     make_clean <- TRUE
   }

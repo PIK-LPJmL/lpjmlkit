@@ -142,6 +142,24 @@ is_slurm_available <- function() {
 }
 
 
+# Warn if OS is windows and thus not unix-based (ignoring other non unix based
+# OS)
+warn_runner_os <- function(fun_name) {
+  if (is_os_windows()) {
+    warning(
+      "`", fun_name, "()` is not supported on non-Unix-based operating systems."
+    )
+  }
+}
+
+
+# Check if OS is Windows
+is_os_windows <- function() {
+  # Check if operating system is Windows
+  ifelse(tolower(Sys.info()[["sysname"]]) == "windows", TRUE, FALSE)
+}
+
+
 # file_type options supported by read_io
 supported_types <- c("raw", "clm", "meta")
 
