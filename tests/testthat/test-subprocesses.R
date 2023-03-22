@@ -38,6 +38,8 @@ testthat::test_that("raise get_commit_hash error", {
 
 testthat::test_that("raise make_lpjml errors", {
 
+  skip_on_os("windows")
+
   # Emulate as if model has not been compiled before
   testthat::expect_true(
     make_lpjml(
@@ -57,6 +59,8 @@ testthat::test_that("raise make_lpjml errors", {
 
 
 testthat::test_that("raise check_config errors", {
+
+  skip_on_os("windows")
 
   # Emulate as if model has not been compiled before
   testthat::expect_true(

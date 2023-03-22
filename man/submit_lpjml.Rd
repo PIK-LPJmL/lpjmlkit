@@ -37,19 +37,19 @@ submitted. Defaults to \code{"lpjml"}.}
 
 \item{sclass}{Character string defining the job classification. Available
 options at PIK: \code{c("short", "medium", "long", "priority", "standby", "io")}
-More information at \url{https://www.pik-potsdam.de}. Defaults to \code{"short"}.}
+More information at \url{https://www.pik-potsdam.de/en}. Defaults to \code{"short"}.}
 
 \item{ntasks}{Integer defining the number of tasks/threads. More information
-at \url{https://www.pik-potsdam.de} and \url{https://slurm.schedmd.com}.
+at \url{https://www.pik-potsdam.de/en} and \url{https://slurm.schedmd.com}.
 Defaults to \code{256}.}
 
 \item{wtime}{Character string defining the time limit. Setting a lower time
 limit than the maximum runtime for \code{sclass} can reduce the wait time in the
-SLURM job queue. More information at \url{https://www.pik-potsdam.de} and
+SLURM job queue. More information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com}.}
 
 \item{blocking}{Integer defining the number of cores to be blocked. More
-information at \url{https://www.pik-potsdam.de} and
+information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com}.}
 
 \item{no_submit}{Logical. Set to \code{TRUE} to test if \code{x} set correctly or

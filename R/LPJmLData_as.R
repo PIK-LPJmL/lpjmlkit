@@ -91,7 +91,7 @@ LPJmLData$set("private",
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
 #' \link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
-#' tibbles at <https://r4ds.had.co.nz/tibbles.html)>.
+#' tibbles at <https://r4ds.had.co.nz/tibbles.html>.
 #'
 #' @param x [LPJmLData] object
 #'

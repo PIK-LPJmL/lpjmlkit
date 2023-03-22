@@ -1,5 +1,7 @@
 testthat::test_that("check submit_lpjml with tibble", {
 
+  skip_on_os("windows")
+
   test_params <- tibble::tibble(
     sim_name = c("scen1_spinup", "scen1_transient"),
     order = c(1, 2),
@@ -35,6 +37,8 @@ testthat::test_that("check submit_lpjml with tibble", {
 
 testthat::test_that("check submit_lpjml with character string", {
 
+  skip_on_os("windows")
+
   # Check submit_lpjml directly (and only)
   test_submit <- submit_lpjml(
     "./config_scen1_spinup.json",
@@ -55,6 +59,8 @@ testthat::test_that("check submit_lpjml with character string", {
 
 testthat::test_that("raise submit_lpjml errors", {
 
+  skip_on_os("windows")
+
   # Check if directory is valid
   testthat::expect_error(
     submit_lpjml(
@@ -68,6 +74,8 @@ testthat::test_that("raise submit_lpjml errors", {
 
 
 testthat::test_that("raise run_lpjml errors", {
+
+  skip_on_os("windows")
 
   # Check if directory is valid
   testthat::expect_error(
