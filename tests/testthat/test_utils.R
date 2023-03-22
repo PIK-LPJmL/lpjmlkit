@@ -11,11 +11,11 @@ test_that("Test argument deprecation", {
       deprec_arg = deprec_arg
     )
   )
-  expect_equal(new_arg, deprec_arg)
+  testthat::expect_equal(new_arg, deprec_arg)
 
   new_arg <- NULL
   # Test for deprecation message
-  expect_message(
+  testthat::expect_message(
     deprecate_arg(
       new_arg = new_arg,
       deprec_arg = deprec_arg
@@ -33,12 +33,12 @@ test_that("Test argument deprecation", {
       )
     )
   )
-  expect_equal(new_arg, new_arg)
+  testthat::expect_equal(new_arg, new_arg)
 
   # Test corresponding message
   new_arg <- "better_test"
   suppressMessages(
-    expect_warning(
+    testthat::expect_warning(
       deprecate_arg(
         new_arg = new_arg,
         deprec_arg = deprec_arg
