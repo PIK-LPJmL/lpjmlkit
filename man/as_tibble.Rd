@@ -31,7 +31,7 @@ naming of the \code{LPJmLData$data} array and values in one value column.
 \description{
 Function to coerce (convert) an \code{\link{LPJmLData}} object into a
 \link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
-tibbles at \url{https://r4ds.had.co.nz/tibbles.html)}.
+tibbles at \url{https://r4ds.had.co.nz/tibbles.html}.
 }
 \examples{
 \dontrun{

@@ -11,9 +11,9 @@ test_integrity <- function(output) {
   # Check for two cases "cell" or "lon_lat"
   if ("cell" %in% names(dim_data)) {
     # Test for equal length of cell in data and meta data (ncell)
-    testthat::expect_equal(dim_data[["cell"]], output$meta$ncell)
+    expect_equal(dim_data[["cell"]], output$meta$ncell)
     # Test for equal dimnames of cell in data and those constructed by meta data
-    testthat::expect_equal(
+    expect_equal(
       dimnames_data$cell,
       format(
         seq(output$meta$firstcell, length.out = output$meta$ncell),
@@ -22,20 +22,20 @@ test_integrity <- function(output) {
     )
   } else {
     # Test for equal dimnames of lat, lon in data and those of underlying grid
-    testthat::expect_equal(dimnames_data$lat,
+    expect_equal(dimnames_data$lat,
                            dimnames(output$grid)$lat)
-    testthat::expect_equal(dimnames_data$lon,
+    expect_equal(dimnames_data$lon,
                            dimnames(output$grid)$lon)
   }
 
   # Check for two cases "time" or "year_month_day"
   if ("time" %in% names(dim_data)) {
     # Test for equal length of time steps in data and meta data (nyear * nstep)
-    testthat::expect_equal(dim_data[["time"]],
+    expect_equal(dim_data[["time"]],
                            output$meta$nyear * output$meta$nstep)
     # Test for equal dimnames of time steps in data and those constructed by
     #   meta data with create_time_names function (nstep, firstyear, nyear)
-    testthat::expect_equal(
+    expect_equal(
       dimnames_data$time,
       create_time_names(
         output$meta$nstep,
@@ -45,10 +45,10 @@ test_integrity <- function(output) {
     )
   } else {
     # Test for equal length of years in data and meta data (nyear)
-    testthat::expect_equal(dim_data[["year"]], output$meta$nyear)
+    expect_equal(dim_data[["year"]], output$meta$nyear)
     # Test for equal dimnames of years in data and those constructed by
     #   meta data (firstyear, nyear)
-    testthat::expect_equal(
+    expect_equal(
       dimnames_data$year,
       format(
         seq(output$meta$firstyear, by = output$meta$timestep,
@@ -60,19 +60,19 @@ test_integrity <- function(output) {
     # For month there is no meta data available (like nmonth, firstmonth)
     #   following tests only via hardcoded pre defined month to be tested
     if ("month" %in% names(dim_data) && !output$meta$subset) {
-      testthat::expect_equal(dimnames_data$month, as.character(1:12))
+      expect_equal(dimnames_data$month, as.character(1:12))
     } else if ("month" %in% names(dim_data) && output$meta$subset) {
-      testthat::expect_equal(dimnames_data$month, as.character(6:9))
+      expect_equal(dimnames_data$month, as.character(6:9))
     }
   }
 
   # Test for equal length of bands in data and meta data (nbands)
-  testthat::expect_equal(dim_data[["band"]], output$meta$nbands)
+  expect_equal(dim_data[["band"]], output$meta$nbands)
   # Check if band dimension > 1 -> then has band_names
   if (output$meta$nbands > 1) {
     # Test for equal dimnames of band in data and those constructed by meta data
     #   (band_names)
-    testthat::expect_equal(dimnames_data$band, output$meta$band_names)
+    expect_equal(dimnames_data$band, output$meta$band_names)
   }
 
   # check for grid
@@ -84,7 +84,7 @@ test_integrity <- function(output) {
     if ("cell" %in% names(dimnames_grid)) {
       # Test for equal dimnames of cell in grid data and those constructed by
       #   output meta data
-      testthat::expect_equal(
+      expect_equal(
         dimnames_grid$cell,
         format(
           seq(output$meta$firstcell, length.out = output$meta$ncell),
@@ -94,7 +94,7 @@ test_integrity <- function(output) {
     } else {
       # Test to match data of grid (cell numbers) and cell numbers constructed
       #   by meta data of output
-      testthat::expect_true(
+      expect_true(
         all(as.vector(stats::na.omit(output$grid$data)) %in%
             seq(output$meta$firstcell, length.out = output$meta$ncell))
       )
@@ -108,7 +108,7 @@ test_that("test subset method", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
   # Perform auto-loading a grid object, which produces a message
-  testthat::expect_message(
+  expect_message(
     output$add_grid(),
     "grid.bin.json"
   )
@@ -138,7 +138,7 @@ test_that("test transform (time) method", {
     dim_order = c("time", "band", "cell")
   ) %>% transform(to = "year_month_day")
   test_integrity(output2)
-  testthat::expect_identical(
+  expect_identical(
     output2$data,
     aperm(output$data, names(dim(output2)))
   )
@@ -148,7 +148,7 @@ test_that("test transform (time) method", {
 
   output2$transform(to = "time")
   test_integrity(output2)
-  testthat::expect_identical(
+  expect_identical(
     output2$data,
     aperm(output$data, names(dim(output2)))
   )
@@ -161,7 +161,7 @@ test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
   # transform auto-loads grid, which produces a message
-  testthat::expect_message(
+  expect_message(
     output$transform(to = "lon_lat"),
     "grid.bin.json"
   )
@@ -171,12 +171,12 @@ test_that("test transform (space) method", {
     filename = file_name,
     dim_order = c("time", "band", "cell")
   )
-  testthat::expect_message(
+  expect_message(
     output2$transform(to = "lon_lat"),
     "grid.bin.json"
   )
   test_integrity(output2)
-  testthat::expect_identical(
+  expect_identical(
     output2$data,
     aperm(output$data, names(dim(output2)))
   )
@@ -225,7 +225,7 @@ test_that("test transform (space) method", {
                  lat = c("55.25", "55.75", "56.25", "56.75"))
   output2$transform(to = "cell")
   test_integrity(output2)
-  testthat::expect_identical(
+  expect_identical(
     output2$data,
     aperm(output$data, names(dim(output2)))
   )
@@ -254,7 +254,7 @@ test_that("test transform (space) method", {
   test_integrity(output_trans)
   test_integrity(output_back)
   if (!anyNA(output$data)) {
-    testthat::expect_false(anyNA(output_trans$data))
+    expect_false(anyNA(output_trans$data))
   }
 
   output2 <- read_io(
@@ -268,26 +268,26 @@ test_that("test transform (space) method", {
   test_integrity(output_trans2)
   test_integrity(output_back2)
   if (!anyNA(output2$data)) {
-    testthat::expect_false(anyNA(output_trans2$data))
+    expect_false(anyNA(output_trans2$data))
   }
-  testthat::expect_identical(
+  expect_identical(
     output_trans2$data,
     aperm(output_trans$data, names(dim(output_trans2)))
   )
-  testthat::expect_identical(
+  expect_identical(
     output_back2$data,
     aperm(output_back$data, names(dim(output_back2)))
   )
 
   # For coordinate subsetting output has to be transformed first
-  testthat::expect_error(
+  expect_error(
     output$subset(coordinates = coordinates),
     "convert into suitable format"
   )
 
   # Coordinate values must be strings, not numerical values
   output_trans <- transform(output, to = c("lon_lat"))
-  testthat::expect_error(
+  expect_error(
     output_trans$subset(coordinates = coordinates_numeric),
     "Values for coordinate pairs must be supplied as strings"
   )

@@ -1,4 +1,4 @@
-testthat::test_that("test get_commit_hash", {
+test_that("test get_commit_hash", {
 
   # Get commit hash of lpjmlkit repository
   commit_hash <- get_git_urlhash(
@@ -9,7 +9,7 @@ testthat::test_that("test get_commit_hash", {
   # Some testing instances do return commit_hashes
   if (nchar(commit_hash) > 0) {
     # Check typical lower case letter and digit combination
-    testthat::expect_true(
+    expect_true(
       grepl(
         "^[[:lower:][:digit:]]+$",
         commit_hash
@@ -17,15 +17,15 @@ testthat::test_that("test get_commit_hash", {
     )
   } else {
     # Check typical lower case letter and digit combination
-    testthat::expect_true(commit_hash == "")
+    expect_true(commit_hash == "")
   }
 })
 
 
-testthat::test_that("raise get_commit_hash error", {
+test_that("raise get_commit_hash error", {
 
   # Directory above lpjmlkit should not be a git repository
-  testthat::expect_error(
+  expect_error(
     get_git_urlhash(
       path = "../../../",
       include_url = FALSE,
@@ -36,17 +36,19 @@ testthat::test_that("raise get_commit_hash error", {
 })
 
 
-testthat::test_that("raise make_lpjml errors", {
+test_that("raise make_lpjml errors", {
+
+  skip_on_os("windows")
 
   # Emulate as if model has not been compiled before
-  testthat::expect_true(
+  expect_true(
     make_lpjml(
       raise_error = FALSE
     )$status != 0
   )
 
   # Emulate as if model has been compiled before
-  testthat::expect_true(
+  expect_true(
     make_lpjml(
       model_path = "../testdata",
       debug = TRUE,
@@ -56,10 +58,12 @@ testthat::test_that("raise make_lpjml errors", {
 })
 
 
-testthat::test_that("raise check_config errors", {
+test_that("raise check_config errors", {
+
+  skip_on_os("windows")
 
   # Emulate as if model has not been compiled before
-  testthat::expect_true(
+  expect_true(
     check_config(
       x = "../testdata/config_spinup_pnv.json",
       return_output = TRUE
@@ -67,7 +71,7 @@ testthat::test_that("raise check_config errors", {
   )
 
   # Emulate as if model has not been compiled before
-  testthat::expect_output(
+  expect_output(
     check_config(
       x = "../testdata/config_spinup_pnv.json"
     ),
@@ -75,7 +79,7 @@ testthat::test_that("raise check_config errors", {
   )
 
   # Emulate as if model has not been compiled before
-  testthat::expect_true(
+  expect_true(
     check_config(
       x = c("../testdata/config_spinup.json",
             "../testdata/config_pnv.json"),

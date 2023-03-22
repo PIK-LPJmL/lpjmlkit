@@ -65,6 +65,8 @@ check_config <- function(x,
                          raise_error = FALSE,
                          output_path = NULL) {
 
+  warn_runner_os("check_config")
+
   sim_path <- deprecate_arg(new_arg = sim_path,
                             deprec_arg = output_path,
                             version = "1.0.0")
@@ -113,7 +115,7 @@ check_config <- function(x,
 
   # Call sh command via processx to kill any subprocesses after
   #   background: process limit on the cluster
-  check <- processx::run(command = "sh",
+  check <- processx::run(command = "bash",
                          args = c("-c", inner_command),
                          error_on_status = raise_error,
                          cleanup_tree = TRUE,

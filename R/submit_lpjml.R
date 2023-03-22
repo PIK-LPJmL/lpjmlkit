@@ -24,19 +24,19 @@
 #'
 #' @param sclass Character string defining the job classification. Available
 #'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
-#'   More information at <https://www.pik-potsdam.de>. Defaults to `"short"`.
+#'   More information at <https://www.pik-potsdam.de/en>. Defaults to `"short"`.
 #'
 #' @param ntasks Integer defining the number of tasks/threads. More information
-#'   at <https://www.pik-potsdam.de> and <https://slurm.schedmd.com>.
+#'   at <https://www.pik-potsdam.de/en> and <https://slurm.schedmd.com>.
 #'   Defaults to `256`.
 #'
 #' @param wtime Character string defining the time limit. Setting a lower time
 #'   limit than the maximum runtime for `sclass` can reduce the wait time in the
-#'   SLURM job queue. More information at <https://www.pik-potsdam.de> and
+#'   SLURM job queue. More information at <https://www.pik-potsdam.de/en> and
 #'   <https://slurm.schedmd.com>.
 #'
 #' @param blocking Integer defining the number of cores to be blocked. More
-#'   information at <https://www.pik-potsdam.de> and
+#'   information at <https://www.pik-potsdam.de/en> and
 #'   <https://slurm.schedmd.com>.
 #'
 #' @param no_submit Logical. Set to `TRUE` to test if `x` set correctly or
@@ -176,6 +176,8 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          blocking = "",
                          no_submit = FALSE,
                          output_path = NULL) {
+
+  warn_runner_os("submit_lpjml")
 
   # Check if SLURM is available
   if (!is_slurm_available() && !no_submit && !testthat::is_testing()) {
@@ -401,7 +403,7 @@ submit_run <- function(sim_name,
     Sys.setenv(LPJROOT = model_path) # nolint:undesirable_function_linter.
 
     # Run lpjsubmit.
-    submit_status <- processx::run(command = "sh",
+    submit_status <- processx::run(command = "bash",
                                    args = c("-c", inner_command),
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
