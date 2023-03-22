@@ -15,7 +15,7 @@ test_that("test LPJmLMetaData content", {
     .[names(meta_list)]
 
   # test if meta_data information matches that of file
-  testthat::expect_equal(meta_data, meta_list)
+  expect_equal(meta_data, meta_list)
 })
 
 
@@ -46,7 +46,7 @@ test_that("test LPJmLMetaData as_header", {
   )
 
   # test if meta_data header export matches that of created header
-  testthat::expect_equal(meta_header, test_header)
+  expect_equal(meta_header, test_header)
 })
 
 # Test LPJmLMetaData as_header method with created header
@@ -61,10 +61,10 @@ test_that("test read_meta & as_header", {
   header <- read_header("../testdata/header_v4.clm")
 
   # Test for any information loss
-  testthat::expect_equal(meta_header, header)
+  expect_equal(meta_header, header)
 
   # Test non_valid format
-  testthat::expect_error(
+  expect_error(
     read_meta("../testdata/test_array_lonlat.rds"),
     "Non readable"
   )
