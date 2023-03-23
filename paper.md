@@ -62,7 +62,7 @@ One, *LPJmL Runner*, provides the functionality to create multiple model
 configurations and start the corresponding simulations either on a personal
 computer or on an HPC (High Perfomance Computing) cluster with SLURM
 (Simple Linux Utility for Resource Management) support, in both cases requiring
-a working LPJmL installation.\
+a working LPJmL installation.
 The other, *LPJmL Data*, offers a generic function that supports reading both
 simulation output and model input data in multiple file formats used by LPJmL.
 The associated data class LPJmLData contains both the data and the
@@ -83,13 +83,15 @@ user experience, and overall adoption.
 Scientific software should also be findable, accessible, interoperable and
 reusable, according to the FAIR principles for research software
 [@barker_introducing_2022].
+
 Numerical models based on process-based approaches and implemented in low-level
 programming languages are often characterised by a long history and long
 development cycles, that affect operability.
 These models therefore often lack simple and reliable interfaces that are also
 FAIR [@wilson_best_2014; @barker_introducing_2022].
 LPJmL is a well-established dynamic global vegetation,
-hydrological and crop model, widely used in the scientific community.\
+hydrological and crop model, widely used in the scientific community.
+
 LPJmL has been used for more than a decade and was employed by researchers
 to conduct numerous studies in various research areas related to the
 terrestrial biosphere.
@@ -98,7 +100,7 @@ improved representation of the hydrological cycle [@gerten_terrestrial_2004],
 by implementing managed land components, forming "LPJmL"
 (LPJ with *m*anaged *L*and)) [@bondeau_modelling_2007; @rolinski_modeling_2018;
 @lutz2019simulating; @schaphoff_lpjml4_2018], and by including the nitrogen 
-cycle [@von_bloh_implementing_2018].\
+cycle [@von_bloh_implementing_2018].
 This facilitated broader, interdisciplinary studies such as the work of
 @gerten_feeding_2020, which answered the question of whether it is possible to
 feed ten billion people within four planetary boundaries, or studies that
@@ -108,17 +110,19 @@ within a DGVM.
 There are many other examples of different scientific studies based on LPJmL
 simulations, all using individual scripts to create inputs for the model or
 analyze outputs.
+
 Unlike its sister model LPJ-GUESS [@bagnara_r_2019] or other models, such as
 MAgPIE [@dietrich_magpie_2019], LPJmL was never equipped with standardised
 interfaces for higher level programming languages to either run simulations or
-read and process input or output data.\
+read and process input or output data.
 The lack of a standardized interface means that both beginners and experienced
 users need to constantly develop their own custom scripts and tools for what
 should be routine (data) processing steps.
 Tools shared informally between individual users often have limited scope and as
 such limited re-usability.
 They lack documentation and are often not well tested or maintained, nor
-released to a wide user base in a transparent manner.\
+released to a wide user base in a transparent manner.
+
 *lpjmlkit* was developed to address these problems and at the same time create
 a standard in the handling of LPJmL to improve the management of simulation
 experiments and allow for better documentation and reproducibility of studies
@@ -135,26 +139,33 @@ calibration, benchmarking or indicator development.
 
 # Package features
 
-*lpjmlkit* is an R package that contains two main modules: The *LPJmL Runner*
-and the *LPJmL Data* module. Together, these modules can be used to set up and
+*lpjmlkit*  is an R package that contains two main modules, each of which
+contains supplementary documentation in the form of a guide in addition to the
+package documentation:
+* [*LPJmL Runner* vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-runner.html)
+* [*LPJmL Data* vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-data.html)
+
+Together, these modules can be used to set up and
 run LPJmL model simulations as well as read and process the resulting data.
 
 ## LPJmL Runner
 
-The Runner module
-([vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-runner.html))
-is designed to support Unix-based operating systems and includes four key
-functions.
-The function `write_config()` generates JSON configuration files by utilizing a
+The Runner module is designed to operate LPJmL on Unix-based operating systems
+that have a working LPJmL installation and includes four key functions.
+
+- `write_config()` generates JSON configuration files by utilizing a
 base configuration file as a source template to be preprocessed prior to use,
 along with a data frame containing parameters to be modified. It also sets up
 the directory structure and files to execute the runs and collect the outputs.
-The function `check_config()` tests whether generated config.json files are valid
+
+- `check_config()` tests whether generated config.json files are valid
 for LPJmL simulations using LPJmL utility functionality.
-The function `run_lpjml()` executes LPJmL as a subprocess directly from within
+
+- `run_lpjml()` executes LPJmL as a subprocess directly from within
 the current R session. This is particularly useful for simulations with a small
 number of spatial cells that require few resources.
-The `submit_lpjml()` function submits the LPJmL Simulations to SLURM to be run
+
+- `submit_lpjml()` function submits the LPJmL Simulations to SLURM to be run
 by an HPC cluster using additional resources and detached from the current
 R session, which is necessary for (global) runs that include all or many spatial
 cells to be simulated.
@@ -195,19 +206,21 @@ submit_lpjml(config_details,
 
 ## LPJmL Data
 
-The Data module
-([vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-data.html))
-provides various functions for reading and processing LPJmL data.
-The function `read_io()` reads LPJmL input and output data as an `LPJmLData`
+The Data module provides various functions for reading and processing LPJmL
+data.
+
+* `read_io()` reads LPJmL input and output data as an `LPJmLData`
 object, which contains the data array and corresponding meta data
 (`LPJmLMetaData`).
 
-`LPJmLData` objects can be used for further analysis and visualization, such as
+* `LPJmLData` objects can be used for further analysis and visualization, such as
 the `plot()`, `summary()`, or other basic statistics functions available.
-Users can also `transform()` the data into different space and time
+
+* users can also `transform()` the data into different space and time
 representations that define the array dimensions and `subset()` them explicitly
 by using the corresponding dimension names.
-An LPJmLData object can be exported to common R data formats using
+
+* an LPJmLData object can be exported to common R data formats using
 `as_array()`, `as_tibble()`, or `as_raster()` / `as_terra()`.
 
 ```R
@@ -251,9 +264,11 @@ abline(h = 0, lty = 2)
 
 The *lpjmlkit* package also includes additional functions to support different
 applications that involve handling LPJmL or related data.
+
 For example, `calc_cellarea()` calculates the area of the grid cells in an
 LPJmLData object or for any vector of latitude coordinates representing a
 regular grid with a set spatial resolution.
+
 While `read_io` is the main function to access LPJmL input and output files,
 `lpjmlkit` also includes a number of functions providing low-level access to the
 binary LPJmL file format: `read_header()`, `create_header()`, and
@@ -262,6 +277,7 @@ binary LPJmL file format: `read_header()`, `create_header()`, and
 about the data type used in different LPJmL files, respectively.
 These low-level access functions can form the basis for new applications, for
 example, to generate new LPJmL input files.
+
 Lastly, `asub()` provides the functionality of the subset method to be used on
 a base array.
 
