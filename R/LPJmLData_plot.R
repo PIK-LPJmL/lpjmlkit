@@ -19,6 +19,8 @@
 #' @param ... Arguments passed to \link[graphics]{plot} and
 #'   \link[raster]{plot}
 #'
+#' @return No return value; called for side effects.
+#'
 #'@details
 #'Depending on the dimensions of the [LPJmLData] object's internal data array
 #' the plot will be a ...
@@ -395,87 +397,92 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     )
   }
 
-  opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.
+  withr::with_par(
+    new = list(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE),
+    code = {
+      do.call(
+        graphics::plot,
+        c(
+          x = list(subset_array(
+            raw_data,
+            as.list(stats::setNames(1, legend_dim))
+          )),
+          col = cols[1],
+          dots
+        )
+      )
 
-  # do.call for use of ellipsis via dots list.
-  #   subset_array for dynamic subsetting of flexible legend_dim.
-  do.call(graphics::plot,
-          c(x = list(subset_array(raw_data,
-                                  as.list(stats::setNames(1, legend_dim)))),
-            col = cols[1],
-            dots))
+      # Set breaks depending on length of time series
+      if (x_dim %in% c("time", "year")) {
+        if (lpjml_data$meta$nyear > 100) {
+          brks <- 20
+        } else if (lpjml_data$meta$nyear > 50) {
+          brks <- 10
+        } else if (lpjml_data$meta$nyear > 25) {
+          brks <- 5
+        } else if (lpjml_data$meta$nyear > 10) {
+          brks <- 2
+        } else {
+          brks <- 1
+        }
 
-  # Set breaks depending on length of time series
-  if (x_dim %in% c("time", "year")) {
-    if (lpjml_data$meta$nyear > 100) {
-      brks <- 20
-    } else if (lpjml_data$meta$nyear > 50) {
-      brks <- 10
-    } else if (lpjml_data$meta$nyear > 25) {
-      brks <- 5
-    } else if (lpjml_data$meta$nyear > 10) {
-      brks <- 2
-    } else {
-      brks <- 1
+        # Set nstep only if time dimension, leads to month inbetween years
+        #   if lpjml_data$meta$nstep > 1
+        nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
+
+        # set tickmarks and label for time or year dim
+        at_ticks <- seq(1,
+                        lpjml_data$meta$nyear * nstep,
+                        by = brks * nstep)
+
+        graphics::axis(side = 1,
+                      at = at_ticks,
+                      labels = dimnames(raw_data)[[x_dim]][at_ticks])
+      }
+
+      for (i in cols[-1]) {
+
+      # subset_array for dynamic subsetting of flexible legend_dim
+        graphics::lines(subset_array(raw_data,
+                                    as.list(stats::setNames(i, legend_dim))),
+                        col = cols[i],
+                        type = dots$type)
+      }
+
+      # Calculate length of longest string in legend to not overlap
+      char_len <- dimnames(raw_data)[[legend_dim]] %>%
+        .[which.max(nchar(.))]
+
+      # Legend at the bottom left side of the graphic device.
+      #   Calculations ensure placement within margins.
+      # TODO: replace with withr::with_par for temporarily changing pars # nolint
+      graphics::legend(
+        x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
+        y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
+          graphics::par("plt")[3] * # nolint:undesirable_function_linter.
+          ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
+            (
+              grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
+                                                graphics::par("plt")[3]) # nolint:undesirable_function_linter.
+            )
+          ),
+        y.intersp = 1.5,
+        title = tools::toTitleCase(legend_dim),
+        ncol = 2,
+        text.width = graphics::strwidth(char_len) * 2,
+        col = cols,
+        lty = unlist(ifelse(
+          dots$type %in% c("l", "b", "c", "o"),
+          list(rep(1, legend_length)), list(NULL)
+        )),
+        pch = unlist(ifelse(
+          dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
+        )),
+        legend = dimnames(raw_data)[[legend_dim]][cols],
+        bty = "n"
+      )
     }
-
-    # Set nstep only if time dimension, leads to month inbetween years
-    #   if lpjml_data$meta$nstep > 1
-    nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
-
-    # set tickmarks and label for time or year dim
-    at_ticks <- seq(1,
-                    lpjml_data$meta$nyear * nstep,
-                    by = brks * nstep)
-
-    graphics::axis(side = 1,
-                   at = at_ticks,
-                   labels = dimnames(raw_data)[[x_dim]][at_ticks])
-  }
-
-  for (i in cols[-1]) {
-
-  # subset_array for dynamic subsetting of flexible legend_dim
-    graphics::lines(subset_array(raw_data,
-                                 as.list(stats::setNames(i, legend_dim))),
-                    col = cols[i],
-                    type = dots$type)
-  }
-
-  # Calculate length of longest string in legend to not overlap
-  char_len <- dimnames(raw_data)[[legend_dim]] %>%
-    .[which.max(nchar(.))]
-
-  # Legend at the bottom left side of the graphic device.
-  #   Calculations ensure placement within margins.
-  # TODO: replace with withr::with_par for temporarily changing pars # nolint
-  graphics::legend(
-    x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
-    y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
-      graphics::par("plt")[3] * # nolint:undesirable_function_linter.
-      ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
-         (
-           grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
-                                             graphics::par("plt")[3]) # nolint:undesirable_function_linter.
-         )
-      ),
-    y.intersp = 1.5,
-    title = tools::toTitleCase(legend_dim),
-    ncol = 2,
-    text.width = graphics::strwidth(char_len) * 2,
-    col = cols,
-    lty = unlist(ifelse(
-      dots$type %in% c("l", "b", "c", "o"),
-      list(rep(1, legend_length)), list(NULL)
-    )),
-    pch = unlist(ifelse(
-      dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
-    )),
-    legend = dimnames(raw_data)[[legend_dim]][cols],
-    bty = "n"
   )
-  graphics::par(opar) %>% invisible() # nolint:undesirable_function_linter.
-
   # Create grid, special case for time, year because of specified x axis
   if (x_dim %in% c("time", "year")) {
     graphics::abline(v = at_ticks,

@@ -22,6 +22,10 @@ cut off.
 \item Additional arguments to be passed on to \link[base]{summary}.
 }}
 }
+\value{
+Summary for object of class matrix (see \link[base]{summary}) for
+selected dimension and if set subset.
+}
 \description{
 Function to get the summary of the data array of an LPJmLData object.
 See also \link[base]{summary}.

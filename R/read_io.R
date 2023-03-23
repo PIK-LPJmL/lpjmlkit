@@ -113,7 +113,7 @@
 #' my_data_wheat <- read_io(
 #'   "my_file.bin",
 #'   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
-#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
+#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920))),
 #'   nyear = 100,
 #'   nbands = 2,
 #' )
