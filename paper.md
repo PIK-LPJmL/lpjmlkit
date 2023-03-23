@@ -39,10 +39,11 @@ authors:
 affiliations:
  - name: Potsdam Institute for Climate Impact Research (PIK), Member of the Leibniz Association, P.O. Box 60 12 03, 14412 Potsdam, Germany
    index: 1
- - name: Climate Focus, Germany
-   index: 2
  - name: Institute of Crop Science and Plant Breeding, Grass and Forage Science/Organic Agriculture, Kiel University, Hermann-Rodewald-Str. 9, 24118, Kiel, Germany
+   index: 2
+ - name: Climate Focus, Germany
    index: 3
+
 
 date: 22 March 2023
 bibliography: paper.bib
@@ -96,8 +97,8 @@ To this end, the original DGVM LPJ [@Sitch2003] was extended by adding an
 improved representation of the hydrological cycle [@gerten_terrestrial_2004],
 by implementing managed land components, forming "LPJmL"
 (LPJ with *m*anaged *L*and)) [@bondeau_modelling_2007; @rolinski_modeling_2018;
-@lutz2019simulating; schaphoff_lpjml4_2018], and by including the nitrogen cycle
-[@von_bloh_implementing_2018].\
+@lutz2019simulating; @schaphoff_lpjml4_2018], and by including the nitrogen 
+cycle [@von_bloh_implementing_2018].\
 This facilitated broader, interdisciplinary studies such as the work of
 @gerten_feeding_2020, which answered the question of whether it is possible to
 feed ten billion people within four planetary boundaries, or studies that
@@ -227,10 +228,10 @@ runoff |>
 abline(h = 0, lty = 2)
 ```
 
-![LPJmLData plot of variable runoff with plot() function that uses method dispatch](inst/img/example_plot.png)
+![Exemplary LPJmLData plot of variable runoff with plot() function that uses method dispatch](inst/img/example_plot.png)
 
 Both classes, `LPJmLData` and `LPJmLMetaData` have been implemented using the
-R6 class system [@Chang2022], which allows, for example, methods to be
+R6 class system [@chang_r6_2021], which allows, for example, methods to be
 executed directly on the object rather than creating a copy and applying changes
 to that copy. This notation also reduces the execution time of the underlying
 functionality.
@@ -270,23 +271,26 @@ a base array.
 *lpjmlkit* is an open-source software package for operating LPJmL and processing
 related data that provides comprehensive documentation and vignettes.
 The documentation is available online at
-https://pik-piam.r-universe.dev/lpjmlkit/ and includes instructions for
-installation, usage, and examples.
+[https://pik-piam.r-universe.dev/lpjmlkit](https://pik-piam.r-universe.dev/lpjmlkit)
+and includes instructions for installation, usage, and examples.
 The package is licensed under the GNU Affero General Public License (AGPL-3.0),
 which grants users the freedom to access, use, and modify the code, and ensures
 that any modifications or derivative works are also available under the same
 license, allowing for continued collaboration and development within the
 community.
-The source code is available on GitHub at https://github.com/PIK-LPJmL/lpjmlkit,
+The source code is available on GitHub at
+[https://github.com/PIK-LPJmL/lpjmlkit](https://github.com/PIK-LPJmL/lpjmlkit),
 where users can also report issues and suggest improvements.
 
 # Acknowledgements
 
-We would to thank Pascal Führlich and Jan Philipp Dietrich for providing access
-to PIK Research Software Engineering ressources and additional support within
-the development process.
+We would like to thank Pascal Führlich and Jan Philipp Dietrich for providing
+access to PIK Research Software Engineering resources and additional support
+during the development process.
 Special thanks also go to Werner von Bloh for implementing new features into
 LPJmL to enable the development of lpjmlkit, such as writing meta
 files.
+Further thanks go to Susanne Rolinski and Marie Hemmen who supported the project
+along the way.
 
 # References

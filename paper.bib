@@ -55,7 +55,7 @@ Publisher: Nature Publishing Group},
 }
 
 @article{bagnara_r_2019,
-	title = {An R package facilitating sensitivity analysis, calibration and forward simulations with the {LPJ}-{GUESS} dynamic vegetation model},
+	title = {An {R} package facilitating sensitivity analysis, calibration and forward simulations with the {LPJ}-{GUESS} dynamic vegetation model},
 	volume = {111},
 	issn = {1364-8152},
 	url = {https://www.sciencedirect.com/science/article/pii/S1364815217310629},
@@ -127,11 +127,7 @@ Publisher: Nature Publishing Group},
 	issn = {1991-959X},
 	url = {https://gmd.copernicus.org/articles/12/1299/2019/},
 	doi = {10.5194/gmd-12-1299-2019},
-	abstract = {The open-source modeling framework {MAgPIE} (Model of Agricultural Production and its Impact on the Environment) combines economic and biophysical approaches to simulate spatially explicit global scenarios of land use within the 21st century and the respective interactions with the environment. Besides various other projects, it was used to simulate marker scenarios of the Shared Socioeconomic Pathways ({SSPs}) and contributed substantially to multiple {IPCC} assessments. However, with growing scope and detail, the non-linear model has become increasingly complex, computationally intensive and non-transparent, requiring structured approaches to improve the development and evaluation of the model.
-
-Here, we provide an overview on version 4 of {MAgPIE} and how it addresses these issues of increasing complexity using new technical features: modular structure with exchangeable module implementations, flexible spatial resolution, in-code documentation, automatized code checking, model/output evaluation and open accessibility. Application examples provide insights into model evaluation, modular flexibility and region-specific analysis approaches. While this paper is focused on the general framework as such, the publication is accompanied by a detailed model documentation describing contents and equations, and by model evaluation documents giving insights into model performance for a broad range of variables.
-
-With the open-source release of the {MAgPIE} 4 framework, we hope to contribute to more transparent, reproducible and collaborative research in the field. Due to its modularity and spatial flexibility, it should provide a basis for a broad range of land-related research with economic or biophysical, global or regional focus.},
+	abstract = {The open-source modeling framework {MAgPIE} (Model of Agricultural Production and its Impact on the Environment) combines economic and biophysical approaches to simulate spatially explicit global scenarios of land use within the 21st century and the respective interactions with the environment. Besides various other projects, it was used to simulate marker scenarios of the Shared Socioeconomic Pathways ({SSPs}) and contributed substantially to multiple {IPCC} assessments. However, with growing scope and detail, the non-linear model has become increasingly complex, computationally intensive and non-transparent, requiring structured approaches to improve the development and evaluation of the model. Here, we provide an overview on version 4 of {MAgPIE} and how it addresses these issues of increasing complexity using new technical features: modular structure with exchangeable module implementations, flexible spatial resolution, in-code documentation, automatized code checking, model/output evaluation and open accessibility. Application examples provide insights into model evaluation, modular flexibility and region-specific analysis approaches. While this paper is focused on the general framework as such, the publication is accompanied by a detailed model documentation describing contents and equations, and by model evaluation documents giving insights into model performance for a broad range of variables. With the open-source release of the {MAgPIE} 4 framework, we hope to contribute to more transparent, reproducible and collaborative research in the field. Due to its modularity and spatial flexibility, it should provide a basis for a broad range of land-related research with economic or biophysical, global or regional focus.},
 	pages = {1299--1317},
 	number = {4},
 	journaltitle = {Geoscientific Model Development},
@@ -157,7 +153,7 @@ With the open-source release of the {MAgPIE} 4 framework, we hope to contribute 
 @article{Porwollik2022cover,
 	author = {Porwollik, Vera and Rolinski, Susanne and Heinke, Jens and von Bloh, Werner and Schaphoff, Sibyll and M{\ifmmode\ddot{u}\else\"{u}\fi}ller, Christoph},
 	title = {{The role of cover crops for cropland soil carbon, nitrogen leaching, and agricultural yields {\textendash} a global simulation study with LPJmL (V. 5.0-tillage-cc)}},
-	journal = {Biogeosciences},
+	journaltitle = {Biogeosciences},
 	volume = {19},
 	number = {3},
 	pages = {957--977},
@@ -171,7 +167,7 @@ With the open-source release of the {MAgPIE} 4 framework, we hope to contribute 
 @article{Herzfeld2021soc,
 	author = {Herzfeld, Tobias and Heinke, Jens and Rolinski, Susanne and M{\ifmmode\ddot{u}\else\"{u}\fi}ller, Christoph},
 	title = {{Soil organic carbon dynamics from agricultural management practices under climate change}},
-	journal = {Earth Syst. Dyn.},
+	journaltitle = {Earth System Dynamics},
 	volume = {12},
 	number = {4},
 	pages = {1037--1055},
@@ -204,7 +200,7 @@ With the open-source release of the {MAgPIE} 4 framework, we hope to contribute 
 	author = {Sitch, Stephen and Smith, B. and Prentice, I. C. and Arneth, Almut and Bondeau, Alberte and Cramer, Wolfgang and Kaplan, J. O. and Levis, S. and Lucht, Wolfgang and Sykes, Martin T. and Thonicke, Kirsten and Venevsky, S.},
 	doi = {10.1046/j.1365-2486.2003.00569.x},
 	issn = {1354-1013},
-	journal = {Glob. Chang. Biol.},
+	journaltitle = {Global Change Biology},
 	month = {feb},
 	number = {2},
 	pages = {161--185},
@@ -213,11 +209,17 @@ With the open-source release of the {MAgPIE} 4 framework, we hope to contribute 
 	year = {2003}
 }
 
-@Manual{Chang2022,
+@software{chang_r6_2021,
 	title = {R6: Encapsulated Classes with Reference Semantics},
-	author = {Winston Chang},
-	year = {2022},
-	note = {https://r6.r-lib.org, https://github.com/r-lib/R6/},
+	rights = {{MIT} + file {LICENSE}},
+	url = {https://CRAN.R-project.org/package=R6},
+	shorttitle = {R6},
+	abstract = {Creates classes with reference semantics, similar to R's built-in reference classes. Compared to reference classes, R6 classes are simpler and lighter-weight, and they are not built on S4 classes so they do not require the methods package. These classes allow public and private members, and they support inheritance, even when the classes are defined in different packages.},
+	version = {2.5.1},
+	author = {Chang, Winston},
+	urldate = {2023-03-23},
+	date = {2021-08-19},
+	keywords = {Databases},
 }
 
 @article{barker_introducing_2022,
