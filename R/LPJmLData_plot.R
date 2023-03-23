@@ -276,13 +276,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
           which(raster::maxValue(data_ras) > 0)
         )
         map_col[neg_and_pos] <-
-          list(grDevices::cm.colors(255))
-        zlim[neg_and_pos] <- lapply(
-          X = zlim[neg_and_pos],
-          FUN = function(x) {
-            return(c(-max(abs(x)), max(abs(x))))
-          }
-        )
+          lapply(zlim[neg_and_pos], FUN = create_color_scale) # nolint:undesirable_function_linter
       }
     } else {
       map_col <- dots$col
@@ -563,4 +557,21 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
   } else {
     graphics::grid()
   }
+}
+
+create_color_scale <- function(zlim,
+                               breaks = 254) {
+  min_max <- sum(abs(zlim))
+  neg <- grDevices::colorRampPalette(rev(c(
+    "#f7fbff", "#deebf7",
+    "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5",
+    "#08519c", "#08306b"
+  )))(round(breaks * abs(zlim[1]) / min_max))
+  pos <- grDevices::colorRampPalette(c(
+    "#fff5f0", "#fee0d2",
+    "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d",
+    "#a50f15", "#67000d"
+  ))(round(breaks * zlim[2] / min_max))
+
+  c(neg, "white", pos)
 }
