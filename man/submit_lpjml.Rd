@@ -107,7 +107,6 @@ account. \cr
 \examples{
 
 \dontrun{
-library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
@@ -159,6 +158,8 @@ run_details2
 
 
 # Same but by using the pipe operator
+library(magrittr)
+
 run_details <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = as.integer(c(1, 42)),

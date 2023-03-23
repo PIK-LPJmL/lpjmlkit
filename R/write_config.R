@@ -185,7 +185,6 @@
 #' @examples
 #' \dontrun{
 #' library(tibble)
-#' library(lpjmlkit)
 #'
 #' model_path <- "./LPJmL_internal"
 #' sim_path <-"./my_runs"

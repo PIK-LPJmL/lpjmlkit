@@ -21,7 +21,6 @@
 #' * [`read_header()`] for reading headers from files.
 #'
 #'@examples
-#'\dontrun{
 #' header <- create_header(
 #'   name = "LPJGRID",
 #'   version = 3,
@@ -42,36 +41,35 @@
 #' )
 #'
 #' header
-#' $name
-#' [1] "LPJGRID"
-#'
-#' $header
-#'      version        order    firstyear        nyear    firstcell        ncell
-#'          3.0          1.0       1901.0          1.0          0.0      67420.0
-#'        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
-#'          2.0          0.5          1.0          0.5          3.0          1.0
-#'     timestep
-#'          1.0
-#'
-#' $endian
-#' [1] "little"
+#' # $name
+#' # [1] "LPJGRID"
+#' #
+#' # $header
+#' #      version        order    firstyear        nyear    firstcell        ncell
+#' #          3.0          1.0       1901.0          1.0          0.0      67420.0
+#' #        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
+#' #          2.0          0.5          1.0          0.5          3.0          1.0
+#' #     timestep
+#' #          1.0
+#' #
+#' # $endian
+#' # [1] "little"
 #'
 #' # Change number of cells to 1
 #' set_header_item(header = header, ncell = 1)
-#' $name
-#' [1] "LPJGRID"
-#'
-#' $header
-#'      version        order    firstyear        nyear    firstcell        ncell
-#'          3.0          1.0       1901.0          1.0          0.0          1.0
-#'        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
-#'          2.0          0.5          1.0          0.5          3.0          1.0
-#'     timestep
-#'          1.0
-#'
-#' $endian
-#' [1] "little"
-#'}
+#' # $name
+#' # [1] "LPJGRID"
+#' #
+#' # $header
+#' #      version        order    firstyear        nyear    firstcell        ncell
+#' #          3.0          1.0       1901.0          1.0          0.0          1.0
+#' #        nbands cellsize_lon       scalar cellsize_lat     datatype       nstep
+#' #          2.0          0.5          1.0          0.5          3.0          1.0
+#' #     timestep
+#' #          1.0
+#' #
+#' # $endian
+#' # [1] "little"
 #'
 #' @export
 set_header_item <- function(header, ...) {
