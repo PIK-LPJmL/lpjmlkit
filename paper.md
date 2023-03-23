@@ -170,7 +170,7 @@ by an HPC cluster using additional resources and detached from the current
 R session, which is necessary for (global) runs that include all or many spatial
 cells to be simulated.
 
-The following is a typical example of the use of the *LPJmL Runner*:
+The following is a typical example of the use of *LPJmL Runner*:
 ```R
 library("lpjmlkit")
 
