@@ -91,7 +91,7 @@ LPJmLData$set("private",
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
 #' \link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
-#' tibbles at <https://r4ds.had.co.nz/tibbles.html)>.
+#' tibbles at <https://r4ds.had.co.nz/tibbles.html>.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -284,14 +284,21 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
+      if (is.array(data_subset$data)) {
+        tmp_data <- aperm(
+          data_subset$data,
+          perm = c("cell", setdiff(names(dim(data_subset)), "cell"))
+        )
+      } else {
+        tmp_data <- data_subset$data
+      }
       tmp_raster[
         raster::cellFromXY(
           tmp_raster,
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
+      ] <- tmp_data
     }
 
     return(tmp_raster)
@@ -423,15 +430,21 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
+      if (is.array(data_subset$data)) {
+        tmp_data <- aperm(
+          data_subset$data,
+          perm = c("cell", setdiff(names(dim(data_subset)), "cell"))
+        ) %>% drop()
+      } else {
+        tmp_data <- data_subset$data
+      }
       tmp_rast[
         terra::cellFromXY(
           tmp_rast,
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>%
-      drop()
+      ] <- tmp_data
     }
 
     # Assign units (meta data)
@@ -524,7 +537,7 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       xmx = grid_extent[2, 1],
       ymn = grid_extent[1, 2],
       ymx = grid_extent[2, 2],
-      crs = "EPSG:4326"
+      crs = raster_crs_fallback("EPSG:4326")
     )
   }
 
@@ -539,4 +552,19 @@ get_multidims <- function(x) {
   multi_dims <- names(which(dim(x$data) > 1))
 
   union(multi_dims, space_dims)
+}
+
+# "EPSG:4326" is not supported by as CRS by all versions of the raster package.
+# Fallback to longlat projection string
+raster_crs_fallback <- function(projstring) {
+  utils::capture.output(
+    {
+      success <- try(raster::crs(projstring))
+    },
+    type = "message"
+  )
+  if (methods::is(success, "try-error")) {
+    projstring <- "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  }
+  projstring
 }

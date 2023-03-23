@@ -8,7 +8,7 @@ test_that("basic array export", {
   test_array <- readRDS("../testdata/test_array.rds")
 
   # Test for equality with test_array
-  testthat::expect_equal(output_array, test_array)
+  expect_equal(output_array, test_array)
 })
 
 
@@ -32,10 +32,10 @@ test_that("array export with subset and aggregate", {
 
   # Rest for equality with test_array on which operations have been performed on
   #   manually with explicit subset_array and apply calls
-  testthat::expect_equal(output_array, test_array)
+  expect_equal(output_array, test_array)
 
   # Test aggregating a dimension that does not exist
-  testthat::expect_warning(
+  expect_warning(
     as_array(
       output,
       subset = list(band = "boreal needleleaved evergreen tree"),
@@ -60,7 +60,7 @@ test_that("basic tibble export", {
     dplyr::mutate(across(names(dimnames(test_data)), as.factor))
 
   # test for equality with test_tibble
-  testthat::expect_equal(output_tibble, test_tibble)
+  expect_equal(output_tibble, test_tibble)
 })
 
 
@@ -69,7 +69,7 @@ test_that("raster export lon_lat", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
   # transform auto-loads grid, which produces a message
-  testthat::expect_message(
+  expect_message(
     output$transform(to = "lon_lat"),
     "grid.bin.json"
   )
@@ -82,7 +82,7 @@ test_that("raster export lon_lat", {
 
   # create tmp_raster with expected dimensions and coordinate ref system
   tmp_raster <- raster::raster(res = 0.5,
-                               crs = "EPSG:4326",
+                               crs = raster_crs_fallback("EPSG:4326"),
                                xmn = -87.5,
                                xmx = -87,
                                ymn = 55,
@@ -100,12 +100,29 @@ test_that("raster export lon_lat", {
     test_data[, seq_len(dim(test_data)[["lat"]]), drop = FALSE],
     template = tmp_raster
   )
-  raster::crs(test_raster) <- "EPSG:4326"
+  raster::crs(test_raster) <- raster_crs_fallback("EPSG:4326")
   # add variable as layer name
   names(test_raster) <- output$meta$variable
 
   # test for equality with test_raster
-  testthat::expect_equal(output_raster, test_raster)
+  expect_equal(output_raster, test_raster)
+
+  # Reduce all dimensions except cells by aggregation
+  output$transform(to = "cell")
+  output_raster2 <- as_raster(
+    output,
+    aggregate = list(band = sum, time = mean)
+  )
+  test_data2 <- readRDS("../testdata/test_array_lonlat.rds") %>%
+    apply(c("lon", "lat", "time"), sum) %>%
+    apply(c("lon", "lat"), mean)
+  test_raster2 <- raster::raster(
+    test_data2[, seq_len(dim(test_data2)[["lat"]]), drop = FALSE],
+    template = tmp_raster
+  )
+  raster::crs(test_raster2) <- raster_crs_fallback("EPSG:4326")
+  names(test_raster2) <- output$meta$variable
+  expect_equal(output_raster2, test_raster2)
 })
 
 
@@ -114,7 +131,7 @@ test_that("raster export 3rd dim", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
   # as_raster auto-loads grid, which produces a message
-  testthat::expect_message(
+  expect_message(
     output_raster <- output$as_raster(
       subset = list(band = "boreal needleleaved evergreen tree")
     ),
@@ -123,7 +140,7 @@ test_that("raster export 3rd dim", {
 
   # create tmp_raster with expected dimensions and coordinate ref system
   tmp_raster <- raster::raster(res = 0.5,
-                               crs = "EPSG:4326",
+                               crs = raster_crs_fallback("EPSG:4326"),
                                xmn = -87.5,
                                xmx = -87,
                                ymn = 55,
@@ -151,10 +168,10 @@ test_that("raster export 3rd dim", {
   names(test_raster) <- dimnames(output$data)$time
 
   # test for equality with test_raster
-  testthat::expect_equal(output_raster, test_raster)
+  expect_equal(output_raster, test_raster)
 
   # More than 3-dimensional raster not possible
-  testthat::expect_error(
+  expect_error(
     as_raster(output),
     "Too many dimensions"
   )
@@ -196,7 +213,7 @@ test_that("terra export lon_lat", {
 
   # test for equality with test_rast
   # use base::all.equal to avoid pointer mismatches
-  testthat::expect_true(all.equal(output_rast, test_rast))
+  expect_true(all.equal(output_rast, test_rast))
 })
 
 
@@ -245,17 +262,25 @@ test_that("terra export 3rd dim", {
 
   # test for equality with test_rast
   # use base::all.equal to avoid pointer mismatches
-  testthat::expect_true(all.equal(output_rast, test_rast))
+  expect_true(all.equal(output_rast, test_rast))
 
   # More than 3-dimensional rast not possible
-  testthat::expect_error(
+  expect_error(
     as_terra(output),
     "Too many dimensions"
   )
 
   # Must not aggregate space dimension
-  testthat::expect_error(
+  expect_error(
     as_terra(output, aggregate = list(cell = sum)),
     "Only non-spatial and existing dimensions are valid"
   )
+
+  # Reduce all dimensions except cells by aggregation
+  expect_silent({
+    output_raster2 <- as_terra(
+      output,
+      aggregate = list(band = sum, time = mean)
+    )
+  })
 })

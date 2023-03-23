@@ -2,22 +2,22 @@ test_that("get_datatype return value is of expected type", {
   # Dummy minimum viable header
   h1 <- c(datatype = 1)
   # Function should return a list with elements "type", "size" and "signed"
-  testthat::expect_type(get_datatype(h1), "list")
-  testthat::expect_named(get_datatype(h1), c("type", "size", "signed"))
+  expect_type(get_datatype(h1), "list")
+  expect_named(get_datatype(h1), c("type", "size", "signed"))
   # Function also allows single numeric value
   for (dt in seq(0, 4)) {
     h2 <- dt
     # Function should return a list with elements "type", "size" and "signed"
-    testthat::expect_type(get_datatype(h2), "list")
-    testthat::expect_named(get_datatype(h2), c("type", "size", "signed"))
+    expect_type(get_datatype(h2), "list")
+    expect_named(get_datatype(h2), c("type", "size", "signed"))
   }
 
   # Function also allows single character string
   for (dt in c("byte", "short", "int", "float", "double")) {
     h3 <- dt
     # Function should return a list with elements "type", "size" and "signed"
-    testthat::expect_type(get_datatype(h3), "list")
-    testthat::expect_named(get_datatype(h3), c("type", "size", "signed"))
+    expect_type(get_datatype(h3), "list")
+    expect_named(get_datatype(h3), c("type", "size", "signed"))
   }
 
   # Dummy header with normal header structure
@@ -40,23 +40,23 @@ test_that("get_datatype return value is of expected type", {
     ),
     endian = .Platform$endian
   )
-  testthat::expect_type(get_datatype(h4), "list")
-  testthat::expect_named(get_datatype(h4), c("type", "size", "signed"))
+  expect_type(get_datatype(h4), "list")
+  expect_named(get_datatype(h4), c("type", "size", "signed"))
 })
 
 test_that("get_datatype error messages", {
   # Missing datatype entry should give an error
   # Dummy header
   h1 <- c(version = 2)
-  testthat::expect_error(get_datatype(h1), "contain.*datatype")
+  expect_error(get_datatype(h1), "contain.*datatype")
 
   # Invalid datatype should give an error
   h2 <- c(datatype = -1)
-  testthat::expect_error(get_datatype(h2), "invalid datatype", ignore.case = TRUE)
+  expect_error(get_datatype(h2), "invalid datatype", ignore.case = TRUE)
 
   # Invalid datatype name
   h3 <- "hello"
-  testthat::expect_error(get_datatype(h3), "invalid datatype string", ignore.case = TRUE)
+  expect_error(get_datatype(h3), "invalid datatype string", ignore.case = TRUE)
   # Alternative: Return NULL instead of failing with invalid datatype
-  testthat::expect_null(get_datatype(h3, fail = FALSE))
+  expect_null(get_datatype(h3, fail = FALSE))
 })

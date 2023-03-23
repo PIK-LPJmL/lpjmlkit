@@ -15,32 +15,35 @@
 #' @param model_path Character string providing the path to LPJmL
 #'  (equal to `LPJROOT` environment variable).
 #'
-#' @param output_path Character string providing path where an output, a restart
-#'   and a configuration folder are created to store respective data. If `NULL`,
-#'   `model_path` is used.
+#' @param sim_path Character string defining path where all simulation data are
+#'   written, including output, restart and configuration files. If `NULL`,
+#'   `model_path` is used. See also [write_config]
 #'
 #' @param group Character string defining the user group for which the job is
 #'   submitted. Defaults to `"lpjml"`.
 #'
 #' @param sclass Character string defining the job classification. Available
 #'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
-#'   More information at <https://www.pik-potsdam.de>. Defaults to `"short"`.
+#'   More information at <https://www.pik-potsdam.de/en>. Defaults to `"short"`.
 #'
 #' @param ntasks Integer defining the number of tasks/threads. More information
-#'   at <https://www.pik-potsdam.de> and <https://slurm.schedmd.com>.
+#'   at <https://www.pik-potsdam.de/en> and <https://slurm.schedmd.com>.
 #'   Defaults to `256`.
 #'
 #' @param wtime Character string defining the time limit. Setting a lower time
 #'   limit than the maximum runtime for `sclass` can reduce the wait time in the
-#'   SLURM job queue. More information at <https://www.pik-potsdam.de> and
+#'   SLURM job queue. More information at <https://www.pik-potsdam.de/en> and
 #'   <https://slurm.schedmd.com>.
 #'
 #' @param blocking Integer defining the number of cores to be blocked. More
-#'   information at <https://www.pik-potsdam.de> and
+#'   information at <https://www.pik-potsdam.de/en> and
 #'   <https://slurm.schedmd.com>.
 #'
 #' @param no_submit Logical. Set to `TRUE` to test if `x` set correctly or
 #'   `FALSE` to actually submit job to SLURM.
+#'
+#' @param output_path Argument is deprecated as of version 1.0; use sim_path
+#'   instead.
 #'
 #' @return See `x`, extended by columns `"type"`, `"job_id"` and `"status"`.
 #'
@@ -84,11 +87,10 @@
 #' @examples
 #'
 #' \dontrun{
-#' library(lpjmlkit)
 #' library(tibble)
 #'
 #' model_path <- "./LPJmL_internal"
-#' output_path <-"./my_runs"
+#' sim_path <-"./my_runs"
 #'
 #'
 #' # Basic usage
@@ -100,12 +102,12 @@
 #'  new_phenology = c(TRUE, FALSE)
 #' )
 #'
-#' config_details <- write_config(my_params, model_path, output_path)
+#' config_details <- write_config(my_params, model_path, sim_path)
 #'
 #'  run_details <- submit_lpjml(
 #'   x = config_details,
 #'   model_path = model_path,
-#'   output_path = output_path
+#'   sim_path = sim_path
 #' )
 #'
 #' run_details
@@ -124,9 +126,9 @@
 #'   wtime = c("8:00:00", "4:00:00"),
 #' )
 #'
-#' config_details2 <- write_config(my_params2, model_path, output_path)
+#' config_details2 <- write_config(my_params2, model_path, sim_path)
 #'
-#' run_details2 <- submit_lpjml(config_details2, model_path, output_path)
+#' run_details2 <- submit_lpjml(config_details2, model_path, sim_path)
 #'
 #' run_details2
 #' #   sim_name        order dependency   wtime   type       job_id   status
@@ -136,27 +138,29 @@
 #'
 #'
 #' # Same but by using the pipe operator
+#' library(magrittr)
+#'
 #' run_details <- tibble(
 #'   sim_name = c("scen1_spinup", "scen1_transient"),
 #'   random_seed = as.integer(c(1, 42)),
 #'   dependency = c(NA, "scen1_spinup"),
 #'   wtime = c("8:00:00", "4:00:00"),
 #' ) %>%
-#'   write_config(model_path, output_path) %>%
-#'   submit_lpjml(model_path, output_path)
+#'   write_config(model_path, sim_path) %>%
+#'   submit_lpjml(model_path, sim_path)
 #'
 #'
 #' # Shortcut approach
 #' run_details <- submit_lpjml(
 #'   x = "./config_scen1_transient.json",
 #'   model_path = model_path,
-#'   output_path = output_path
+#'   sim_path = sim_path
 #' )
 #'
 #' run_details <- submit_lpjml(
 #'   c("./config_scen1_spinup.json", "./config_scen1_transient.json"),
 #'   model_path,
-#'   output_path
+#'   sim_path
 #' )
 #'
 #' }
@@ -165,13 +169,16 @@
 #' @export
 submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          model_path,
-                         output_path = NULL,
+                         sim_path = NULL,
                          group = "lpjml",
                          sclass = "short",
                          ntasks = 256,
                          wtime = "",
                          blocking = "",
-                         no_submit = FALSE) {
+                         no_submit = FALSE,
+                         output_path = NULL) {
+
+  warn_runner_os("submit_lpjml")
 
   # Check if SLURM is available
   if (!is_slurm_available() && !no_submit && !testthat::is_testing()) {
@@ -183,7 +190,12 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
   if (!dir.exists(model_path)) {
     stop("Folder of model_path \"", model_path, "\" does not exist!")
   }
-  if (is.null(output_path)) output_path <- model_path
+
+  sim_path <- deprecate_arg(new_arg = sim_path,
+                            deprec_arg = output_path,
+                            version = "1.0.0")
+
+  if (is.null(sim_path)) sim_path <- model_path
 
   # Case if character vector with file names is supplied instead of tibble
   if (methods::is(x, "character")) {
@@ -240,7 +252,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
         if (!no_submit) {
           job <- submit_run(sim_name,
                             model_path,
-                            output_path,
+                            sim_path,
                             group,
                             sclass,
                             ntasks,
@@ -289,7 +301,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
       if (!no_submit) {
         job <- submit_run(sim_name,
                           model_path,
-                          output_path,
+                          sim_path,
                           group,
                           sclass,
                           ntasks,
@@ -323,7 +335,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
 # Internal submit run function
 submit_run <- function(sim_name,
                        model_path,
-                       output_path,
+                       sim_path,
                        group,
                        sclass,
                        ntasks,
@@ -337,7 +349,7 @@ submit_run <- function(sim_name,
 
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 
-  stdout <- paste0(output_path,
+  stdout <- paste0(sim_path,
                   "/output/",
                   sim_name,
                   "/",
@@ -345,7 +357,7 @@ submit_run <- function(sim_name,
                   timestamp,
                   ".out")
 
-  stderr <- paste0(output_path,
+  stderr <- paste0(sim_path,
                   "/output/",
                   sim_name,
                   "/",
@@ -353,7 +365,7 @@ submit_run <- function(sim_name,
                   timestamp,
                   ".err")
 
-  output_config <- paste0(output_path,
+  output_config <- paste0(sim_path,
                   "/output/",
                   sim_name,
                   "/",
@@ -379,7 +391,7 @@ submit_run <- function(sim_name,
                            " ",
                            ntasks,
                            " ",
-                           output_path,
+                           sim_path,
                            "/configurations/",
                            config_file)
 
@@ -392,12 +404,13 @@ submit_run <- function(sim_name,
     Sys.setenv(LPJROOT = model_path) # nolint:undesirable_function_linter.
 
     # Run lpjsubmit.
-    submit_status <- processx::run(command = "sh",
+    submit_status <- processx::run(command = "bash",
                                    args = c("-c", inner_command),
                                    cleanup_tree = TRUE,
-                                   error_on_status = FALSE)
+                                   error_on_status = FALSE,
+                                   wd = sim_path)
     if (!testthat::is_testing()) {
-      copied <- file.copy(from = paste(output_path, # nolint:object_usage_linter.
+      copied <- file.copy(from = paste(sim_path, # nolint:object_usage_linter.
                                        "configurations",
                                        config_file,
                                        sep = "/"),
@@ -417,14 +430,4 @@ submit_run <- function(sim_name,
   })
 
   return(submit_status)
-}
-
-
-# Function checks and returns whether SLURM is available
-is_slurm_available <- function() {
-  processx::run(command = "sh",
-                args = c("-c", "sinfo"),
-                error_on_status = FALSE) %>%
-  .$status == 0 %>%
-    return()
 }

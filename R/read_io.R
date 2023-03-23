@@ -113,7 +113,7 @@
 #' my_data_wheat <- read_io(
 #'   "my_file.bin",
 #'   band_names = c("wheat", "rice"), # length needs to correspond to `nbands`
-#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920)))
+#'   subset = list(band = "wheat", year = as.character(seq(1910, 1920))),
 #'   nyear = 100,
 #'   nbands = 2,
 #' )
@@ -185,6 +185,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   # Switch off fancy quotes but revert setting when leaving the function
   quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.
   on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
+
   # Detect file_type if not provided by user
   if (is.null(file_type)) {
     file_type <- detect_io_type(filename)
@@ -196,6 +197,7 @@ read_io <- function( # nolint:cyclocomp_linter.
       "This function can read files of type ", toString(dQuote(supported_types))
     )
   }
+
   # Check valid dim_order
   valid_dim_names <- c("cell", "time", "band")
   if (!all(dim_order %in% valid_dim_names)) {
@@ -620,7 +622,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
     }
   }
   # Prepare additional attributes to be added to metadata
-  additional_attributes <- sapply(
+  additional_attributes <- sapply( # nolint:undesirable_function_linter.
     set_args,
     function(x) unname(get(x)),
     simplify = FALSE
@@ -880,14 +882,3 @@ check_year_subset <- function(subset, meta_data, silent = FALSE) {
   }
   invisible(subset)
 }
-
-# Utility function to replace missing attribute with default value
-default <- function(value, default) {
-  if (is.null(value)) {
-    return(default)
-  } else {
-    return(value)
-  }
-}
-# file_type options supported by read_io
-supported_types <- c("raw", "clm", "meta")

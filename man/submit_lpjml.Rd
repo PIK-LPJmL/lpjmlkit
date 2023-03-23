@@ -7,13 +7,14 @@
 submit_lpjml(
   x,
   model_path,
-  output_path = NULL,
+  sim_path = NULL,
   group = "lpjml",
   sclass = "short",
   ntasks = 256,
   wtime = "",
   blocking = "",
-  no_submit = FALSE
+  no_submit = FALSE,
+  output_path = NULL
 )
 }
 \arguments{
@@ -27,32 +28,35 @@ multiple generated config file(s).}
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable).}
 
-\item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created to store respective data. If \code{NULL},
-\code{model_path} is used.}
+\item{sim_path}{Character string defining path where all simulation data are
+written, including output, restart and configuration files. If \code{NULL},
+\code{model_path} is used. See also \link{write_config}}
 
 \item{group}{Character string defining the user group for which the job is
 submitted. Defaults to \code{"lpjml"}.}
 
 \item{sclass}{Character string defining the job classification. Available
 options at PIK: \code{c("short", "medium", "long", "priority", "standby", "io")}
-More information at \url{https://www.pik-potsdam.de}. Defaults to \code{"short"}.}
+More information at \url{https://www.pik-potsdam.de/en}. Defaults to \code{"short"}.}
 
 \item{ntasks}{Integer defining the number of tasks/threads. More information
-at \url{https://www.pik-potsdam.de} and \url{https://slurm.schedmd.com}.
+at \url{https://www.pik-potsdam.de/en} and \url{https://slurm.schedmd.com}.
 Defaults to \code{256}.}
 
 \item{wtime}{Character string defining the time limit. Setting a lower time
 limit than the maximum runtime for \code{sclass} can reduce the wait time in the
-SLURM job queue. More information at \url{https://www.pik-potsdam.de} and
+SLURM job queue. More information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com}.}
 
 \item{blocking}{Integer defining the number of cores to be blocked. More
-information at \url{https://www.pik-potsdam.de} and
+information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com}.}
 
 \item{no_submit}{Logical. Set to \code{TRUE} to test if \code{x} set correctly or
 \code{FALSE} to actually submit job to SLURM.}
+
+\item{output_path}{Argument is deprecated as of version 1.0; use sim_path
+instead.}
 }
 \value{
 See \code{x}, extended by columns \code{"type"}, \code{"job_id"} and \code{"status"}.
@@ -103,11 +107,10 @@ account. \cr
 \examples{
 
 \dontrun{
-library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
-output_path <-"./my_runs"
+sim_path <-"./my_runs"
 
 
 # Basic usage
@@ -119,12 +122,12 @@ my_params <- tibble(
  new_phenology = c(TRUE, FALSE)
 )
 
-config_details <- write_config(my_params, model_path, output_path)
+config_details <- write_config(my_params, model_path, sim_path)
 
  run_details <- submit_lpjml(
   x = config_details,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 run_details
@@ -143,9 +146,9 @@ my_params <- tibble(
   wtime = c("8:00:00", "4:00:00"),
 )
 
-config_details2 <- write_config(my_params2, model_path, output_path)
+config_details2 <- write_config(my_params2, model_path, sim_path)
 
-run_details2 <- submit_lpjml(config_details2, model_path, output_path)
+run_details2 <- submit_lpjml(config_details2, model_path, sim_path)
 
 run_details2
 #   sim_name        order dependency   wtime   type       job_id   status
@@ -155,27 +158,29 @@ run_details2
 
 
 # Same but by using the pipe operator
+library(magrittr)
+
 run_details <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = as.integer(c(1, 42)),
   dependency = c(NA, "scen1_spinup"),
   wtime = c("8:00:00", "4:00:00"),
 ) \%>\%
-  write_config(model_path, output_path) \%>\%
-  submit_lpjml(model_path, output_path)
+  write_config(model_path, sim_path) \%>\%
+  submit_lpjml(model_path, sim_path)
 
 
 # Shortcut approach
 run_details <- submit_lpjml(
   x = "./config_scen1_transient.json",
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 run_details <- submit_lpjml(
   c("./config_scen1_spinup.json", "./config_scen1_transient.json"),
   model_path,
-  output_path
+  sim_path
 )
 
 }

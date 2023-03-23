@@ -19,6 +19,8 @@
 #' @param ... Arguments passed to \link[graphics]{plot} and
 #'   \link[raster]{plot}
 #'
+#' @return No return value; called for side effects.
+#'
 #'@details
 #'Depending on the dimensions of the [LPJmLData] object's internal data array
 #' the plot will be a ...
@@ -465,8 +467,6 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
     )
   }
 
-  # do.call for use of ellipsis via dots list.
-  #   subset_array for dynamic subsetting of flexible legend_dim.
   withr::with_par(
     new = list(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE),
     code = {
@@ -502,26 +502,21 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
         # set tickmarks and label for time or year dim
         at_ticks <- seq(1,
-          lpjml_data$meta$nyear * nstep,
-          by = brks * nstep
-        )
+                        lpjml_data$meta$nyear * nstep,
+                        by = brks * nstep)
 
-        graphics::axis(
-          side = 1,
-          at = at_ticks,
-          labels = dimnames(raw_data)[[x_dim]][at_ticks]
-        )
+        graphics::axis(side = 1,
+                      at = at_ticks,
+                      labels = dimnames(raw_data)[[x_dim]][at_ticks])
       }
 
       for (i in cols[-1]) {
-        # subset_array for dynamic subsetting of flexible legend_dim
-        graphics::lines(subset_array(
-          raw_data,
-          as.list(stats::setNames(i, legend_dim))
-        ),
-        col = cols[i],
-        type = dots$type
-        )
+
+      # subset_array for dynamic subsetting of flexible legend_dim
+        graphics::lines(subset_array(raw_data,
+                                    as.list(stats::setNames(i, legend_dim))),
+                        col = cols[i],
+                        type = dots$type)
       }
 
       # Calculate length of longest string in legend to not overlap
@@ -538,7 +533,7 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
           ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
             (
               grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
-                graphics::par("plt")[3]) # nolint:undesirable_function_linter.
+                                                graphics::par("plt")[3]) # nolint:undesirable_function_linter.
             )
           ),
         y.intersp = 1.5,
@@ -558,7 +553,6 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
       )
     }
   )
-
   # Create grid, special case for time, year because of specified x axis
   if (x_dim %in% c("time", "year")) {
     graphics::abline(v = at_ticks,

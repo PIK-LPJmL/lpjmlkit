@@ -6,8 +6,8 @@
 \usage{
 calc_cellarea(
   x,
-  res_lon = 0.5,
-  res_lat = res_lon,
+  cellsize_lon = 0.5,
+  cellsize_lat = cellsize_lon,
   earth_radius = 6371000.785,
   return_unit = "m2"
 )
@@ -17,12 +17,12 @@ calc_cellarea(
 variable \code{"grid"} (\code{"LPJGRID"}) or a vector of cell-center latitude
 coordinates in degrees.}
 
-\item{res_lon}{Grid resolution in longitude direction in degrees
+\item{cellsize_lon}{Grid resolution in longitude direction in degrees
 (default: \code{0.5}). If \code{x} is an LPJmLData object the resolution will be
 taken from the meta data included in \code{x} if available.}
 
-\item{res_lat}{Grid resolution in latitude direction in degrees (default:
-same as \code{res_lon}). If \code{x} is an LPJmLData object the resolution will be
+\item{cellsize_lat}{Grid resolution in latitude direction in degrees (default:
+same as \code{cellsize_lon}). If \code{x} is an LPJmLData object the resolution will be
 taken from the meta data included in \code{x} if available.}
 
 \item{earth_radius}{Radius of the sphere (in \eqn{m}) used to calculate the

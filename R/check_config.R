@@ -11,8 +11,9 @@
 #' @param model_path Character string providing the path to LPJmL
 #'   (equal to `LPJROOT` environment variable). Defaults to ".".
 #'
-#' @param output_path Character string providing path where an output, a restart
-#'   and a configuration folder are created. If `NULL`, `model_path` is used.
+#' @param sim_path Character string defining path where all simulation data are
+#'   written, including output, restart and configuration files. If `NULL`,
+#'   `model_path` is used. See also [write_config]
 #'
 #' @param return_output Parameter affecting the output. If `FALSE` print
 #'   stdout/stderr message. If `TRUE`, return the result of the check.
@@ -20,6 +21,9 @@
 #'
 #' @param raise_error Logical. Whether to raise an error if sub-process has
 #'   non-zero exit status. Defaults to `FALSE`.
+#'
+#' @param output_path Argument is deprecated as of version 1.0; use sim_path
+#'   instead.
 #'
 #' @return NULL.
 #'
@@ -29,7 +33,7 @@
 #' library(lpjmlkit)
 #'
 #' model_path <- "./LPJmL_internal"
-#' output_path <-"./my_runs"
+#' sim_path <-"./my_runs"
 #'
 #'
 #' # Basic usage
@@ -42,25 +46,32 @@
 #' )
 #'
 #' config_details <- write_config(
-#'   params = my_params,
+#'   x = my_params,
 #'   model_path = model_path,
-#'   output_path = output_path
+#'   sim_path = sim_path
 #' )
 #'
 #' check_config(x = config_details,
 #'   model_path = model_path,
-#'   output_path = output_path,
+#'   sim_path = sim_path,
 #'   return_output = FALSE
 #' )
 #' }
 #' @export
 check_config <- function(x,
                          model_path = ".",
-                         output_path = NULL,
+                         sim_path = NULL,
                          return_output = FALSE,
-                         raise_error = FALSE) {
+                         raise_error = FALSE,
+                         output_path = NULL) {
 
-  if (is.null(output_path)) output_path <- model_path
+  warn_runner_os("check_config")
+
+  sim_path <- deprecate_arg(new_arg = sim_path,
+                            deprec_arg = output_path,
+                            version = "1.0.0")
+
+  if (is.null(sim_path)) sim_path <- model_path
 
   # Check if x is character (vector). If so convert to tibble for the following.
   if (methods::is(x, "character")) {
@@ -78,7 +89,7 @@ check_config <- function(x,
   config_files <- paste0("config_", x$sim_name, ".json")
 
   if (length(config_files) > 1) {
-      files <- paste0(output_path,
+      files <- paste0(sim_path,
                       "/configurations/",
                       config_files,
                       collapse = " ")
@@ -97,17 +108,18 @@ check_config <- function(x,
   } else {
     inner_command <- paste0(model_path,
                       "/bin/lpjcheck ", # nolint:absolute_path_linter.
-                      output_path,
+                      sim_path,
                       "/configurations/",
                       config_files)
   }
 
   # Call sh command via processx to kill any subprocesses after
   #   background: process limit on the cluster
-  check <- processx::run(command = "sh",
+  check <- processx::run(command = "bash",
                          args = c("-c", inner_command),
                          error_on_status = raise_error,
-                         cleanup_tree = TRUE)
+                         cleanup_tree = TRUE,
+                         wd = sim_path)
 
   if (!return_output) {
     return(

@@ -1,4 +1,6 @@
-testthat::test_that("check submit_lpjml with tibble", {
+test_that("check submit_lpjml with tibble", {
+
+  skip_on_os("windows")
 
   test_params <- tibble::tibble(
     sim_name = c("scen1_spinup", "scen1_transient"),
@@ -18,7 +20,7 @@ testthat::test_that("check submit_lpjml with tibble", {
   test_params$type <- "simulation"
   test_params$status <- "not submitted"
 
-  testthat::expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
+  expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
               na.rm = TRUE))
 
   # Check submit_run functionality
@@ -28,12 +30,14 @@ testthat::test_that("check submit_lpjml with tibble", {
   )
   test_params$status <- "failed"
 
-  testthat::expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
+  expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
               na.rm = TRUE))
 })
 
 
-testthat::test_that("check submit_lpjml with character string", {
+test_that("check submit_lpjml with character string", {
+
+  skip_on_os("windows")
 
   # Check submit_lpjml directly (and only)
   test_submit <- submit_lpjml(
@@ -41,22 +45,24 @@ testthat::test_that("check submit_lpjml with character string", {
     "../testdata",
     no_submit = TRUE
   )
-  testthat::expect_true("scen1_spinup" %in% test_submit$sim_name)
+  expect_true("scen1_spinup" %in% test_submit$sim_name)
 
   # Check submit_run functionality
   test_submit <- submit_lpjml(
     "./config_scen1_spinup.json",
     "../testdata"
   )
-  testthat::expect_true("failed" %in% test_submit$status)
+  expect_true("failed" %in% test_submit$status)
 
 })
 
 
-testthat::test_that("raise submit_lpjml errors", {
+test_that("raise submit_lpjml errors", {
+
+  skip_on_os("windows")
 
   # Check if directory is valid
-  testthat::expect_error(
+  expect_error(
     submit_lpjml(
       "./config_scen1_spinup.json",
       "does/not/exist",
@@ -67,10 +73,12 @@ testthat::test_that("raise submit_lpjml errors", {
 })
 
 
-testthat::test_that("raise run_lpjml errors", {
+test_that("raise run_lpjml errors", {
+
+  skip_on_os("windows")
 
   # Check if directory is valid
-  testthat::expect_error(
+  expect_error(
     run_lpjml(
       "./config_scen1_spinup.json",
       "does/not/exist",
@@ -79,7 +87,7 @@ testthat::test_that("raise run_lpjml errors", {
   )
 
   # Check if system command failes
-  testthat::expect_error(
+  expect_error(
     run_lpjml(
       "./config_scen1_spinup.json"
     ),
@@ -87,7 +95,7 @@ testthat::test_that("raise run_lpjml errors", {
   )
 
   # Check if working in a SLURM job environment
-  testthat::expect_error(
+  expect_error(
     run_lpjml(
       "./config_scen1_spinup.json",
       parallel_cores = 4
@@ -106,10 +114,10 @@ testthat::test_that("raise run_lpjml errors", {
     test_params,
     raise_error = FALSE
   )
-  testthat::expect_true("run" %in% test_run$status)
+  expect_true("run" %in% test_run$status)
 
   # Check if working in a SLURM job environment (other conditions with tibble)
-  testthat::expect_error(
+  expect_error(
     run_lpjml(
       test_params,
       parallel_cores = 4

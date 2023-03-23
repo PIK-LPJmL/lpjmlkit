@@ -1,5 +1,5 @@
 
-testthat::test_that("write correct config with dot syntax", {
+test_that("write correct config with dot syntax", {
 
   test_params <- tibble::tibble(
     sim_name = "spinup_pnv",
@@ -23,9 +23,9 @@ testthat::test_that("write correct config with dot syntax", {
 
   # Test main function of write_config since write_config is hard to test
   tmp_objects <- write_single_config(
-    params = test_params,
+    x = test_params,
     model_path = "../testdata",
-    output_path = "../testdata",
+    sim_path = "../testdata",
     output_list = c(),
     output_list_timestep = "annual",
     output_format = "clm",
@@ -36,7 +36,7 @@ testthat::test_that("write correct config with dot syntax", {
 
   # Check json mutate functions to result in correct json file
   check_json <- read_config("../testdata/config_spinup_pnv.json")
-  testthat::expect_true(all(unlist(tmp_objects[[1]]) %in% unlist(check_json)))
+  expect_true(all(unlist(tmp_objects[[1]]) %in% unlist(check_json)))
 
 
   # Check returned tibble to come in the right format with equal data
@@ -44,7 +44,7 @@ testthat::test_that("write correct config with dot syntax", {
   check_tibble[1,
     c("sim_name", "dependency", "order")
   ] <- list("spinup_pnv", NA, 1)
-  testthat::expect_true(
+  expect_true(
     all(
       tmp_objects[[2]][1, which(tmp_objects != "dependency")] %in%
       check_tibble[1, which(tmp_objects != "dependency")]
@@ -53,11 +53,11 @@ testthat::test_that("write correct config with dot syntax", {
 
   # Check for non valid config/param
   test_params["test_param"] <- TRUE
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -71,11 +71,11 @@ testthat::test_that("write correct config with dot syntax", {
 
   # Check for non valid config/param combination
   test_params["sim_name.landuse"] <- TRUE
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -88,7 +88,7 @@ testthat::test_that("write correct config with dot syntax", {
 })
 
 
-testthat::test_that("write correct config with common list syntax", {
+test_that("write correct config with common list syntax", {
 
   test_params <- tibble::tibble(
     sim_name = "spinup_pnv",
@@ -110,9 +110,9 @@ testthat::test_that("write correct config with common list syntax", {
 
   # Test main function of write_config since write_config is hard to test
   tmp_objects <- write_single_config(
-    params = test_params,
+    x = test_params,
     model_path = "../testdata",
-    output_path = "../testdata",
+    sim_path = "../testdata",
     output_list = c(),
     output_list_timestep = "annual",
     output_format = "clm",
@@ -123,15 +123,15 @@ testthat::test_that("write correct config with common list syntax", {
 
   # Check json mutate functions to result in correct json file
   check_json <- read_config("../testdata/config_spinup_pnv.json")
-  testthat::expect_true(all(unlist(tmp_objects[[1]]) %in% unlist(check_json)))
+  expect_true(all(unlist(tmp_objects[[1]]) %in% unlist(check_json)))
 
   # Check for non valid config/param
   test_params["test_param$check"] <- TRUE
   expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -145,11 +145,11 @@ testthat::test_that("write correct config with common list syntax", {
 
   # Check for non valid config/param combination
   test_params["sim_name$landuse"] <- TRUE
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -163,11 +163,11 @@ testthat::test_that("write correct config with common list syntax", {
 
   # A sim_name is missing (works as identifier)
   test_params["sim_name"] <- NULL
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -175,7 +175,7 @@ testthat::test_that("write correct config with common list syntax", {
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
-    "A sim_name is missing in params."
+    "A sim_name is missing in"
   )
   test_params["sim_name"] <- "spinup_pnv"
 
@@ -183,11 +183,11 @@ testthat::test_that("write correct config with common list syntax", {
   # Missing dependency (if order specified)
   test_params["order"] <- 2
   test_params["dependency"] <- NULL
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -200,11 +200,11 @@ testthat::test_that("write correct config with common list syntax", {
 
   # Non valid order (< 1)
   test_params["order"] <- -1
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -218,11 +218,11 @@ testthat::test_that("write correct config with common list syntax", {
   # Combination of config/param that requires a restart_filename (not specified)
   test_params["order"] <- 1
   test_params["restart_filename"] <- NULL
-  testthat::expect_warning(
+  expect_warning(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -237,11 +237,11 @@ testthat::test_that("write correct config with common list syntax", {
 
   # Non valid output timestep (subannual)
   test_params["dependency"] <- "spinup_spinup"
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c("irrig", "irrig"),
       output_list_timestep = c("subannual", "subannual"),
       output_format = "clm",
@@ -254,11 +254,11 @@ testthat::test_that("write correct config with common list syntax", {
 
 
   # Non matching length if output_list and output_list_timestep
-  testthat::expect_error(
+  expect_error(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c("irrig"),
       output_list_timestep = c("annual", "annual"),
       output_format = "cdf",
@@ -270,11 +270,11 @@ testthat::test_that("write correct config with common list syntax", {
   )
 
   # Non valid output
-  testthat::expect_warning(
+  expect_warning(
     write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c("soil_health"),
       output_list_timestep = c("annual"),
       output_format = "cdf",
@@ -290,9 +290,9 @@ testthat::test_that("write correct config with common list syntax", {
   test_params["wtime"] <- "10:00:00"
   test_params["-DMY_MACRO"] <- TRUE
   tmp_objects <- write_single_config(
-      params = test_params,
+      x = test_params,
       model_path = "../testdata",
-      output_path = "../testdata",
+      sim_path = "../testdata",
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
@@ -300,11 +300,11 @@ testthat::test_that("write correct config with common list syntax", {
       config_tmp = test_tmp,
       slurm_args = slurm_args
     )
-  testthat::expect_true(!"-DMY_MACRO" %in% tmp_objects)
+  expect_true(!"-DMY_MACRO" %in% tmp_objects)
 })
 
 
-testthat::test_that("include non output defined outputvars", {
+test_that("include non output defined outputvars", {
 
     test_params <- tibble::tibble(
       sim_name = c("transient_pnv"),
@@ -321,9 +321,9 @@ testthat::test_that("include non output defined outputvars", {
 
   # test main function of write_config since write_config is hard to test
   tmp_objects <- write_single_config(
-    params = test_params,
+    x = test_params,
     model_path = "../testdata",
-    output_path = "../testdata",
+    sim_path = "../testdata",
     output_list = c("grid", "irrig"),
     output_list_timestep = "annual",
     output_format = "clm",
@@ -333,14 +333,14 @@ testthat::test_that("include non output defined outputvars", {
   )
 
   # check if defined outputvar (id) exists as last output
-  testthat::expect_true(
+  expect_true(
     tmp_objects[[1]][["output"]][[
       length(tmp_objects[[1]][["output"]])
     ]]$id == "irrig"
   )
 
   # check if filename is set correctly
-  testthat::expect_true(
+  expect_true(
     grepl("irrig.clm",
           tmp_objects[[1]][["output"]][[
             length(tmp_objects[[1]][["output"]])
@@ -351,7 +351,7 @@ testthat::test_that("include non output defined outputvars", {
 
 
 # Test get_order function (for dependency)
-testthat::test_that("get order", {
+test_that("get order", {
 
   test_params <- data.frame(
     sim_name = c("spinup", "landuse", "future_landuse"),
@@ -359,5 +359,5 @@ testthat::test_that("get order", {
   )
 
   order_params <- get_order(test_params)
-  testthat::expect_equal(order_params$order, c(1, 2, 3))
+  expect_equal(order_params$order, c(1, 2, 3))
 })

@@ -17,7 +17,7 @@
 #' @examples
 #' \dontrun{
 #' detect_io_type(filename = "filename.clm")
-#' [1] "clm"
+#' # [1] "clm"
 #' }
 #'
 #' @export

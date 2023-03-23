@@ -7,10 +7,11 @@
 run_lpjml(
   x,
   model_path = ".",
-  output_path = NULL,
+  sim_path = NULL,
   parallel_cores = 1,
   write_stdout = FALSE,
-  raise_error = TRUE
+  raise_error = TRUE,
+  output_path = NULL
 )
 }
 \arguments{
@@ -24,9 +25,9 @@ multiple generated configuration file(s).}
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable). Defaults to "."}
 
-\item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created to store respective data. If \code{NULL},
-\code{model_path} is used.}
+\item{sim_path}{Character string defining path where all simulation data are
+written, including output, restart and configuration files. If \code{NULL},
+\code{model_path} is used. See also \link{write_config}}
 
 \item{parallel_cores}{Integer defining the number of available CPU
 cores/nodes for parallelization. Defaults to \code{1} (no parallelization).
@@ -39,6 +40,9 @@ SLURM job \code{write_stdout} is automatically set to \code{TRUE}.}
 
 \item{raise_error}{Logical. Whether to raise an error if sub-process has
 non-zero exit status. Defaults to \code{TRUE}.}
+
+\item{output_path}{Argument is deprecated as of version 1.0; use sim_path
+instead.}
 }
 \value{
 See \code{x}, extended by columns \code{"type"}, \code{"job_id"} and \code{"status"}.
@@ -77,11 +81,10 @@ Also be aware that the order of the supplied config files is important
 \examples{
 
 \dontrun{
-library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
-output_path <-"./my_runs"
+sim_path <-"./my_runs"
 
 # Basic usage
 my_params1 <- tibble(
@@ -94,12 +97,12 @@ my_params1 <- tibble(
   new_phenology = c(TRUE, FALSE)
 )
 
-config_details1 <- write_config(my_params1, model_path, output_path)
+config_details1 <- write_config(my_params1, model_path, sim_path)
 
  run_details1 <- run_lpjml(
   x = config_details1,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 run_details1
@@ -119,9 +122,9 @@ my_params2 <- tibble(
   dependency = c(NA, "scen1_spinup")
 )
 
-config_details2 <- write_config(my_params2, model_path, output_path)
+config_details2 <- write_config(my_params2, model_path, sim_path)
 
-run_details2 <- run_lpjml(config_details2, model_path, output_path)
+run_details2 <- run_lpjml(config_details2, model_path, sim_path)
 
 run_details2
 #   sim_name        order dependency   type       job_id   status
@@ -131,26 +134,28 @@ run_details2
 
 
 # Same but by using the pipe operator
+library(magrittr)
+
 run_details2 <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = as.integer(c(1, 42)),
   dependency = c(NA, "scen1_spinup")
 ) \%>\%
-  write_config(model_path, output_path) \%>\%
-  run_lpjml(model_path, output_path)
+  write_config(model_path, sim_path) \%>\%
+  run_lpjml(model_path, sim_path)
 
 
 # Shortcut approaches
 run_details3 <- run_lpjml(
   x = "./config_scen1_transient.json",
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 run_details4 <- run_lpjml(
   c("./config_scen1_spinup.json", "./config_scen1_transient.json"),
   model_path,
-  output_path
+  sim_path
 )
 
 }
