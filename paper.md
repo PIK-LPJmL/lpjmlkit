@@ -83,7 +83,6 @@ user experience, and overall adoption.
 Scientific software should also be findable, accessible, interoperable and
 reusable, according to the FAIR principles for research software
 [@barker_introducing_2022].
-
 Numerical models based on process-based approaches and implemented in low-level
 programming languages are often characterised by a long history and long
 development cycles, that affect operability.
