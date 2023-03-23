@@ -25,15 +25,15 @@ possible.
 \examples{
 \dontrun{
 
-runoff <- read_io(filename = "runoff.bin.json"),
-                  subset = list(year = 1991:2000))
+runoff <- read_io(filename = "runoff.bin.json",
+                  subset = list(year = as.character(1991:2000)))
 
 # Transform into space format "lon_lat". This assumes a "grid.bin.json" file
 # is present in the same directory as "runoff.bin.json".
 transform(runoff, to = "lon_lat")
 # [...]
-# $data \%>\%
-#   dimnames() \%>\%
+# $data |>
+#   dimnames() |>
 #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
 #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
 #     .$time  "1991-01-31" "1991-02-28" "1991-03-31" "1991-04-30" ...
@@ -45,8 +45,8 @@ transform(runoff, to = "lon_lat")
 # data are omitted, i.e. no "day" dimension for monthly data.
 transform(runoff, to = "year_month_day")
 # [...]
-# $data \%>\%
-#   dimnames() \%>\%
+# $data |>
+#   dimnames() |>
 #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
 #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
 #     .$month  "1" "2" "3" "4" ... "12"

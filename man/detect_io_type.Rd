@@ -28,7 +28,7 @@ simple text formats such as ".txt" or ".csv" are also detected.
 \examples{
 \dontrun{
 detect_io_type(filename = "filename.clm")
-[1] "clm"
+# [1] "clm"
 }
 
 }
