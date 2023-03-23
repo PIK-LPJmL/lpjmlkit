@@ -23,6 +23,9 @@ extracted. Not relevant if \code{aggregate} includes spatial dimension.}
 \item{...}{Arguments passed to \link[graphics]{plot} and
 \link[raster]{plot}}
 }
+\value{
+No return value; called for side effects.
+}
 \description{
 Function to plot a time-series or raster map of an \code{\link{LPJmLData}}
 object.
