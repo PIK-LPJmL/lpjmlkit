@@ -24,7 +24,7 @@ cut off.
 }
 \value{
 Summary for object of class matrix (see \link[base]{summary}) for
-selected dimension and if set subset.
+selected dimension(s) and if defined subset.
 }
 \description{
 Function to get the summary of the data array of an LPJmLData object.

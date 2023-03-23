@@ -4,7 +4,7 @@
 #'
 #' @param x [LPJmLData] object
 #'
-#'@return A non-negative integer or double (which will be rounded down).
+#'@return A non-negative integer or numeric (which will be rounded down).
 #'
 #' @md
 #' @export
@@ -48,7 +48,7 @@ LPJmLData$set("private",
 #' @param x [LPJmLData] object
 #'
 #' @return A list of the same length as dim(x). Components are character vectors
-#' with positive length of the appropriate dimension of x.
+#' with positive length of the respective dimension of x.
 #'
 #' @md
 #' @export
@@ -82,7 +82,7 @@ LPJmLData$set("private",
 #' * Additional arguments to be passed on to \link[base]{summary}.
 #'
 #' @return Summary for object of class matrix (see \link[base]{summary}) for
-#' selected dimension and if set subset.
+#' selected dimension(s) and if defined subset.
 #'
 #' @md
 #' @export
