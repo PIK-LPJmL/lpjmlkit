@@ -3,7 +3,8 @@
 * currently there is no publication of lpjmlkit that could be added to
 DESCRIPTION, if that changes it will be added
 * unexecutable code removed from example sections of functions
-`detect_io_type()`, `read_io()`, `set_header_item()` and `transform()`
+`detect_io_type()`, `read_io()`, `set_header_item()`, `transform()` and
+`run_lpjml()`
 * missing Rd-tag return added to `dim.LPJmLData()`, `dimnames.LPJmLData()`,
 `length.LPJmLData()`, `plot.LPJmLData()` and `summary.LPJmLData()` functions
 * dontrun{} removed from functions where possible: `set_header_item()`
