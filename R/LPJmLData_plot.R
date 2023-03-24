@@ -292,25 +292,19 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     c(3, 3))
 
     if (is.list(zlim) || is.list(map_col)) {
+       dots <- lapply(seq_len(length(zlim)), function(i, x) lapply(x, "[", i),
+        x = dots
+      )
       withr::with_par(new = list(mfrow = nr_nc),
-        code = invisible(mapply(FUN = raster::plot, # nolint:undesirable_function_linter.
-          x = lapply(X = seq_len(raster::nlayers(data_ras)),
+        code = invisible(mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
+          x = lapply(X = seq_len(min(raster::nlayers(data_ras),9)),
             FUN = function(x) {
               return(raster::subset(data_ras, x))
             }),
-            col = map_col, zlim = zlim,
-            MoreArgs = list(addfun = function() {
-              maps::map(add = TRUE, lwd = 0.3)},
-              dots)))
+            col = map_col, zlim = zlim, dots = dots))
       )
     } else {
-      # do.call to use dots list as ellipsis, addfun is a workaround to use
-      # country map overlay for every plot
-      do.call(raster::plot,
-              c(list(x = data_ras,
-                     addfun = function() maps::map(add = TRUE, lwd = 0.3),
-                     col = map_col, zlim = zlim),
-                dots))
+      call_raster_plot(x = data_ras, col = map_col, zlim = zlim, dots = dots)
     }
   }
 })
@@ -574,4 +568,20 @@ create_color_scale <- function(zlim,
   ))(round(breaks * zlim[2] / min_max))
 
   c(neg, "white", pos)
+}
+
+call_raster_plot <- function(x, col, zlim, dots) {
+  # do.call to use dots list as ellipsis, addfun is a workaround to use
+  # country map overlay for every plot
+  do.call(
+    raster::plot,
+    c(
+      list(
+        x = x,
+        addfun = function() maps::map(add = TRUE, lwd = 0.3),
+        col = col, zlim = zlim
+      ),
+      dots
+    )
+  )
 }
