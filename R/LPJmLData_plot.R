@@ -554,18 +554,28 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 }
 
 create_color_scale <- function(zlim,
-                               breaks = 254) {
+                               breaks = 255) {
+  breaks <- breaks - 1
   min_max <- sum(abs(zlim))
+  neg_breaks <- round(breaks * abs(zlim[1]) / min_max)
+  pos_breaks <- round(breaks * zlim[2] / min_max)
+  if (neg_breaks == 0) {
+    neg_breaks <- 1
+    pos_breaks <- pos_breaks - 1
+  } else if (pos_breaks == 0) {
+    pos_breaks <- 1
+    neg_breaks <- neg_breaks - 1
+  }
   neg <- grDevices::colorRampPalette(rev(c(
     "#f7fbff", "#deebf7",
     "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5",
     "#08519c", "#08306b"
-  )))(round(breaks * abs(zlim[1]) / min_max))
+  )))(neg_breaks)
   pos <- grDevices::colorRampPalette(c(
     "#fff5f0", "#fee0d2",
     "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d",
     "#a50f15", "#67000d"
-  ))(round(breaks * zlim[2] / min_max))
+  ))(pos_breaks)
 
   c(neg, "white", pos)
 }
