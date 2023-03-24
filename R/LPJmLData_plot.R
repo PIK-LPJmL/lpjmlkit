@@ -297,7 +297,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       )
       withr::with_par(new = list(mfrow = nr_nc),
         code = invisible(mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
-          x = lapply(X = seq_len(min(raster::nlayers(data_ras),9)),
+          x = lapply(X = seq_len(min(raster::nlayers(data_ras), 9)),
             FUN = function(x) {
               return(raster::subset(data_ras, x))
             }),
