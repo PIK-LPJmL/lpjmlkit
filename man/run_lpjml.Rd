@@ -89,7 +89,7 @@ sim_path <-"./my_runs"
 # Basic usage
 my_params1 <- tibble(
   sim_name = c("scen1", "scen2"),
-  startgrid = c(27410, 27410)
+  startgrid = c(27410, 27410),
   river_routing = c(FALSE, FALSE),
   random_seed = c(42, 404),
   pftpar.1.name = c("first_tree", NA),
@@ -116,7 +116,7 @@ run_details1
 #   parameters than in previous example)
 my_params2 <- tibble(
   sim_name = c("scen1", "scen2"),
-  startgrid = c(27410, 27410)
+  startgrid = c(27410, 27410),
   river_routing = c(FALSE, FALSE),
   random_seed = c(42, 404),
   dependency = c(NA, "scen1_spinup")
