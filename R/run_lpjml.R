@@ -76,8 +76,8 @@
 #'   startgrid = c(27410, 27410),
 #'   river_routing = c(FALSE, FALSE),
 #'   random_seed = c(42, 404),
-#'   pftpar.1.name = c("first_tree", NA),
-#'   param.k_temp = c(NA, 0.03),
+#'   `pftpar[[1]]$name` = c("first_tree", NA),
+#'   `param$k_temp` = c(NA, 0.03),
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'

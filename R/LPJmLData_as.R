@@ -92,6 +92,8 @@ LPJmLData$set("private",
 #' Function to coerce (convert) an [`LPJmLData`] object into a
 #' \link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
 #' tibbles at <https://r4ds.had.co.nz/tibbles.html>.
+#' Please make sure to call `lpjmlkit::as_tibble()` explicitly when also using
+#' the tidyverse packages tibble or dplyr.
 #'
 #' @param x [LPJmLData] object
 #'
