@@ -12,7 +12,7 @@ A collection of basic functions to facilitate the work with the Dynamic Global V
 Useful links:
 \itemize{
   \item \url{https://github.com/PIK-LPJmL/lpjmlkit}
-  \item \doi{10.5281/zenodo.7752812}
+  \item \doi{10.5281/zenodo.7773134}
   \item Report bugs at \url{https://github.com/PIK-LPJmL/lpjmlkit/issues}
 }
 
