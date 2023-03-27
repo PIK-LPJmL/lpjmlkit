@@ -170,7 +170,7 @@
 #'      `sim_name`.
 #'    * `"./restart"` to store the restart files within subdirectories for each
 #'      `sim_name`.
-#' * The "." syntax (e.g. `"pftpar.1.name"`) allows to create column names and
+#' * The list syntax (e.g. `pftpar[[1]]$name`) allows to create column names and
 #'   thus keys for accessing values in the config json.
 #' * The column `"sim_name"` is mandatory (used as an identifier).
 #' * The run parameter `"dependency"` is optional but enables interdependent
