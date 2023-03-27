@@ -25,7 +25,8 @@ Encoding: UTF-8
 Depends:
     R (>= 3.5.0)
 URL: https://github.com/PIK-LPJmL/lpjmlkit,
-    https://doi.org/10.5281/zenodo.7773134
+    https://doi.org/10.5281/zenodo.7773134,
+    https://joss.theoj.org/papers/19419cb26456cff5450b6e3de0f90d11
 BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues
 Imports:
     magrittr,
