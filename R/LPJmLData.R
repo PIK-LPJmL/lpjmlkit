@@ -330,19 +330,22 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   active = list(
 
     #' @field meta [`LPJmLMetaData`] object to store corresponding meta data.
-    meta = function() {
+    meta = function(...) {
+      check_change(self, "meta", ...)
       # Clone meta object so that if meta is changed outside of the LPJmLData
       #   instance it will not change this instance
       return(private$.meta$clone())
     },
 
     #' @field data \link[base]{array} containing the underlying data.
-    data = function() {
+    data = function(...) {
+      check_change(self, "data", ...)
       return(private$.data)
     },
 
     #' @field grid Optional `LPJmLData` object containing the underlying grid.
-    grid = function() {
+    grid = function(...) {
+      check_change(self, "grid", ...)
 
       if (!is.null(private$.grid)) {
 

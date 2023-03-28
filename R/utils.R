@@ -166,3 +166,15 @@ supported_types <- c("raw", "clm", "meta")
 
 # Avoid note for "."...
 utils::globalVariables(".") # nolint:undesirable_function_linter
+
+# Stop if user has supplied ellipsis argument. Used to test if user tries to set
+# active bindings directly.
+check_change <- function(self, att, ...) {
+  if (...length() > 0) {
+    stop(
+      sQuote(att), " attribute cannot be set directly in ",
+      class(self)[1],
+      " object."
+    )
+  }
+}
