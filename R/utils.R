@@ -172,7 +172,7 @@ utils::globalVariables(".") # nolint:undesirable_function_linter
 check_change <- function(self, att, ...) {
   if (...length() > 0) {
     stop(
-      sQuote(att), " attribute cannot be set directly in ",
+      sQuote(att, q = FALSE), " attribute cannot be set directly in ",
       class(self)[1],
       " object."
     )
