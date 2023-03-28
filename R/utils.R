@@ -174,7 +174,8 @@ check_change <- function(self, att, ...) {
     stop(
       sQuote(att, q = FALSE), " attribute cannot be set directly in ",
       class(self)[1],
-      " object."
+      " object.",
+      call. = FALSE
     )
   }
 }
