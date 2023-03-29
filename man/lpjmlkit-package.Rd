@@ -13,6 +13,7 @@ Useful links:
 \itemize{
   \item \url{https://github.com/PIK-LPJmL/lpjmlkit}
   \item \doi{10.5281/zenodo.7773134}
+  \item \url{https://joss.theoj.org/papers/19419cb26456cff5450b6e3de0f90d11}
   \item Report bugs at \url{https://github.com/PIK-LPJmL/lpjmlkit/issues}
 }
 
