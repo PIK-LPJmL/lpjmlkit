@@ -535,7 +535,7 @@ plot_raster <- function(lpjml_data,
     }
   } else {
     map_col <- dots$col
-    dots <- dots[names(dots) != "col"]
+    dots$col <- NULL
   }
 
   # Set plot arrangement for multiple raster layers
@@ -543,25 +543,33 @@ plot_raster <- function(lpjml_data,
   "2" = c(1, 2),
   "3" = c(2, 2),
   "4" = c(2, 2),
-  "5" = c(2, 3),
-  "6" = c(2, 3),
+  "5" = c(3, 2),
+  "6" = c(3, 2),
   c(3, 3))
-
 
   # Plot raster for multiple or single layer(s)
   if (is.list(zlim) || is.list(map_col)) {
-      dots <- lapply(seq_len(length(zlim)), function(i, x) lapply(x, "[", i),
+    dots <- lapply(
+      seq_len(length(zlim)),
+      function(i, x) lapply(x, "[", i),
       x = dots
     )
     withr::with_par(new = list(mfrow = nr_nc),
-      code = invisible(mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
-        x = lapply(X = seq_len(min(raster::nlayers(data_ras), 9)),
-          FUN = function(x) {
-            return(raster::subset(data_ras, x))
-          }),
-          col = map_col, zlim = zlim, dots = dots))
+      code = invisible(
+        mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
+          x = lapply(
+            X = seq_len(min(raster::nlayers(data_ras), 9)),
+            FUN = function(x) {
+              return(raster::subset(data_ras, x))
+            }
+          ),
+          col = map_col, zlim = zlim, dots = dots
+        )
+      )
     )
   } else {
+    dots$nc <- nr_nc[2]
+    dots$nr <- nr_nc[1]
     call_raster_plot(x = data_ras, col = map_col, zlim = zlim, dots = dots)
   }
 }
