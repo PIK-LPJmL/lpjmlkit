@@ -191,7 +191,7 @@ my_params2
 \item \code{"./restart"} to store the restart files within subdirectories for each
 \code{sim_name}.
 }
-\item The "." syntax (e.g. \code{"pftpar.1.name"}) allows to create column names and
+\item The list syntax (e.g. \code{pftpar[[1]]$name}) allows to create column names and
 thus keys for accessing values in the config json.
 \item The column \code{"sim_name"} is mandatory (used as an identifier).
 \item The run parameter \code{"dependency"} is optional but enables interdependent

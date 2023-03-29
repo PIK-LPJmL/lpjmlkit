@@ -1,7 +1,7 @@
 Package: lpjmlkit
 Type: Package
 Title: Toolkit for Basic LPJmL Handling
-Version: 1.0.11
+Version: 1.0.13
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
@@ -25,7 +25,7 @@ Encoding: UTF-8
 Depends:
     R (>= 3.5.0)
 URL: https://github.com/PIK-LPJmL/lpjmlkit,
-    https://doi.org/10.5281/zenodo.7752812
+    https://doi.org/10.5281/zenodo.7773134
 BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues
 Imports:
     magrittr,
@@ -50,4 +50,4 @@ Suggests:
     maps
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-03-24
+Date: 2023-03-27
