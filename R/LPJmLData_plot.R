@@ -168,10 +168,10 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                                  aggregate_list = aggregate,
                                  na.rm = TRUE)
 
-    plot_by_band(lpjml_data = data_subset,
-                 raw_data = data_only,
-                 aggregate = aggregate,
-                 dots = dots)
+    plot_lines(lpjml_data = data_subset,
+               raw_data = data_only,
+               aggregate = aggregate,
+               dots = dots)
     message(
       "\u001b[33;3m",
       "Note: spatial aggregation is not weighted by grid area.",
@@ -211,14 +211,6 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
       )
     }
 
-    # Create plot title if not provided
-    if (is.null(dots$main)) {
-      var_title <- paste0(descr, " [", unit, "]")
-    } else {
-      var_title <- dots$main
-      dots$main <- NULL
-    }
-
     # Aggregate over selected dimensions with provided aggregation function(s)
     data_subset$.__set_data__(
       aggregate_array(data_subset,
@@ -226,96 +218,24 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                       na.rm = TRUE)
     )
 
-    # Create raster and crop if extent is provided. Otherwise, automatic
-    #   cropping via as_raster functionality is used.
-    data_ras <- data_subset %>%
-      as_raster() %>%
-      `if`(
-        !is.null(raster_extent),
-        raster::crop(raster::extend(., y = raster_extent), y = raster_extent),
-        .
-      )
-
     # Check if a main title has been defined if not create by meta data
     if (is.null(dots$main)) {
-
-      # If layer name equals variable name avoid double information
-      if (all(private$.meta$variable == names(data_ras))) {
-        dots$main <- var_title
-      # Else add layer name, e.g. band name
-      } else {
-        dots$main <- paste0(var_title, ": ", gsub("X", "", names(data_ras)))
-      }
+      dots$main <- paste0(descr, " [", unit, "]")
     }
 
-    if (is.null(dots$zlim)) {
-       zlim <- NULL
-    } else {
-       zlim <- dots$zlim
-       dots <- dots[names(dots) != "zlim"]
-    }
-
-    # Set color scale of raster plot
-    if (is.null(dots$col)) {
-      map_col <- rev(grDevices::terrain.colors(255))
-      # Adjust color scale and zlim for plots with positive and negative values.
-      if (length(intersect(
-        which(raster::minValue(data_ras) < -1e-7),
-        which(raster::maxValue(data_ras) > 1e-7)
-      ))) {
-        map_col <- replicate(
-          n = raster::nlayers(data_ras),
-          expr = rev(grDevices::terrain.colors(255)), simplify = FALSE
-        )
-        zlim <- mapply( # nolint:undesirable_function_linter.
-          FUN = c, raster::minValue(data_ras),
-          raster::maxValue(data_ras), SIMPLIFY = FALSE
-        )
-        neg_and_pos <- intersect(
-          which(raster::minValue(data_ras) < 0),
-          which(raster::maxValue(data_ras) > 0)
-        )
-        map_col[neg_and_pos] <-
-          lapply(zlim[neg_and_pos], FUN = create_color_scale) # nolint:undesirable_function_linter
-      }
-    } else {
-      map_col <- dots$col
-      dots <- dots[names(dots) != "col"]
-    }
-
-    nr_nc <- switch(as.character(raster::nlayers(data_ras)), "1" = c(1, 1),
-    "2" = c(1, 2),
-    "3" = c(2, 2),
-    "4" = c(2, 2),
-    "5" = c(2, 3),
-    "6" = c(2, 3),
-    c(3, 3))
-
-    if (is.list(zlim) || is.list(map_col)) {
-       dots <- lapply(seq_len(length(zlim)), function(i, x) lapply(x, "[", i),
-        x = dots
-      )
-      withr::with_par(new = list(mfrow = nr_nc),
-        code = invisible(mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
-          x = lapply(X = seq_len(min(raster::nlayers(data_ras), 9)),
-            FUN = function(x) {
-              return(raster::subset(data_ras, x))
-            }),
-            col = map_col, zlim = zlim, dots = dots))
-      )
-    } else {
-      call_raster_plot(x = data_ras, col = map_col, zlim = zlim, dots = dots)
-    }
+    plot_raster(lpjml_data = data_subset,
+                raster_extent = raster_extent,
+                dots = dots)
   }
 })
 
 
-# Helper function to draw time series plots.
+# Function to create line plots based on lpjml data
 #   TODO: requires refactoring # nolint
-plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
-                         raw_data,
-                         aggregate,
-                         dots) {
+plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
+                       raw_data,
+                       aggregate,
+                       dots) {
   time_dims <- strsplit(lpjml_data$meta$._time_format_, "_")[[1]]
   space_dims <- strsplit(lpjml_data$meta$._space_format_, "_")[[1]]
   dim_names <- names(dim(raw_data))
@@ -553,10 +473,108 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
   }
 }
 
+
+# Function to create raster plots based on lpjml data
+plot_raster <- function(lpjml_data,
+                        raster_extent,
+                        dots) {
+  # Create raster and crop if extent is provided. Otherwise, automatic
+  #   cropping via as_raster functionality is used.
+  data_ras <- lpjml_data %>%
+    as_raster() %>%
+    # Crop and extend to crop data where raster_extent is not covered and extend
+    # again to full raster_extent
+    `if`(
+      !is.null(raster_extent),
+      raster::crop(raster::extend(., y = raster_extent), y = raster_extent),
+      .
+    )
+
+  # If layer name equals variable name avoid double information
+  if (!all(lpjml_data$meta$variable == names(data_ras))) {
+    dots$main <- paste0(dots$main, ": ", gsub("X", "", names(data_ras)))
+  }
+
+  if (is.null(dots$zlim)) {
+      zlim <- NULL
+  } else {
+      zlim <- dots$zlim
+      dots$zlim <- NULL
+  }
+
+  # Set color scale of raster plot
+  if (is.null(dots$col)) {
+    map_col <- rev(grDevices::terrain.colors(255))
+
+    # Adjust color scale and zlim for plots with positive and negative values.
+    if (length(intersect(
+      which(raster::minValue(data_ras) < -1e-7),
+      which(raster::maxValue(data_ras) > 1e-7)
+    ))) {
+      # Create color mapping for 255 colors for every layer
+      map_col <- replicate(
+        n = raster::nlayers(data_ras),
+        expr = rev(grDevices::terrain.colors(255)), simplify = FALSE
+      )
+
+      # Set zlim for negative and positive values
+      zlim <- mapply( # nolint:undesirable_function_linter.
+        FUN = c, raster::minValue(data_ras),
+        raster::maxValue(data_ras), SIMPLIFY = FALSE
+      )
+
+      # Get indices of layers with negative and positive values
+      neg_and_pos <- intersect(
+        which(raster::minValue(data_ras) < 0),
+        which(raster::maxValue(data_ras) > 0)
+      )
+
+      # Use specific colour ramp to layers with negative and positive values
+      map_col[neg_and_pos] <-
+        lapply(zlim[neg_and_pos], FUN = create_color_scale) # nolint:undesirable_function_linter
+    }
+  } else {
+    map_col <- dots$col
+    dots <- dots[names(dots) != "col"]
+  }
+
+  # Set plot arrangement for multiple raster layers
+  nr_nc <- switch(as.character(raster::nlayers(data_ras)), "1" = c(1, 1),
+  "2" = c(1, 2),
+  "3" = c(2, 2),
+  "4" = c(2, 2),
+  "5" = c(2, 3),
+  "6" = c(2, 3),
+  c(3, 3))
+
+
+  # Plot raster for multiple or single layer(s)
+  if (is.list(zlim) || is.list(map_col)) {
+      dots <- lapply(seq_len(length(zlim)), function(i, x) lapply(x, "[", i),
+      x = dots
+    )
+    withr::with_par(new = list(mfrow = nr_nc),
+      code = invisible(mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
+        x = lapply(X = seq_len(min(raster::nlayers(data_ras), 9)),
+          FUN = function(x) {
+            return(raster::subset(data_ras, x))
+          }),
+          col = map_col, zlim = zlim, dots = dots))
+    )
+  } else {
+    call_raster_plot(x = data_ras, col = map_col, zlim = zlim, dots = dots)
+  }
+}
+
+
+# Create color scale for raster plots
 create_color_scale <- function(zlim,
                                breaks = 255) {
   breaks <- breaks - 1
+  # Calculate difference of range for zlim
   min_max <- sum(abs(zlim))
+
+  # Generate colors for negative (neg) and positive (pos) values
   neg <- grDevices::colorRampPalette(rev(c(
     "#f7fbff", "#deebf7",
     "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5",
@@ -568,9 +586,12 @@ create_color_scale <- function(zlim,
     "#a50f15", "#67000d"
   ))(round(breaks * zlim[2] / min_max))
 
+  # Colour bar with negative value colors, 0 = white, and positive value colors
   c(neg, "white", pos)
 }
 
+
+# Wrapper for raster::plot to add country map overlay
 call_raster_plot <- function(x, col, zlim, dots) {
   # do.call to use dots list as ellipsis, addfun is a workaround to use
   # country map overlay for every plot
