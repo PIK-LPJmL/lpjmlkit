@@ -91,7 +91,7 @@ FAIR [@wilson_best_2014; @barker_introducing_2022].
 LPJmL is a well-established dynamic global vegetation model (DGVM), widely used
 in the scientific community.
 A DGVM simulates potential vegetation shifts and associated biogeochemical and
-hydrological cycles in response to changes in climate.
+hydrological cycles in response to changes in climate. [@cramer_global_2001]
 DGVMs are typically used to simulate the effects of future climate change on
 natural vegetation and its carbon and water cycles.
 In this context LPJmL has been used for more than a decade and was employed by
