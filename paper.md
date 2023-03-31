@@ -88,11 +88,14 @@ programming languages are often characterised by a long history and long
 development cycles, that affect operability.
 These models therefore often lack simple and reliable interfaces that are also
 FAIR [@wilson_best_2014; @barker_introducing_2022].
-LPJmL is a well-established dynamic global vegetation,
-hydrological and crop model, widely used in the scientific community.
-
-LPJmL has been used for more than a decade and was employed by researchers
-to conduct numerous studies in various research areas related to the
+LPJmL is a well-established dynamic global vegetation model (DGVM), widely used
+in the scientific community.
+A DGVM simulates potential vegetation shifts and associated biogeochemical and
+hydrological cycles in response to changes in climate.
+DGVMs are typically used to simulate the effects of future climate change on
+natural vegetation and its carbon and water cycles.
+In this context LPJmL has been used for more than a decade and was employed by
+researchers to conduct numerous studies in various research areas related to the
 terrestrial biosphere.
 To this end, the original DGVM LPJ [@Sitch2003] was extended by adding an
 improved representation of the hydrological cycle [@gerten_terrestrial_2004],
