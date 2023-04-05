@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+title: 'lpjmlkit: Toolkit for Basic LPJmL Handling'
+version: 1.1.1
+date-released: '2023-04-05'
+abstract: A collection of basic functions to facilitate the work with the Dynamic
+  Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land (LPJmL) hosted at
+  the Potsdam Institute for Climate Impact Research (PIK). It provides functions for
+  performing LPJmL simulations, as well as reading, processing and writing model-related
+  data such as inputs and outputs or configuration files.
+authors:
+- family-names: Breier
+  given-names: Jannes
+  email: jannesbr@pik-potsdam.de
+  orcid: 0000-0002-9055-6904
+- family-names: Ostberg
+  given-names: Sebastian
+  email: ostberg@pik-potsdam.de
+  orcid: 0000-0002-2368-7015
+- family-names: Wirth
+  given-names: Stephen Björn
+  email: wirth@pik-potsdam.de
+  orcid: 0000-0003-3090-3318
+- family-names: Minoli
+  given-names: Sara
+  email: minoli@pik-potsdam.de
+  orcid: 0000-0001-7920-3107
+- family-names: Stenzel
+  given-names: Fabian
+  email: stenzel@pik-potsdam.de
+  orcid: 0000-0002-5109-0048
+- family-names: Müller
+  given-names: Christoph
+  email: cmueller@pik-potsdam.de
+  orcid: 0000-0002-9491-3550
+license: AGPL-3.0
+repository-code: https://github.com/PIK-LPJmL/lpjmlkit
+doi: 10.5281/zenodo.7773134
+
