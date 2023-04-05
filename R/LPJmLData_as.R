@@ -134,12 +134,14 @@ LPJmLData$set("private",
 #' }
 #'
 #' @md
+#' @importFrom tibble as_tibble
 #' @export
-as_tibble <- function(x,
-                      subset = NULL,
-                      aggregate = NULL,
-                      value_name = "value",
-                      ...) {
+as_tibble.LPJmLData <- function(x,
+                                subset = NULL,
+                                aggregate = NULL,
+                                value_name = "value",
+                                ...) {
+
   y <- x$as_tibble(subset,
                    aggregate,
                    value_name,
@@ -166,11 +168,12 @@ LPJmLData$set("private",
 )
 
 
-#' Coerce an LPJmLData object to a Raster* object
+#' Coerce an LPJmLData object to a raster object
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
-#' \link[raster]{raster} or \link[raster]{brick} object that allows for any
-#' GIS-based raster operations. Read more about the raster package at
+#' [RasterLayer](\link[raster]{raster}) or [RasterBrick](\link[raster]{brick})
+#' object that allows for any GIS-based raster operations.
+#' Read more about the raster package at
 #' <https://rspatial.github.io/raster/reference/raster-package.html>.
 #' The successor package of raster is called terra: <https://rspatial.org/>.
 #'
@@ -311,8 +314,8 @@ LPJmLData$set("private",
 #' Coerce an LPJmLData object to a terra object
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
-#' \link[terra]{rast} object that allows GIS-based raster operations.
-#' Read more about the terra package at <https://rspatial.org/>.
+#' [SpatRaster](\link[terra]{rast}) object that allows GIS-based raster
+#' operations. Read more about the terra package at <https://rspatial.org/>.
 #'
 #' @param x [LPJmLData] object.
 #'
@@ -351,6 +354,7 @@ LPJmLData$set("private",
 #' }
 #'
 #' @md
+#' @aliases as_rast as_SpatRaster
 #' @export
 as_terra <- function(x,
                      subset = NULL,
