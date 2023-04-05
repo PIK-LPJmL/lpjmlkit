@@ -9,6 +9,9 @@
 \arguments{
 \item{x}{\link{LPJmLData} object}
 }
+\value{
+A non-negative integer or numeric (which will be rounded down).
+}
 \description{
 Function to get the length of the data array of an LPJmLData object.
 }

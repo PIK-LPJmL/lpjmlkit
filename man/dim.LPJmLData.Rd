@@ -9,6 +9,10 @@
 \arguments{
 \item{x}{\link{LPJmLData} object}
 }
+\value{
+For the default method, either \code{NULL} or a numeric vector, which is
+coerced to integer (by truncation).
+}
 \description{
 Function to get the dimensions of the data array of an LPJmLData object.
 }

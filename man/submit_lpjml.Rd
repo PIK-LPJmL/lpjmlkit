@@ -39,19 +39,19 @@ submitted. Defaults to \code{"lpjml"}.}
 
 \item{sclass}{Character string defining the job classification. Available
 options at PIK: \code{c("short", "medium", "long", "priority", "standby", "io")}
-More information at \url{https://www.pik-potsdam.de}. Defaults to \code{"short"}.}
+More information at \url{https://www.pik-potsdam.de/en}. Defaults to \code{"short"}.}
 
 \item{ntasks}{Integer defining the number of tasks/threads. More information
-at \url{https://www.pik-potsdam.de} and
+at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com/sbatch.html}. Defaults to \code{256}.}
 
 \item{wtime}{Character string defining the time limit. Setting a lower time
 limit than the maximum runtime for \code{sclass} can reduce the wait time in the
-SLURM job queue. More information at \url{https://www.pik-potsdam.de} and
+SLURM job queue. More information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com/sbatch.html}.}
 
 \item{blocking}{Integer defining the number of cores to be blocked. More
-information at \url{https://www.pik-potsdam.de} and
+information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com/sbatch.html}.}
 
 \item{constraint}{Character string defining nodes with the specified feature.
@@ -117,7 +117,6 @@ account. \cr
 \examples{
 
 \dontrun{
-library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
@@ -128,8 +127,8 @@ sim_path <-"./my_runs"
 my_params <- tibble(
  sim_name = c("scen1", "scen2"),
  random_seed = as.integer(c(42, 404)),
- pftpar.1.name = c("first_tree", NA),
- param.k_temp = c(NA, 0.03),
+  `pftpar[[1]]$name` = c("first_tree", NA),
+  `param$k_temp` = c(NA, 0.03),
  new_phenology = c(TRUE, FALSE)
 )
 
@@ -169,6 +168,8 @@ run_details2
 
 
 # Same but by using the pipe operator
+library(magrittr)
+
 run_details <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = as.integer(c(1, 42)),

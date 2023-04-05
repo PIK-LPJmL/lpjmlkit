@@ -81,7 +81,6 @@ Also be aware that the order of the supplied config files is important
 \examples{
 
 \dontrun{
-library(lpjmlkit)
 library(tibble)
 
 model_path <- "./LPJmL_internal"
@@ -90,11 +89,11 @@ sim_path <-"./my_runs"
 # Basic usage
 my_params1 <- tibble(
   sim_name = c("scen1", "scen2"),
-  startgrid = c(27410, 27410)
+  startgrid = c(27410, 27410),
   river_routing = c(FALSE, FALSE),
   random_seed = c(42, 404),
-  pftpar.1.name = c("first_tree", NA),
-  param.k_temp = c(NA, 0.03),
+  `pftpar[[1]]$name` = c("first_tree", NA),
+  `param$k_temp` = c(NA, 0.03),
   new_phenology = c(TRUE, FALSE)
 )
 
@@ -117,7 +116,7 @@ run_details1
 #   parameters than in previous example)
 my_params2 <- tibble(
   sim_name = c("scen1", "scen2"),
-  startgrid = c(27410, 27410)
+  startgrid = c(27410, 27410),
   river_routing = c(FALSE, FALSE),
   random_seed = c(42, 404),
   dependency = c(NA, "scen1_spinup")
@@ -135,6 +134,8 @@ run_details2
 
 
 # Same but by using the pipe operator
+library(magrittr)
+
 run_details2 <- tibble(
   sim_name = c("scen1_spinup", "scen1_transient"),
   random_seed = as.integer(c(1, 42)),

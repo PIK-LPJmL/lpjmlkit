@@ -171,7 +171,7 @@
 #'      `sim_name`.
 #'    * `"./restart"` to store the restart files within subdirectories for each
 #'      `sim_name`.
-#' * The "." syntax (e.g. `"pftpar.1.name"`) allows to create column names and
+#' * The list syntax (e.g. `pftpar[[1]]$name`) allows to create column names and
 #'   thus keys for accessing values in the config json.
 #' * The column `"sim_name"` is mandatory (used as an identifier).
 #' * The run parameter `"dependency"` is optional but enables interdependent
@@ -186,7 +186,6 @@
 #' @examples
 #' \dontrun{
 #' library(tibble)
-#' library(lpjmlkit)
 #'
 #' model_path <- "./LPJmL_internal"
 #' sim_path <-"./my_runs"
@@ -558,7 +557,7 @@ parse_config <- function(path,
                          macro = "") {
 
    # processx::run kills any occuring subprocesses to avoid fork bombs.
-   tmp_json <- processx::run(command = "sh", # nolint:object_usage_linter.
+   tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
                              args = c(
                                "-c",
                                paste0("cpp -P ./",
@@ -886,7 +885,7 @@ call_by_points <- function(x, colname, param_value, all_keys) {
 
       # Character strings must be in quotes
       if (!grepl("^[0-9]*$", x) && x %in% all_keys) {
-        x <- dQuote(x)
+        x <- dQuote(x, q = FALSE)
       } else if (!grepl("^[0-9]*$", x)) {
         stop(
           col_var(colname),

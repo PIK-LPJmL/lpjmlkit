@@ -5,13 +5,13 @@ test_that("Write LPJmL file header", {
 
   # Test for invalid headers.
   header <- "test"
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "invalid structure.+list with elements"
   )
 
   header <- list(name = "LPJTEST")
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "invalid structure.+list with elements"
   )
@@ -36,28 +36,28 @@ test_that("Write LPJmL file header", {
     endian = .Platform$endian
   )
   # Test for error about order = NA
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "NA.+order"
   )
 
   # Test for error about scalar.
   header[["header"]]["order"] <- 1
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "NA.+scalar"
   )
 
   # Test for error about datatype.
   header[["header"]]["scalar"] <- 1
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "NA.+datatype"
   )
 
   # Test for error about nstep
   header[["header"]]["datatype"] <- 1
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "NA.+nstep"
   )
@@ -83,7 +83,7 @@ test_that("Write LPJmL file header", {
   )
   # Test that created file has expected size
   # Write header to file.
-  testthat::expect_warning(
+  expect_warning(
     write_header(header_file, header),
     NA
   )
@@ -95,14 +95,14 @@ test_that("Write LPJmL file header", {
   )
 
   # Test if attempting to overwrite existing file fails.
-  testthat::expect_error(
+  expect_error(
     write_header(header_file, header),
     "exists already"
   )
 
   # Test if overwriting existing file can be done if setting overwrite to TRUE,
   # with warning
-  testthat::expect_warning(
+  expect_warning(
     write_header(header_file, header, overwrite = TRUE),
     "exists already"
   )
@@ -110,7 +110,7 @@ test_that("Write LPJmL file header", {
   # Change to version 3.
   header <- set_header_item(header, version = 3, verbose = FALSE)
   file.remove(header_file)
-  testthat::expect_warning(
+  expect_warning(
     write_header(header_file, header),
     NA
   )
@@ -124,7 +124,7 @@ test_that("Write LPJmL file header", {
   # Change to version 2.
   header <- set_header_item(header, version = 2, verbose = FALSE)
   file.remove(header_file)
-  testthat::expect_warning(
+  expect_warning(
     write_header(header_file, header),
     NA
   )
@@ -138,7 +138,7 @@ test_that("Write LPJmL file header", {
   # Change to version 1.
   header <- set_header_item(header, version = 1, verbose = FALSE)
   file.remove(header_file)
-  testthat::expect_warning(
+  expect_warning(
     write_header(header_file, header),
     NA
   )

@@ -1,20 +1,20 @@
 ## Overview
 
-### **[LPJmL Runner &#127939;](./vignettes/lpjml-runner.md)**  to perform LPJmL simulations
+### **LPJmL Runner &#127939;**  to perform LPJmL simulations
    *LPJmL Runner only supports appropriately configured Unix-based operating systems.*
-- &#9997; [`write_config()`](./vignettes/lpjml-runner.md#1-clipboard-define-a-table-of-modified-configuration-parameters) write config.json files using a data frame with parameters to be changed and a base configuration file
-- &#128269; [`check_config()`](./vignettes/lpjml-runner.md#2-writing_hand-create-corresponding-configuration-files) check if generated config.json files are valid for LPJmL simulations
-- &#9654; [`run_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) run LPJmL directly (e.g. single cell simulations) or &#128640; [`submit_lpjml()`](./vignettes/lpjml-runner.md#4-arrow_forward-run-or-rocket-submit-lpjml) to SLURM (e.g. global simulations)
+- &#9997; `write_config()` write config.json files using a data frame with parameters to be changed and a base configuration file
+- &#128269; `check_config()` check if generated config.json files are valid for LPJmL simulations
+- &#9654; `run_lpjml()` run LPJmL directly (e.g. single cell simulations) or &#128640; `submit_lpjml()` to SLURM (e.g. global simulations)
 
 
-### **[LPJmL Data &#128190;](./vignettes/lpjml-data.md)** for reading and processing LPJmL data
-- [`read_io()`](./vignettes/lpjml-data.md#1-book-data-reading-function-read_io) read LPJmL input and output as a [`LPJmLData`](/vignettes/lpjml-data.md#2-file_folder-data-class-lpjmldata) object, containing the data array and LPJmLMetaData
-    - &#128200; [`plot()`](./vignettes/lpjml-data.md#3-chart_with_upwards_trend-base-stats-of-lpjmldata-objects) the data or get insights via [`summary()`](./vignettes/lpjml-data.md#3-chart_with_upwards_trend-base-stats-of-lpjmldata-objects) and other base stats
-    - &#128257; [`transform()`](./vignettes/lpjml-data.md#4-pencil2-modify-lpjmldata-objects) it to other time and space formats
-    - &#9986; [`subset()`](./vignettes/lpjml-data.md#4-pencil2-modify-lpjmldata-objects) the underlying data
-    - &#128230; [`as_array()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects), [`as_tibble()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects) and [`as_raster()` / `as_terra()`](./vignettes/lpjml-data.md#5-package-export-lpjmldata-objects) to export into common R data formats
+### **LPJmL Data &#128190;** for reading and processing LPJmL data
+- `read_io()` read LPJmL input and output as a `LPJmLData` object, containing the data array and LPJmLMetaData
+    - &#128200; `plot()` the data or get insights via `summary()` and other base stats
+    - &#128257; `transform()` it to other time and space formats
+    - &#9986; `subset()` the underlying data
+    - &#128230; `as_array()`, `as_tibble()` and `as_raster()` / `as_terra()` to export into common R data formats
 
-- [`read_meta()`](./vignettes/lpjml-data.md#miscellaneous) read meta or header files as [`LPJmLMetaData`](./vignettes/lpjml-data.md#miscellaneous) object
+- `read_meta()` read meta or header files as `LPJmLMetaData` object
 
 ### **miscellaneous**
 - `calc_cellarea()` to calculate the area of LPJmLData objects underlying grid

@@ -65,7 +65,6 @@
 #' @examples
 #'
 #' \dontrun{
-#' library(lpjmlkit)
 #' library(tibble)
 #'
 #' model_path <- "./LPJmL_internal"
@@ -74,11 +73,11 @@
 #' # Basic usage
 #' my_params1 <- tibble(
 #'   sim_name = c("scen1", "scen2"),
-#'   startgrid = c(27410, 27410)
+#'   startgrid = c(27410, 27410),
 #'   river_routing = c(FALSE, FALSE),
 #'   random_seed = c(42, 404),
-#'   pftpar.1.name = c("first_tree", NA),
-#'   param.k_temp = c(NA, 0.03),
+#'   `pftpar[[1]]$name` = c("first_tree", NA),
+#'   `param$k_temp` = c(NA, 0.03),
 #'   new_phenology = c(TRUE, FALSE)
 #' )
 #'
@@ -101,7 +100,7 @@
 #' #   parameters than in previous example)
 #' my_params2 <- tibble(
 #'   sim_name = c("scen1", "scen2"),
-#'   startgrid = c(27410, 27410)
+#'   startgrid = c(27410, 27410),
 #'   river_routing = c(FALSE, FALSE),
 #'   random_seed = c(42, 404),
 #'   dependency = c(NA, "scen1_spinup")
@@ -119,6 +118,8 @@
 #'
 #'
 #' # Same but by using the pipe operator
+#' library(magrittr)
+#'
 #' run_details2 <- tibble(
 #'   sim_name = c("scen1_spinup", "scen1_transient"),
 #'   random_seed = as.integer(c(1, 42)),
@@ -152,6 +153,8 @@ run_lpjml <- function(x,
                       write_stdout = FALSE,
                       raise_error = TRUE,
                       output_path = NULL) {
+
+  warn_runner_os("run_lpjml")
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
@@ -271,7 +274,7 @@ do_run <- function(sim_name,
     cat(paste0("View output at \"", stdout_file, "\"\n"))
   }
 
-  processx::run(command = "sh",
+  processx::run(command = "bash",
                 args = c("-c", inner_command),
                 stdout = stdout_file,
                 stderr = ifelse(write_stdout,

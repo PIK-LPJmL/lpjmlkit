@@ -134,11 +134,29 @@ get_git_urlhash <- function(path = ".",
 
 # Function checks and returns whether SLURM is available
 is_slurm_available <- function() {
-  processx::run(command = "sh",
+  processx::run(command = "bash",
                 args = c("-c", "sinfo"),
                 error_on_status = FALSE) %>%
   .$status == 0 %>%
     return()
+}
+
+
+# Warn if OS is windows and thus not unix-based (ignoring other non unix based
+# OS)
+warn_runner_os <- function(fun_name) {
+  if (is_os_windows()) {
+    warning(
+      "`", fun_name, "()` is not supported on non-Unix-based operating systems."
+    )
+  }
+}
+
+
+# Check if OS is Windows
+is_os_windows <- function() {
+  # Check if operating system is Windows
+  ifelse(tolower(Sys.info()[["sysname"]]) == "windows", TRUE, FALSE)
 }
 
 
