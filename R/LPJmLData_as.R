@@ -134,8 +134,9 @@ LPJmLData$set("private",
 #' }
 #'
 #' @md
-#' @exportS3Method tibble::as_tibble
-as_tibble.LPJmLData <- function(x, # nolint
+#' @importFrom tibble as_tibble
+#' @export
+as_tibble.LPJmLData <- function(x,
                                 subset = NULL,
                                 aggregate = NULL,
                                 value_name = "value",

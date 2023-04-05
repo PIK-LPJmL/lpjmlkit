@@ -4,13 +4,7 @@
 \alias{as_tibble.LPJmLData}
 \title{Coerce an LPJmLData object to a tibble}
 \usage{
-as_tibble.LPJmLData(
-  x,
-  subset = NULL,
-  aggregate = NULL,
-  value_name = "value",
-  ...
-)
+\method{as_tibble}{LPJmLData}(x, subset = NULL, aggregate = NULL, value_name = "value", ...)
 }
 \arguments{
 \item{x}{\link{LPJmLData} object}
