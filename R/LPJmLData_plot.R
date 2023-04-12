@@ -19,6 +19,8 @@
 #' @param ... Arguments passed to \link[graphics]{plot} and
 #'   \link[raster]{plot}
 #'
+#' @return No return value; called for side effects.
+#'
 #'@details
 #'Depending on the dimensions of the [LPJmLData] object's internal data array
 #' the plot will be a ...
@@ -85,6 +87,9 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
               function(subset = NULL,
                        aggregate = NULL,
                        raster_extent = NULL,
+                       # only to prevent a bug that sub ist interpreted as
+                       # subset by R
+                       sub = NULL,
                        ...) {
 
   time_dims <- strsplit(private$.meta$._time_format_, "_")[[1]]
@@ -104,26 +109,24 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                                    time_dims,
                                    "band"))) {
     stop(
-      paste0(
-        "\u001b[0m",
-        "Undefined aggregation dimension ",
-        "\u001b[34m",
-        paste0(names(aggregate), collapse = ", "),
-        "\u001b[0m",
-        " supplied.\nMust be one of ",
-        "\u001b[34m",
-        paste0(space_dims, collapse = ", "),
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        paste0(time_dims, collapse = ", "),
-        "\u001b[0m",
-        " or ",
-        "\u001b[34m",
-        "band",
-        "\u001b[0m",
-        ".\n"
-      )
+      "\u001b[0m",
+      "Undefined aggregation dimension ",
+      "\u001b[34m",
+      paste0(names(aggregate), collapse = ", "),
+      "\u001b[0m",
+      " supplied.\nMust be one of ",
+      "\u001b[34m",
+      paste0(space_dims, collapse = ", "),
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      paste0(time_dims, collapse = ", "),
+      "\u001b[0m",
+      " or ",
+      "\u001b[34m",
+      "band",
+      "\u001b[0m",
+      ".\n"
     )
   }
 
@@ -149,6 +152,9 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     # Add default axis labels to plot
     var_title <- paste0(descr, " [", unit, "]")
 
+    if (!is.null(sub))
+      dots$sub <- sub
+
     if (is.null(dots$ylab)) {
       dots$ylab <- ifelse(is.null(dots$main), "", var_title)
     }
@@ -162,16 +168,14 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                                  aggregate_list = aggregate,
                                  na.rm = TRUE)
 
-    plot_by_band(lpjml_data = data_subset,
-                 raw_data = data_only,
-                 aggregate = aggregate,
-                 dots = dots)
+    plot_lines(lpjml_data = data_subset,
+               raw_data = data_only,
+               aggregate = aggregate,
+               dots = dots)
     message(
-      paste0(
-        "\u001b[33;3m",
-        "Note: spatial aggregation is not weighted by grid area.",
-        "\u001b[0m"
-      )
+      "\u001b[33;3m",
+      "Note: spatial aggregation is not weighted by grid area.",
+      "\u001b[0m"
     )
 
   # Plot map(s) for temporal aggregation or aggregation by band
@@ -199,17 +203,12 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
     # (only 9 can be visualized well)
     if (z_dim %in% names(dim(data_subset)) && dim(data_subset)[z_dim] > 9) {
       data_subset$.__set_data__(
-        subset_array(data_subset$data,
-                     as.list(stats::setNames(list(seq_len(9)), z_dim)))
+        subset_array(
+          data_subset$data,
+          as.list(stats::setNames(list(seq_len(9)), z_dim)),
+          drop = FALSE
+        )
       )
-    }
-
-    # Create plot title if not provided
-    if (is.null(dots$main)) {
-      var_title <- paste0(descr, " [", unit, "]")
-    } else {
-      var_title <- dots$main
-      dots$main <- NULL
     }
 
     # Aggregate over selected dimensions with provided aggregation function(s)
@@ -219,66 +218,63 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                       na.rm = TRUE)
     )
 
-    # Create raster and crop if extent is provided. Otherwise, automatic
-    #   cropping via as_raster functionality is used.
-    data_ras <- data_subset %>%
-      as_raster() %>%
-      `if`(!is.null(raster_extent), raster::crop(., y = raster_extent), .)
+    # Check if a main title has been defined if not create by meta data
+    if (is.null(dots$main)) {
+      dots$main <- paste0(descr, " [", unit, "]")
+    }
 
-    # do.call to use dots list as ellipsis, addfun is a workaround to use
-    #   country map overlay for every plot
-    do.call(raster::plot,
-            c(list(x = data_ras,
-                   main = paste0(var_title, ": ", gsub("X", "", names(data_ras))), # nolint
-                   addfun = function() maps::map(add = TRUE, lwd = 0.3)),
-              dots))
+    plot_raster(lpjml_data = data_subset,
+                raster_extent = raster_extent,
+                dots = dots)
   }
 })
 
 
-# Helper function to draw time series plots.
+# Function to create line plots based on lpjml data
 #   TODO: requires refactoring # nolint
-plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
-                         raw_data,
-                         aggregate,
-                         dots) {
+plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
+                       raw_data,
+                       aggregate,
+                       dots) {
   time_dims <- strsplit(lpjml_data$meta$._time_format_, "_")[[1]]
   space_dims <- strsplit(lpjml_data$meta$._space_format_, "_")[[1]]
   dim_names <- names(dim(raw_data))
 
   if (length(which(dim(raw_data) > 2)) > 2) {
     stop(
-      paste0(
-        "\u001b[0m",
-        "Too many dimensions for 2D time series plot. Please reduce ",
-        "\u001b[34m",
-        paste0(dim_names, collapse = ", "),
-        "\u001b[0m",
-        " to 2.\nMust be at least one temporal dimension (x axis) of ",
-        "\u001b[34m",
-        paste0(time_dims, collapse = ", "),
-        "\u001b[0m",
-        ", and could be ",
-        "\u001b[34m",
-        "band",
-        "\u001b[0m ",
-        "or a temporal dimension, e.g. \u001b[34mmonth\u001b[0m for the y axis",
-        ".\n"
-      )
+      "\u001b[0m",
+      "Too many dimensions for 2D time series plot. Please reduce ",
+      "\u001b[34m",
+      paste0(dim_names, collapse = ", "),
+      "\u001b[0m",
+      " to 2.\nMust be at least one temporal dimension (x axis) of ",
+      "\u001b[34m",
+      paste0(time_dims, collapse = ", "),
+      "\u001b[0m",
+      ", and could be ",
+      "\u001b[34m",
+      "band",
+      "\u001b[0m ",
+      "or a temporal dimension, e.g. \u001b[34mmonth\u001b[0m for the y axis",
+      ".\n"
     )
   } else if (length(dim(raw_data)) < 2) {
-    stop(paste0("Only one dimensional data supplied. Data must have two ",
-                "dimensions with a minimum of one temporal dimension."))
+    stop(
+      "Only one dimensional data supplied. Data must have two ",
+      "dimensions with a minimum of one temporal dimension."
+    )
   }
 
   if (!any(time_dims %in% dim_names) &&
       (lpjml_data$meta$._space_format_ == "cell" ||
        any(space_dims %in% names(aggregate)))) {
-    stop(paste0("At least one temporal dimension of ",
-                "\u001b[34m",
-                 paste0(time_dims, collapse = ", "),
-                 "\u001b[0m",
-                 " has to be provided by the data."))
+    stop(
+      "At least one temporal dimension of ",
+      "\u001b[34m",
+       paste0(time_dims, collapse = ", "),
+       "\u001b[0m",
+       " has to be provided by the data."
+      )
   }
 
   # Hierarchical ordering of what to display on the x axis
@@ -343,123 +339,128 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   # Check if a supported plot type is supplied.
   if (dots$type %in% c("h", "S", "s")) {
-    stop(cat(
-      paste0(
-        "\u001b[0m",
-        "Unsupported plot type ",
-        "\u001b[34m",
-        dots$type,
-        "\u001b[0m",
-        " supplied.\nMust be one of ",
-        "\u001b[34m",
-        "p",
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        "l",
-        "\u001b[34m",
-        "b",
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        "c",
-        "\u001b[0m",
-        ", ",
-        "\u001b[34m",
-        "o",
-        "\u001b[0m",
-        ", ",
-        "\u001b[0m",
-        " or ",
-        "\u001b[34m",
-        "n",
-        "\u001b[0m",
-        ".\n"
+    stop(
+      "\u001b[0m",
+      "Unsupported plot type ",
+      "\u001b[34m",
+      dots$type,
+      "\u001b[0m",
+      " supplied.\nMust be one of ",
+      "\u001b[34m",
+      "p",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "l",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "b",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "c",
+      "\u001b[0m",
+      ", ",
+      "\u001b[34m",
+      "o",
+      "\u001b[0m",
+      ", ",
+      "\u001b[0m",
+      " or ",
+      "\u001b[34m",
+      "n",
+      "\u001b[0m",
+      "."
+    )
+  }
+
+  withr::with_par(
+    new = list(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE),
+    code = {
+      do.call(
+        graphics::plot,
+        c(
+          x = list(subset_array(
+            raw_data,
+            as.list(stats::setNames(1, legend_dim))
+          )),
+          col = cols[1],
+          dots
+        )
       )
-    ))
-  }
 
-  opar <- graphics::par(mar = c(12.1, 4.1, 4.1, 4.1), xpd = TRUE) # nolint:undesirable_function_linter.
+      # Set breaks depending on length of time series
+      if (x_dim %in% c("time", "year")) {
+        if (lpjml_data$meta$nyear > 100) {
+          brks <- 20
+        } else if (lpjml_data$meta$nyear > 50) {
+          brks <- 10
+        } else if (lpjml_data$meta$nyear > 25) {
+          brks <- 5
+        } else if (lpjml_data$meta$nyear > 10) {
+          brks <- 2
+        } else {
+          brks <- 1
+        }
 
-  # do.call for use of ellipsis via dots list.
-  #   subset_array for dynamic subsetting of flexible legend_dim.
-  do.call(graphics::plot,
-          c(x = list(subset_array(raw_data,
-                                  as.list(stats::setNames(1, legend_dim)))),
-            col = cols[1],
-            dots))
+        # Set nstep only if time dimension, leads to month inbetween years
+        #   if lpjml_data$meta$nstep > 1
+        nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
 
-  # Set breaks depending on length of time series
-  if (x_dim %in% c("time", "year")) {
-    if (lpjml_data$meta$nyear > 100) {
-      brks <- 20
-    } else if (lpjml_data$meta$nyear > 50) {
-      brks <- 10
-    } else if (lpjml_data$meta$nyear > 25) {
-      brks <- 5
-    } else if (lpjml_data$meta$nyear > 10) {
-      brks <- 2
-    } else {
-      brks <- 1
+        # set tickmarks and label for time or year dim
+        at_ticks <- seq(1,
+                        lpjml_data$meta$nyear * nstep,
+                        by = brks * nstep)
+
+        graphics::axis(side = 1,
+                      at = at_ticks,
+                      labels = dimnames(raw_data)[[x_dim]][at_ticks])
+      }
+
+      for (i in cols[-1]) {
+
+      # subset_array for dynamic subsetting of flexible legend_dim
+        graphics::lines(subset_array(raw_data,
+                                    as.list(stats::setNames(i, legend_dim))),
+                        col = cols[i],
+                        type = dots$type)
+      }
+
+      # Calculate length of longest string in legend to not overlap
+      char_len <- dimnames(raw_data)[[legend_dim]] %>%
+        .[which.max(nchar(.))]
+
+      # Legend at the bottom left side of the graphic device.
+      #   Calculations ensure placement within margins.
+      # TODO: replace with withr::with_par for temporarily changing pars # nolint
+      graphics::legend(
+        x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
+        y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
+          graphics::par("plt")[3] * # nolint:undesirable_function_linter.
+          ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
+            (
+              grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
+                                                graphics::par("plt")[3]) # nolint:undesirable_function_linter.
+            )
+          ),
+        y.intersp = 1.5,
+        title = tools::toTitleCase(legend_dim),
+        ncol = 2,
+        text.width = graphics::strwidth(char_len) * 2,
+        col = cols,
+        lty = unlist(ifelse(
+          dots$type %in% c("l", "b", "c", "o"),
+          list(rep(1, legend_length)), list(NULL)
+        )),
+        pch = unlist(ifelse(
+          dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
+        )),
+        legend = dimnames(raw_data)[[legend_dim]][cols],
+        bty = "n"
+      )
     }
-
-    # Set nstep only if time dimension, leads to month inbetween years
-    #   if lpjml_data$meta$nstep > 1
-    nstep <- ifelse(x_dim == "time", lpjml_data$meta$nstep, 1)
-
-    # set tickmarks and label for time or year dim
-    at_ticks <- seq(1,
-                    lpjml_data$meta$nyear * nstep,
-                    by = brks * nstep)
-
-    graphics::axis(side = 1,
-                   at = at_ticks,
-                   labels = dimnames(raw_data)[[x_dim]][at_ticks])
-  }
-
-  for (i in cols[-1]) {
-
-  # subset_array for dynamic subsetting of flexible legend_dim
-    graphics::lines(subset_array(raw_data,
-                                 as.list(stats::setNames(i, legend_dim))),
-                    col = cols[i],
-                    type = dots$type)
-  }
-
-  # Calculate length of longest string in legend to not overlap
-  char_len <- dimnames(raw_data)[[legend_dim]] %>%
-    .[which.max(nchar(.))]
-
-  # Legend at the bottom left side of the graphic device.
-  #   Calculations ensure placement within margins.
-  # TODO: replace with withr::with_par for temporarily changing pars # nolint
-  graphics::legend(
-    x = graphics::par("usr")[1], # nolint:undesirable_function_linter.
-    y = graphics::par("usr")[3] - 0.6 * grDevices::dev.size("px")[2] * # nolint:undesirable_function_linter.
-      graphics::par("plt")[3] * # nolint:undesirable_function_linter.
-      ((graphics::par("usr")[4] - graphics::par("usr")[3]) / # nolint:undesirable_function_linter.
-         (
-           grDevices::dev.size("px")[2] * (graphics::par("plt")[4] - # nolint:undesirable_function_linter.
-                                             graphics::par("plt")[3]) # nolint:undesirable_function_linter.
-         )
-      ),
-    y.intersp = 1.5,
-    title = tools::toTitleCase(legend_dim),
-    ncol = 2,
-    text.width = graphics::strwidth(char_len) * 2,
-    col = cols,
-    lty = unlist(ifelse(
-      dots$type %in% c("l", "b", "c", "o"),
-      list(rep(1, legend_length)), list(NULL)
-    )),
-    pch = unlist(ifelse(
-      dots$type %in% c("p", "b", "o"), list(rep(1, legend_length)), list(NULL)
-    )),
-    legend = dimnames(raw_data)[[legend_dim]][cols],
-    bty = "n"
   )
-  graphics::par(opar) %>% invisible() # nolint:undesirable_function_linter.
-
   # Create grid, special case for time, year because of specified x axis
   if (x_dim %in% c("time", "year")) {
     graphics::abline(v = at_ticks,
@@ -470,4 +471,147 @@ plot_by_band <- function(lpjml_data, # nolint:cyclocomp_linter.
   } else {
     graphics::grid()
   }
+}
+
+
+# Function to create raster plots based on lpjml data
+plot_raster <- function(lpjml_data,
+                        raster_extent,
+                        dots) {
+  # Create raster and crop if extent is provided. Otherwise, automatic
+  #   cropping via as_raster functionality is used.
+  data_ras <- lpjml_data %>%
+    as_raster() %>%
+    # Crop and extend to crop data where raster_extent is not covered and extend
+    # again to full raster_extent
+    `if`(
+      !is.null(raster_extent),
+      raster::crop(raster::extend(., y = raster_extent), y = raster_extent),
+      .
+    )
+
+  # If layer name equals variable name avoid double information
+  if (!all(lpjml_data$meta$variable == names(data_ras))) {
+    dots$main <- paste0(dots$main, ": ", gsub("X", "", names(data_ras)))
+  }
+
+  if (is.null(dots$zlim)) {
+      zlim <- NULL
+  } else {
+      zlim <- dots$zlim
+      dots$zlim <- NULL
+  }
+
+  # Set color scale of raster plot
+  if (is.null(dots$col)) {
+    map_col <- rev(grDevices::terrain.colors(255))
+
+    # Adjust color scale and zlim for plots with positive and negative values.
+    if (length(intersect(
+      which(raster::minValue(data_ras) < -1e-7),
+      which(raster::maxValue(data_ras) > 1e-7)
+    ))) {
+      # Create color mapping for 255 colors for every layer
+      map_col <- replicate(
+        n = raster::nlayers(data_ras),
+        expr = rev(grDevices::terrain.colors(255)), simplify = FALSE
+      )
+
+      # Set zlim for negative and positive values
+      zlim <- mapply( # nolint:undesirable_function_linter.
+        FUN = c, raster::minValue(data_ras),
+        raster::maxValue(data_ras), SIMPLIFY = FALSE
+      )
+
+      # Get indices of layers with negative and positive values
+      neg_and_pos <- intersect(
+        which(raster::minValue(data_ras) < 0),
+        which(raster::maxValue(data_ras) > 0)
+      )
+
+      # Use specific colour ramp to layers with negative and positive values
+      map_col[neg_and_pos] <-
+        lapply(zlim[neg_and_pos], FUN = create_color_scale) # nolint:undesirable_function_linter
+    }
+  } else {
+    map_col <- dots$col
+    dots$col <- NULL
+  }
+
+  # Set plot arrangement for multiple raster layers
+  nr_nc <- switch(as.character(raster::nlayers(data_ras)), "1" = c(1, 1),
+  "2" = c(1, 2),
+  "3" = c(2, 2),
+  "4" = c(2, 2),
+  "5" = c(3, 2),
+  "6" = c(3, 2),
+  c(3, 3))
+
+  # Plot raster for multiple or single layer(s)
+  if (is.list(zlim) || is.list(map_col)) {
+    dots <- lapply(
+      seq_len(length(zlim)),
+      function(i, x) lapply(x, "[", i),
+      x = dots
+    )
+    withr::with_par(new = list(mfrow = nr_nc),
+      code = invisible(
+        mapply(FUN = call_raster_plot, # nolint:undesirable_function_linter.
+          x = lapply(
+            X = seq_len(min(raster::nlayers(data_ras), 9)),
+            FUN = function(x) {
+              return(raster::subset(data_ras, x))
+            }
+          ),
+          col = map_col, zlim = zlim, dots = dots
+        )
+      )
+    )
+  } else {
+    dots$nc <- nr_nc[2]
+    dots$nr <- nr_nc[1]
+    call_raster_plot(x = data_ras, col = map_col, zlim = zlim, dots = dots)
+  }
+}
+
+
+# Create color scale for raster plots
+create_color_scale <- function(zlim,
+                               breaks = 255) {
+  breaks <- breaks - 1
+  # Calculate difference of range for zlim
+  min_max <- sum(abs(zlim))
+
+  # Generate colors for negative (neg) and positive (pos) values
+  neg <- grDevices::colorRampPalette(rev(c(
+    "#f7fbff", "#deebf7",
+    "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5",
+    "#08519c", "#08306b"
+  )))(round(breaks * abs(zlim[1]) / min_max))
+  pos <- grDevices::colorRampPalette(c(
+    "#fff5f0", "#fee0d2",
+    "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d",
+    "#a50f15", "#67000d"
+  ))(round(breaks * zlim[2] / min_max))
+
+  # Colour bar with negative value colors, 0 = white, and positive value colors
+  c(neg, "white", pos)
+}
+
+
+# Wrapper for raster::plot to add country map overlay
+call_raster_plot <- function(x, col, zlim, dots) {
+  # do.call to use dots list as ellipsis, addfun is a workaround to use
+  # country map overlay for every plot
+  do.call(
+    raster::plot,
+    c(
+      list(
+        x = x,
+        addfun = function() maps::map(add = TRUE, lwd = 0.3),
+        col = col, zlim = zlim
+      ),
+      dots
+    )
+  )
 }

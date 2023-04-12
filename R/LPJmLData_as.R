@@ -91,7 +91,9 @@ LPJmLData$set("private",
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
 #' \link[tibble]{tibble} (modern \link[base]{data.frame}). Read more about
-#' tibbles at <https://r4ds.had.co.nz/tibbles.html)>.
+#' tibbles at <https://r4ds.had.co.nz/tibbles.html>.
+#' Please make sure to call `lpjmlkit::as_tibble()` explicitly when also using
+#' the tidyverse packages tibble or dplyr.
 #'
 #' @param x [LPJmLData] object
 #'
@@ -132,12 +134,14 @@ LPJmLData$set("private",
 #' }
 #'
 #' @md
+#' @importFrom tibble as_tibble
 #' @export
-as_tibble <- function(x,
-                      subset = NULL,
-                      aggregate = NULL,
-                      value_name = "value",
-                      ...) {
+as_tibble.LPJmLData <- function(x,
+                                subset = NULL,
+                                aggregate = NULL,
+                                value_name = "value",
+                                ...) {
+
   y <- x$as_tibble(subset,
                    aggregate,
                    value_name,
@@ -158,17 +162,18 @@ LPJmLData$set("private",
     data %>%
       reshape2::melt(value.name = value_name) %>%
       tibble::as_tibble() %>%
-      dplyr::mutate(across(names(dimnames(data)), as.factor)) %>%
+      dplyr::mutate(dplyr::across(names(dimnames(data)), as.factor)) %>%
       return()
   }
 )
 
 
-#' Coerce an LPJmLData object to a Raster* object
+#' Coerce an LPJmLData object to a raster object
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
-#' \link[raster]{raster} or \link[raster]{brick} object that allows for any
-#' GIS-based raster operations. Read more about the raster package at
+#' [RasterLayer](\link[raster]{raster}) or [RasterBrick](\link[raster]{brick})
+#' object that allows for any GIS-based raster operations.
+#' Read more about the raster package at
 #' <https://rspatial.github.io/raster/reference/raster-package.html>.
 #' The successor package of raster is called terra: <https://rspatial.org/>.
 #'
@@ -284,14 +289,21 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
+      if (is.array(data_subset$data)) {
+        tmp_data <- aperm(
+          data_subset$data,
+          perm = c("cell", setdiff(names(dim(data_subset)), "cell"))
+        )
+      } else {
+        tmp_data <- data_subset$data
+      }
       tmp_raster[
         raster::cellFromXY(
           tmp_raster,
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell")))
+      ] <- tmp_data
     }
 
     return(tmp_raster)
@@ -302,8 +314,8 @@ LPJmLData$set("private",
 #' Coerce an LPJmLData object to a terra object
 #'
 #' Function to coerce (convert) an [`LPJmLData`] object into a
-#' \link[terra]{rast} object that allows GIS-based raster operations.
-#' Read more about the terra package at <https://rspatial.org/>.
+#' [SpatRaster](\link[terra]{rast}) object that allows GIS-based raster
+#' operations. Read more about the terra package at <https://rspatial.org/>.
 #'
 #' @param x [LPJmLData] object.
 #'
@@ -342,6 +354,7 @@ LPJmLData$set("private",
 #' }
 #'
 #' @md
+#' @aliases as_rast as_SpatRaster
 #' @export
 as_terra <- function(x,
                      subset = NULL,
@@ -423,15 +436,21 @@ LPJmLData$set("private",
       }
 
       # Add values of raster cells by corresponding coordinates (lon, lat)
+      if (is.array(data_subset$data)) {
+        tmp_data <- aperm(
+          data_subset$data,
+          perm = c("cell", setdiff(names(dim(data_subset)), "cell"))
+        ) %>% drop()
+      } else {
+        tmp_data <- data_subset$data
+      }
       tmp_rast[
         terra::cellFromXY(
           tmp_rast,
           cbind(subset_array(data_subset$grid$data, list(band = "lon")),
                 subset_array(data_subset$grid$data, list(band = "lat")))
         )
-      ] <- aperm(data_subset$data,
-                 perm = c("cell", setdiff(names(dim(data_subset)), "cell"))) %>%
-      drop()
+      ] <- tmp_data
     }
 
     # Assign units (meta data)
@@ -471,9 +490,11 @@ LPJmLData$set("private",
       )
 
     } else if (!is.null(aggregate)) {
-      stop(paste("Only non-spatial and existing dimensions are valid for",
-                 "aggregate. Please adjust",
-                 toString(dQuote(names(aggregate)))))
+      stop(
+        "Only non-spatial and existing dimensions are valid for ",
+        "aggregate. Please adjust ",
+        toString(dQuote(names(aggregate)))
+      )
     }
 
     return(data_subset)
@@ -522,7 +543,7 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       xmx = grid_extent[2, 1],
       ymn = grid_extent[1, 2],
       ymx = grid_extent[2, 2],
-      crs = "EPSG:4326"
+      crs = raster_crs_fallback("EPSG:4326")
     )
   }
 
@@ -537,4 +558,19 @@ get_multidims <- function(x) {
   multi_dims <- names(which(dim(x$data) > 1))
 
   union(multi_dims, space_dims)
+}
+
+# "EPSG:4326" is not supported by as CRS by all versions of the raster package.
+# Fallback to longlat projection string
+raster_crs_fallback <- function(projstring) {
+  utils::capture.output(
+    {
+      success <- try(raster::crs(projstring))
+    },
+    type = "message"
+  )
+  if (methods::is(success, "try-error")) {
+    projstring <- "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+  }
+  projstring
 }

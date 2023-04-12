@@ -13,3 +13,6 @@
 ^vignettes/.lintr$
 ^.*\.zenodo.json$
 ^codecov\.yml$
+^CRAN-SUBMISSION$
+^cran-comments\.md$
+^.*CITATION.cff$

@@ -39,10 +39,14 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # same directory as data. This throws an error if no suitable file is
         # found.
         filename <- find_gridfile(private$.meta$._data_dir_)
-        blue_col <- "\u001b[34m"
-        unset_col <- "\u001b[0m"
-        cat(blue_col, "$grid ", unset_col, "read from ",
-            sQuote(basename(filename)), "\n", sep = "")
+
+        message(
+          paste0(
+            col_var("grid"),
+            " read from ",
+            sQuote(basename(filename))
+          )
+        )
 
         # Add support for cell subsets. This is a rough filter since $subset
         #   does not say if cell is subsetted - but ok for now.
@@ -204,7 +208,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       unset_col <- "\u001b[0m"
 
       # Print meta data
-      cat(paste0("\u001b[1m", blue_col, "$meta %>%", unset_col, "\n"))
+      cat(paste0("\u001b[1m", blue_col, "$meta |>", unset_col, "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
 
       # Not all meta data are printed
@@ -227,13 +231,13 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       # Print data attribute
       cat(paste0("\u001b[1m",
                  blue_col,
-                 "$data %>%",
+                 "$data |>",
                  unset_col,
                  "\n"))
 
       # Dimnames
       dim_names <- self$dimnames()
-      cat(paste0(blue_col, "  dimnames() %>%", unset_col, "\n"))
+      cat(paste0(blue_col, "  dimnames() |>", unset_col, "\n"))
 
       for (sub in seq_along(dim_names)) {
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
@@ -486,7 +490,7 @@ find_gridfile <- function(searchdir) {
     full.names = TRUE
   )
   if (length(grid_files) > 0) {
-    grid_types <- sapply(grid_files, detect_type) # nolint:undesirable_function_linter.
+    grid_types <- sapply(grid_files, detect_io_type) # nolint:undesirable_function_linter.
     # Prefer "meta" file_type if present
     if (length(which(grid_types == "meta")) == 1) {
       filename <- grid_files[match("meta", grid_types)]
@@ -511,6 +515,3 @@ find_gridfile <- function(searchdir) {
 
   filename
 }
-
-# Avoid note for "."...
-utils::globalVariables(".") # nolint:undesirable_function_linter

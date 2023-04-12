@@ -1,7 +1,7 @@
 Package: lpjmlkit
 Type: Package
-Title: Toolkit for basic LPJmL handling
-Version: 0.7.1
+Title: Toolkit for Basic LPJmL Handling
+Version: 1.1.1
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
@@ -16,7 +16,7 @@ Description: A collection of basic functions to facilitate the work with the
     It provides functions for performing LPJmL simulations, as well as reading,
     processing and writing model-related data such as inputs and outputs or
     configuration files.
-License: GPL-3
+License: AGPL-3
 LazyData: true
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE,
@@ -24,7 +24,8 @@ Roxygen: list(markdown = TRUE,
 Encoding: UTF-8
 Depends:
     R (>= 3.5.0)
-URL: https://github.com/PIK-LPJmL/lpjmlkit
+URL: https://github.com/PIK-LPJmL/lpjmlkit,
+    https://doi.org/10.5281/zenodo.7773134
 BugReports: https://github.com/PIK-LPJmL/lpjmlkit/issues
 Imports:
     magrittr,
@@ -36,14 +37,18 @@ Imports:
     foreach,
     utils,
     methods,
-    abind
+    abind,
+    rlang,
+    withr,
+    grDevices
 Suggests:
     rmarkdown,
     knitr,
     testthat (>= 3.0.0),
     terra,
     raster,
-    reshape2
+    reshape2,
+    maps
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-02-15
+Date: 2023-04-05

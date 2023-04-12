@@ -9,6 +9,10 @@
 \arguments{
 \item{x}{\link{LPJmLData} object}
 }
+\value{
+A list of the same length as dim(x). Components are character vectors
+with positive length of the respective dimension of x.
+}
 \description{
 Function to get the dimnames (list) of the data array of an LPJmLData object.
 }

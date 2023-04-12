@@ -26,12 +26,7 @@
 #' * [`create_header()`] for creating a header from scratch.
 #' @export
 get_headersize <- function(header) {
-  if (!is.list(header)) {
-    stop("Header must be a list")
-  }
-  if (!("name" %in% names(header)) || !("version" %in% names(header$header))) {
-    stop("Header list must contain a 'name' and a 'header' element.")
-  }
+  is_valid_header(header)
   if (header$header["version"] < 1 || header$header["version"] > 4) {
     stop("Invalid header version. Expecting value between 1 and 4.")
   }

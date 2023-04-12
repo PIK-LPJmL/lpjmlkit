@@ -7,11 +7,11 @@
 #' @param x `LPJmLData` object with `$grid` attribute, an LPJmLData object of
 #'   variable `"grid"` (`"LPJGRID"`) or a vector of cell-center latitude
 #'   coordinates in degrees.
-#' @param res_lon Grid resolution in longitude direction in degrees
+#' @param cellsize_lon Grid resolution in longitude direction in degrees
 #'   (default: `0.5`). If `x` is an LPJmLData object the resolution will be
 #'   taken from the meta data included in `x` if available.
-#' @param res_lat Grid resolution in latitude direction in degrees (default:
-#'   same as `res_lon`). If `x` is an LPJmLData object the resolution will be
+#' @param cellsize_lat Grid resolution in latitude direction in degrees (default:
+#'   same as `cellsize_lon`). If `x` is an LPJmLData object the resolution will be
 #'   taken from the meta data included in `x` if available.
 #' @param earth_radius Radius of the sphere (in \eqn{m}) used to calculate the
 #'   cell areas.
@@ -32,8 +32,8 @@
 #'
 #' @export
 calc_cellarea <- function(x, # nolint:cyclocomp_linter.
-                          res_lon = 0.5,
-                          res_lat = res_lon,
+                          cellsize_lon = 0.5,
+                          cellsize_lat = cellsize_lon,
                           earth_radius = 6371000.785,
                           return_unit = "m2"
                          ) {
@@ -49,6 +49,7 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
     # Handle LPJmLData objects of variable grid as LPJmLGridData objects to
     # allow for calc_cellarea
     } else if (methods::is(x, "LPJmLData") &&
+        !methods::is(x, "LPJmLGridData") &&
         any(c("grid", "LPJGRID") %in% x$meta$variable)) {
       x <- LPJmLGridData$new(x) # nolint:object_usage_linter.
     }
@@ -57,21 +58,14 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
       stop("Grid attribute is missing. Use method add_grid() to add it.")
     }
 
-    # Initialize LPJmLData object as grid if necessary. Make a copy in order not
-    # to change the original.
-    if (!is.null(x$meta$nyear)) {
-      x <- x$clone(deep = TRUE)
-      x$init_grid()
+    if (!is.null(x$meta$cellsize_lon) && any(cellsize_lon != x$meta$cellsize_lon)) {
+      cellsize_lon <- x$meta$cellsize_lon
+      warning("Using x$meta$cellsize_lon instead of supplied cellsize_lon.")
     }
 
-    if (!is.null(x$meta$cellsize_lon) && any(res_lon != x$meta$cellsize_lon)) {
-      res_lon <- x$meta$cellsize_lon
-      warning("Using x$meta$cellsize_lon instead of supplied res_lon.")
-    }
-
-    if (!is.null(x$meta$cellsize_lat) && any(res_lat != x$meta$cellsize_lat)) {
-      res_lat <- x$meta$cellsize_lat
-      warning("Using x$meta$cellsize_lat instead of supplied res_lat.")
+    if (!is.null(x$meta$cellsize_lat) && any(cellsize_lat != x$meta$cellsize_lat)) {
+      cellsize_lat <- x$meta$cellsize_lat
+      warning("Using x$meta$cellsize_lat instead of supplied cellsize_lat.")
     }
 
     # Check for format of space dimensions, apply different processing
@@ -100,22 +94,22 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
   }
 
   # Check for irregular grid resolution arguments
-  if (length(res_lon) > 1) {
-    warning("res_lon has length ", length(res_lon), ". Using first element.")
-    res_lon <- res_lon[1]
+  if (length(cellsize_lon) > 1) {
+    warning("cellsize_lon has length ", length(cellsize_lon), ". Using first element.")
+    cellsize_lon <- cellsize_lon[1]
   }
-  if (length(res_lon) == 0 || is.na(res_lon)) {
-    stop("Invalid longitude grid resolution 'res_lon'")
+  if (length(cellsize_lon) == 0 || is.na(cellsize_lon)) {
+    stop("Invalid longitude grid resolution 'cellsize_lon'")
   }
-  res_lon <- as.double(res_lon)
-  if (length(res_lat) > 1) {
-    warning("res_lat has length ", length(res_lat), ". Using first element.")
-    res_lat <- res_lat[1]
+  cellsize_lon <- as.double(cellsize_lon)
+  if (length(cellsize_lat) > 1) {
+    warning("cellsize_lat has length ", length(cellsize_lat), ". Using first element.")
+    cellsize_lat <- cellsize_lat[1]
   }
-  if (length(res_lat) == 0 || is.na(res_lat)) {
-    stop("Invalid latitude grid resolution 'res_lat'")
+  if (length(cellsize_lat) == 0 || is.na(cellsize_lat)) {
+    stop("Invalid latitude grid resolution 'cellsize_lat'")
   }
-  res_lat <- as.double(res_lat)
+  cellsize_lat <- as.double(cellsize_lat)
 
   # Check for irregular latitude coordinates
   if (any(x < -90 | x > 90, na.rm = TRUE)) {
@@ -124,7 +118,7 @@ calc_cellarea <- function(x, # nolint:cyclocomp_linter.
 
   cellwidth <- earth_radius * pi / 180
 
-  cellwidth * res_lon * cellwidth * res_lat * cos(x / 180 * pi) %>%
+  cellwidth * cellsize_lon * cellwidth * cellsize_lat * cos(x / 180 * pi) %>%
 
     # Apply conversion factor based on return_unit parameter
     switch(return_unit,

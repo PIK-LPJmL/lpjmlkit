@@ -39,8 +39,8 @@ vegc <- read_io(filename = "./vegc.bin.json")
 # Subset cells by index
 subset(vegc, cell = seq(27410, 27415))
 # [...]
-# $data \%>\%
-#   dimnames() \%>\%
+# $data |>
+#   dimnames() |>
 #     .$cell  "27409" "27410" "27411" "27412" "27413" "27414"
 #     .$time  "1901-12-31" "1902-12-31" "1903-12-31" "1904-12-31" ...
 #     .$band  "1"
@@ -49,8 +49,8 @@ subset(vegc, cell = seq(27410, 27415))
 # Subset time by character vector
 subset(vegc, time = c("2001-12-31", "2002-12-31", "2003-12-31"))
 # [...]
-# $data \%>\%
-#   dimnames() \%>\%
+# $data |>
+#   dimnames() |>
 #     .$cell  "0" "1" "2" "3" ... "67419"
 #     .$time  "2001-12-31" "2002-12-31" "2003-12-31"
 #     .$band  "1"

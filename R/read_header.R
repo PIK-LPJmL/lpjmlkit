@@ -31,9 +31,12 @@
 #' * [`write_header()`] for writing headers to files.
 #'
 #' @export
-read_header <- function(filename, force_version = NULL, verbose = TRUE) {
+read_header <- function(filename,
+                        force_version = NULL,
+                        verbose = TRUE) {
+
   if (!file.exists(filename)) {
-    stop(paste(filename, "does not exist"))
+    stop("File ", filename, " does not exist")
   }
   # Open binary connection to file.
   zz <- file(filename, "rb")
@@ -49,7 +52,7 @@ read_header <- function(filename, force_version = NULL, verbose = TRUE) {
   # Header names start with "LPJ". Test if valid value.
   if (substr(headername, 1, 3) != "LPJ") {
     close(zz)
-    stop(paste("Invalid header name", headername))
+    stop("Invalid header name ", headername)
   }
   if (headername == "LPJRESTART") {
     close(zz)
@@ -72,7 +75,7 @@ read_header <- function(filename, force_version = NULL, verbose = TRUE) {
     version <- readBin(zz, integer(), size = 4, n = 1, endian = endian)
   }
   # Version usually determined from file header, but can also be forced
-  if (!is.null(force_version)) {
+  if (!is.null(force_version) && force_version != version) {
     if (verbose) message("Forcing header version to ", force_version)
     version <- force_version
   }

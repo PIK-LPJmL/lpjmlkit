@@ -13,14 +13,8 @@
 #' @param drop Logical. If `TRUE` (default), dimensions with a length of 1 are
 #'   dropped from the result. Otherwise, they are kept.
 #'
-#' @param value Array/vector of replacement values. Note: If `value` does not
-#'   have the same dimensions as selected by (`...`), automatic replication
-#'   is done by **R** to extend `value` to the required length.
-#'
-#' @return Without replacement `value` returns an array (or vector if
-#'   `drop = TRUE` and only one dimension is left) of the selected subset of
-#'   `x`. If `value` is specified, returns an array with the same dimensions as
-#'   `x` where values selected by `(...)` are replaced by values from `value`.
+#' @return array (or vector if `drop = TRUE` and only one dimension is left)
+#'   of the selected subset of `x`.
 #'
 #' @examples
 #' my_array <- array(1,
@@ -35,9 +29,6 @@
 #' #   [1] "band1"
 #' #   [2] "band3"
 #'
-#' # Replace subset
-#' asub(my_subset, band = c("band1")) <- 0
-#'
 #' @export
 asub <- function(x,
                  ...,
@@ -48,8 +39,12 @@ asub <- function(x,
   return()
 }
 
-#' @describeIn asub Replace an array subset
-#' @export
+
+# value Array/vector of replacement values. Note: If `value` does not
+# have the same dimensions as selected by (`...`), automatic replication
+# is done by **R** to extend `value` to the required length.
+# If `value` is specified, returns an array with the same dimensions as
+# `x` where values selected by `(...)` are replaced by values from `value`.
 `asub<-` <- function(x, ..., value) {
   argum <- c(alist(x),
              subarray_argument(x, list(...)), alist(value))
@@ -100,9 +95,11 @@ subset_array <- function(x,
       )
     }
   } else if (length(subset_list) > 0 && any(sapply(subset_list, length) == 0)) { # nolint:undesirable_function_linter
+
     # Remove empty subsets
     before <- names(subset_list)
     subset_list <- subset_list[which(sapply(subset_list, length) > 0)] # nolint:undesirable_function_linter.
+
     if (length(subset_list) < length(before) && !silent) {
       warning(
         paste(
@@ -150,17 +147,15 @@ subarray_argument <- function(x, subset_list) {
   if (!all(valids)) {
     nonvalids <- which(!valids)
     stop(
-      paste0(
-        ifelse(length(nonvalids) > 1, "Dimension names ", "Dimension name "),
-        "\u001b[34m",
-        paste0(subset_names[nonvalids], collapse = ", "),
-        "\u001b[0m",
-        ifelse(length(nonvalids) > 1, " are ", " is "),
-        "not valid. Please choose from available dimension names ",
-        "\u001b[34m",
-        paste0(dim_names, collapse = ", "),
-        "\u001b[0m."
-      ),
+      ifelse(length(nonvalids) > 1, "Dimension names ", "Dimension name "),
+      "\u001b[34m",
+      paste0(subset_names[nonvalids], collapse = ", "),
+      "\u001b[0m",
+      ifelse(length(nonvalids) > 1, " are ", " is "),
+      "not valid. Please choose from available dimension names ",
+      "\u001b[34m",
+      paste0(dim_names, collapse = ", "),
+      "\u001b[0m.",
       call. = FALSE
     )
   }
@@ -254,10 +249,16 @@ subset_array_pair <- function(x,
     `colnames<-`(pair_names)
 
   # Create mask from dimension name pair
+  if (match(pair_names[1], names(dim(x))) > 1) {
+    dupl <- prod(dim(x)[seq_len(match(pair_names[1], names(dim(x))) - 1)])
+  } else {
+    dupl <- 1
+  }
   subset_mask <- array(NA,
                     dim = dim(x)[pair_names],
                     dimnames = dimnames(x)[pair_names]) %>%
     `[<-`(idims, 1) %>%
+    rep(each = dupl) %>%
     array(dim = dim(x), dimnames = dimnames(x)) %>%
     subset_array(as.list(pair), drop = FALSE)
 
@@ -270,14 +271,6 @@ subset_array_pair <- function(x,
 }
 
 
-# Drop dimensions of length 1 except those that are selected by name
-drop_omit <- function(x, omit_dim) {
-  dims <- dim(x)
-  dims_check <- dims == 1 & !(names(dims) %in% omit_dim)
-
-  abind::adrop(x, dims_check)
-}
-
 # Check if indices exist in dimension of array
 check_index <- function(x, y, dim_name) {
   if (any(abs(x) > length(y) | x == 0)) {
@@ -286,6 +279,7 @@ check_index <- function(x, y, dim_name) {
   }
 }
 
+
 # Check if character vector elements exist in dimension of array
 check_string_index <- function(x, valids, dim_name) {
   if (any(is.na(valids))) {
@@ -293,6 +287,7 @@ check_string_index <- function(x, valids, dim_name) {
     stop_subset(x, nonvalids, dim_name, TRUE)
   }
 }
+
 
 # Print error for non valid elements of dimension
 stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
@@ -303,19 +298,17 @@ stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
   }
 
   stop(
-    paste0(
-      "For dimension ",
-      "\u001b[34m",
-      dim_name,
-      "\u001b[0m",
-      ifelse(string_index, " string", ""),
-      ifelse(length(nonvalids) > 1, " indices ", " index "),
-      "\u001b[34m",
-      x_nonvalid,
-      "\u001b[0m",
-      ifelse(length(nonvalids) > 1, " are", " is"),
-      " not valid."
-    ),
+    "For dimension ",
+    "\u001b[34m",
+    dim_name,
+    "\u001b[0m",
+    ifelse(string_index, " string", ""),
+    ifelse(length(nonvalids) > 1, " indices ", " index "),
+    "\u001b[34m",
+    x_nonvalid,
+    "\u001b[0m",
+    ifelse(length(nonvalids) > 1, " are", " is"),
+    " not valid.",
     call. = FALSE
   )
 }

@@ -5,26 +5,29 @@
 \title{Write LPJmL config files (JSON)}
 \usage{
 write_config(
-  params,
+  x,
   model_path,
-  output_path = NULL,
+  sim_path = NULL,
   output_list = c(),
   output_list_timestep = "annual",
   output_format = "raw",
   js_filename = "lpjml.js",
   parallel_cores = 4,
-  debug = FALSE
+  debug = FALSE,
+  params = NULL,
+  output_path = NULL
 )
 }
 \arguments{
-\item{params}{A tibble in a defined format (see details).}
+\item{x}{A tibble in a defined format (see details).}
 
 \item{model_path}{Character string providing the path to LPJmL
 (equal to \code{LPJROOT} environment variable).}
 
-\item{output_path}{Character string providing path where an output, a restart
-and a configuration folder are created to store respective data. If \code{NULL},
-\code{model_path} is used.}
+\item{sim_path}{Character string defining path where all simulation data
+are written. Also an output, a restart and a configuration folder are
+created in \code{sim_path} to store respective data. If \code{NULL}, \code{model_path} is
+used.}
 
 \item{output_list}{Character vector containing the \code{"id"} of outputvars.
 If defined, only these defined outputs will be written. Otherwise, all
@@ -48,46 +51,54 @@ parallelization. Defaults to \code{4}.}
 
 \item{debug}{logical If \code{TRUE}, the inner parallelization is switched off
 to enable tracebacks and all types of error messages. Defaults to \code{FALSE}.}
+
+\item{params}{Argument is deprecated as of version 1.0; use x
+instead.}
+
+\item{output_path}{Argument is deprecated as of version 1.0; use sim_path
+instead.}
 }
 \value{
 \link[tibble]{tibble} with at least one column named \code{"sim_name"}.
 Run parameters \code{"order"} and \code{"dependency"} are included if defined in
-\code{params}. \link[tibble]{tibble} in this format is required for
+\code{x}. \link[tibble]{tibble} in this format is required for
 \code{\link[=submit_lpjml]{submit_lpjml()}}.
 }
 \description{
 Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 specific format (see details & examples) to write the model configuration
 file \code{"config_*.json"}. Each row in the tibble corresponds to a model run.
-The generated \code{"config_*.json"} is based on a js file (e.g.: \code{"lpjml_*.js"}).
+The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.js"}).
 }
 \details{
-Supply a \link[tibble]{tibble} for \code{params}, in which each row represents
+Supply a \link[tibble]{tibble} for \code{x}, in which each row represents
 a configuration (config) for an LPJmL simulation. \cr
 Here a config is referred to as the precompiled \code{"lpjml.js"} file (or file
 name provided as \code{js_filename} argument), which links to all other
 mandatory ".js" files. The precompilation is done internally by
 \code{\link[=write_config]{write_config()}}.\cr
 \code{write_config()} uses the column names of \code{param} as keys for the config
-json using an object-oriented like syntax, e.g. \code{"k_temp"} from \code{"param.js"}
-can be accessed with \code{"param.k_temp"} as the column name. \cr
+json using the same syntax as lists, e.g. \code{"k_temp"} from \code{"param.js"}
+can be accessed with \code{"param$k_temp"} or \verb{"param[["k_temp"]]"} as the column
+name. (The former point-style syntax - \code{"param.k_temp"} - is still valid but
+deprecated) \cr
 For each run and thus each row, this value has to be specified in the
 \link[tibble]{tibble}. If the original value should instead be used, insert
 \code{NA}.\cr
-Each run can be identified via the \code{"sim_name"}, which has to be provided in
-the first column. \cr
+Each run can be identified via the \code{"sim_name"}, which is mandatory to
+specify.
 
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params1 <- tibble(
   sim_name = c("scenario1", "scenario2"),
   random_seed = c(42, 404),
-  pftpar.1.name = c("first_tree", NA),
-  param.k_temp = c(NA, 0.03),
+  `pftpar[[1]]$name` = c("first_tree", NA),
+  `param$k_temp` = c(NA, 0.03),
   new_phenology = c(TRUE, FALSE)
 )
 
 my_params1
 # A tibble: 2 x 5
-#   sim_name random_seed pftpar.1.name param.k_temp new_phenology
+#   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
 #   <chr>          <dbl> <chr>                <dbl> <lgl>
 # 1 scenario1         42 first_tree           NA    TRUE
 # 2 scenario2        404 NA                    0.03 FALSE
@@ -99,8 +110,9 @@ the spin-up(s), a parameter \code{"dependency"}  has to be defined as a column i
 the \link[tibble]{tibble} that links simulations with each other using the
 \code{"sim_name"}. \cr
 Do not manually set "-DFROM_RESTART" when using \code{"dependency"}. The same
-applies for LPJmL config settings "restart", "write_restart", "write_restart_filename",
-"restart_filename", which are set automatically by this function.
+applies for LPJmL config settings "restart", "write_restart",
+"write_restart_filename", "restart_filename", which are set automatically
+by this function.
 This way multiple runs can be performed in succession and build a
 conceivably endless chain or tree.
 
@@ -171,7 +183,7 @@ my_params2
 
 \subsection{In short}{
 \itemize{
-\item \code{write_config()} creates subdirectories within the \code{output_path} directory
+\item \code{write_config()} creates subdirectories within the \code{sim_path} directory
 \itemize{
 \item \code{"./configurations"} to store the config files.
 \item \code{"./output"} to store the output within subdirectories for each
@@ -179,7 +191,7 @@ my_params2
 \item \code{"./restart"} to store the restart files within subdirectories for each
 \code{sim_name}.
 }
-\item The "." syntax (e.g. \code{"pftpar.1.name"}) allows to create column names and
+\item The list syntax (e.g. \code{pftpar[[1]]$name}) allows to create column names and
 thus keys for accessing values in the config json.
 \item The column \code{"sim_name"} is mandatory (used as an identifier).
 \item The run parameter \code{"dependency"} is optional but enables interdependent
@@ -196,25 +208,24 @@ are expected.
 \examples{
 \dontrun{
 library(tibble)
-library(lpjmlkit)
 
 model_path <- "./LPJmL_internal"
-output_path <-"./my_runs"
+sim_path <-"./my_runs"
 
 
 # Basic usage
 my_params <- tibble(
   sim_name = c("scen1", "scen2"),
   random_seed = c(12, 404),
-  pftpar.1.name = c("first_tree", NA),
-  param.k_temp = c(NA, 0.03),
+  `pftpar[[1]]$name` = c("first_tree", NA),
+  `param$k_temp` = c(NA, 0.03),
   new_phenology = c(TRUE, FALSE)
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 config_details
@@ -232,9 +243,9 @@ my_params <- tibble(
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 config_details
@@ -253,9 +264,9 @@ my_params <- tibble(
 )
 
 config_details <- write_config(
-  params = my_params,
+  x = my_params,
   model_path = model_path,
-  output_path = output_path
+  sim_path = sim_path
 )
 
 config_details

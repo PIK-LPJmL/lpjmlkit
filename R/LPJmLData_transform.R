@@ -16,15 +16,15 @@
 #' @examples
 #' \dontrun{
 #'
-#' runoff <- read_io(filename = "runoff.bin.json"),
-#'                   subset = list(year = 1991:2000))
+#' runoff <- read_io(filename = "runoff.bin.json",
+#'                   subset = list(year = as.character(1991:2000)))
 #'
 #' # Transform into space format "lon_lat". This assumes a "grid.bin.json" file
 #' # is present in the same directory as "runoff.bin.json".
 #' transform(runoff, to = "lon_lat")
 #' # [...]
-#' # $data %>%
-#' #   dimnames() %>%
+#' # $data |>
+#' #   dimnames() |>
 #' #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
 #' #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
 #' #     .$time  "1991-01-31" "1991-02-28" "1991-03-31" "1991-04-30" ...
@@ -36,8 +36,8 @@
 #' # data are omitted, i.e. no "day" dimension for monthly data.
 #' transform(runoff, to = "year_month_day")
 #' # [...]
-#' # $data %>%
-#' #   dimnames() %>%
+#' # $data |>
+#' #   dimnames() |>
 #' #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
 #' #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
 #' #     .$month  "1" "2" "3" "4" ... "12"
@@ -80,22 +80,20 @@ LPJmLData$set("private",
 
     if (length(to) > 0) {
       stop(
-        paste0(
-          "\u001b[0m",
-          ifelse(length(to) > 1, "Formats ", "Format "),
-          "\u001b[34m",
-          paste0(to, collapse = ", "),
-          "\u001b[0m",
-          ifelse(length(to) > 1, " are ", " is "),
-          "not valid. Please choose from available space formats ",
-          "\u001b[34m",
-          paste0(private$.meta$._dimension_map_$space_format, collapse = ", "),
-          "\u001b[0m",
-          " and available time formats ",
-          "\u001b[34m",
-          paste0(private$.meta$._dimension_map_$time_format, collapse = ", "),
-          "\u001b[0m."
-        ),
+        "\u001b[0m",
+        ifelse(length(to) > 1, "Formats ", "Format "),
+        "\u001b[34m",
+        paste0(to, collapse = ", "),
+        "\u001b[0m",
+        ifelse(length(to) > 1, " are ", " is "),
+        "not valid. Please choose from available space formats ",
+        "\u001b[34m",
+        paste0(private$.meta$._dimension_map_$space_format, collapse = ", "),
+        "\u001b[0m",
+        " and available time formats ",
+        "\u001b[34m",
+        paste0(private$.meta$._dimension_map_$time_format, collapse = ", "),
+        "\u001b[0m.",
         call. = FALSE
       )
     }
@@ -291,7 +289,7 @@ LPJmLData$set("private",
         time_dimnames[["month"]] <- NULL
       }
 
-      private$.meta$.__transform_time_format__("year_month_day")
+      new_time_dim <- "year_month_day"
 
     # Case 2: Transformation from dimensions "year", "month", "day"
     # (if available) to "time" dimension
@@ -310,29 +308,44 @@ LPJmLData$set("private",
                                  days = pre_dimnames$day)
       )
 
-      private$.meta$.__transform_time_format__("time")
+      new_time_dim <- "time"
 
     # Return directly if no transformation is necessary
     } else {
       return(invisible(self))
     }
 
-    spatial_dims <- unlist(strsplit(private$.meta$._space_format_, "_"))
+    # Extract dimensions other than space dimension(s) from self
+    other_dimnames <- dimnames(self$data) %>%
+      `[<-`(unlist(strsplit(private$.meta$._time_format_, "_")), NULL)
+    other_dims <- dim(self$data) %>%
+      `[`(names(other_dimnames))
 
-    # Create new data array based on disaggregated time dimension
     time_dims <- lapply(time_dimnames, length)
-    self$.__set_data__(
-      array(
+
+    new_dimnames <- append(
+      other_dimnames,
+      values = time_dimnames,
+      after = get_predim(
         self$data,
-        dim = c(dim(self$data)[spatial_dims],
-                time_dims,
-                dim(self$data)["band"]),
-        dimnames = do.call(list,
-                           args = c(dimnames(self$data)[spatial_dims],
-                                    time_dimnames,
-                                    dimnames(self$data)["band"]))
+        unlist(strsplit(private$.meta$._time_format_, "_"))
       )
     )
+
+    new_dims <- append(
+      other_dims,
+      values = time_dims,
+      after = get_predim(
+        self$data,
+        unlist(strsplit(private$.meta$._time_format_, "_"))
+      )
+    )
+
+    # Create new data array based on disaggregated time dimension
+    self$.__set_data__(
+      array(self$data, dim = new_dims, dimnames = new_dimnames)
+    )
+    private$.meta$.__transform_time_format__(new_time_dim)
 
     return(invisible(self))
   }
@@ -340,6 +353,6 @@ LPJmLData$set("private",
 
 # Function to get position of last dimension before first space dimension in
 # array
-get_predim <- function(x, space_dim) {
-  which(names(dim(x)) %in% space_dim)[1] - 1
+get_predim <- function(x, dims) {
+  which(names(dim(x)) %in% dims)[1] - 1
 }
