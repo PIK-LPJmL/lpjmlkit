@@ -50,7 +50,7 @@ test_that("array export with subset and aggregate", {
 test_that("basic tibble export", {
   file_name <- "../testdata/output/pft_npp.bin.json"
   output <- read_io(filename = file_name)
-  output_tibble <- as_tibble(output)
+  output_tibble <- tibble::as_tibble(output)
 
   # read test_array and convert to tibble manually
   test_data <- readRDS("../testdata/test_array.rds")
