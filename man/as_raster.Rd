@@ -28,8 +28,8 @@ lon/lat resolution are extracted from \verb{$meta}.
 }
 \description{
 Function to coerce (convert) an \code{\link{LPJmLData}} object into a
-\href{\link[raster]{raster}}{RasterLayer} or \href{\link[raster]{brick}}{RasterBrick}
-object that allows for any GIS-based raster operations.
+\link[raster]{raster} or \link[raster]{brick} object that allows for any
+GIS-based raster operations.
 Read more about the raster package at
 \url{https://rspatial.github.io/raster/reference/raster-package.html}.
 The successor package of raster is called terra: \url{https://rspatial.org/}.
