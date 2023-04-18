@@ -12,3 +12,4 @@ DESCRIPTION, if that changes it will be added
 * `with_par()` added to `plot.LPJmLData()` to handle setting change of par
 options
 * json parsing tests are skipped on Mac M1 systems
+* links to raster and terra packages fixed
