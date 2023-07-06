@@ -1,5 +1,7 @@
 ## CHANGES
 
+* more explicit LPJmL Runner description that an LPJmL version > 4 has to be
+installed first
 * file URIs removed from inst/README.md
 * currently there is no publication of lpjmlkit that could be added to
 DESCRIPTION, if that changes it will be added
