@@ -1,7 +1,7 @@
 ## Overview
 
 ### **LPJmL Runner &#127939;**  to perform LPJmL simulations
-   *LPJmL Runner only supports Unix-based operating systems that have an LPJmL version > 4 installed.*
+   *LPJmL Runner only supports Unix-based operating systems that have an LPJmL version >= 4 installed.*
 - &#9997; `write_config()` write config.json files using a data frame with parameters to be changed and a base configuration file
 - &#128269; `check_config()` check if generated config.json files are valid for LPJmL simulations
 - &#9654; `run_lpjml()` run LPJmL directly (e.g. single cell simulations) or &#128640; `submit_lpjml()` to SLURM (e.g. global simulations)
