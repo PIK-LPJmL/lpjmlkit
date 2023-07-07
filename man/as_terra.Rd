@@ -29,7 +29,7 @@ extracted from \verb{$meta}.
 }
 \description{
 Function to coerce (convert) an \code{\link{LPJmLData}} object into a
-\href{\link[terra]{rast}}{SpatRaster} object that allows GIS-based raster
+\link[terra]{rast} object that allows GIS-based raster
 operations. Read more about the terra package at \url{https://rspatial.org/}.
 }
 \details{
