@@ -154,116 +154,65 @@ run LPJmL model simulations as well as read and process the resulting data.
 ## LPJmL Runner
 
 The Runner module is designed to operate LPJmL on Unix-based operating systems
-that have a working LPJmL installation and includes four key functions.
+that have a working LPJmL version 4 or higher installation and includes four
+key functions.
 
-- `write_config()` generates JSON configuration files by utilizing a
-base configuration file as a source template to be preprocessed prior to use,
-along with a data frame containing parameters to be modified. It also sets up
-the directory structure and files to execute the runs and collect the outputs.
+The principle is based on the procedure of creating tables for the parameters
+and settings to be changed for a large number of related simulations,
+e.g. multi-scenario or uncertainty/sensitivity analyses.
+The creation of the table is based on the concept of tidy data with columns as
+parameters/settings (variables) and rows as simulations (observations)
+[@wickham_tidy_2014].
+In order to facitlitate the execution of these simulations, `write_config`
+handles the transformation of corresponding tables into LPJmL compatible JSON
+configuration files.
 
-- `check_config()` tests whether generated config.json files are valid
-for LPJmL simulations using LPJmL utility functionality.
-
-- `run_lpjml()` executes LPJmL as a subprocess directly from within
-the current R session. This is particularly useful for simulations with a small
-number of spatial cells that require few resources.
-
-- `submit_lpjml()` function submits the LPJmL Simulations to SLURM to be run
-by an HPC cluster using additional resources and detached from the current
-R session, which is necessary for (global) runs that include all or many spatial
-cells to be simulated.
-
-The following is a typical example of the use of *LPJmL Runner*:
-```R
-library("lpjmlkit")
-
-lpjml_path <- "./LPJmL_internal"
-sim_path <- "./simulations"
-
-# Define data frame with configuration parameters to be changed
-config_params <- data.frame(
-  sim_name = c("spinup", "landuse", "natural_vegetation"),
-  landuse = c("no", "yes", "no"),
-  reservoir = c(FALSE, TRUE, FALSE),
-  river_routing = c(FALSE, TRUE, FALSE),
-  wateruse = c("no", "yes", "no"),
-  const_deposition = c(FALSE, FALSE, TRUE),
-  dependency = c(NA, "spinup", "spinup")
-)
-
-# Write corresponding configuration files using a (precompiled) base
-# configuration file
-config_details <- write_config(config_params,
-                               model_path = lpjml_path,
-                               sim_path = sim_path)
-
-# Check validity of each written configuration file
-check_config(config_details,
-             model_path = lpjml_path,
-             sim_path = sim_path)
-
-# Submit LPJmL simulations to SLURM on an HPC cluster
-submit_lpjml(config_details,
-             model_path = lpjml_path,
-             sim_path = sim_path)
-```
+LPJmL simulations can either be run sequentially locally with `run_lpjml()`
+which is particularly suitable for testing the model or for focusing on small
+regions.
+In addition, simulations can be submitted to an HPC cluster equipped with the
+SLURM workload manager using `submit_lpjml()`, which is particularly useful for
+computing multiple global simulations in parallel.
 
 ## LPJmL Data
 
-The Data module provides various functions for reading and processing LPJmL
-data.
+While LPJmL Runner covers the whole range of running LPJmL simulations, LPJmL
+Data provides the tools for the subsequent data analysis part.
+LPJmL simulations use their own binary data format to write memory efficient
+output data.
+The associated metadata can be written either as a file header or as an
+additional metadata file in JSON format.
+Using `read_io()`, this data can be read into a standardised data format called
+`LPJmLData`, which associates the data arrays with the corresponding metadata
+to ensure its integrity.
 
-* `read_io()` reads LPJmL input and output data as an `LPJmLData`
-object, which contains the data array and corresponding meta data
-(`LPJmLMetaData`).
+The core of this data format is the range of functionalities commonly used by
+LPJmL users for data analysis.
+In addition to the descriptive statistics that an LPJmLData object displays,
+there is a `plot()` method to get direct graphical insights into the data.
+LPJmLData objects can be transformed into various common spatial and temporal
+formats (`transform()`).
+For example, the one-dimensional cell vector can be transformed into a
+longitude-latitude matrix to allow further spatial operations such as nearest
+neighbour subsetting using coordinate pairs.
+The temporal dimension can be decomposed into further sub-time dimensions,
+which is particularly useful for high temporal resolutions such as monthly or
+daily data going over several years.
+The export functions allow the LPJmLData format to be exported at any time to
+other common data formats such as `SpatRaster` (`as_terra()`), `tibble`
+(`as_tibble()`) or simply `array` (`as_array()`).
+Here, in addition to subsetting, the data can also be aggregated using common
+functions such as `mean` or `sum`.
 
-* `LPJmLData` objects can be used for further analysis and visualization, such as
-the `plot()`, `summary()`, or other basic statistics functions available.
+Above all, it is the combination of these different functions that increases
+the utility.
+For example, a combination of the transformation of the read-in
+discharge into sub-time dimensions and latitude-longitude matrix and the
+subsequent subsetting of the summer months of the northern hemisphere and the
+aggregation over years and months allows the following presentation.
 
-* users can also `transform()` the data into different space and time
-representations that define the array dimensions and `subset()` them explicitly
-by using the corresponding dimension names.
+![Exemplary LPJmLData plot of variable runoff generated by functions read_io, transform, subset and plot](inst/img/example_plot.png)
 
-* an LPJmLData object can be exported to common R data formats using
-`as_array()`, `as_tibble()`, or `as_raster()` / `as_terra()`.
-
-Below is an example of using *LPJmL Data* for the outputs generated
-by the previous *LPJmL Runner* example code:
-```R
-# Read runoff output from the corresponding LPJmL output file
-runoff <- read_io(filename = "./simulations/output/lu/runoff.bin.json"),
-                  subset = list(year = as.character(2010:2019)))
-
-# Transform into required format to be subsetted by months and latitudes and
-# plot aggregated years and months by using the pipe operator
-runoff |>
-  transform(to = c("year_month_day", "lon_lat")) |>
-  subset(month = 6:9,
-         lat = as.character(seq(0.25, 83.75, by = 0.5))) |>
-  plot(aggregate = list(year = mean, month = sum),
-       raster_extent = raster::extent(-180, 180, 0, 84),
-       main = "Northern hemisphere summer runoff [mm]")
-abline(h = 0, lty = 2)
-```
-
-![Exemplary LPJmLData plot of variable runoff with plot() function that uses method dispatch](inst/img/example_plot.png)
-
-Both classes, `LPJmLData` and `LPJmLMetaData` have been implemented using the
-R6 class system [@chang_r6_2021], which allows, for example, methods to be
-executed directly on the object rather than creating a copy and applying changes
-to that copy. This notation also reduces the execution time of the underlying
-functionality.
-
-```R
-# Same functionality but usage of the underyling R6 class implementation
-runoff$transform(to = c("year_month_day", "lon_lat"))
-runoff$subset(month = 6:9,
-              lat = as.character(seq(0.25, 83.75, by = 0.5)))
-runoff$plot(aggregate = list(year = mean, month = sum),
-            raster_extent = raster::extent(-180, 180, 0, 84),
-            main = "Northern hemisphere summer runoff [mm]")
-abline(h = 0, lty = 2)
-```
 
 ## Miscellaneos
 
@@ -282,9 +231,6 @@ binary LPJmL file format: `read_header()`, `create_header()`, and
 about the data type used in different LPJmL files, respectively.
 These low-level access functions can form the basis for new applications, for
 example, to generate new LPJmL input files.
-
-Lastly, `asub()` provides the functionality of the subset method to be used on
-a base array.
 
 
 # Documentation & License
