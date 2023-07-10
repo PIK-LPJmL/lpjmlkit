@@ -80,20 +80,19 @@ LPJmLData$set("private",
 
     if (length(to) > 0) {
       stop(
-        "\u001b[0m",
         ifelse(length(to) > 1, "Formats ", "Format "),
-        "\u001b[34m",
-        paste0(to, collapse = ", "),
-        "\u001b[0m",
+        paste0(col_var(to), collapse = ", "),
         ifelse(length(to) > 1, " are ", " is "),
         "not valid. Please choose from available space formats ",
-        "\u001b[34m",
-        paste0(private$.meta$._dimension_map_$space_format, collapse = ", "),
-        "\u001b[0m",
+        paste0(
+          col_var(private$.meta$._dimension_map_$space_format),
+          collapse = ", "
+        ),
         " and available time formats ",
-        "\u001b[34m",
-        paste0(private$.meta$._dimension_map_$time_format, collapse = ", "),
-        "\u001b[0m.",
+        paste0(
+          col_var(private$.meta$._dimension_map_$time_format),
+          collapse = ", "
+        ),
         call. = FALSE
       )
     }
