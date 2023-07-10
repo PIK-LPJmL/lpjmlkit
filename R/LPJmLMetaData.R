@@ -57,10 +57,6 @@ LPJmLMetaData <- R6::R6Class( # nolint
         print_fields <- self$._fields_set_
       }
 
-      # Colorize self print.
-      blue_col <- "\u001b[34m"
-      unset_col <- "\u001b[0m"
-
       meta_fields <- print_fields %>%
         sapply(function(x) do.call("$", list(self, x)), # nolint:undesirable_function_linter.
                USE.NAMES = FALSE)
@@ -78,10 +74,9 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
       cat(
         paste0(spaces,
-               blue_col,
-               "$",
-               print_fields,
-               unset_col,
+               col_var(
+                paste0("$", print_fields)
+               ),
                " ",
                to_char1,
                lapply(meta_fields, function(x) {
@@ -114,14 +109,10 @@ LPJmLMetaData <- R6::R6Class( # nolint
       cat(
         paste0(
           spaces,
-          blue_col,
-          "$subset",
-          unset_col,
+          col_var("$subset"),
           " ",
           # Color red if subset.
-          ifelse(self$subset, "\u001b[31m", ""),
-          self$subset,
-          ifelse(self$subset, unset_col, ""),
+          ifelse(self$subset, col_warn(self$subset), ""),
           "\n"
         )
       )

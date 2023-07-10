@@ -148,14 +148,10 @@ subarray_argument <- function(x, subset_list) {
     nonvalids <- which(!valids)
     stop(
       ifelse(length(nonvalids) > 1, "Dimension names ", "Dimension name "),
-      "\u001b[34m",
-      paste0(subset_names[nonvalids], collapse = ", "),
-      "\u001b[0m",
+      paste0(col_var(subset_names[nonvalids]), collapse = ", "),
       ifelse(length(nonvalids) > 1, " are ", " is "),
       "not valid. Please choose from available dimension names ",
-      "\u001b[34m",
-      paste0(dim_names, collapse = ", "),
-      "\u001b[0m.",
+      paste0(col_var(dim_names), collapse = ", "),
       call. = FALSE
     )
   }
@@ -299,14 +295,10 @@ stop_subset <- function(x, nonvalids, dim_name, string_index = FALSE) {
 
   stop(
     "For dimension ",
-    "\u001b[34m",
-    dim_name,
-    "\u001b[0m",
+    col_var(dim_name),
     ifelse(string_index, " string", ""),
     ifelse(length(nonvalids) > 1, " indices ", " index "),
-    "\u001b[34m",
-    x_nonvalid,
-    "\u001b[0m",
+    col_var(x_nonvalid),
     ifelse(length(nonvalids) > 1, " are", " is"),
     " not valid.",
     call. = FALSE

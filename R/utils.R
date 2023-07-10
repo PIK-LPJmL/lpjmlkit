@@ -69,10 +69,17 @@ names_recursively <- function(x) {
 
 # colorize variable name for messages, warning, stop
 col_var <- function(x) {
-  col_blue <- "\u001b[34m"
-  unset_col <- "\u001b[0m"
-  paste0(col_blue, x, unset_col)
+  cli::col_blue(x)
 }
+
+col_note <- function(x) {
+  cli::col_yellow(x)
+}
+
+col_warn <- function(x) {
+  cli::col_red(x)
+}
+
 
 
 # Function to get gitlab commit hash of repository path.
