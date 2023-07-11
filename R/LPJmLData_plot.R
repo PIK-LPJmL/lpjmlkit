@@ -109,23 +109,14 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                                    time_dims,
                                    "band"))) {
     stop(
-      "\u001b[0m",
       "Undefined aggregation dimension ",
-      "\u001b[34m",
-      paste0(names(aggregate), collapse = ", "),
-      "\u001b[0m",
+      paste0(col_var(names(aggregate)), collapse = ", "),
       " supplied.\nMust be one of ",
-      "\u001b[34m",
-      paste0(space_dims, collapse = ", "),
-      "\u001b[0m",
+      paste0(col_var(space_dims), collapse = ", "),
       ", ",
-      "\u001b[34m",
-      paste0(time_dims, collapse = ", "),
-      "\u001b[0m",
+      paste0(col_var(time_dims), collapse = ", "),
       " or ",
-      "\u001b[34m",
-      "band",
-      "\u001b[0m",
+      col_var("band"),
       ".\n"
     )
   }
@@ -173,9 +164,9 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                aggregate = aggregate,
                dots = dots)
     message(
-      "\u001b[33;3m",
-      "Note: spatial aggregation is not weighted by grid area.",
-      "\u001b[0m"
+      col_note(
+        "Note: spatial aggregation is not weighted by grid area."
+      )
     )
 
   # Plot map(s) for temporal aggregation or aggregation by band
@@ -242,20 +233,15 @@ plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
 
   if (length(which(dim(raw_data) > 2)) > 2) {
     stop(
-      "\u001b[0m",
       "Too many dimensions for 2D time series plot. Please reduce ",
-      "\u001b[34m",
-      paste0(dim_names, collapse = ", "),
-      "\u001b[0m",
+      paste0(col_var(dim_names), collapse = ", "),
       " to 2.\nMust be at least one temporal dimension (x axis) of ",
-      "\u001b[34m",
-      paste0(time_dims, collapse = ", "),
-      "\u001b[0m",
+      paste0(col_var(time_dims), collapse = ", "),
       ", and could be ",
-      "\u001b[34m",
-      "band",
-      "\u001b[0m ",
-      "or a temporal dimension, e.g. \u001b[34mmonth\u001b[0m for the y axis",
+      col_var("band"),
+      " or a temporal dimension, e.g. ",
+      col_var("month"),
+      " for the y axis",
       ".\n"
     )
   } else if (length(dim(raw_data)) < 2) {
@@ -270,9 +256,7 @@ plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
        any(space_dims %in% names(aggregate)))) {
     stop(
       "At least one temporal dimension of ",
-      "\u001b[34m",
-       paste0(time_dims, collapse = ", "),
-       "\u001b[0m",
+       paste0(col_var(time_dims), collapse = ", "),
        " has to be provided by the data."
       )
   }
@@ -340,37 +324,20 @@ plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
   # Check if a supported plot type is supplied.
   if (dots$type %in% c("h", "S", "s")) {
     stop(
-      "\u001b[0m",
       "Unsupported plot type ",
-      "\u001b[34m",
-      dots$type,
-      "\u001b[0m",
+      col_var(dots$type),
       " supplied.\nMust be one of ",
-      "\u001b[34m",
-      "p",
-      "\u001b[0m",
+      col_var("p"),
       ", ",
-      "\u001b[34m",
-      "l",
-      "\u001b[0m",
+      col_var("l"),
       ", ",
-      "\u001b[34m",
-      "b",
-      "\u001b[0m",
+      col_var("b"),
       ", ",
-      "\u001b[34m",
-      "c",
-      "\u001b[0m",
+      col_var("c"),
       ", ",
-      "\u001b[34m",
-      "o",
-      "\u001b[0m",
-      ", ",
-      "\u001b[0m",
-      " or ",
-      "\u001b[34m",
-      "n",
-      "\u001b[0m",
+      col_var("o"),
+      ", or ",
+      col_var("n"),
       "."
     )
   }

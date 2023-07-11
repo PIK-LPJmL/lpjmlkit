@@ -1,7 +1,7 @@
 Package: lpjmlkit
 Type: Package
 Title: Toolkit for Basic LPJmL Handling
-Version: 1.1.5
+Version: 1.1.7
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
@@ -40,7 +40,9 @@ Imports:
     abind,
     rlang,
     withr,
-    grDevices
+    grDevices,
+    cli,
+    stringi
 Suggests:
     rmarkdown,
     knitr,
@@ -48,7 +50,8 @@ Suggests:
     terra,
     raster,
     reshape2,
-    maps
+    maps,
+    sf
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2023-07-06
+Date: 2023-07-11
