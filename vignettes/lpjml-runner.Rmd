@@ -262,7 +262,7 @@ params <- tibble(
   dependency = c(NA, "spinup", "spinup"),
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
-  #   (same for sclass, ntasks, blocking)
+  #   (same for sclass, ntasks, blocking or constraint)
   wtime = c("15:00:00", "3:00:00", "3:00:00")
 )
 
