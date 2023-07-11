@@ -204,7 +204,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     print = function() {
 
       # Print meta data
-      cat(paste0(cli::style_bold(col_var("$meta |>"))[1], "\n"))
+      cat(paste0(bold_head(col_var("$meta |>"))[1], "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
 
       # Not all meta data are printed
@@ -214,11 +214,11 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
       # Print grid only if available
       if (!is.null(private$.grid)) {
-        cat(col_var(paste0(cli::style_bold("$grid")[1], " ...", "\n")))
+        cat(col_var(paste0(bold_head("$grid")[1], " ...", "\n")))
       }
 
       # Print data attribute
-      cat(cli::style_bold("$data |>\n")[1])
+      cat(bold_head("$data |>\n")[1])
 
       # Dimnames
       dim_names <- self$dimnames()

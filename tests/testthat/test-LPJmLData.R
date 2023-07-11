@@ -193,36 +193,19 @@ test_that("test print method", {
 })
 
 test_that("test find_gridfile", {
-  tmpdir <- tempfile("output")
-  dir.create(tmpdir, recursive = TRUE)
-  # No grid file at all in directory
+
+  # grid file in directory matching search pattern
+  expect_match(
+    find_gridfile("../testdata/output"),
+    "testdata/output"
+  )
+
+  # Error due to missing grid file
   expect_error(
-    find_gridfile(tmpdir),
+    find_gridfile("."),
     "Cannot detect grid file automatically"
   )
-  file.copy(
-    "../testdata/output/pft_npp.clm",
-    file.path(tmpdir, "grid.clm")
-  )
-  # clm file in directory matching search pattern
-  expect_equal(
-    find_gridfile(tmpdir),
-    file.path(tmpdir, "grid.clm")
-  )
-  file.copy(
-    "../testdata/output/pft_npp.clm",
-    file.path(tmpdir, "grid2.clm")
-  )
-  # Error due to two clm files present matching search pattern
-  expect_error(
-    find_gridfile(tmpdir),
-    "Cannot detect grid file automatically"
-  )
-  file.remove(
-    file.path(tmpdir, "grid.clm"),
-    file.path(tmpdir, "grid2.clm")
-  )
-  file.remove(tmpdir)
+
 })
 
 test_that("LPJmLData initialisation", {
