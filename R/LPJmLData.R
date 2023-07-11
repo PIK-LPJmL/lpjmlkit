@@ -203,41 +203,26 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' See also \link[base]{print}.
     print = function() {
 
-      # Set color higlighting
-      blue_col <- "\u001b[34m"
-      unset_col <- "\u001b[0m"
-
       # Print meta data
-      cat(paste0("\u001b[1m", blue_col, "$meta |>", unset_col, "\n"))
+      cat(paste0(bold_head(col_var("$meta |>"))[1], "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
 
       # Not all meta data are printed
-      cat(paste0("\u001b[33;3m",
-                 "Note: not printing all meta data, use $meta to get all.",
-                 unset_col,
-                 "\n"))
+      cat(
+        col_note("Note: not printing all meta data, use $meta to get all.\n")
+      )
 
       # Print grid only if available
       if (!is.null(private$.grid)) {
-        cat(paste0("\u001b[1m\u001b[31m",
-                   "$grid",
-                   unset_col,
-                   "\u001b[31m",
-                   " ...",
-                   unset_col,
-                   "\n"))
+        cat(col_var(paste0(bold_head("$grid")[1], " ...", "\n")))
       }
 
       # Print data attribute
-      cat(paste0("\u001b[1m",
-                 blue_col,
-                 "$data |>",
-                 unset_col,
-                 "\n"))
+      cat(bold_head("$data |>\n")[1])
 
       # Dimnames
       dim_names <- self$dimnames()
-      cat(paste0(blue_col, "  dimnames() |>", unset_col, "\n"))
+      cat(col_var("  dimnames() |>\n"))
 
       for (sub in seq_along(dim_names)) {
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
@@ -255,23 +240,23 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
         }
 
-        cat("  ",
-            blue_col,
-            paste0(".$", names(dim_names[sub])),
-            unset_col,
-            abbr_dim_names)
+        cat(
+          "  ",
+          col_var(
+            paste0(".$", names(dim_names[sub]))
+          ),
+          abbr_dim_names
+        )
         cat("\n")
       }
 
       # Summary
-      cat(paste0(blue_col, "$summary()", unset_col, "\n"))
+      cat(col_var("$summary()\n"))
       print(self$summary(cutoff = TRUE))
 
       if (class(self)[1] == "LPJmLData") {
-        cat(paste0("\u001b[33;3m",
-                   "Note: summary is not weighted by grid area.",
-                   unset_col,
-                   "\n")
+        cat(
+          col_note("Note: summary is not weighted by grid area.\n")
         )
       }
     },
@@ -442,12 +427,9 @@ aggregate_array <- function(x,
       dim_names <- names(dim(data))
 
       if (!idx_name %in% dim_names) {
-        warning(paste0("\u001b[0m",
-                       "Dimension ",
-                       "\u001b[34m",
-                       idx_name,
-                       "\u001b[0m",
-                       " does not exist."))
+        warning("Dimension ",
+                col_var(idx_name),
+                " does not exist.")
         next
 
       } else if (dims[idx_name] == 1) {

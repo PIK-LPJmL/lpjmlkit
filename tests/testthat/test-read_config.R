@@ -6,7 +6,7 @@ test_that("read in json data", {
   expect_true(methods::is(json_data, "list"))
 
   # Check for checking required elements for valid config
-  expect_error(
+  expect_message(
     read_config("../testdata/lpjml_nonvalid.js"),
     "Missing element"
   )

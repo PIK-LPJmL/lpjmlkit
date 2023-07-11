@@ -141,17 +141,18 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
     #' See also \link[base]{print}
     print = function() {
 
-      unset_col <- "\u001b[0m"
-
       # Print LPJmLData class
       super$print()
 
-      cat(paste0("\u001b[33;3m",
-                 ifelse(private$.meta$._space_format_ == "cell",
-                        "Note: only min & max printed as equivalent to spatial extent.", # nolint
-                        "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells."), # nolint
-                 unset_col,
-                 "\n"))
+      cat(
+        col_note(
+          ifelse(
+            private$.meta$._space_format_ == "cell",
+            "Note: only min & max printed as equivalent to spatial extent.\n", # nolint
+            "Note: inverted grid (cell as value)! Only min & max printed for sequence of cells.\n"
+          )
+        )
+      )
     }
   ),
   private = list(

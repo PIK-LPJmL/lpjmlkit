@@ -2,6 +2,8 @@
 % Please edit documentation in R/LPJmLData_as.R
 \name{as_terra}
 \alias{as_terra}
+\alias{as_rast}
+\alias{as_SpatRaster}
 \title{Coerce an LPJmLData object to a terra object}
 \usage{
 as_terra(x, subset = NULL, aggregate = NULL, ...)
@@ -27,8 +29,8 @@ extracted from \verb{$meta}.
 }
 \description{
 Function to coerce (convert) an \code{\link{LPJmLData}} object into a
-\link[terra]{rast} object that allows GIS-based raster operations.
-Read more about the terra package at \url{https://rspatial.org/}.
+\link[terra]{rast} object that allows GIS-based raster
+operations. Read more about the terra package at \url{https://rspatial.org/}.
 }
 \details{
 The \verb{$grid} attribute is required for spatial transformation. When

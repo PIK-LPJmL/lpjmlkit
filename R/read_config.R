@@ -74,9 +74,9 @@ read_config <- function(filename,
   required_att <- c("sim_id", "param", "soilpar", "pftpar", "input", "output")
 
   if (any(sapply(tmp_json[required_att], is.null))) { # nolint:undesirable_function_linter.
-    stop(
+    message(
       "File ", sQuote(filename),
-      "does not appear to contain an LPJmL configuration.\n",
+      "does not appear to be a complete LPJmL configuration.\n",
       "Missing element(s): ",
       toString(dQuote(setdiff(required_att, names(tmp_json))))
     )

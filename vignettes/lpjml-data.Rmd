@@ -428,7 +428,7 @@ library(lpjmlkit)
 
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 npp <- read_io(filename = "./output/npp.bin.json",
-               subset = list(year = 1970:2011))
+               subset = list(year = as.character(1970:2011)))
 
 # Transform "time" into "year" and "month" dimensions.
 npp$transform(to = "year_month_day")
@@ -452,7 +452,7 @@ global_npp_trend <- as_array(npp,
 
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 runoff <- read_io(filename = "./output/runoff.bin.json",
-               subset = list(year = 2002:2011))
+               subset = list(year = as.character(2002:2011)))
 
 # Usage of pipe operator operator |> (%>% via package magrittr R version < 4.1)
 runoff |>
@@ -461,7 +461,7 @@ runoff |>
   # ... to subset summer months as well as northern hemisphere (positive)
   #   latitudes.
   subset(month = 6:9,
-         lat = seq(0.25, 83.75, by = 0.5)) |>
+         lat = as.character(seq(0.25, 83.75, by = 0.5))) |>
   # for plotting sum up summer month and take the average over the years
   plot(aggregate = list(year = mean, month = sum))
 
@@ -474,7 +474,7 @@ runoff |>
 
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 gpp <- read_io(filename = "./output/gpp.bin.json",
-               subset = list(year = 2002:2011))
+               subset = list(year = as.character(2002:2011)))
 
 # Transform into lon_lat format.
 gpp$transform(to = "lon_lat")
@@ -491,13 +491,13 @@ plot(gpp, aggregate = list(time = mean, lon = mean))
 
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 # Coordinates for cells around Potsdam.
-coordinates <- tibble::tibble(lat = c(52.25, 52.400922, 53.25),
-                      lon = c(12.75, 13.03638, 12.75))
+coordinates <- tibble::tibble(lat = as.character(c(52.25, 52.400922, 53.25)),
+                              lon = as.character(c(12.75, 13.03638, 12.75)))
 
 # Complete pipe notation, from reading to plotting data.
 read_io(
   filename = glue("./cftfrac.bin.json"),
-  subset = list(year = 2000:2018)
+  subset = list(year = as.character(2000:2018))
 ) |>
   transform(to = "lon_lat") |>
   # Special case for subsetting of lat and lon pairs
