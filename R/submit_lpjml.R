@@ -39,11 +39,15 @@
 #'   information at <https://www.pik-potsdam.de/en> and
 #'   <https://slurm.schedmd.com/sbatch.html>.
 #'
-#' @param constraint Character string defining nodes with the specified feature.
-#'   Use `constraint = "haswell"` to solve issue when MPI tasks are launched
-#'   on broadwell nodes (default), where more than 16 cores are installed and
-#'   other batch jobs can interfere with LPJmL. More information at
-#'   <https://www.pik-potsdam.de> and <https://slurm.schedmd.com/sbatch.html>.
+#' @param constraint Character string defining constraints for node selection.
+#'   Use `constraint = "haswell"` to request nodes of the type haswell with 16
+#'   cores per node, `constraint = "broadwell"` to request nodes with type
+#'   broadwell CPUs with 32 cores per node or `constraint = "exclusive"` to
+#'   reserve all CPUs of assigned nodes even if less are requested by `ntasks`.
+#'   Using `exclusive` should prevent interference of other batch jobs with
+#'   LPJmL. More information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com/sbatch.html>.
+
 #'
 #' @param slurm_option A named list of further arguments to be passed to sbatch.
 #'   E.g. list(`mail-user` = "max.mustermann@pik-potsdam.de")

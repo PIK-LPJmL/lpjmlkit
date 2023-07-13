@@ -14,7 +14,7 @@ submit_lpjml(
   wtime = "",
   blocking = "",
   constraint = "",
-  slurm_options = list(),
+  slurm_option = list(),
   no_submit = FALSE,
   output_path = NULL
 )
@@ -54,13 +54,16 @@ SLURM job queue. More information at \url{https://www.pik-potsdam.de/en} and
 information at \url{https://www.pik-potsdam.de/en} and
 \url{https://slurm.schedmd.com/sbatch.html}.}
 
-\item{constraint}{Character string defining nodes with the specified feature.
-Use \code{constraint = "haskwell"} to solve issue when MPI tasks are launched
-on broadwell nodes (default), where more than 16 cores are installed and
-other batch jobs can interfere with LPJmL. More information at
-\url{https://www.pik-potsdam.de} and \url{https://slurm.schedmd.com/sbatch.html}.}
+\item{constraint}{Character string defining constraints for node selection.
+Use \code{constraint = "haswell"} to request nodes of the type haswell with 16
+cores per node, \code{constraint = "broadwell"} to request nodes with type
+broadwell CPUs with 32 cores per node or \code{constraint = "exclusive"} to
+reserve all CPUs of assigned nodes even if less are requested by \code{ntasks}.
+Using \code{exclusive} should prevent interference of other batch jobs with
+LPJmL. More information at \url{https://www.pik-potsdam.de} and
+\url{https://slurm.schedmd.com/sbatch.html}.}
 
-\item{slurm_options}{Define List of further arguments to be passed to sbatch.
+\item{slurm_option}{A named list of further arguments to be passed to sbatch.
 E.g. list(\code{mail-user} = "max.mustermann@pik-potsdam.de")
 More information at \url{https://www.pik-potsdam.de} and
 \url{https://slurm.schedmd.com/sbatch.html}}
@@ -100,7 +103,7 @@ parameter \code{"dependency"} needs to be provided within the initial
 
 
 To use different SLURM settings for each run the optional SLURM options
-\code{"sclass"}, \code{"ntask"}, \code{"wtime"}, "blocking"\code{or}constraint\verb{can also be supplied to the initial \link[tibble]\{tibble\} supplied as}param\verb{ to [}write_config()\verb{]. These overwrite the (default) SLURM arguments (}sclass\verb{, }ntask\verb{, }wtime\verb{, }blocking\code{or} \code{constraint})
+\code{"sclass"}, \code{"ntasks"}, \code{"wtime"}, "blocking"\code{or}constraint\verb{can also be supplied to the initial \link[tibble]\{tibble\} supplied as}param\verb{ to [}write_config()\verb{]. These overwrite the (default) SLURM arguments (}sclass\verb{, }ntasks\verb{, }wtime\verb{, }blocking\code{or} \code{constraint})
 supplied to \code{submit_lpjml}.\tabular{llr}{
    \strong{sim_name} \tab \strong{dependency} \tab \strong{wtime} \cr
    scen1_spinup \tab NA \tab "8:00:00" \cr
