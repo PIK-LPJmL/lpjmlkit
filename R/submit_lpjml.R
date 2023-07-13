@@ -40,12 +40,12 @@
 #'   <https://slurm.schedmd.com/sbatch.html>.
 #'
 #' @param constraint Character string defining nodes with the specified feature.
-#'   Use `constraint = "haskwell"` to solve issue when MPI tasks are launched
+#'   Use `constraint = "haswell"` to solve issue when MPI tasks are launched
 #'   on broadwell nodes (default), where more than 16 cores are installed and
 #'   other batch jobs can interfere with LPJmL. More information at
 #'   <https://www.pik-potsdam.de> and <https://slurm.schedmd.com/sbatch.html>.
 #'
-#' @param slurm_options Define List of further arguments to be passed to sbatch.
+#' @param slurm_option A named list of further arguments to be passed to sbatch.
 #'   E.g. list(`mail-user` = "max.mustermann@pik-potsdam.de")
 #'   More information at <https://www.pik-potsdam.de> and
 #'   <https://slurm.schedmd.com/sbatch.html>
@@ -78,10 +78,10 @@
 #' | scen2_transient | scen1 _spinup  |
 #'
 #' To use different SLURM settings for each run the optional SLURM options
-#' `"sclass"`, `"ntask"`, `"wtime"`, "blocking"` or `constraint` can also be
+#' `"sclass"`, `"ntasks"`, `"wtime"`, "blocking"` or `constraint` can also be
 #' supplied to the initial \link[tibble]{tibble} supplied as `param` to
 #' [`write_config()`]. These overwrite the (default) SLURM
-#' arguments (`sclass`, `ntask`, `wtime`, `blocking` or ` `constraint`)
+#' arguments (`sclass`, `ntasks`, `wtime`, `blocking` or ` `constraint`)
 #' supplied to `submit_lpjml`.
 #'
 #' | **sim_name**    | **dependency** | **wtime** |
@@ -187,7 +187,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          wtime = "",
                          blocking = "",
                          constraint = "",
-                         slurm_options = list(),
+                         slurm_option = list(),
                          no_submit = FALSE,
                          output_path = NULL) {
 
@@ -227,7 +227,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
   x$job_id <- NA
   x$status <- "failed"
   slurm_args <- c(
-    "sclass", "ntask", "wtime", "blocking", "constraint", "slurm_options"
+    "sclass", "ntasks", "wtime", "blocking", "constraint", "slurm_option"
   )
 
   if ("order" %in% colnames(x)) {
@@ -275,7 +275,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                             blocking,
                             constraint,
                             dependency,
-                            slurm_options)
+                            slurm_option)
 
           if (job$status == 0) {
             x$job_id[sim_idx] <- strsplit(
@@ -326,7 +326,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                           blocking,
                           constraint,
                           dependency = NA,
-                          slurm_options)
+                          slurm_option)
 
         if (job$status == 0) {
           x$job_id[sim_idx] <- strsplit(
@@ -362,7 +362,7 @@ submit_run <- function(sim_name,
                        blocking,
                        constraint,
                        dependency,
-                       slurm_options) {
+                       slurm_option) {
 
   config_file <- paste0("config_",
                         sim_name,
@@ -394,12 +394,12 @@ submit_run <- function(sim_name,
                   timestamp,
                   ".json")
 
-  if (is.list(slurm_options) && length(slurm_options) > 0) {
-    further_slurm_options <- paste0(
-      " -option ", names(slurm_options), "=", slurm_options, collapse = " "
+  if (is.list(slurm_option) && length(slurm_option) > 0) {
+    further_slurm_option <- paste0(
+      " -option ", names(slurm_option), "=", slurm_option, collapse = " "
     )
   } else {
-    further_slurm_options <- ""
+    further_slurm_option <- ""
   }
 
   inner_command <-  paste0(model_path, "/bin/lpjsubmit", # nolint:absolute_path_linter.
@@ -418,7 +418,7 @@ submit_run <- function(sim_name,
                            ifelse(!is.na(dependency),
                                   paste0(" -dependency ", dependency),
                                   ""),
-                           further_slurm_options,
+                           further_slurm_option,
                            " -o ", stdout,
                            " -e ", stderr,
                            " ",
