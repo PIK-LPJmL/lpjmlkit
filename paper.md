@@ -142,70 +142,71 @@ calibration, benchmarking or indicator development.
 # Package features
 
 *lpjmlkit*  is an R package that contains two main modules, each of which
-contains supplementary documentation in the form of a guide in addition to the
+contains supplementary documentation in form of a guide in addition to the
 package documentation:
 
 * [*LPJmL Runner* vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-runner.html)
 * [*LPJmL Data* vignette](https://pik-piam.r-universe.dev/articles/lpjmlkit/lpjml-data.html)
 
-Together, these modules can be used to set up and
+Together, these modules can be used to configure and
 run LPJmL model simulations as well as read and process the resulting data.
 
 ## LPJmL Runner
 
 The Runner module is designed to operate LPJmL on Unix-based operating systems
-that have a working LPJmL version 4 or higher installation and includes four
+that have a working LPJmL installation (version 4 or higher) and includes four
 key functions.
 
-The principle is based on the procedure of creating tables for the parameters
-and settings to be changed for a large number of related simulations,
+The basic idea is to create tables for the parameters
+and settings to be changed from a default configuration file
+for single runs or any number of related simulations,
 e.g. multi-scenario or uncertainty/sensitivity analyses.
-The creation of the table is based on the concept of tidy data with columns as
+The creation of these tables is based on the concept of `tidy data` with columns as
 parameters/settings (variables) and rows as simulations (observations)
 [@wickham_tidy_2014].
-In order to facitlitate the execution of these simulations, `write_config`
-handles the transformation of corresponding tables into LPJmL compatible JSON
+In order to facitlitate the execution of these simulations, the function `write_config()`
+handles the formatting of the corresponding `tidy data` tables into LPJmL compatible JSON
 configuration files.
 
-LPJmL simulations can either be run sequentially locally with `run_lpjml()`
+LPJmL simulations can either be run sequentially on single CPUs with `run_lpjml()`,
 which is particularly suitable for testing the model or for focusing on small
 regions.
 In addition, simulations can be submitted to an HPC cluster equipped with the
 SLURM workload manager using `submit_lpjml()`, which is particularly useful for
-computing multiple global simulations in parallel.
+computing multiple global simulations in parallel mode using multiple CPUs.
 
 ## LPJmL Data
 
-While LPJmL Runner covers the whole range of running LPJmL simulations, LPJmL
-Data provides the tools for the subsequent data analysis part.
-LPJmL simulations use their own binary data format to write memory efficient
-output data.
-The associated metadata can be written either as a file header or as an
+While the module *LPJmL Runner* covers the whole range of running LPJmL simulations, 
+`LPJmL Data` provides the tools for the subsequent data analysis part.
+LPJmL simulations output data in a raw binary data format designed for memory efficient
+data structures.
+The LPJmL model can write metadata for each output file, either as a file header or as an
 additional metadata file in JSON format.
-Using `read_io()`, this data can be read into a standardised data format called
-`LPJmLData`, which associates the data arrays with the corresponding metadata
-to ensure its integrity.
+Using `read_io()`, LPJmL raw output data can be read into a standardised data format called
+`LPJmLData`, which makes use of the corresponding metadata
+to correctly represent the data arrays (dimensions, units, etc.).
 
-The core of this data format is the range of functionalities commonly used by
+This data format is designed to faciliitate the functionalities commonly used by
 LPJmL users for data analysis.
-In addition to the descriptive statistics that an LPJmLData object displays,
-there is a `plot()` method to get direct graphical insights into the data.
-LPJmLData objects can be transformed into various common spatial and temporal
-formats (`transform()`).
+In addition to the descriptive statistics that an LPJmLData object displays by default,
+there is a `plot()` method to easily display the the data for visual inspection.
+`LPJmLData` objects can be transformed into various common spatial and temporal
+formats with the funciton `transform()`.
 For example, the one-dimensional cell vector can be transformed into a
-longitude-latitude matrix to allow further spatial operations such as nearest
-neighbour subsetting using coordinate pairs.
+longitude-latitude matrix to allow further spatial operations such as "nearest
+neighbour" subsetting, using coordinate pairs.
 The temporal dimension can be decomposed into further sub-time dimensions,
 which is particularly useful for high temporal resolutions such as monthly or
-daily data going over several years.
-The export functions allow the LPJmLData format to be exported at any time to
+daily data covering several years.
+Several export functions allow for easy conversion of the LPJmLData format to 
 other common data formats such as `SpatRaster` (`as_terra()`), `tibble`
 (`as_tibble()`) or simply `array` (`as_array()`).
 Here, in addition to subsetting, the data can also be aggregated using common
-functions such as `mean` or `sum`.
+functions such as `mean()` or `sum()`.
 
-Above all, it is the combination of these different functions that increases
-the utility.
+Especially in combination, these different functions can greatly increases
+the utility for data analysis.
 For example, a combination of the transformation of the read-in
 discharge into sub-time dimensions and latitude-longitude matrix and the
 subsequent subsetting of the summer months of the northern hemisphere and the
@@ -219,12 +220,12 @@ aggregation over years and months allows the following presentation.
 The *lpjmlkit* package also includes additional functions to support different
 applications that involve handling LPJmL or related data.
 
-For example, `calc_cellarea()` calculates the area of the grid cells in an
-LPJmLData object or for any vector of latitude coordinates representing a
+For example, the function `calc_cellarea()` calculates the area of the grid cells in an
+`LPJmLData` object or for any vector of latitude coordinates representing a
 regular grid with a set spatial resolution.
 
-While `read_io` is the main function to access LPJmL input and output files,
-`lpjmlkit` also includes a number of functions providing low-level access to the
+While `read_io()` is the main function to access LPJmL input and output files,
+*lpjmlkit* also includes a number of functions providing low-level access to the
 binary LPJmL file format: `read_header()`, `create_header()`, and
 `write_header()` allow to retrieve/generate/save file headers, while
 `get_headersize()` and `get_datatype()` return information about the header and
