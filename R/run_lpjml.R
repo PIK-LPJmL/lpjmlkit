@@ -312,19 +312,18 @@ do_sequential <- function(sim_names,
 
     # Check if slurm is available
     if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
-      Sys.setenv(I_MPI_DAPL_UD = "disable", # nolint:undesirable_function_linter.
-                 I_MPI_FABRICS = "shm:shm",
-                 I_MPI_DAPL_FABRIC = "shm:sh")
+      mpi_var <- Sys.getenv("I_MPI_DAPL_UD_PROVIDER")
+      Sys.unsetenv("I_MPI_DAPL_UD_PROVIDER")# nolint:undesirable_function_linter.
+    } else {
+      mpi_var <- NULL
     }
     for (sim_name in sim_names) {
       do_run(sim_name, model_path, sim_path, write_stdout, raise_error)
     }
   }, finally = {
     # Check if slurm is available
-    if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
-      Sys.setenv(I_MPI_DAPL_UD = "enable", # nolint:undesirable_function_linter.
-                 I_MPI_FABRICS = "shm:dapl")
-      Sys.unsetenv("I_MPI_DAPL_FABRIC")
+    if (!is.null(mpi_var)) {
+      Sys.setenv(I_MPI_DAPL_UD_PROVIDER = mpi_var) # nolint:undesirable_function_linter.
     }
   })
 }
