@@ -120,7 +120,8 @@
 #' (`wtime`) for the transient run than the spin-up run to get a higher priority
 #' in the SLURM queue. This can be achieved by supplying this option as a
 #' parameter to `param`. \cr
-#' 4 options are available, namely `sclass`, `ntask`, `wtime`, `blocking`. \cr
+#' 6 options are available, namely `sclass`, `ntasks`, `wtime`, `blocking`,
+#' `constraint` and `slurm_options`. Use as arguments for [submit_lpjml()`].\cr
 #' If specified in `param`, they overwrite the corresponding function arguments
 #' in [`submit_lpjml()`].
 #'
@@ -313,7 +314,9 @@ write_config <- function(x,
                                order = NA,
                                dependency = NA)
 
-  slurm_args <- c("sclass", "ntask", "wtime", "blocking")
+  slurm_args <- c(
+    "sclass", "ntasks", "wtime", "blocking", "constraint", "slurm_options"
+  )
 
   config_tmp[slurm_args] <- NA
 
