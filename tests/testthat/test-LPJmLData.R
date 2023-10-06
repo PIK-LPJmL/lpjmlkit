@@ -169,6 +169,10 @@ test_that("test print method", {
     print(output),
     "meta"
   )
+  expect_output(
+    print(output),
+    "subset"
+  )
 
   # Check if data printed
   expect_output(

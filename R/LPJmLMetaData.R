@@ -107,18 +107,16 @@ LPJmLMetaData <- R6::R6Class( # nolint
       cat("\n")
 
       # Print information about subset if subsetted
-      if (self$subset) {
-        cat(
-          paste0(
-            spaces,
-            col_var("$subset"),
-            " ",
-            # Color red if subset.
-            col_warn(self$subset),
-            "\n"
-          )
+      cat(
+        paste0(
+          spaces,
+          col_var("$subset"),
+          " ",
+          # Color red if subset.
+          ifelse(self$subset, col_warn(self$subset), self$subset),
+          "\n"
         )
-      }
+      )
     },
 
 

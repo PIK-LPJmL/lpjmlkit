@@ -328,10 +328,10 @@ read_io <- function( # nolint:cyclocomp_linter.
   # Check file size
   expected_filesize <- unname(
     get_header_item(file_header, "ncell") *
-    get_header_item(file_header, "nbands") *
-    get_header_item(file_header, "nstep") *
-    get_header_item(file_header, "nyear") *
-    get_datatype(file_header)$size + start_offset
+      get_header_item(file_header, "nbands") *
+      get_header_item(file_header, "nstep") *
+      get_header_item(file_header, "nyear") *
+      get_datatype(file_header)$size + start_offset
   )
   if (file.size(filename) != expected_filesize) {
     stop(
@@ -345,9 +345,8 @@ read_io <- function( # nolint:cyclocomp_linter.
 
   # Check whether nbands may actually be nstep
   if (!silent && get_header_item(file_header, "version") < 4 &&
-    get_header_item(file_header, "nstep") == 1 &&
-    get_header_item(file_header, "nbands") %in% c(12, 365)
-  ) {
+        get_header_item(file_header, "nstep") == 1 &&
+        get_header_item(file_header, "nbands") %in% c(12, 365)) {
     message(
       "read_io: Detected \"nbands = ", get_header_item(file_header, "nbands"),
       "\" and \"nstep = 1\". If this is a ",
@@ -404,8 +403,7 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
     firstyear = default(firstyear, 1901),
     nyear = default(nyear, 1),
     firstcell = default(firstcell, 0),
-    ncell = default(ncell, 67420), # Default: number of cells in global CRU
-                                   # grid
+    ncell = default(ncell, 67420), # Default: number of cells in global CRU grid
     nbands = default(nbands, 1),
     cellsize_lon = default(cellsize_lon, 0.5),
     # Default: resolution of global CRU grid
@@ -586,7 +584,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   }
 
   if (!"band_names" %in% set_args && is.null(meta_data$band_names) &&
-    !is.null(meta_data$map) && !is.null(nbands)
+      !is.null(meta_data$map) && !is.null(nbands)
   ) {
     if (length(meta_data$map) == nbands / 2) {
       # Create band_names from the map attribute that is included in meta data.
@@ -741,9 +739,7 @@ read_io_data <- function(
     )
 
     # Convert to read_band_order and apply subsetting along bands or cells
-    index <- which(!names(subset) %in%
-      c("day", "month", "year", "time")
-    )
+    index <- which(!names(subset) %in% c("day", "month", "year", "time"))
 
     year_data <- aperm(year_data, perm = read_band_order) %>%
       # Apply any subsetting along bands or cells
@@ -813,15 +809,15 @@ read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
 # Simple validity check for band_names
 check_band_names <- function(nbands, band_names) {
   if (!is.null(band_names) &&
-    length(band_names) != nbands
+      length(band_names) != nbands
   ) {
     stop(
       "Provided band_names ",
       toString(
         dQuote(
           if (length(band_names) > 6) {
-              c(utils::head(band_names, n = 4), "...",
-                utils::tail(band_names, n = 1))
+            c(utils::head(band_names, n = 4), "...",
+              utils::tail(band_names, n = 1))
           } else {
             band_names
           }
@@ -840,7 +836,7 @@ check_year_subset <- function(subset, meta_data, silent = FALSE) {
     if (is.numeric(subset[["year"]])) {
       outside_range <- which(
         as.integer(subset[["year"]]) < 1 |
-        as.integer(subset[["year"]]) > default(meta_data$nyear, 1)
+          as.integer(subset[["year"]]) > default(meta_data$nyear, 1)
       )
       if (length(outside_range) > 0) {
         stop(
