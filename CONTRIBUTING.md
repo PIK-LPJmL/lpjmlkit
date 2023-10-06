@@ -29,8 +29,6 @@ Now you're ready to start making contributions!
 
 ## Contributing
 
-We welcome contributions in the form of bug reports, feature requests, code
-improvements, and more.
 To contribute to *lpjmlkit*, please follow these steps:
 
 1. Check for existing issues in the
