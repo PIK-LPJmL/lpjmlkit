@@ -39,11 +39,12 @@ problem or feature you want to address. Be sure to provide as much detail as
 possible to help others understand the context and purpose.
 3. **Fork the repository** if you haven't already and create a **new branch**
 for your contribution.
-4. Make your changes, following best practices and adhering to the **coding
-style** of the project.
+4. Make your changes in that new branch, following best practices and 
+adhering to the **coding style** of the project.
 5. Write **unit tests** if applicable and ensure that all tests pass.
 6. Submit a **pull request (PR)** referencing the issue you created earlier.
 Describe your changes, and our team will review it as soon as possible.
+7. All discussion threads of the PR need to be resolved before the PR can be merged.
 
 Your contributions will be greatly appreciated and will help make *lpjmlkit*
 even better.
@@ -77,9 +78,9 @@ We do not tolerate:
 practices.
 * **Bullying**: Bullying or aggressive behavior towards others.
 
-Reporting Incidents
+Reporting Incidents  
 If you witness or experience any violations, please report them to
 [jannesbr@pik-potsdam.de](mailto:jannesbr@pik-potsdam.de).
 All reports will be handled confidentially and promptly.
 
-Thank you for being a part of the *lpjmlkit* community!
+Thank you for being part of the *lpjmlkit* community!
