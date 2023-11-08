@@ -594,8 +594,15 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     for (x_id in seq_len(length(x[["output"]]))) {
 
       # Replace output format in x if defined (e.g. raw, clm, cdf)
-      if (x[["output"]][[x_id]]$file$fmt != "txt") {
+      if ("fmt" %in% names(x[["output"]][[x_id]]$file) &&
+            x[["output"]][[x_id]]$file$fmt != "txt") {
         x[["output"]][[x_id]]$file$fmt <- output_format
+      } else if (!("fmt" %in% names(x[["output"]][[x_id]]$file)) &&
+                   all(c("default_fmt", "default_suffix") %in% names(x))) {
+        x[["output"]][[x_id]]$file$name <- paste0(
+          x[["output"]][[x_id]]$file$name,
+          x[["default_suffix"]]
+        )
       }
 
       # Replace output path in x
