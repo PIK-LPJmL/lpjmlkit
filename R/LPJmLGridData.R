@@ -99,7 +99,8 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
     #' @description
     #' !Internal method only to be used for package development!
     #'
-    #' @param lpjml_data LPJmLData object with variable `"grid"` or `"LPJGRID"`
+    #' @param lpjml_data LPJmLData object with variable `"grid"`, `"cellid"`
+    #'   or `"LPJGRID"`
     initialize = function(lpjml_data) {
 
       x <- lpjml_data$clone(deep = TRUE)
@@ -113,7 +114,7 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
 
       if (!is.null(private$.meta$variable)) {
 
-        if (private$.meta$variable == "grid") {
+        if (private$.meta$variable %in% c("grid", "cellid")) {
           private$init_grid()
 
         } else if (private$.meta$variable == "LPJGRID") {
