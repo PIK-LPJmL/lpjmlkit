@@ -33,14 +33,20 @@ detect_io_type <- function(filename) {
 
   # First check for "clm". The file header should always start with "LPJ".
   if (length(file_check) > 3 && all(
-    rawToChar(utils::head(file_check, 3), multiple = TRUE) == c("L", "P", "J")
+    stringi::stri_encode(
+      rawToChar(utils::head(file_check, 3), multiple = TRUE),
+      to = "UTF-8"
+    ) == c("L", "P", "J")
   )) {
     return("clm")
   }
 
   # Next, check for NetCDF format
   if ((length(file_check) > 3 && all(
-    rawToChar(utils::head(file_check, 3), multiple = TRUE) ==
+    stringi::stri_encode(
+      rawToChar(utils::head(file_check, 3), multiple = TRUE),
+      to = "UTF-8"
+     ) ==
     c("C", "D", "F") # Classic NetCDF format
   )) || (length(file_check) > 8 && all(
     utils::head(file_check, 8) ==
@@ -52,14 +58,18 @@ detect_io_type <- function(filename) {
   # Next, check if file contains only text. This could be JSON or other text
   # formats such as .csv or .dat files.
   if (
-    all(grepl("[[:print:][:space:]]", rawToChar(file_check, multiple = TRUE)))
+    all(grepl("[[:print:][:space:]]",
+      stringi::stri_encode(
+        rawToChar(file_check, multiple = TRUE), to = "UTF-8")
+      )
+    )
   ) {
 
     # Check if the text file is a JSON file. JSON files normally start with "{".
     # Remove any white space at the beginning of the file. This will not detect
     # a JSON if file has > 10 bytes of white space or includes comments.
     first_char <- scan(
-      text = rawToChar(file_check),
+      text = stringi::stri_encode(rawToChar(file_check), to = "UTF-8"),
       what = "char",
       strip.white = TRUE,
       nmax = 1,

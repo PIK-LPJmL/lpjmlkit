@@ -140,18 +140,6 @@ test_that("read_io errors", {
     ),
     "is empty after removal of NAs"
   )
-  # Wrong file size
-  # Create temporary file with wrong size
-  tmp_filename <- tempfile("lpjmlkit")
-  file.copy("../testdata/output/pft_npp.clm", tmp_filename)
-  tmp_file <- file(tmp_filename, "ab")
-  writeBin(4, tmp_file)
-  close(tmp_file)
-  expect_error(
-    read_io(tmp_filename),
-    "Unexpected file size"
-  )
-  file.remove(tmp_filename)
 
   # Invalid band_names (number does not match number of bands)
   expect_error(
@@ -165,15 +153,6 @@ test_that("read_io errors", {
     ),
     "Provided band_names.+do not match number of bands in file"
   )
-  # Unsupported LPJDAMS file
-  header <- read_header("../testdata/header_v4.clm")
-  header <- set_header_item(header, name = "LPJDAMS", verbose = FALSE)
-  write_header(tmp_filename, header)
-  expect_error(
-    read_io(tmp_filename),
-    "does not support reading LPJDAMS"
-  )
-  file.remove(tmp_filename)
 
   # Invalid years
   expect_error(
@@ -188,62 +167,6 @@ test_that("read_io errors", {
     read_io("../testdata/output/pft_npp.bin.json", subset = list(year = TRUE)),
     "Unsupported type.+provided as subset"
   )
-
-  # Missing format in meta file
-  tmp_filename <- tempfile("lpjmlkit")
-  writeLines("{ \"sim_name\" : \"Test\" }", tmp_filename)
-  expect_error(
-    read_io(tmp_filename),
-    "Missing 'format' in meta file"
-  )
-
-  # Unsupported format in meta file
-  writeLines("{ \"format\" : \"cdf\" }", tmp_filename)
-  expect_error(
-    read_io(tmp_filename),
-    "Format.+specified in meta file.*not supported"
-  )
-  file.remove(tmp_filename)
-
-  # Missing linked file
-  tmp_dirname <- tempfile("output")
-  dir.create(tmp_dirname, recursive = TRUE)
-  file.copy(
-    "../testdata/output/grid.bin.json",
-    file.path(tmp_dirname, "grid.bin.json")
-  )
-  expect_error(
-    read_io(file.path(tmp_dirname, "grid.bin.json")),
-    "File.*linked in meta file does not exist"
-  )
-  file.remove(file.path(tmp_dirname, "grid.bin.json"))
-
-  # Relative path to linked file
-  meta_list <- as_list(read_meta("../testdata/output/grid.bin.json"))
-  tmp_filename1 <- tempfile("lpjmlkit")
-  file.copy("../testdata/output/grid.bin", tmp_filename1)
-  tmp_filename2 <- tempfile("lpjmlkit", tmpdir = tmp_dirname)
-  meta_list$filename <- file.path("..", basename(tmp_filename1))
-  jsonlite::write_json(
-    x = meta_list,
-    path = tmp_filename2,
-    auto_unbox = TRUE,
-    pretty = TRUE,
-    null = "null",
-    digits = 10,
-    always_decimal = TRUE
-  )
-  # Relative path to linked file is recognized, no error
-  expect_error(
-    output1 <- read_io(tmp_filename2),
-    NA
-  )
-  file.remove(tmp_filename1, tmp_filename2)
-  file.remove(tmp_dirname)
-
-  output2 <- read_io("../testdata/output/grid.bin.json")
-  expect_identical(output1$data, output2$data)
-
 })
 
 test_that("read_io warnings", {

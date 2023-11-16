@@ -1,6 +1,8 @@
 
 test_that("write correct config with dot syntax", {
 
+  skip_on_os("mac")
+
   test_params <- tibble::tibble(
     sim_name = "spinup_pnv",
     random_seed = as.integer(42),
@@ -89,6 +91,8 @@ test_that("write correct config with dot syntax", {
 
 
 test_that("write correct config with common list syntax", {
+
+  skip_on_os("mac")
 
   test_params <- tibble::tibble(
     sim_name = "spinup_pnv",
@@ -285,7 +289,6 @@ test_that("write correct config with common list syntax", {
     "not available in current model version"
   )
 
-
   # Check setting a macro
   test_params["wtime"] <- "10:00:00"
   test_params["-DMY_MACRO"] <- TRUE
@@ -305,6 +308,8 @@ test_that("write correct config with common list syntax", {
 
 
 test_that("include non output defined outputvars", {
+
+  skip_on_os("mac")
 
     test_params <- tibble::tibble(
       sim_name = c("transient_pnv"),

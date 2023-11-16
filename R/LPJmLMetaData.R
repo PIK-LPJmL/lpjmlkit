@@ -57,10 +57,6 @@ LPJmLMetaData <- R6::R6Class( # nolint
         print_fields <- self$._fields_set_
       }
 
-      # Colorize self print.
-      blue_col <- "\u001b[34m"
-      unset_col <- "\u001b[0m"
-
       meta_fields <- print_fields %>%
         sapply(function(x) do.call("$", list(self, x)), # nolint:undesirable_function_linter.
                USE.NAMES = FALSE)
@@ -78,10 +74,9 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
       cat(
         paste0(spaces,
-               blue_col,
-               "$",
-               print_fields,
-               unset_col,
+               col_var(
+                 paste0("$", print_fields)
+               ),
                " ",
                to_char1,
                lapply(meta_fields, function(x) {
@@ -111,17 +106,14 @@ LPJmLMetaData <- R6::R6Class( # nolint
       )
       cat("\n")
 
+      # Print information about subset if subsetted
       cat(
         paste0(
           spaces,
-          blue_col,
-          "$subset",
-          unset_col,
+          col_var("$subset"),
           " ",
           # Color red if subset.
-          ifelse(self$subset, "\u001b[31m", ""),
-          self$subset,
-          ifelse(self$subset, unset_col, ""),
+          ifelse(self$subset, col_warn(self$subset), self$subset),
           "\n"
         )
       )
@@ -179,7 +171,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
       # Update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0 and numeric/integer -> R index starting from 1 -> -1.
       if (!is.null(subset$cell) ||
-          !is.null(subset$lon) || !is.null(subset$lat)) {
+            !is.null(subset$lon) || !is.null(subset$lat)) {
 
         # Subset of subset$cell, subset$lon or subset$lat always have to be
         #   accompanied by cell_dimnames.
@@ -285,39 +277,39 @@ LPJmLMetaData <- R6::R6Class( # nolint
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
             # "descr" = tolower(x$name), # nolint
             "lastyear" = x$header[["firstyear"]] +
-                         x$header[["timestep"]] *
-                         (x$header[["nyear"]] - 1),
+              x$header[["timestep"]] *
+                (x$header[["nyear"]] - 1),
             "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
           )) %>%
           `[[<-`("order",
-                switch(as.character(.$order),
-                       `1` = "cellyear",
-                       `2` = "yearcell",
-                       `3` = "cellindex",
-                       `4` = "cellseq",
-                       stop(
-                         paste(
-                           "Invalid order value", sQuote(.$order), "in header"
-                         )
-                       )
-                  )
-                ) %>%
-          `[[<-`("datatype",
-                switch(as.character(.$datatype),
-                       `0` = "byte",
-                       `1` = "short",
-                       `2` = "int",
-                       `3` = "float",
-                       `4` = "double",
-                       stop(
-                         paste(
-                           "Invalid datatype value", sQuote(.$datatype),
-                           "in header"
-                         )
-                       )
-                    )
+            switch(as.character(.$order),
+              `1` = "cellyear",
+              `2` = "yearcell",
+              `3` = "cellindex",
+              `4` = "cellseq",
+              stop(
+                paste(
+                  "Invalid order value", sQuote(.$order), "in header"
                 )
-          private$init_list(header_to_meta, additional_attributes)
+              )
+            )
+          ) %>%
+          `[[<-`("datatype",
+            switch(as.character(.$datatype),
+              `0` = "byte",
+              `1` = "short",
+              `2` = "int",
+              `3` = "float",
+              `4` = "double",
+              stop(
+                paste(
+                  "Invalid datatype value", sQuote(.$datatype),
+                  "in header"
+                )
+              )
+            )
+          )
+        private$init_list(header_to_meta, additional_attributes)
 
       } else {
         private$init_list(x, additional_attributes)
@@ -616,19 +608,19 @@ LPJmLMetaData <- R6::R6Class( # nolint
         "filename"
       ) %>%
 
-      # Only append scalar if != 1
-      append(
-        ifelse(
-          !is.null(private$.scalar),
-          ifelse(private$.scalar == 1, "scalar", NA),
-          NA
-        )
-      ) %>%
+        # Only append scalar if != 1
+        append(
+          ifelse(
+            !is.null(private$.scalar),
+            ifelse(private$.scalar == 1, "scalar", NA),
+            NA
+          )
+        ) %>%
 
-      # Workaround to deal with NAs (NULL not possible in ifelse)
-      stats::na.omit() %>%
-      as.vector() %>%
-      return()
+        # Workaround to deal with NAs (NULL not possible in ifelse)
+        stats::na.omit() %>%
+        as.vector() %>%
+        return()
     },
 
     .sim_name = NULL,
@@ -723,8 +715,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
                     "name",
                     "map",
                     "version",
-                    "offset"
-                   ),
+                    "offset"),
 
     .dimension_map = list(space_format = c("cell", "lon_lat"),
                           time_format = c("time", "year_month_day"),

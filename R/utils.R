@@ -67,12 +67,27 @@ names_recursively <- function(x) {
 }
 
 
-# colorize variable name for messages, warning, stop
+# colorize variable name for messages, warning, stop in blue
 col_var <- function(x) {
-  col_blue <- "\u001b[34m"
-  unset_col <- "\u001b[0m"
-  paste0(col_blue, x, unset_col)
+  cli::col_blue(x)
 }
+
+# colorize notes in yellow
+col_note <- function(x) {
+  cli::col_yellow(x)
+}
+
+# colorize warnings and important strings in red
+col_warn <- function(x) {
+  cli::col_red(x)
+}
+
+# bold strings, especially for headers of messages
+bold_head <- function(x) {
+  cli::style_bold(x)
+}
+
+
 
 
 # Function to get gitlab commit hash of repository path.

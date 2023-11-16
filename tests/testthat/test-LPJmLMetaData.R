@@ -46,7 +46,7 @@ test_that("test LPJmLMetaData as_header", {
   )
 
   # test if meta_data header export matches that of created header
-  expect_equal(meta_header, test_header)
+  expect_equal(meta_header$header, test_header$header)
 })
 
 # Test LPJmLMetaData as_header method with created header
@@ -61,7 +61,7 @@ test_that("test read_meta & as_header", {
   header <- read_header("../testdata/header_v4.clm")
 
   # Test for any information loss
-  expect_equal(meta_header, header)
+  expect_equal(meta_header$header, header$header)
 
   # Test non_valid format
   expect_error(

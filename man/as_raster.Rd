@@ -2,7 +2,7 @@
 % Please edit documentation in R/LPJmLData_as.R
 \name{as_raster}
 \alias{as_raster}
-\title{Coerce an LPJmLData object to a Raster* object}
+\title{Coerce an LPJmLData object to a raster object}
 \usage{
 as_raster(x, subset = NULL, aggregate = NULL, ...)
 }
@@ -29,7 +29,8 @@ lon/lat resolution are extracted from \verb{$meta}.
 \description{
 Function to coerce (convert) an \code{\link{LPJmLData}} object into a
 \link[raster]{raster} or \link[raster]{brick} object that allows for any
-GIS-based raster operations. Read more about the raster package at
+GIS-based raster operations.
+Read more about the raster package at
 \url{https://rspatial.github.io/raster/reference/raster-package.html}.
 The successor package of raster is called terra: \url{https://rspatial.org/}.
 }

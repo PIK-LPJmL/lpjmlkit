@@ -138,9 +138,8 @@ separately. For example, users may want to set a lower wall clock limit
 (\code{wtime}) for the transient run than the spin-up run to get a higher priority
 in the SLURM queue. This can be achieved by supplying this option as a
 parameter to \code{param}. \cr
-4 options are available, namely \code{sclass}, \code{ntask}, \code{wtime}, \code{blocking}. \cr
-If specified in \code{param}, they overwrite the corresponding function arguments
-in \code{\link[=submit_lpjml]{submit_lpjml()}}.
+6 options are available, namely \code{sclass}, \code{ntasks}, \code{wtime}, \code{blocking},
+\code{constraint} and \code{slurm_options}. Use as arguments for [submit_lpjml()\verb{].\\cr If specified in }param\verb{, they overwrite the corresponding function arguments in [}submit_lpjml()`].
 
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params4 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),

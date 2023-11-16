@@ -208,7 +208,7 @@ params <- tibble(
                "old_lu",
                "lu_toolbox"),
   # object oriented like syntax to access nested json elements
-  input.landuse.name = c(
+  `input$landuse$name` = c(
     NA,
     NA,
     NA,
@@ -254,7 +254,7 @@ params <- tibble(
   sim_name = c("spinup",
                "old_lu",
                "lu_toolbox"),
-  input.landuse.name = c(
+  `input$landuse$name` = c(
     NA,
     NA,
     "input_toolbox_30arcmin/cftfrac_1500-2017_64bands_f2o.clm"
@@ -262,7 +262,7 @@ params <- tibble(
   dependency = c(NA, "spinup", "spinup"),
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
-  #   (same for sclass, ntasks, blocking)
+  #   (same for sclass, ntasks, blocking or constraint)
   wtime = c("15:00:00", "3:00:00", "3:00:00")
 )
 
