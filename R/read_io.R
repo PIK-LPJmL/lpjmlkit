@@ -717,10 +717,9 @@ read_io_data <- function(
     ) %>%
       format(trim = TRUE, scientific = FALSE, justify = "none")
 
-    cell_dimnames <- format(
-      seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
-      trim = TRUE, scientific = FALSE, justify = "none"
-    )
+    options(scipen = 999) # effectively disable scientific notation for dimnames
+    cell_dimnames <- seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell)
+    options(scipen = 0)  # reset to default
 
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
@@ -741,13 +740,18 @@ read_io_data <- function(
     # Convert to read_band_order and apply subsetting along bands or cells
     index <- which(!names(subset) %in% c("day", "month", "year", "time"))
 
-    year_data <- aperm(year_data, perm = read_band_order) %>%
-      # Apply any subsetting along bands or cells
-      subset_array(
+    year_data <- aperm(year_data, perm = read_band_order)
+
+    # Apply any subsetting along bands or cells
+    if(length(subset[index])>0){
+      year_data <- subset_array(
+        year_data,
         subset[index],
         drop = FALSE,
         silent = silent
       )
+    }
+
 
     # Concatenate years together
     if (!result_is_init) {
