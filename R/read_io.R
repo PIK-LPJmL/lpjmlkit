@@ -741,14 +741,13 @@ read_io_data <- function(
     year_data <- aperm(year_data, perm = read_band_order)
 
     # Apply any subsetting along bands or cells
-    if(length(subset[index])>0){
-      year_data <- subset_array(
-        year_data,
-        subset[index],
-        drop = FALSE,
-        silent = silent
-      )
-    }
+    year_data <- subset_array(
+      year_data,
+      subset[index],
+      drop = FALSE,
+      silent = silent
+    )
+
 
 
     # Concatenate years together

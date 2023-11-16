@@ -58,7 +58,7 @@ subset_array <- function(x,
                          drop = TRUE,
                          silent = FALSE) {
 
-  if (is.null(subset_list)) {
+  if (length(subset_list) == 0) {
     return(x)
   }
 
