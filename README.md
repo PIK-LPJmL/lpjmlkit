@@ -1,6 +1,6 @@
 # Toolkit for Basic LPJmL Handling <a href=''><img src='inst/img/logo.png' align='right' height='139' /></a>
 
-R package **lpjmlkit**, version **1.1.10**
+R package **lpjmlkit**, version **1.1.9**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7773134.svg)](https://doi.org/10.5281/zenodo.7773134) [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/builds)
 
@@ -76,7 +76,7 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Müller C (2023). _lpjmlkit: Toolkit for Basic LPJmL Handling_. doi: 10.5281/zenodo.7773134 (URL: https://doi.org/10.5281/zenodo.7773134), R package version 1.1.10, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Müller C (2023). _lpjmlkit: Toolkit for Basic LPJmL Handling_. doi: 10.5281/zenodo.7773134 (URL: https://doi.org/10.5281/zenodo.7773134), R package version 1.1.9, <URL: https://github.com/PIK-LPJmL/lpjmlkit>.
 
 A BibTeX entry for LaTeX users is
 
@@ -85,7 +85,7 @@ A BibTeX entry for LaTeX users is
   title = {lpjmlkit: Toolkit for Basic LPJmL Handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Björn Wirth and Sara Minoli and Fabian Stenzel and Christoph Müller},
   year = {2023},
-  note = {R package version 1.1.10},
+  note = {R package version 1.1.9},
   doi = {10.5281/zenodo.7773134},
   url = {https://github.com/PIK-LPJmL/lpjmlkit},
 }
