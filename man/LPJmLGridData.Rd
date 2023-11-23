@@ -183,7 +183,8 @@ into another space or time format.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{lpjml_data}}{LPJmLData object with variable \code{"grid"} or \code{"LPJGRID"}}
+\item{\code{lpjml_data}}{LPJmLData object with variable \code{"grid"}, \code{"cellid"}
+or \code{"LPJGRID"}}
 }
 \if{html}{\out{</div>}}
 }

@@ -126,8 +126,11 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #' !Internal method only to be used for package development!
     .__init_grid__ = function() {
 
-      if (private$.variable != "grid") {
-        stop("Only valid for variable ", sQuote("grid"), ".")
+      if (!private$.variable %in% c("grid", "cellid")) {
+        stop(
+          "Only valid for variable ", sQuote("grid"),
+          " or ", sQuote("cellid"), "."
+        )
       }
 
       # Set all time fields to NULL
