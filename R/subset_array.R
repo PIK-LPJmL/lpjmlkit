@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' my_array <- array(1,
-#'                   dim=c(cell = 67, month = 12, band = 3),
+#'                   dim = c(cell = 67, month = 12, band = 3),
 #'                   dimnames = list(cell = 0:66,
 #'                                 month = 1:12,
 #'                                 band = c("band1", "band2", "band3")))
@@ -34,9 +34,9 @@ asub <- function(x,
                  ...,
                  drop = TRUE) {
   x %>%
-  subset_array(subset_list = list(...),
-               drop = drop) %>%
-  return()
+    subset_array(subset_list = list(...),
+                 drop = drop) %>%
+    return()
 }
 
 
@@ -132,7 +132,6 @@ subset_array <- function(x,
 
 # https://stackoverflow.com/questions/47790061/r-replacing-a-sub-array-dynamically # nolint
 subarray_argument <- function(x, subset_list) {
-
   # DRY
   dim_names <- names(dimnames(x))
   subset_names <- names(subset_list)
@@ -156,27 +155,22 @@ subarray_argument <- function(x, subset_list) {
     )
   }
 
-  subset_list <- mapply(  # nolint:undesirable_function_linter.
+  subset_list <- mapply( # nolint:undesirable_function_linter.
 
     function(x, y, dim_name) {
       # For lon, lat calculate nearest neighbor for each provided value if not
       #   character.
 
       if (dim_name %in% c("lon", "lat") && is.character(x)) {
-
-        return(
-          sapply(x, # nolint:undesirable_function_linter.
-            function(x, y) {
-                which.min(abs(as.numeric(y) - as.numeric(x)))
-              },
-            y) %>%
-              unique()
-        )
+        return(sapply(x, # nolint:undesirable_function_linter.
+                      function(x, y) {
+                        which.min(abs(as.numeric(y) - as.numeric(x)))
+                      },
+                      y) %>% unique())
       }
 
       # Subsetting with character strings (directly dimnames)
       if (is.character(x)) {
-
         # Get valid subsets - non valids are NA
         valid_sub <- match(tolower(x), tolower(y))
 
@@ -209,13 +203,12 @@ subarray_argument <- function(x, subset_list) {
 
 subset_array_pair <- function(x,
                               pair = NULL) {
-
   # Get pair in the same order as dimensions
   pair <- pair[stats::na.omit(match(names(dimnames(x)), names(pair)))]
   pair_names <- names(pair)
 
   # Ensure that coordinates are character vectors.
-  if (!all(sapply(pair, is.character) | sapply(pair, is.factor), na.rm = TRUE)) { #nolint
+  if (!all(sapply(pair, is.character) | sapply(pair, is.factor), na.rm = TRUE)) { # nolint
     stop("Values for coordinate pairs must be supplied as strings")
   }
 
@@ -251,8 +244,8 @@ subset_array_pair <- function(x,
     dupl <- 1
   }
   subset_mask <- array(NA,
-                    dim = dim(x)[pair_names],
-                    dimnames = dimnames(x)[pair_names]) %>%
+                       dim = dim(x)[pair_names],
+                       dimnames = dimnames(x)[pair_names]) %>%
     `[<-`(idims, 1) %>%
     rep(each = dupl) %>%
     array(dim = dim(x), dimnames = dimnames(x)) %>%
@@ -260,7 +253,7 @@ subset_array_pair <- function(x,
 
   y <- subset_array(x, as.list(pair), drop = FALSE)
 
-    # Get dim & dimnames of dimensions not matching pair
+  # Get dim & dimnames of dimensions not matching pair
   y[is.na(subset_mask)] <- NA
 
   y
