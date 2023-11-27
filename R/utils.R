@@ -50,7 +50,6 @@ drop_omit <- function(x, omit_dim) {
 
 # Function to get list names recursively
 names_recursively <- function(x) {
-
   # Standard names of list elements
   y <- names(x)
 
@@ -95,7 +94,6 @@ bold_head <- function(x) {
 get_git_urlhash <- function(path = ".",
                             include_url = TRUE,
                             raise_error = TRUE) {
-
   # List of bash commands
   inner_commands <- paste0(
     # Filter .git in URL
@@ -149,13 +147,14 @@ get_git_urlhash <- function(path = ".",
 
 # Function checks and returns whether SLURM is available
 is_slurm_available <- function() {
-  processx::run(command = "bash",
-                args = c("-c", "sinfo"),
-                error_on_status = FALSE) %>%
-  .$status == 0 %>%
+  processx::run(
+    command = "bash",
+    args = c("-c", "sinfo"),
+    error_on_status = FALSE
+  ) %>%
+    .$status == 0 %>%
     return()
 }
-
 
 # Warn if OS is windows and thus not unix-based (ignoring other non unix based
 # OS)
@@ -181,3 +180,16 @@ supported_types <- c("raw", "clm", "meta")
 
 # Avoid note for "."...
 utils::globalVariables(".") # nolint:undesirable_function_linter
+
+# Stop if user has supplied ellipsis argument. Used to test if user tries to set
+# active bindings directly.
+check_change <- function(self, att, ...) {
+  if (...length() > 0) {
+    stop(
+      sQuote(att, q = FALSE), " attribute cannot be set directly in ",
+      class(self)[1],
+      " object.",
+      call. = FALSE
+    )
+  }
+}
