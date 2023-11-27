@@ -41,7 +41,6 @@ vegc <- read_io(filename = "./vegc.bin.json")
 
 # Add grid as attribute (via grid file in output directory)
 vegc_with_grid <- add_grid(vegc)
-
 }
 
 }

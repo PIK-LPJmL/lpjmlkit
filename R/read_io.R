@@ -183,7 +183,9 @@ read_io <- function( # nolint:cyclocomp_linter.
   silent       = FALSE
 ) {
   # Switch off fancy quotes but revert setting when leaving the function
-  quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.
+  # scipen = 999 is to ensure that cell or band indices are not written in
+  # scientific notation.
+  quotes_option <- options(useFancyQuotes = FALSE, scipen = 999) # nolint:undesirable_function_linter.
   on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
 
   # Detect file_type if not provided by user
@@ -711,16 +713,11 @@ read_io_data <- function(
     )
 
     # Assign dimension names to array.
-    # Ensure cell or band indices are not written in scientific notation.
     band_names <- default(
       meta_data$band_names, seq_len(default(meta_data$nbands, 1))
-    ) %>%
-      format(trim = TRUE, scientific = FALSE, justify = "none")
-
-    cell_dimnames <- format(
-      seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
-      trim = TRUE, scientific = FALSE, justify = "none"
     )
+
+    cell_dimnames <- seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell)
 
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
@@ -741,13 +738,17 @@ read_io_data <- function(
     # Convert to read_band_order and apply subsetting along bands or cells
     index <- which(!names(subset) %in% c("day", "month", "year", "time"))
 
-    year_data <- aperm(year_data, perm = read_band_order) %>%
-      # Apply any subsetting along bands or cells
-      subset_array(
-        subset[index],
-        drop = FALSE,
-        silent = silent
-      )
+    year_data <- aperm(year_data, perm = read_band_order)
+
+    # Apply any subsetting along bands or cells
+    year_data <- subset_array(
+      year_data,
+      subset[index],
+      drop = FALSE,
+      silent = silent
+    )
+
+
 
     # Concatenate years together
     if (!result_is_init) {

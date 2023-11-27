@@ -28,7 +28,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #'
     #' @param ... See [`add_grid()`].
     add_grid = function(...) {
-
       # Skip if grid is already attached
       if (!is.null(private$.grid)) {
         return(invisible(self))
@@ -52,15 +51,14 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
           lpjml_data <- read_io(
-              filename = filename,
-              subset = list(cell = self$dimnames()[["cell"]]),
-              silent = TRUE
-            )
+            filename = filename,
+            subset = list(cell = self$dimnames()[["cell"]]),
+            silent = TRUE
+          )
         } else {
           lpjml_data <- read_io(filename = filename, silent = TRUE)
         }
       } else {
-
         # All arguments have to be provided manually to read_io.
         #   Ellipsis (...) does that.
 
@@ -202,7 +200,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' Method to print the `LPJmLData` object. \cr
     #' See also \link[base]{print}.
     print = function() {
-
       # Print meta data
       cat(paste0(bold_head(col_var("$meta |>"))[1], "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
@@ -228,13 +225,15 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
 
         if (length(dim_names[[sub]]) > 6) {
-          abbr_dim_names <- paste0(c(paste0(to_char2,
-                                            dim_names[[sub]][1:4],
-                                            to_char2),
-                                   "...",
-                                   paste0(to_char2,
-                                          utils::tail(dim_names[[sub]], n = 1),
-                                          to_char2)))
+          abbr_dim_names <- paste0(c(
+            paste0(to_char2,
+                   dim_names[[sub]][1:4],
+                   to_char2),
+            "...",
+            paste0(to_char2,
+                   utils::tail(dim_names[[sub]], n = 1),
+                   to_char2)
+          ))
 
         } else {
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
@@ -300,7 +299,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     initialize = function(data, meta_data = NULL) {
 
       if (methods::is(meta_data, "LPJmLMetaData") |
-          methods::is(meta_data, "NULL")) {
+          methods::is(meta_data, "NULL")) { #nolint:indentation_linter
         private$.meta <- meta_data
       } else {
         stop("Provide an LPJmLMetaData object for meta data.")
@@ -315,22 +314,24 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   active = list(
 
     #' @field meta [`LPJmLMetaData`] object to store corresponding meta data.
-    meta = function() {
+    meta = function(...) {
+      check_change(self, "meta", ...)
       # Clone meta object so that if meta is changed outside of the LPJmLData
       #   instance it will not change this instance
       return(private$.meta$clone())
     },
 
     #' @field data \link[base]{array} containing the underlying data.
-    data = function() {
+    data = function(...) {
+      check_change(self, "data", ...)
       return(private$.data)
     },
 
     #' @field grid Optional `LPJmLData` object containing the underlying grid.
-    grid = function() {
+    grid = function(...) {
+      check_change(self, "grid", ...)
 
       if (!is.null(private$.grid)) {
-
         # Clone grid object so that if grid is changed outside of the LPJmLData
         #   instance it will not change this instance. `deep = TRUE` because
         #   grid includes another R6 class object (meta) which is another
@@ -397,7 +398,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #'
 #' # Add grid as attribute (via grid file in output directory)
 #' vegc_with_grid <- add_grid(vegc)
-#'
 #' }
 #'
 #' @md
