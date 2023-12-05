@@ -1,7 +1,10 @@
 # Collection of small utility function applied across the package
 
 # Function to deprecate a function argument that is replaced by a new one
-deprecate_arg <- function(new_arg, deprec_arg, version = "1.0.0") {
+deprecate_arg <- function(new_arg,
+                          deprec_arg,
+                          version = "1.0.0",
+                          ignore_new_arg = FALSE) {
 
   new_name <- deparse(substitute(new_arg))
   deprec_name <- deparse(substitute(deprec_arg))
@@ -9,7 +12,7 @@ deprecate_arg <- function(new_arg, deprec_arg, version = "1.0.0") {
   # Only if deprecated argument is set
   if (!is.null(deprec_arg)) {
 
-    if (is.null(new_arg)) {
+    if (is.null(new_arg) || ignore_new_arg) {
       new_arg <- deprec_arg
 
     } else {

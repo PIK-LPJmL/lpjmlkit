@@ -57,12 +57,12 @@ read_config <- function(filename,
   if (tolower(file_type) == "json") {
     tmp_json <- jsonlite::read_json(path = filename, simplify = FALSE)
 
-  # Read compilable cjson or js files - the standard default config files. These
-  # should be detected as "text" by detect_io_type.
   } else {
+    # Read compilable cjson or js files - the standard default config files. These
+    # should be detected as "text" by detect_io_type.
     tmp_json <- parse_config(
       path = dirname(filename),
-      js_filename = basename(filename),
+      cjson_filename = basename(filename),
       from_restart = from_restart,
       macro = macro
     )
