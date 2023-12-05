@@ -529,11 +529,13 @@ write_single_config <- function(x,
     #   Additional jsonlite::write_json arguments are very important to be
     #   readable in LPJmL (type conservation/hinting).
     jsonlite::write_json(
-      path = paste0(sim_path,
-                    "/configurations/",
-                    "config_",
-                    x[["sim_name"]],
-                    ".json"),
+      path = paste0(
+        sim_path,
+        "/configurations/",
+        "config_",
+        x[["sim_name"]],
+        ".json"
+      ),
       x = tmp_json,
       auto_unbox = TRUE,
       pretty = TRUE,
@@ -556,19 +558,19 @@ parse_config <- function(path,
                          js_filename = "lpjml.js",
                          macro = "") {
 
-   # processx::run kills any occuring subprocesses to avoid fork bombs.
-   tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
-                             args = c(
-                               "-c",
-                               paste0("cpp -P ./",
-                                      js_filename,
-                                      ifelse(from_restart,
-                                             " -DFROM_RESTART ",
-                                             " "),
-                                      paste(macro, collapse = " "))
-                             ),
-                             wd = path,
-                             cleanup_tree = TRUE)$stdout %>%
+  # processx::run kills any occuring subprocesses to avoid fork bombs.
+  tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
+                            args = c(
+                              "-c",
+                              paste0("cpp -P ./",
+                                     js_filename,
+                                     ifelse(from_restart,
+                                            " -DFROM_RESTART ",
+                                            " "),
+                                     paste(macro, collapse = " "))
+                            ),
+                            wd = path,
+                            cleanup_tree = TRUE)$stdout %>%
     jsonlite::parse_json(simplify = FALSE)
 
   tmp_json
@@ -590,6 +592,20 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
   opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
+
+  # If "default_fmt" and "default_suffix" are defined and assuming that raw is
+  #   the default output_format, update default_fmt and default_suffix
+  if (all(c("default_fmt", "default_suffix") %in% names(x)) &&
+        output_format != "raw") {
+    x[["default_fmt"]] <- output_format
+    x[["default_suffix"]] <- switch(
+      output_format,
+      raw = ".bin",
+      clm = ".clm",
+      cdf = ".nc4"
+    )
+  }
+
   if (is.null(output_list) || x[["nspinup"]] > 500) {
     for (x_id in seq_len(length(x[["output"]]))) {
 
@@ -597,6 +613,21 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
       if ("fmt" %in% names(x[["output"]][[x_id]]$file) &&
             x[["output"]][[x_id]]$file$fmt != "txt") {
         x[["output"]][[x_id]]$file$fmt <- output_format
+
+        new_ext  <- switch(
+          output_format,
+          raw = ".bin",
+          clm = ".clm",
+          cdf = ".nc4"
+        )
+
+        # Replace file extension of file name in output
+        x[["output"]][[x_id]]$file$name <- sub(
+          "\\.[^.]+$",
+          new_ext,
+          x[["output"]][[x_id]]$file$name
+        )
+
       } else if (!("fmt" %in% names(x[["output"]][[x_id]]$file)) &&
                    all(c("default_fmt", "default_suffix") %in% names(x))) {
         x[["output"]][[x_id]]$file$name <- paste0(
@@ -624,9 +655,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
       output_list <- append(output_list, "grid", after = 0)
       output_timestep <- append(output_timestep, NA, after = 0)
 
-      length_output_timestep <- ifelse(length(output_timestep) == 2,
-                                      1,
-                                      length(output_timestep))
+      length_output_timestep <- ifelse(
+        length(output_timestep) == 2,
+        1,
+        length(output_timestep)
+      )
 
     } else {
       length_output_timestep <- length(output_timestep)
@@ -659,7 +692,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         #   with the length of output_list to assign an individual timestep for
         #   each output.
         if (length_output_timestep == 1 &&
-            !(output_list[id_ov] %in% c("grid", "globalflux"))) {
+              !(output_list[id_ov] %in% c("grid", "globalflux"))) {
 
           new_output[["file"]][["timestep"]] <- ifelse(
             stats::na.omit(output_timestep)[1] %in% c("daily",
@@ -674,7 +707,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           )
 
         } else if (length_output_timestep == length(output_list) &&
-            !(output_list[id_ov] %in% c("grid", "globalflux"))) {
+                     !(output_list[id_ov] %in% c("grid", "globalflux"))) {
 
           new_output[["file"]][["timestep"]] <- ifelse(
             output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
@@ -686,8 +719,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
             )
           )
 
-        } else if (
-          !(length_output_timestep %in% c(1, length(output_list)))) {
+        } else if (!(length_output_timestep %in% c(1, length(output_list)))) {
           stop(
             "output_timestep does not have a valid length. Please ",
             "supply either a single character string or a vector ",
