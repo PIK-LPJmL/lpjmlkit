@@ -17,7 +17,7 @@
 #'
 #' @param output_list Character vector containing the `"id"` of outputvars.
 #'   If defined, only these defined outputs will be written. Otherwise, all
-#'   outputs set in `js_filename` will be written. Defaults to `NULL`.
+#'   outputs set in `cjson_filename` will be written. Defaults to `NULL`.
 #'
 #' @param output_list_timestep Single character string or character vector
 #'   defining what temporal resolution the defined outputs from `output_list`
@@ -29,8 +29,8 @@
 #'   Defaults to `"raw"`. Further options: `"cdf"` (NetCDF) or `"clm"`
 #'   (file with header).
 #'
-#' @param js_filename Character string providing the name of the main js file to
-#'   be parsed. Defaults to `"lpjml.js"`.
+#' @param cjson_filename Character string providing the name of the main LPJmL
+#'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
 #'
 #' @param parallel_cores Integer defining the number of available CPU cores for
 #'   parallelization. Defaults to `4`.
@@ -44,6 +44,9 @@
 #' @param output_path Argument is deprecated as of version 1.0; use sim_path
 #'   instead.
 #'
+#' @param js_filename Argument is deprecated as of version 1.3; use
+#'   cjson_filename instead.
+#'
 #' @return \link[tibble]{tibble} with at least one column named `"sim_name"`.
 #'   Run parameters `"order"` and `"dependency"` are included if defined in
 #'   `x`. \link[tibble]{tibble} in this format is required for
@@ -53,10 +56,10 @@
 #'
 #' Supply a \link[tibble]{tibble} for `x`, in which each row represents
 #' a configuration (config) for an LPJmL simulation. \cr
-#' Here a config is referred to as the precompiled `"lpjml.js"` file (or file
-#' name provided as `js_filename` argument), which links to all other
-#' mandatory ".js" files. The precompilation is done internally by
-#' [`write_config()`].\cr
+#' Here a config refers to a precompiled `"lpjml_config.cjson"` file (or file
+#' name provided as `cjson_filename` argument) which already contains all the
+#' information from the mandatory cjson files.
+#' The precompilation is done internally by [`write_config()`].\cr
 #' `write_config()` uses the column names of `param` as keys for the config
 #' json using the same syntax as lists, e.g. `"k_temp"` from `"param.js"`
 #' can be accessed with `"param$k_temp"` or `"param[["k_temp"]]"` as the column
@@ -266,11 +269,12 @@ write_config <- function(x,
                          output_list = c(),
                          output_list_timestep = "annual",
                          output_format = "raw",
-                         js_filename = "lpjml.js",
+                         cjson_filename = "lpjml_config.cjson",
                          parallel_cores = 4,
                          debug = FALSE,
                          params = NULL,
-                         output_path = NULL) {
+                         output_path = NULL,
+                         js_filename = NULL) {
 
 
   # Deprecate argument params
@@ -288,6 +292,26 @@ write_config <- function(x,
   sim_path <- deprecate_arg(new_arg = sim_path,
                             deprec_arg = output_path,
                             version = "1.0.0")
+
+  # Deprecate argument js_filename
+  if (!is.null(js_filename)) {
+    cjson_filename <- deprecate_arg(
+      new_arg = cjson_filename,
+      deprec_arg = js_filename,
+      version = "1.3.0",
+      ignore_new_arg = TRUE
+    )
+  }
+
+  if (!file.exists(paste0(model_path, "/", cjson_filename))) {
+    stop(
+      "File \"",
+      cjson_filename,
+      "\" does not exist in model_path \"",
+      model_path,
+      "\"."
+    )
+  }
 
   if (is.null(sim_path)) sim_path <- model_path
 
@@ -335,10 +359,11 @@ write_config <- function(x,
 
     row_id <- NULL
     # Parallel foreach param row with row binding.
-    job_details <- foreach::foreach(row_id = seq_len(nrow(x)),
-                                    .combine = "rbind",
-                                    .packages = "tibble",
-                                    .errorhandling = "stop"
+    job_details <- foreach::foreach(
+      row_id = seq_len(nrow(x)),
+      .combine = "rbind",
+      .packages = "tibble",
+      .errorhandling = "stop"
     ) %dopar% {
 
       # Write a single configuration
@@ -349,12 +374,12 @@ write_config <- function(x,
                             output_format = output_format,
                             output_list = output_list,
                             output_list_timestep = output_list_timestep,
-                            js_filename = js_filename,
+                            cjson_filename = cjson_filename,
                             config_tmp = config_tmp,
                             slurm_args = slurm_args,
                             commit_hash = commit_hash)
 
-      # Stop if an error occurs
+        # Stop if an error occurs
       }, error = function(e) {
 
         # Check if error is returned
@@ -392,18 +417,18 @@ write_config <- function(x,
     job_details <- config_tmp
 
     for (row_id in seq_len(dim(x)[1])) {
-      job_details[row_id, ] <- write_single_config(x[row_id, ],
-                                                   model_path = model_path,
-                                                   sim_path = sim_path,
-                                                   output_format = (
-                                                     output_format),
-                                                   output_list = output_list,
-                                                   output_list_timestep = (
-                                                     output_list_timestep),
-                                                   js_filename = js_filename,
-                                                   config_tmp = config_tmp,
-                                                   slurm_args = slurm_args,
-                                                   commit_hash = commit_hash)
+      job_details[row_id, ] <- write_single_config(
+        x[row_id, ],
+        model_path = model_path,
+        sim_path = sim_path,
+        output_format = output_format,
+        output_list = output_list,
+        output_list_timestep = output_list_timestep,
+        cjson_filename = cjson_filename,
+        config_tmp = config_tmp,
+        slurm_args = slurm_args,
+        commit_hash = commit_hash
+      )
     }
   }
 
@@ -411,7 +436,7 @@ write_config <- function(x,
   # Return job_details with sim_names as well as config_names.
   #   "order" and "dependency" are only returned if defined in x.
   if (any(is.na(job_details$order)) ||
-      all(is.na(job_details$dependency))) {
+        all(is.na(job_details$dependency))) {
     job_details$order <- NULL
     job_details$dependency <- NULL
   }
@@ -438,7 +463,7 @@ write_single_config <- function(x,
                                 output_list,
                                 output_list_timestep,
                                 output_format,
-                                js_filename,
+                                cjson_filename,
                                 config_tmp,
                                 slurm_args,
                                 commit_hash = "") {
@@ -504,7 +529,7 @@ write_single_config <- function(x,
   # Parse config and evaluate macros using the cpp precompiler
   tmp_json <- parse_config(path = model_path,
                            from_restart = from_restart,
-                           js_filename = js_filename,
+                           cjson_filename = cjson_filename,
                            macro = macro) %>%
 
     # Replace output and restart parameters (paths, output format & which
@@ -529,17 +554,20 @@ write_single_config <- function(x,
     #   Additional jsonlite::write_json arguments are very important to be
     #   readable in LPJmL (type conservation/hinting).
     jsonlite::write_json(
-      path = paste0(sim_path,
-                    "/configurations/",
-                    "config_",
-                    x[["sim_name"]],
-                    ".json"),
+      path = paste0(
+        sim_path,
+        "/configurations/",
+        "config_",
+        x[["sim_name"]],
+        ".json"
+      ),
       x = tmp_json,
       auto_unbox = TRUE,
       pretty = TRUE,
       null = "null",
       digits = 10,
-      always_decimal = TRUE)
+      always_decimal = TRUE
+    )
 
     return(config_tmp)
 
@@ -549,26 +577,26 @@ write_single_config <- function(x,
 }
 
 
-# Function to run cpp precompiler on lpjml.js to parse config.json.
+# Function to run cpp precompiler on lpjml_config.cjson to parse config.json.
 #  Define from_restart and any other macros set by user.
 parse_config <- function(path,
                          from_restart = FALSE,
-                         js_filename = "lpjml.js",
+                         cjson_filename = "lpjml_config.cjson",
                          macro = "") {
 
-   # processx::run kills any occuring subprocesses to avoid fork bombs.
-   tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
-                             args = c(
-                               "-c",
-                               paste0("cpp -P ./",
-                                      js_filename,
-                                      ifelse(from_restart,
-                                             " -DFROM_RESTART ",
-                                             " "),
-                                      paste(macro, collapse = " "))
-                             ),
-                             wd = path,
-                             cleanup_tree = TRUE)$stdout %>%
+  # processx::run kills any occuring subprocesses to avoid fork bombs.
+  tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
+                            args = c(
+                              "-c",
+                              paste0("cpp -P ./",
+                                     cjson_filename,
+                                     ifelse(from_restart,
+                                            " -DFROM_RESTART ",
+                                            " "),
+                                     paste(macro, collapse = " "))
+                            ),
+                            wd = path,
+                            cleanup_tree = TRUE)$stdout %>%
     jsonlite::parse_json(simplify = FALSE)
 
   tmp_json
@@ -576,7 +604,7 @@ parse_config <- function(path,
 
 
 # Function to rewrite parts in the output and restart section of precompiled
-#   and read (as list) lpjml.js > config.json.
+#   and read (as list) lpjml_config.cjson > config.json.
 #   Output format (raw, clm cdf), output selection, output path, restart_path.
 mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  params,
@@ -617,9 +645,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
       output_list <- append(output_list, "grid", after = 0)
       output_timestep <- append(output_timestep, NA, after = 0)
 
-      length_output_timestep <- ifelse(length(output_timestep) == 2,
-                                      1,
-                                      length(output_timestep))
+      length_output_timestep <- ifelse(
+        length(output_timestep) == 2,
+        1,
+        length(output_timestep)
+      )
 
     } else {
       length_output_timestep <- length(output_timestep)
@@ -652,7 +682,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         #   with the length of output_list to assign an individual timestep for
         #   each output.
         if (length_output_timestep == 1 &&
-            !(output_list[id_ov] %in% c("grid", "globalflux"))) {
+              !(output_list[id_ov] %in% c("grid", "globalflux"))) {
 
           new_output[["file"]][["timestep"]] <- ifelse(
             stats::na.omit(output_timestep)[1] %in% c("daily",
@@ -667,7 +697,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           )
 
         } else if (length_output_timestep == length(output_list) &&
-            !(output_list[id_ov] %in% c("grid", "globalflux"))) {
+                     !(output_list[id_ov] %in% c("grid", "globalflux"))) {
 
           new_output[["file"]][["timestep"]] <- ifelse(
             output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
@@ -679,8 +709,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
             )
           )
 
-        } else if (
-          !(length_output_timestep %in% c(1, length(output_list)))) {
+        } else if (!(length_output_timestep %in% c(1, length(output_list)))) {
           stop(
             "output_timestep does not have a valid length. Please ",
             "supply either a single character string or a vector ",
@@ -762,9 +791,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                       "restart.lpj")
 
   } else if (!is.null(x[["restart_filename"]]) &&
-             is.null(params[["dependency"]]) &&
-             (is.na(params[["restart_filename"]]) ||
-             is.null(params[["restart_filename"]]))) {
+               is.null(params[["dependency"]]) &&
+               (is.na(params[["restart_filename"]]) ||
+                  is.null(params[["restart_filename"]]))) {
 
     warning(
       "With `-DFROM_RESTART` being set to TRUE",
@@ -780,7 +809,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
 
 # Function to rewrite params in terms of JSON keys of precompiled
-#   and read (as list) lpjml.js > config.json.
+#   and read (as list) lpjml_config.cjson > config.json.
 #   Nested keys can be reached via "key.subkey.subsubkey" -> "input.soil.name".
 #   Indices can be used to access elements in lists. Lists occur only on second
 #   level, e.g. "key.1.subkey" -> "soilpar.1.name".
@@ -810,8 +839,8 @@ mutate_config_param <- function(x,
     if (grepl("\\[\\[|\\]\\]|\\$", colname)) {
       x <- call_by_listsyntax(x, colname, param_value, all_keys)
 
-    # Else it is assumed point syntax is used (previous standard)
     } else {
+      # Else it is assumed point syntax is used (previous standard)
       x <- call_by_points(x, colname, param_value, all_keys)
     }
   }
@@ -844,16 +873,16 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
   # keys in selection via "[[" and "[""
   tryCatch({
     eval(rlang::parse_expr(paste0("x$", colname)))
+
+  }, error = function(e) {
     # Stop when error occures
-    }, error = function(e) {
-      stop(
-        paste(
-          col_var(colname),
-          "include a combination of keys or indices that do not exist!"
-        )
+    stop(
+      paste(
+        col_var(colname),
+        "include a combination of keys or indices that do not exist!"
       )
-    }
-  )
+    )
+  })
 
   # Again non standard evaluation with replacement of check function of
   # original type (R lacks distinction of float/double and integer values)
@@ -908,14 +937,14 @@ call_by_points <- function(x, colname, param_value, all_keys) {
   # keys in selection via "[[" and "[""
   tryCatch({
     eval(rlang::parse_expr(eval_x))
+
+  }, error = function(e) {
     # Stop when error occures
-    }, error = function(e) {
-      stop(
-        col_var(colname),
-        " include a combination of keys or indices that do not exist!"
-      )
-    }
-  )
+    stop(
+      col_var(colname),
+      " include a combination of keys or indices that do not exist!"
+    )
+  })
 
   # Again non standard evaluation with replacement of check function of
   # original type (R lacks distinction of float/double and integer values)
@@ -942,7 +971,7 @@ convert_integer <- function(x, check_value) {
 
     # Convert if target value is an integer
     if (is.integer(check_value) ||
-       (is.character(check_value)) && is.numeric(x)) {
+          (is.character(check_value)) && is.numeric(x)) {
       return(as.integer(x))
 
     } else {
@@ -971,7 +1000,7 @@ convert_integer <- function(x, check_value) {
 
     # Convert if target value is an integer
     if (is.integer(check_value) ||
-       (is.character(check_value)) && is.numeric(x)) {
+          (is.character(check_value)) && is.numeric(x)) {
       return(as.integer(x))
 
     } else {
