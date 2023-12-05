@@ -44,8 +44,8 @@ individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}
 Defaults to \code{"raw"}. Further options: \code{"cdf"} (NetCDF) or \code{"clm"}
 (file with header).}
 
-\item{cjson_filename}{Character string providing the name of the main cjson
-config file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
+\item{cjson_filename}{Character string providing the name of the main LPJmL
+configuration file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
 
 \item{parallel_cores}{Integer defining the number of available CPU cores for
 parallelization. Defaults to \code{4}.}
@@ -77,9 +77,9 @@ The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.
 \details{
 Supply a \link[tibble]{tibble} for \code{x}, in which each row represents
 a configuration (config) for an LPJmL simulation. \cr
-Here config refers to a precompiled \code{"lpjml_config.cjson"} file (or file name
-provided as \code{cjson_filename} argument) which already contains all the
-information frome the mandatory cjson files.
+Here a config refers to a precompiled \code{"lpjml_config.cjson"} file (or file
+name provided as \code{cjson_filename} argument) which already contains all the
+information from the mandatory cjson files.
 The precompilation is done internally by \code{\link[=write_config]{write_config()}}.\cr
 \code{write_config()} uses the column names of \code{param} as keys for the config
 json using the same syntax as lists, e.g. \code{"k_temp"} from \code{"param.js"}

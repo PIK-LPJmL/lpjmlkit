@@ -29,8 +29,8 @@
 #'   Defaults to `"raw"`. Further options: `"cdf"` (NetCDF) or `"clm"`
 #'   (file with header).
 #'
-#' @param cjson_filename Character string providing the name of the main cjson
-#'   config file to be parsed. Defaults to `"lpjml_config.cjson"`.
+#' @param cjson_filename Character string providing the name of the main LPJmL
+#'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
 #'
 #' @param parallel_cores Integer defining the number of available CPU cores for
 #'   parallelization. Defaults to `4`.
@@ -56,9 +56,9 @@
 #'
 #' Supply a \link[tibble]{tibble} for `x`, in which each row represents
 #' a configuration (config) for an LPJmL simulation. \cr
-#' Here config refers to a precompiled `"lpjml_config.cjson"` file (or file name
-#' provided as `cjson_filename` argument) which already contains all the
-#' information frome the mandatory cjson files.
+#' Here a config refers to a precompiled `"lpjml_config.cjson"` file (or file
+#' name provided as `cjson_filename` argument) which already contains all the
+#' information from the mandatory cjson files.
 #' The precompilation is done internally by [`write_config()`].\cr
 #' `write_config()` uses the column names of `param` as keys for the config
 #' json using the same syntax as lists, e.g. `"k_temp"` from `"param.js"`
