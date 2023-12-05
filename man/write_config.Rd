@@ -11,7 +11,7 @@ write_config(
   output_list = c(),
   output_list_timestep = "annual",
   output_format = "raw",
-  cjson_filename = "lpjml_config.json",
+  cjson_filename = "lpjml_config.cjson",
   parallel_cores = 4,
   debug = FALSE,
   params = NULL,
@@ -77,10 +77,10 @@ The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.
 \details{
 Supply a \link[tibble]{tibble} for \code{x}, in which each row represents
 a configuration (config) for an LPJmL simulation. \cr
-Here a config is referred to as the precompiled \code{"lpjml_config.cjson"} file
-(or file name provided as \code{cjson_filename} argument), which links to all
-other mandatory ".js" files. The precompilation is done internally by
-\code{\link[=write_config]{write_config()}}.\cr
+Here config refers to a precompiled \code{"lpjml_config.cjson"} file (or file name
+provided as \code{cjson_filename} argument) which already contains all the
+information frome the mandatory cjson files.
+The precompilation is done internally by \code{\link[=write_config]{write_config()}}.\cr
 \code{write_config()} uses the column names of \code{param} as keys for the config
 json using the same syntax as lists, e.g. \code{"k_temp"} from \code{"param.js"}
 can be accessed with \code{"param$k_temp"} or \verb{"param[["k_temp"]]"} as the column

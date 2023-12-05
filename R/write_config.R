@@ -56,10 +56,10 @@
 #'
 #' Supply a \link[tibble]{tibble} for `x`, in which each row represents
 #' a configuration (config) for an LPJmL simulation. \cr
-#' Here a config is referred to as the precompiled `"lpjml_config.cjson"` file
-#' (or file name provided as `cjson_filename` argument), which links to all
-#' other mandatory ".js" files. The precompilation is done internally by
-#' [`write_config()`].\cr
+#' Here config refers to a precompiled `"lpjml_config.cjson"` file (or file name
+#' provided as `cjson_filename` argument) which already contains all the
+#' information frome the mandatory cjson files.
+#' The precompilation is done internally by [`write_config()`].\cr
 #' `write_config()` uses the column names of `param` as keys for the config
 #' json using the same syntax as lists, e.g. `"k_temp"` from `"param.js"`
 #' can be accessed with `"param$k_temp"` or `"param[["k_temp"]]"` as the column
@@ -269,7 +269,7 @@ write_config <- function(x,
                          output_list = c(),
                          output_list_timestep = "annual",
                          output_format = "raw",
-                         cjson_filename = "lpjml_config.json",
+                         cjson_filename = "lpjml_config.cjson",
                          parallel_cores = 4,
                          debug = FALSE,
                          params = NULL,
@@ -581,7 +581,7 @@ write_single_config <- function(x,
 #  Define from_restart and any other macros set by user.
 parse_config <- function(path,
                          from_restart = FALSE,
-                         cjson_filename = "lpjml_config.js",
+                         cjson_filename = "lpjml_config.cjson",
                          macro = "") {
 
   # processx::run kills any occuring subprocesses to avoid fork bombs.
