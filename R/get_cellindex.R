@@ -151,9 +151,9 @@ check_extent <- function(extent) {
 # Check if the coordinates are a list of two numeric vectors of equal length
 check_coordinates <- function(coordinates) {
   if (!is.null(coordinates) &&
-      (!is.list(coordinates) || length(coordinates) != 2 ||
-       !is.numeric(coordinates[[1]]) || !is.numeric(coordinates[[2]]) ||
-       length(coordinates[[1]]) != length(coordinates[[2]]))) {
+        (!is.list(coordinates) || length(coordinates) != 2 ||
+           !is.numeric(coordinates[[1]]) || !is.numeric(coordinates[[2]]) ||
+           length(coordinates[[1]]) != length(coordinates[[2]]))) {
     stop("coordinates must be a list of two numeric vectors of equal length.")
   }
 }
