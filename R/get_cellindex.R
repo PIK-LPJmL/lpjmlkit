@@ -57,13 +57,15 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
   check_extent(extent)
   check_coordinates(coordinates)
   check_extent_and_coordinates(extent, coordinates)
-  extent <- correct_extent(extent)
+  if (!is.null(extent)) {
+    extent <- correct_extent(extent)
+  }
   check_coordinates_length(coordinates)
 
   # Read the grid file and create a data frame
   cells <- as.data.frame(read_io(filename = grid_filename)$data)
   colnames(cells) <- c("lon", "lat")
-  cells$cellnumber <- seq_len(nrow(cells))
+  cells$cellnumber <- as.numeric(row.names(cells)) + 1
 
   # Get the range of longitude and latitude in the cells
   lon_range <- range(cells$lon)
@@ -100,12 +102,12 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
       coordinates[[2]][out_of_bounds],
       ")"
     )
-  }
-  if (length(out_of_bounds_coords) > 0) {
-    warning(paste(
-      "Coordinates out of bounds:",
-      paste(out_of_bounds_coords, collapse = ", ")
-    ))
+    if (any(out_of_bounds)) {
+      warning(paste(
+        "Coordinates out of bounds:",
+        paste(out_of_bounds_coords, collapse = ", ")
+      ))
+    }
   }
 
   # Filter cells based on extent
@@ -121,10 +123,10 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
       lon = unlist(coordinates[1]),
       lat = unlist(coordinates[2])
     )
-    cells <- cells[match(
+    cells <- stats::na.omit(cells[match(
       paste(cells$lon, cells$lat),
       paste(coord_df$lon, coord_df$lat)
-    ), ]
+    ), ])
   }
 
   # Return the filtered cellindexes
