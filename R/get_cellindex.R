@@ -65,7 +65,7 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
   # Read the grid file and create a data frame
   cells <- as.data.frame(read_io(filename = grid_filename)$data)
   colnames(cells) <- c("lon", "lat")
-  cells$cellnumber <- as.numeric(row.names(cells)) + 1
+  cells$cellindex <- as.numeric(row.names(cells)) + 1
 
   # Get the range of longitude and latitude in the cells
   lon_range <- range(cells$lon)
@@ -130,7 +130,7 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
   }
 
   # Return the filtered cellindexes
-  cells$cellnumber
+  cells$cellindex
 }
 
 # Check if the input is a valid file path
