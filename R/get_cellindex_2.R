@@ -40,8 +40,8 @@
 #'
 #' If a list of `coordinates` is provided, the function filters the cells to
 #' include only those that match the specified coordinates. The `coordinates`
-#' should be a list of two numeric vectors representing the longitude and
-#' latitude values.
+#' should be a list of two character vectors representing the longitude and
+#' latitude values as for [`subset()`].
 #'
 #' If both `extent` and `coordinates` are provided, the function will stop and
 #' ask for only one of them. If neither `extent` nor `coordinates` are provided,
@@ -54,20 +54,22 @@
 get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
   # Check input types and values
   check_filepath(grid_filename)
-  check_extent(extent)
+
   # check_coordinates(coordinates)
   check_extent_and_coordinates(extent, coordinates)
-  if (!is.null(extent)) {
-    extent <- correct_extent(extent)
-  }
-  check_coordinates_length(coordinates)
 
   grid_lonlat <- read_io(filename = grid_filename) %>%
     LPJmLGridData$new()
 
+  if (!is.null(extent)) {
+    check_extent(extent)
+    extent <- correct_extent(extent)
+  } else if (!is.null(coordinates)) {
+    check_coordinates_length(coordinates)
+  }
+
   # Read the grid file and create a data frame
   cells <- as.data.frame(grid_lonlat$data)
-  cells$cellindex <- as.numeric(row.names(cells)) + 1
 
   # Get the range of longitude and latitude in the cells
   lon_range <- range(cells$lon)
@@ -75,6 +77,8 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
 
   # Check if extent values are within the longitude and latitude range in the cells
   if (!is.null(extent)) {
+    cells$cellindex <- as.numeric(row.names(cells)) + 1
+
     out_of_bounds_lon <- extent[c(1, 2)][extent[c(1, 2)] < lon_range[1] |
                                            extent[c(1, 2)] > lon_range[2]]
     out_of_bounds_lat <- extent[c(3, 4)][extent[c(3, 4)] < lat_range[1] |
@@ -88,6 +92,10 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
         paste(out_of_bounds_lat, collapse = ", ")
       ))
     }
+
+    cells <- cells[cells$lon >= extent[1] &
+                     cells$lon <= extent[2] &
+                     cells$lat >= extent[3] & cells$lat <= extent[4], ]$cellindex
   }
 
   # Check if coordinates are within the longitude and latitude range in the cells
@@ -109,20 +117,6 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
         "Coordinates out of bounds:",
         paste(out_of_bounds_coords, collapse = ", ")
       ))
-    }
-  }
-
-  # Filter cells based on extent
-  if (!is.null(extent)) {
-    cells <- cells[cells$lon >= extent[1] &
-                     cells$lon <= extent[2] &
-                     cells$lat >= extent[3] & cells$lat <= extent[4], ]$cellindex
-  }
-
-  # Filter cells based on coordinates
-  if (!is.null(coordinates)) {
-    if (!class(coordinates) == "list") {
-      coordinates <- tibble::as_tibble(coordinates)
     }
 
     grid_cell <- transform(grid_lonlat, "lon_lat")

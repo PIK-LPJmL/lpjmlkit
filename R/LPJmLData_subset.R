@@ -11,13 +11,13 @@
 #'   `cell = c(27411:27416)`, `band = -c(14:16, 19:32)`, or character vectors if
 #'   the dimension has a dimnames attribute, e.g.
 #'   `band = c("rainfed rice", "rainfed maize")`.\
-#'   Coordinate pairs of individual cells can be selected by providing a tibble
-#'   in the form of `coords = tibble(lon = ..., lat =...)`. Coordinate values
-#'   in the tibble need to be supplied as character vectors. The argument can
-#'   also be called `coordinates`. When coordinates are supplied as character
-#'   vectors to subset either along the `lon` or `lat` dimension or to subset
-#'   by coordinate pair, the function matches the grid cells closest to the
-#'   supplied coordinate value.
+#'   Coordinate pairs of individual cells can be selected by providing a list or
+#'   tibble in the form of `coords = list(lon = ..., lat =...)`. Coordinate
+#'   values need to be supplied as character vectors. The argument
+#'   can also be called `coordinates`. When coordinates are supplied as
+#'   character vectors to subset either along the `lon` or `lat` dimension or to
+#'   subset by coordinate pair, the function matches the grid cells closest to
+#'   the supplied coordinate value.
 #'
 #' @return An [`LPJmLData`] object with dimensions resulting from the selection
 #'   in `subset`. Meta data are updated as well.
