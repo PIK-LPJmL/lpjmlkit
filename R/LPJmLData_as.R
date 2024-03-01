@@ -258,9 +258,19 @@ LPJmLData$set("private",
     # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
-      data_subset$transform(to = "cell")
+      if (class(data_subset)[1] == "LPJmLData") {
 
-      multi_dims <- get_multidims(data_subset)
+        data_subset$transform(to = "cell")
+
+        multi_dims <- get_multidims(data_subset)
+
+      } else {
+
+        tmp_raster <- raster::setValues(
+          tmp_raster,
+          t(data_subset$data)
+        )
+      }
     }
 
     # For space_format "cell" allow one additional dimension
@@ -297,13 +307,23 @@ LPJmLData$set("private",
       } else {
         tmp_data <- data_subset$data
       }
-      tmp_raster[
-        raster::cellFromXY(
-          tmp_raster,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- tmp_data
+      if (class(data_subset)[1] == "LPJmLData") {
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      } else {
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$data, list(band = "lon")),
+                  subset_array(data_subset$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      }
     }
 
     return(tmp_raster)
@@ -388,9 +408,19 @@ LPJmLData$set("private",
     # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
-      data_subset$transform(to = "cell")
+      if (class(data_subset)[1] == "LPJmLData") {
 
-      multi_dims <- get_multidims(data_subset)
+        data_subset$transform(to = "cell")
+
+        multi_dims <- get_multidims(data_subset)
+
+      } else {
+
+        tmp_rast <- terra::setValues(
+          tmp_rast,
+          t(data_subset$data)
+        )
+      }
     }
 
     # For space_format "cell" allow one additional dimension
@@ -470,7 +500,9 @@ LPJmLData$set("private",
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
-    self$add_grid()
+    if (class(self)[1] == "LPJmLData") {
+      self$add_grid()
+    }
 
     # Workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone(deep = TRUE)
@@ -506,9 +538,13 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   # Calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
-    data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
-                         max = apply(data_subset$grid$data, "band", max))
-
+    if (class(data_subset)[1] == "LPJmLData") {
+      data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
+                           max = apply(data_subset$grid$data, "band", max))
+    } else {
+      data_extent <- rbind(min = apply(data_subset$data, "band", min),
+                           max = apply(data_subset$data, "band", max))
+    }
   } else {
     data_extent <- cbind(
       lon = range(as.numeric(dimnames(data_subset$data)[["lon"]])),

@@ -127,7 +127,7 @@ LPJmLData$set("private",
     if (private$.meta$._space_format_ == "cell" &&
         to == "lon_lat") {
 
-      private$.grid$.__transform_space__(to = to)
+      private$.grid$transform(to = to)
 
       # Matrix with ilon and ilat indices of cells in new array
       ilonilat <- arrayInd(
@@ -199,7 +199,7 @@ LPJmLData$set("private",
                                  band = c("lon", "lat"))
 
       # Transform grid to target space format
-      private$.grid$.__transform_space__(to = to)
+      private$.grid$transform(to = to)
 
       new_dimnames <- append(
         other_dimnames,

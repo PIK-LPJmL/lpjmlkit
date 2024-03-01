@@ -93,9 +93,11 @@ LPJmLData$set("private",
         subset_array_pair(x = self$data,
                           pair = subset_list[[coords]])
       )
-
-      # Subset grid with coordinates and update corresponding grid meta data
-      private$.grid$.__subset_space__(subset_list[coords])
+      
+      if (!is.null(private$.grid)) {
+        # Subset grid with coordinates and update corresponding grid meta data
+        private$.grid$subset(subset_list[coords])
+      }
 
     } else {
       # Avoid errors when subsetting list with coords
@@ -106,7 +108,7 @@ LPJmLData$set("private",
     if ("cell" %in% names(subset_list)) {
       subset_space_dim <- "cell"
 
-    # Assign subset_space_dim for format "lat_lon"
+      # Assign subset_space_dim for format "lat_lon"
     } else if (any(lon_lat %in% names(subset_list))) {
       subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
 
@@ -123,7 +125,7 @@ LPJmLData$set("private",
 
     # Subset grid with space dimensions and update corresponding grid meta data
     if (!is.null(private$.grid) && !is.null(subset_space_dim)) {
-      private$.grid$.__subset_space__(subset_list[subset_space_dim])
+      private$.grid$subset(subset_list[subset_space_dim])
     }
 
     if ("time" %in% names(subset_list)) {
@@ -151,11 +153,16 @@ LPJmLData$set("private",
 
       } else {
 
-        if (is.null(private$.grid)) {
+        if (is.null(private$.grid) && class(self)[1] == "LPJmLData") {
           stop("Missing $grid attribute. Add via $add_grid()")
         }
-        cell_dimnames <- sort(private$.grid$data) %>%
-          format(trim = TRUE, scientific = FALSE, justify = "none")
+        if (class(self)[1] == "LPJmLData") {
+          cell_dimnames <- sort(private$.grid$data) %>%
+            format(trim = TRUE, scientific = FALSE, justify = "none")
+        } else {
+          cell_dimnames <- sort(self$data) %>%
+            format(trim = TRUE, scientific = FALSE, justify = "none")
+        }
       }
 
     } else {
