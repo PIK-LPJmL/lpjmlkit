@@ -11,9 +11,9 @@ test_integrity <- function(output) {
   # Check for two cases "cell" or "lon_lat"
   if ("cell" %in% names(dim_data)) {
     # Test for equal length of cell in data and meta data (ncell)
-    expect_equal(dim_data[["cell"]], output$meta$ncell)
+    testthat::expect_equal(dim_data[["cell"]], output$meta$ncell)
     # Test for equal dimnames of cell in data and those constructed by meta data
-    expect_equal(
+    testthat::expect_equal(
       dimnames_data$cell,
       format(
         seq(output$meta$firstcell, length.out = output$meta$ncell),
@@ -22,20 +22,20 @@ test_integrity <- function(output) {
     )
   } else {
     # Test for equal dimnames of lat, lon in data and those of underlying grid
-    expect_equal(dimnames_data$lat,
+    testthat::expect_equal(dimnames_data$lat,
                            dimnames(output$grid)$lat)
-    expect_equal(dimnames_data$lon,
+    testthat::expect_equal(dimnames_data$lon,
                            dimnames(output$grid)$lon)
   }
 
   # Check for two cases "time" or "year_month_day"
   if ("time" %in% names(dim_data)) {
     # Test for equal length of time steps in data and meta data (nyear * nstep)
-    expect_equal(dim_data[["time"]],
+    testthat::expect_equal(dim_data[["time"]],
                            output$meta$nyear * output$meta$nstep)
     # Test for equal dimnames of time steps in data and those constructed by
     #   meta data with create_time_names function (nstep, firstyear, nyear)
-    expect_equal(
+    testthat::expect_equal(
       dimnames_data$time,
       create_time_names(
         output$meta$nstep,
@@ -45,10 +45,10 @@ test_integrity <- function(output) {
     )
   } else {
     # Test for equal length of years in data and meta data (nyear)
-    expect_equal(dim_data[["year"]], output$meta$nyear)
+    testthat::expect_equal(dim_data[["year"]], output$meta$nyear)
     # Test for equal dimnames of years in data and those constructed by
     #   meta data (firstyear, nyear)
-    expect_equal(
+    testthat::expect_equal(
       dimnames_data$year,
       format(
         seq(output$meta$firstyear, by = output$meta$timestep,
@@ -60,19 +60,19 @@ test_integrity <- function(output) {
     # For month there is no meta data available (like nmonth, firstmonth)
     #   following tests only via hardcoded pre defined month to be tested
     if ("month" %in% names(dim_data) && !output$meta$subset) {
-      expect_equal(dimnames_data$month, as.character(1:12))
+      testthat::expect_equal(dimnames_data$month, as.character(1:12))
     } else if ("month" %in% names(dim_data) && output$meta$subset) {
-      expect_equal(dimnames_data$month, as.character(6:9))
+      testthat::expect_equal(dimnames_data$month, as.character(6:9))
     }
   }
 
   # Test for equal length of bands in data and meta data (nbands)
-  expect_equal(dim_data[["band"]], output$meta$nbands)
+  testthat::expect_equal(dim_data[["band"]], output$meta$nbands)
   # Check if band dimension > 1 -> then has band_names
   if (output$meta$nbands > 1) {
     # Test for equal dimnames of band in data and those constructed by meta data
     #   (band_names)
-    expect_equal(dimnames_data$band, output$meta$band_names)
+    testthat::expect_equal(dimnames_data$band, output$meta$band_names)
   }
 
   # check for grid
@@ -84,7 +84,7 @@ test_integrity <- function(output) {
     if ("cell" %in% names(dimnames_grid)) {
       # Test for equal dimnames of cell in grid data and those constructed by
       #   output meta data
-      expect_equal(
+      testthat::expect_equal(
         dimnames_grid$cell,
         format(
           seq(output$meta$firstcell, length.out = output$meta$ncell),
@@ -94,9 +94,9 @@ test_integrity <- function(output) {
     } else {
       # Test to match data of grid (cell numbers) and cell numbers constructed
       #   by meta data of output
-      expect_true(
+      testthat::expect_true(
         all(as.vector(stats::na.omit(output$grid$data)) %in%
-            seq(output$meta$firstcell, length.out = output$meta$ncell))
+              seq(output$meta$firstcell, length.out = output$meta$ncell))
       )
     }
   }
@@ -112,6 +112,7 @@ test_that("test subset method", {
     output$add_grid(),
     "grid.bin.json"
   )
+
   output_sub <- subset(
     output,
     cell = 1:2,

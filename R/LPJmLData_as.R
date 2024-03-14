@@ -440,7 +440,8 @@ LPJmLData$set("private",
         multi_layer <- multi_dims[which(multi_dims != "cell")]
 
         tmp_rast <- terra::rast(tmp_rast,
-                                nl = dim(data_subset$data)[multi_layer])
+                                nl = dim(data_subset$data)[multi_layer],
+                                vals = NA)
 
         names(tmp_rast) <- dimnames(data_subset$data)[[multi_layer]]
 
@@ -474,13 +475,23 @@ LPJmLData$set("private",
       } else {
         tmp_data <- data_subset$data
       }
-      tmp_rast[
-        terra::cellFromXY(
-          tmp_rast,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- tmp_data
+      if (class(data_subset)[1] == "LPJmLData") {
+        tmp_rast[
+          terra::cellFromXY(
+            tmp_rast,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      } else {
+        tmp_rast[
+          terra::cellFromXY(
+            tmp_rast,
+            cbind(subset_array(data_subset$data, list(band = "lon")),
+                  subset_array(data_subset$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      }
     }
 
     # Assign units (meta data)
@@ -568,7 +579,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       xmax = grid_extent[2, 1],
       ymin = grid_extent[1, 2],
       ymax = grid_extent[2, 2],
-      crs = "EPSG:4326"
+      crs = "EPSG:4326",
+      vals = NA
     )
 
   } else {

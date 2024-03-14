@@ -93,10 +93,9 @@ LPJmLData$set("private",
         subset_array_pair(x = self$data,
                           pair = subset_list[[coords]])
       )
-      
       if (!is.null(private$.grid)) {
         # Subset grid with coordinates and update corresponding grid meta data
-        private$.grid$subset(subset_list[coords])
+        do.call(private$.grid$subset, subset_list[coords])
       }
 
     } else {
@@ -122,10 +121,9 @@ LPJmLData$set("private",
                    subset_list[names(subset_list) != coords],
                    drop = FALSE)
     )
-
     # Subset grid with space dimensions and update corresponding grid meta data
     if (!is.null(private$.grid) && !is.null(subset_space_dim)) {
-      private$.grid$subset(subset_list[subset_space_dim])
+      do.call(private$.grid$subset, subset_list[subset_space_dim])
     }
 
     if ("time" %in% names(subset_list)) {

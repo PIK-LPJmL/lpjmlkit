@@ -40,8 +40,8 @@
 #'
 #' If a list of `coordinates` is provided, the function filters the cells to
 #' include only those that match the specified coordinates. The `coordinates`
-#' should be a list of two numeric vectors representing the longitude and
-#' latitude values.
+#' should be a list of two character vectors representing the longitude and
+#' latitude values as for [`subset()`].
 #'
 #' If both `extent` and `coordinates` are provided, the function will stop and
 #' ask for only one of them. If neither `extent` nor `coordinates` are provided,
@@ -54,18 +54,21 @@
 get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
   # Check input types and values
   check_filepath(grid_filename)
-  check_extent(extent)
-  check_coordinates(coordinates)
+
   check_extent_and_coordinates(extent, coordinates)
+
+  grid_lonlat <- read_io(filename = grid_filename) %>%
+    LPJmLGridData$new()
+
   if (!is.null(extent)) {
-    extent <- correct_extent(extent)
+    extent <- check_extent(extent) %>%
+      correct_extent()
+  } else if (!is.null(coordinates)) {
+    check_coordinates_length(coordinates)
   }
-  check_coordinates_length(coordinates)
 
   # Read the grid file and create a data frame
-  cells <- as.data.frame(read_io(filename = grid_filename)$data)
-  colnames(cells) <- c("lon", "lat")
-  cells$cellindex <- as.numeric(row.names(cells)) + 1
+  cells <- as.data.frame(grid_lonlat$data)
 
   # Get the range of longitude and latitude in the cells
   lon_range <- range(cells$lon)
@@ -73,6 +76,8 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
 
   # Check if extent values are within the longitude and latitude range in the cells
   if (!is.null(extent)) {
+    cells$cellindex <- as.numeric(row.names(cells)) + 1
+
     out_of_bounds_lon <- extent[c(1, 2)][extent[c(1, 2)] < lon_range[1] |
                                            extent[c(1, 2)] > lon_range[2]]
     out_of_bounds_lat <- extent[c(3, 4)][extent[c(3, 4)] < lat_range[1] |
@@ -86,6 +91,10 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
         paste(out_of_bounds_lat, collapse = ", ")
       ))
     }
+
+    cells <- cells[cells$lon >= extent[1] &
+                     cells$lon <= extent[2] &
+                     cells$lat >= extent[3] & cells$lat <= extent[4], ]$cellindex
   }
 
   # Check if coordinates are within the longitude and latitude range in the cells
@@ -108,29 +117,15 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
         paste(out_of_bounds_coords, collapse = ", ")
       ))
     }
+
+    grid_cell <- transform(grid_lonlat, "lon_lat")
+
+    grid_cell$subset(coordinates = coordinates)
+
+    cells <- c(na.omit(c(grid_cell$data + 1)))
   }
 
-  # Filter cells based on extent
-  if (!is.null(extent)) {
-    cells <- cells[cells$lon >= extent[1] &
-                     cells$lon <= extent[2] &
-                     cells$lat >= extent[3] & cells$lat <= extent[4], ]
-  }
-
-  # Filter cells based on coordinates
-  if (!is.null(coordinates)) {
-    coord_df <- data.frame(
-      lon = unlist(coordinates[1]),
-      lat = unlist(coordinates[2])
-    )
-    cells <- stats::na.omit(cells[match(
-      paste(cells$lon, cells$lat),
-      paste(coord_df$lon, coord_df$lat)
-    ), ])
-  }
-
-  # Return the filtered cellindexes
-  cells$cellindex
+  cells
 }
 
 # Check if the input is a valid file path
@@ -145,20 +140,26 @@ check_filepath <- function(grid_filename) {
 
 # Check if the extent is a numeric vector of length 4
 check_extent <- function(extent) {
-  if (!is.null(extent) && (length(extent) != 4 || !is.numeric(extent))) {
+
+  if (!is.null(extent) && (length(extent) != 4)) {
     stop("extent must be a numeric vector of length 4.")
   }
+
+  # check if character vector present and convert to numeric (to be consistent with coordinates) # nolint
+  if (is.character(extent)) {
+    extent <- as.numeric(extent)
+  }
+
+  # Check if any NA's are present in extent
+  if (any(is.na(extent))) {
+    stop("NA's (induced by conversion) are not allowed in extent.")
+  }
+
+  extent
 }
 
+
 # Check if the coordinates are a list of two numeric vectors of equal length
-check_coordinates <- function(coordinates) {
-  if (!is.null(coordinates) &&
-        (!is.list(coordinates) || length(coordinates) != 2 ||
-           !is.numeric(coordinates[[1]]) || !is.numeric(coordinates[[2]]) ||
-           length(coordinates[[1]]) != length(coordinates[[2]]))) {
-    stop("coordinates must be a list of two numeric vectors of equal length.")
-  }
-}
 
 # Check if both extent and coordinates are provided
 check_extent_and_coordinates <- function(extent, coordinates) {
@@ -166,10 +167,10 @@ check_extent_and_coordinates <- function(extent, coordinates) {
     warning("Neither extent or coordinates provided. Full grid will be returned.")
   }
   if (!is.null(extent) && !is.null(coordinates)) {
-    stop(paste(
+    stop(
       "Both extent and coordinates are provided.",
       " Please provide only one of them."
-    ))
+    )
   }
 }
 

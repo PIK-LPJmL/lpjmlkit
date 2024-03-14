@@ -208,7 +208,8 @@ subset_array_pair <- function(x,
   pair_names <- names(pair)
 
   # Ensure that coordinates are character vectors.
-  if (!all(sapply(pair, is.character) | sapply(pair, is.factor), na.rm = TRUE)) { # nolint
+  if (length(pair) == 0 ||
+        !all(sapply(pair, is.character) | sapply(pair, is.factor), na.rm = TRUE)) { # nolint
     stop("Values for coordinate pairs must be supplied as strings")
   }
 

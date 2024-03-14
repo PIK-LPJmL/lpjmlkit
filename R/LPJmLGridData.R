@@ -30,6 +30,21 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
       stop("Not allowed for an object of class LPJmLGridData")
     },
 
+    #' @description
+    #' ! No plot function available for `LPJmLGridData` object. Use
+    #' [`as_raster()`] or [`as_terra()`] (and `plot()`) to visualize the grid.
+    #'
+    #' @param ... See [`plot()`].
+    plot = function(...) {
+
+      stop(
+        "No plot function available for LPJmLGridData object. Use ",
+        "as_raster() or as_terra() (and plot()) to visualize grid data."
+      )
+    },
+
+
+
     # Create a new LPJmLGridData object only to be used internally or explicitly
     #' @description
     #' !Internal method only to be used for package development!
@@ -45,7 +60,6 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
       private$.meta <- x$meta
       # Assign LPJmLData data
       private$.data <- x$data
-
 
       if (!is.null(private$.meta$variable)) {
 
