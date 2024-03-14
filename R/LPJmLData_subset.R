@@ -154,6 +154,7 @@ LPJmLData$set("private",
         if (is.null(private$.grid) && class(self)[1] == "LPJmLData") {
           stop("Missing $grid attribute. Add via $add_grid()")
         }
+        # default handling of LPJmLData objects else inherited like LPJmLGridData
         if (class(self)[1] == "LPJmLData") {
           cell_dimnames <- sort(private$.grid$data) %>%
             format(trim = TRUE, scientific = FALSE, justify = "none")

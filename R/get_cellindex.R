@@ -52,9 +52,9 @@
 #' checks if the `grid_filename` exists, if the `extent` vector has the correct
 #' length, and if the `coordinates` list contains two vectors of equal length.
 get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
-  # Check input types and values
+  # check if filepath is valid
   check_filepath(grid_filename)
-
+  # check if (only) one of extent or coordinates is provided
   check_extent_and_coordinates(extent, coordinates)
 
   grid_lonlat <- read_io(filename = grid_filename) %>%
