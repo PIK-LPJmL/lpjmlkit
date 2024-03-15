@@ -57,9 +57,10 @@ subset.LPJmLData <- function(x, ...) {
 }
 
 # subset method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".subset",
-              function(...) {
+LPJmLData$set(
+  "private",
+  ".subset",
+  function(...) {
 
     # Function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {
@@ -106,7 +107,7 @@ LPJmLData$set("private",
     if ("cell" %in% names(subset_list)) {
       subset_space_dim <- "cell"
 
-    # Assign subset_space_dim for format "lat_lon"
+      # Assign subset_space_dim for format "lat_lon"
     } else if (any(lon_lat %in% names(subset_list))) {
       subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
 
@@ -184,7 +185,7 @@ LPJmLData$set("private",
 create_year_dimnames <- function(subset_list, data) {
 
   if ("year" %in% names(subset_list) && is.numeric(subset_list[["year"]])) {
-    year_dimnames <- data$dimnames()$year
+    year_dimnames <- dimnames(data)$year
   } else {
     year_dimnames <- NULL
   }

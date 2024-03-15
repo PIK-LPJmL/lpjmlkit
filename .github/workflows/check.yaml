@@ -49,6 +49,11 @@ jobs:
         shell: Rscript {0}
         run: lucode2:::validkey(stopIfInvalid = TRUE)
 
+      - name: Verify that lucode2::buildLibrary was successful
+        if: github.event_name == 'pull_request'
+        shell: Rscript {0}
+        run: lucode2:::isVersionUpdated()
+
       - name: Checks
         shell: Rscript {0}
         run: |
