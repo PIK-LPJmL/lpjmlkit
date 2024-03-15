@@ -57,9 +57,10 @@ subset.LPJmLData <- function(x, ...) {
 }
 
 # subset method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".subset",
-              function(...) {
+LPJmLData$set(
+  "private",
+  ".subset",
+  function(...) {
 
     # Function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {

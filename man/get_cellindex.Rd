@@ -38,8 +38,8 @@ be a numeric vector of length 4 in the form c(lonmin, lonmax, latmin, latmax).
 
 If a list of \code{coordinates} is provided, the function filters the cells to
 include only those that match the specified coordinates. The \code{coordinates}
-should be a list of two numeric vectors representing the longitude and
-latitude values.
+should be a list of two character vectors representing the longitude and
+latitude values as for \code{\link[=subset]{subset()}}.
 
 If both \code{extent} and \code{coordinates} are provided, the function will stop and
 ask for only one of them. If neither \code{extent} nor \code{coordinates} are provided,

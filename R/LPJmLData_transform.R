@@ -56,9 +56,10 @@ transform <- function(x,
 }
 
 # transform method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".transform",
-              function(to) {
+LPJmLData$set(
+  "private",
+  ".transform",
+  function(to) {
 
     # Transform time format
     if (any(to %in% private$.meta$._dimension_map_$time)) {
@@ -104,9 +105,10 @@ LPJmLData$set("private",
 
 # Method to transform space dimension of data array from "cell" to "lon_lat" or
 #   the other way around. If required add_grid to LPJmLData along the way.
-LPJmLData$set("private",
-              ".transform_space",
-              function(to) {
+LPJmLData$set(
+  "private",
+  ".transform_space",
+  function(to) {
 
     # If to equals current format return directly
     if (private$.meta$._space_format_ == to) {
@@ -125,7 +127,7 @@ LPJmLData$set("private",
 
     # Case 1: Transformation from cell dimension to lon, lat dimensions
     if (private$.meta$._space_format_ == "cell" &&
-        to == "lon_lat") {
+          to == "lon_lat") {
 
       private$.grid$transform(to = to)
 
@@ -186,9 +188,8 @@ LPJmLData$set("private",
       # Insert data from source array into target array
       target_array[index_target] <- self$data
 
-    # Case 2: Transformation between lon, lat dimensions and cell dimension
-    } else if (private$.meta$._space_format_ == "lon_lat" &&
-        to == "cell") {
+      # Case 2: Transformation between lon, lat dimensions and cell dimension
+    } else if (private$.meta$._space_format_ == "lon_lat" && to == "cell") {
 
       # Matrix with ilon and ilat indices of cells in new array
       ilonilat <- arrayInd(match(sort(private$.grid$data), private$.grid$data),
@@ -230,13 +231,13 @@ LPJmLData$set("private",
         MoreArgs = list(ilonilat = ilonilat)
       ) %>%
         unlist(recursive = TRUE, use.names = FALSE) %>%
-          matrix(nrow = nrow(index_source))
+        matrix(nrow = nrow(index_source))
 
       rm(index_source, ilonilat)
       gc(full = TRUE)
 
       target_array <- array(self$data[index_target], dim = new_dims,
-                         dimnames = new_dimnames)
+                            dimnames = new_dimnames)
 
     } else {
       return(invisible(self))
@@ -255,20 +256,20 @@ LPJmLData$set("private",
 
 # Method to transform the time dimension of the data array from "time" to
 # "year_month_day" or the other way around
-LPJmLData$set("private",
-              ".transform_time",
-              function(to) {
+LPJmLData$set(
+  "private",
+  ".transform_time",
+  function(to) {
 
 
-      # If to equals current format return directly
+    # If to equals current format return directly
     if (private$.meta$._time_format_ == to) {
       return(invisible(self))
     }
 
     # Case 1: Transformation from "time" dimension to "year", "month", "day"
     #   dimensions (if available)
-    if (private$.meta$._time_format_ == "time" &&
-        to == "year_month_day") {
+    if (private$.meta$._time_format_ == "time" && to == "year_month_day") {
 
       # Possible ndays of months
       ndays_in_month <- c(31, 30, 28)
@@ -283,17 +284,15 @@ LPJmLData$set("private",
       }
 
       # Remove month dimension if there is only one month in data -> annual
-      if (length(time_dimnames$month) == 1 &&
-          is.null(time_dimnames[["day"]])) {
+      if (length(time_dimnames$month) == 1 && is.null(time_dimnames[["day"]])) {
         time_dimnames[["month"]] <- NULL
       }
 
       new_time_dim <- "year_month_day"
 
-    # Case 2: Transformation from dimensions "year", "month", "day"
-    # (if available) to "time" dimension
-    } else if (private$.meta$._time_format_ == "year_month_day" &&
-               to == "time") {
+      # Case 2: Transformation from dimensions "year", "month", "day"
+      # (if available) to "time" dimension
+    } else if (private$.meta$._time_format_ == "year_month_day" && to == "time") { # nolint:line_length_linter
 
       # Convert time dimnames back to time
       pre_dimnames <- self$dimnames() %>%
@@ -309,7 +308,7 @@ LPJmLData$set("private",
 
       new_time_dim <- "time"
 
-    # Return directly if no transformation is necessary
+      # Return directly if no transformation is necessary
     } else {
       return(invisible(self))
     }

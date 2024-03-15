@@ -69,11 +69,14 @@ as_array <- function(x,
 }
 
 # as_array method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_array",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_array",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     # Initiate clone to be returned on which following methods are executed
     data_subset <- self$clone(deep = TRUE)
@@ -150,12 +153,15 @@ as_tibble.LPJmLData <- function(x,
 }
 
 # as_tibble method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_tibble",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       value_name = "value",
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_tibble",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    value_name = "value",
+    ...
+  ) {
 
     data <- self$as_array(subset, aggregate, ...)
 
@@ -236,11 +242,14 @@ as_raster <- function(x,
 }
 
 # as_raster method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_raster",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_raster",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
@@ -378,22 +387,21 @@ LPJmLData$set("private",
 #' @md
 #' @aliases as_rast as_SpatRaster
 #' @export
-as_terra <- function(x,
-                     subset = NULL,
-                     aggregate = NULL,
-                      ...) {
-  y <- x$as_terra(subset,
-                  aggregate,
-                  ...)
+as_terra <- function(x, subset = NULL, aggregate = NULL, ...) {
+
+  y <- x$as_terra(subset, aggregate, ...)
   y
 }
 
 # as_terra method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_terra",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_terra",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
@@ -506,12 +514,15 @@ LPJmLData$set("private",
 )
 
 
-LPJmLData$set("private",
-              ".subset_raster_data",
-              function(self,
-                       subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".subset_raster_data",
+  function(
+    self,
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.

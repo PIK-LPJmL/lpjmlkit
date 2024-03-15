@@ -122,7 +122,7 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
 
     grid_cell$subset(coordinates = coordinates)
 
-    cells <- c(na.omit(c(grid_cell$data + 1)))
+    cells <- c(stats::na.omit(c(grid_cell$data + 1)))
   }
 
   cells

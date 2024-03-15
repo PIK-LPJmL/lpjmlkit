@@ -68,7 +68,7 @@ test_that("test transform (space) method", {
   output$transform(to = c("lon_lat"))
   output$subset(lat = c("55.25", "55.75", "56.25", "56.75"))
   output$transform(to = "cell")
-  # test_integrity(output)
+  test_integrity(output)
 
   output2 <- read_grid(
     filename = file_name,
