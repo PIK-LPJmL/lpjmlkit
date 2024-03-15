@@ -76,6 +76,12 @@ order in the file depending on the \code{dim_order} parameter used in
 \item{\code{offset}}{Offset (numeric) at the start of the binary file before the
 actual data start.}
 
+\item{\code{grid}}{Grid file information (nested list) containing filename to
+corresponding grid file and format (e.g. \code{"meta"}).}
+
+\item{\code{ref_area}}{Reference area file information (nested list) containing
+filename to corresponding area file(s) and format (e.g. \code{"meta"}).}
+
 \item{\code{bigendian}}{(Logical) Endianness refers to the order in which bytes
 are stored in a multi-byte value, with big-endian storing the most
 significant byte at the lowest address and little-endian storing the

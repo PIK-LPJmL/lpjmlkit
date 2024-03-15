@@ -474,6 +474,20 @@ LPJmLMetaData <- R6::R6Class( # nolint
       return(private$.offset)
     },
 
+    #' @field grid Grid file information (nested list) containing filename to
+    #' corresponding grid file and format (e.g. `"meta"`).
+    grid = function(...) {
+      check_change(self, "grid", ...)
+      return(private$.grid)
+    },
+
+    #' @field ref_area Reference area file information (nested list) containing
+    #' filename to corresponding area file(s) and format (e.g. `"meta"`).
+    ref_area = function(...) {
+      check_change(self, "ref_area", ...)
+      return(private$.ref_area)
+    },
+
     #' @field bigendian (Logical) Endianness refers to the order in which bytes
     #' are stored in a multi-byte value, with big-endian storing the most
     #' significant byte at the lowest address and little-endian storing the
@@ -608,7 +622,9 @@ LPJmLMetaData <- R6::R6Class( # nolint
         "order",
         "history",
         "source",
-        "filename"
+        "filename",
+        "grid",
+        "ref_area"
       ) %>%
 
         # Only append scalar if != 1
@@ -676,6 +692,10 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
     .offset = NULL,
 
+    .grid = NULL,
+
+    .ref_area = NULL,
+
     .name = NULL,
 
     .map = NULL,
@@ -718,7 +738,9 @@ LPJmLMetaData <- R6::R6Class( # nolint
                     "name",
                     "map",
                     "version",
-                    "offset"),
+                    "offset",
+                    "grid",
+                    "ref_area"),
 
     .dimension_map = list(space_format = c("cell", "lon_lat"),
                           time_format = c("time", "year_month_day"),

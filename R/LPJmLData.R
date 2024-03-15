@@ -37,14 +37,19 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # If user has not supplied any parameters try to find a grid file in the
         # same directory as data. This throws an error if no suitable file is
         # found.
-        filename <- find_gridfile(private$.meta$._data_dir_)
+        if (!is.null(self$meta$grid)) {
+          filename <- file.path(
+            private$.meta$._data_dir_,
+            self$meta$grid$filename
+          )
+        } else {
+          filename <- find_gridfile(private$.meta$._data_dir_)
+        }
 
         message(
-          paste0(
-            col_var("grid"),
-            " read from ",
-            sQuote(basename(filename))
-          )
+          col_var("grid"),
+          " read from ",
+          sQuote(basename(filename))
         )
 
         # Add support for cell subsets. This is a rough filter since $subset
