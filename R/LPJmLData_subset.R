@@ -186,7 +186,7 @@ LPJmLData$set(
 create_year_dimnames <- function(subset_list, data) {
 
   if ("year" %in% names(subset_list) && is.numeric(subset_list[["year"]])) {
-    year_dimnames <- data$dimnames()$year
+    year_dimnames <- dimnames(data)$year
   } else {
     year_dimnames <- NULL
   }
