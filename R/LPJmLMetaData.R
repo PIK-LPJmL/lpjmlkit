@@ -9,6 +9,8 @@
 #' [`as_list()`].
 #' The enclosing environment is locked and cannot be altered.
 #'
+#' @md
+#' @export
 LPJmLMetaData <- R6::R6Class( # nolint
 
   classname = "LPJmLMetaData",

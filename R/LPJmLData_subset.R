@@ -49,6 +49,7 @@
 #' }
 #'
 #' @md
+#' @export subset.LPJmLData
 #' @export
 subset.LPJmLData <- function(x, ...) {
   y <- x$clone(deep = TRUE)
@@ -57,9 +58,10 @@ subset.LPJmLData <- function(x, ...) {
 }
 
 # subset method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".subset",
-              function(...) {
+LPJmLData$set(
+  "private",
+  ".subset",
+  function(...) {
 
     # Function to throw error if subset dimension does not fit the format
     stop_format <- function(subset_dim, format) {
@@ -106,7 +108,7 @@ LPJmLData$set("private",
     if ("cell" %in% names(subset_list)) {
       subset_space_dim <- "cell"
 
-    # Assign subset_space_dim for format "lat_lon"
+      # Assign subset_space_dim for format "lat_lon"
     } else if (any(lon_lat %in% names(subset_list))) {
       subset_space_dim <- lon_lat[lon_lat %in% names(subset_list)]
 
