@@ -69,6 +69,7 @@
 #' }
 #'
 #' @md
+#' @export plot.LPJmLData
 #' @export
 plot.LPJmLData <- function(x,
                            subset = NULL,
@@ -81,14 +82,13 @@ plot.LPJmLData <- function(x,
          ...)
 }
 
+
 # plot method roxygen documentation in LPJmlData.R
-LPJmLData$set("private", # nolint:cyclocomp_linter.
+LPJmLData$set("private", # nolint start
               ".plot",
               function(subset = NULL,
                        aggregate = NULL,
                        raster_extent = NULL,
-                       # only to prevent a bug that sub ist interpreted as
-                       # subset by R
                        sub = NULL,
                        ...) {
 
@@ -218,7 +218,7 @@ LPJmLData$set("private", # nolint:cyclocomp_linter.
                 raster_extent = raster_extent,
                 dots = dots)
   }
-})
+}) # nolint end
 
 
 # Function to create line plots based on lpjml data
@@ -252,13 +252,13 @@ plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
   }
 
   if (!any(time_dims %in% dim_names) &&
-      (lpjml_data$meta$._space_format_ == "cell" ||
-       any(space_dims %in% names(aggregate)))) {
+        (lpjml_data$meta$._space_format_ == "cell" ||
+           any(space_dims %in% names(aggregate)))) {
     stop(
       "At least one temporal dimension of ",
-       paste0(col_var(time_dims), collapse = ", "),
-       " has to be provided by the data."
-      )
+      paste0(col_var(time_dims), collapse = ", "),
+      " has to be provided by the data."
+    )
   }
 
   # Hierarchical ordering of what to display on the x axis
@@ -273,8 +273,8 @@ plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
   }
 
   if (lpjml_data$meta$._space_format_ == "lon_lat" &&
-      any(dim(raw_data)[space_dims] > 1) &&
-      all(dim(raw_data)[time_dims] == 1, na.rm = TRUE)) {
+        any(dim(raw_data)[space_dims] > 1) &&
+        all(dim(raw_data)[time_dims] == 1, na.rm = TRUE)) {
     x_dim <- space_dims[which(dim(raw_data)[space_dims] > 1)]
   }
 
@@ -381,15 +381,15 @@ plot_lines <- function(lpjml_data, # nolint:cyclocomp_linter.
                         by = brks * nstep)
 
         graphics::axis(side = 1,
-                      at = at_ticks,
-                      labels = dimnames(raw_data)[[x_dim]][at_ticks])
+                       at = at_ticks,
+                       labels = dimnames(raw_data)[[x_dim]][at_ticks])
       }
 
       for (i in cols[-1]) {
 
-      # subset_array for dynamic subsetting of flexible legend_dim
+        # subset_array for dynamic subsetting of flexible legend_dim
         graphics::lines(subset_array(raw_data,
-                                    as.list(stats::setNames(i, legend_dim))),
+                                     as.list(stats::setNames(i, legend_dim))),
                         col = cols[i],
                         type = dots$type)
       }
@@ -463,10 +463,10 @@ plot_raster <- function(lpjml_data,
   }
 
   if (is.null(dots$zlim)) {
-      zlim <- NULL
+    zlim <- NULL
   } else {
-      zlim <- dots$zlim
-      dots$zlim <- NULL
+    zlim <- dots$zlim
+    dots$zlim <- NULL
   }
 
   # Set color scale of raster plot
@@ -506,13 +506,15 @@ plot_raster <- function(lpjml_data,
   }
 
   # Set plot arrangement for multiple raster layers
-  nr_nc <- switch(as.character(raster::nlayers(data_ras)), "1" = c(1, 1),
-  "2" = c(1, 2),
-  "3" = c(2, 2),
-  "4" = c(2, 2),
-  "5" = c(3, 2),
-  "6" = c(3, 2),
-  c(3, 3))
+  nr_nc <- switch(
+    as.character(raster::nlayers(data_ras)), "1" = c(1, 1),
+    "2" = c(1, 2),
+    "3" = c(2, 2),
+    "4" = c(2, 2),
+    "5" = c(3, 2),
+    "6" = c(3, 2),
+    c(3, 3)
+  )
 
   # Plot raster for multiple or single layer(s)
   if (is.list(zlim) || is.list(map_col)) {

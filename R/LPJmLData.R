@@ -12,6 +12,8 @@
 #' [`plot.LPJmLData()`] to get insights and export methods like [`as_tibble()`]
 #' or [`as_raster()`] to export it into common working formats.
 #'
+#' @md
+#' @export
 LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
   classname = "LPJmLData",

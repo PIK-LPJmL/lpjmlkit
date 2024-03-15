@@ -11,6 +11,8 @@
 #' As in LPJmLData the data array can be accessed via `$data`,
 #' the meta data via `$meta`.
 #'
+#' @md
+#' @export
 LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
 
   classname = "LPJmLGridData",
