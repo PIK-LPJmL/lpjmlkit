@@ -268,7 +268,7 @@ write_config <- function(x,
                          sim_path = NULL,
                          output_list = c(),
                          output_list_timestep = "annual",
-                         output_format = "raw",
+                         output_format = NULL,
                          cjson_filename = "lpjml_config.cjson",
                          parallel_cores = 4,
                          debug = FALSE,
@@ -622,8 +622,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     for (x_id in seq_len(length(x[["output"]]))) {
 
       # Replace output format in x if defined (e.g. raw, clm, cdf)
-      if (is.null(x[["output"]][[x_id]]$file$fmt) ||
-            x[["output"]][[x_id]]$file$fmt != "txt") {
+      if (!is.null(output_format) &&
+            (is.null(x[["output"]][[x_id]]$file$fmt) ||
+               x[["output"]][[x_id]]$file$fmt != "txt")) {
         x[["output"]][[x_id]]$file$fmt <- output_format
       }
 
@@ -642,7 +643,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     # Empty output and include grid if not done
     x["output"] <- list(c())
 
-    if (!("grid" %in% output_list) && !("cdf" %in% output_format)) {
+    if (!("grid" %in% output_list)) {
       output_list <- append(output_list, "grid", after = 0)
       output_timestep <- append(output_timestep, NA, after = 0)
 
@@ -667,17 +668,19 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         new_output[["id"]] <- output_list[id_ov]
         new_output[["file"]] <- list()
 
-        # Output format three possibilities: netcdf: cdf, raw: bin and clm
-        new_output[["file"]][["fmt"]] <- ifelse(
-          length(output_format) == 1 && is.character(output_format),
-          ifelse(output_list[id_ov] == "globalflux", "txt", output_format),
-          stop(
-            "No valid output_format. Please choose in from \"raw\"",
-            " \"clm\" or \"cdf\" in form of a single character ",
-            "string."
-          )
-        )
 
+        if (!is.null(output_format)) {
+          # Output format three possibilities: netcdf: cdf, raw: bin and clm
+          new_output[["file"]][["fmt"]] <- ifelse(
+            length(output_format) == 1 && is.character(output_format),
+            ifelse(output_list[id_ov] == "globalflux", "txt", output_format),
+            stop(
+              "No valid output_format. Please choose in from \"raw\"",
+              " \"clm\" or \"cdf\" in form of a single character ",
+              "string."
+            )
+          )
+        }
         # Output_timestep could be supplied as a single character string
         #   prescribing a timestep for all outputs or as a character vector
         #   with the length of output_list to assign an individual timestep for
@@ -741,14 +744,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         #   file extension based on the output_format
         new_output[["file"]][["name"]] <- paste0(
           opath,
-          output_list[id_ov], ".",
-          ifelse(output_list[id_ov] == "globalflux",
-            "txt",
-            switch(output_format,
-                   raw = "bin",
-                   clm = "clm",
-                   cdf = "nc4")
-          )
+          output_list[id_ov]
         )
 
         # Append new output to output in config

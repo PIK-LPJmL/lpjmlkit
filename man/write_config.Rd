@@ -10,7 +10,7 @@ write_config(
   sim_path = NULL,
   output_list = c(),
   output_list_timestep = "annual",
-  output_format = "raw",
+  output_format = NULL,
   cjson_filename = "lpjml_config.cjson",
   parallel_cores = 4,
   debug = FALSE,

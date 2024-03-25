@@ -346,12 +346,11 @@ test_that("include non output defined outputvars", {
 
   # check if filename is set correctly
   expect_true(
-    grepl("irrig.clm",
+    grepl("/irrig",
           tmp_objects[[1]][["output"]][[
             length(tmp_objects[[1]][["output"]])
           ]]$file$name)
   )
-
 })
 
 
