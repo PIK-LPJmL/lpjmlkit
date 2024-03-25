@@ -23,16 +23,16 @@ test_integrity <- function(output) {
   } else {
     # Test for equal dimnames of lat, lon in data and those of underlying grid
     expect_equal(dimnames_data$lat,
-                           dimnames(output$grid)$lat)
+                 dimnames(output$grid)$lat)
     expect_equal(dimnames_data$lon,
-                           dimnames(output$grid)$lon)
+                 dimnames(output$grid)$lon)
   }
 
   # Check for two cases "time" or "year_month_day"
   if ("time" %in% names(dim_data)) {
     # Test for equal length of time steps in data and meta data (nyear * nstep)
     expect_equal(dim_data[["time"]],
-                           output$meta$nyear * output$meta$nstep)
+                 output$meta$nyear * output$meta$nstep)
     # Test for equal dimnames of time steps in data and those constructed by
     #   meta data with create_time_names function (nstep, firstyear, nyear)
     expect_equal(
@@ -96,7 +96,7 @@ test_integrity <- function(output) {
       #   by meta data of output
       expect_true(
         all(as.vector(stats::na.omit(output$grid$data)) %in%
-            seq(output$meta$firstcell, length.out = output$meta$ncell))
+              seq(output$meta$firstcell, length.out = output$meta$ncell))
       )
     }
   }
@@ -208,7 +208,7 @@ test_that("test transform (space) method", {
   # Explicitly load grid
   output$add_grid("../testdata/output/grid.bin.json")
   output$transform(to = c("year_month_day", "lon_lat"))
-  output$subset(year = as.character(2005:2008),
+  output$subset(year = 5:8,
                 month = 6:9,
                 lat = c("55.25", "55.75", "56.25", "56.75"))
   output$transform(to = "cell")
@@ -221,7 +221,7 @@ test_that("test transform (space) method", {
   output2$add_grid("../testdata/output/grid.bin.json")
   output2$transform(to = c("year_month_day", "lon_lat"))
   output2$subset(year = as.character(2005:2008),
-                 month = 6:9,
+                 month = as.character(6:9),
                  lat = c("55.25", "55.75", "56.25", "56.75"))
   output2$transform(to = "cell")
   test_integrity(output2)

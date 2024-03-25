@@ -41,8 +41,8 @@ a vector with the length of \code{output_list} defining each timestep
 individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.}
 
 \item{output_format}{Character string defining the format of the output.
-Defaults to \code{"raw"}. Further options: \code{"cdf"} (NetCDF) or \code{"clm"}
-(file with header).}
+Defaults to \code{NULL} (use default from cjson file). Options: \code{"raw"},
+\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).}
 
 \item{cjson_filename}{Character string providing the name of the main LPJmL
 configuration file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
@@ -72,7 +72,8 @@ Run parameters \code{"order"} and \code{"dependency"} are included if defined in
 Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 specific format (see details & examples) to write the model configuration
 file \code{"config_*.json"}. Each row in the tibble corresponds to a model run.
-The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.js"}).
+The generated \code{"config_*.json"} is based on a cjson file
+(e.g. \code{"lpjml_config.cjson"}).
 }
 \details{
 Supply a \link[tibble]{tibble} for \code{x}, in which each row represents

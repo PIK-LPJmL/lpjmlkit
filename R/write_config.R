@@ -3,7 +3,8 @@
 #' Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 #' specific format (see details & examples) to write the model configuration
 #' file `"config_*.json"`. Each row in the tibble corresponds to a model run.
-#' The generated `"config_*.json"` is based on a js file (e.g. `"lpjml_*.js"`).
+#' The generated `"config_*.json"` is based on a cjson file
+#' (e.g. `"lpjml_config.cjson"`).
 #'
 #' @param x A tibble in a defined format (see details).
 #'
@@ -26,8 +27,8 @@
 #'   individually. Choose between `"annual"`, `"monthly"` or `"daily"`.
 #'
 #' @param output_format Character string defining the format of the output.
-#'   Defaults to `"raw"`. Further options: `"cdf"` (NetCDF) or `"clm"`
-#'   (file with header).
+#'   Defaults to `NULL` (use default from cjson file). Options: `"raw"`,
+#'  `"cdf"` (NetCDF) or `"clm"` (file with header).
 #'
 #' @param cjson_filename Character string providing the name of the main LPJmL
 #'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
@@ -628,6 +629,23 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         x[["output"]][[x_id]]$file$fmt <- output_format
       }
 
+      # make it backwards compatible for old way of explicitly mentioning the
+      #   file extension in the output file name
+      if (!is.null(output_format) && is.null(x[["default_fmt"]])) {
+        new_ext  <- switch(
+          output_format,
+          raw = ".bin",
+          clm = ".clm",
+          cdf = ".nc4"
+        )
+        # Replace file extension of file name in output
+        x[["output"]][[x_id]]$file$name <- sub(
+          "\\.[^.]+$",
+          new_ext,
+          x[["output"]][[x_id]]$file$name
+        )
+      }
+
       # Replace output path in x
       x[["output"]][[x_id]]$file$name <- gsub("output/",
                                               opath,
@@ -742,10 +760,26 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
 
         # Create file name with correct path, corresponding outputvar name and
         #   file extension based on the output_format
-        new_output[["file"]][["name"]] <- paste0(
-          opath,
-          output_list[id_ov]
-        )
+        # make it backwards compatible for old way of explicitly mentioning the
+        #   file extension in the output file name
+        if (!is.null(output_format) && is.null(x[["default_fmt"]])) {
+          new_output[["file"]][["name"]] <- paste0(
+            opath,
+            output_list[id_ov], ".",
+            ifelse(output_list[id_ov] == "globalflux",
+              "txt",
+              switch(output_format,
+                     raw = "bin",
+                     clm = "clm",
+                     cdf = "nc4")
+            )
+          )
+        } else {
+          new_output[["file"]][["name"]] <- paste0(
+            opath,
+            output_list[id_ov]
+          )
+        }
 
         # Append new output to output in config
         x[["output"]] <- append(x[["output"]], list(new_output))
