@@ -351,7 +351,6 @@ test_that("include non output defined outputvars", {
             length(tmp_objects[[1]][["output"]])
           ]]$file$name)
   )
-
 })
 
 
