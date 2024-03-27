@@ -142,12 +142,18 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
       # Update fields_set
       private$.fields_set <- private$.fields_set[
-        -na.omit(match(c("nyear",
-                         "firstyear",
-                         "lastyear",
-                         "nstep",
-                         "timestep"),
-                       private$.fields_set))
+        -stats::na.omit(
+          match(
+            c(
+              "nyear",
+              "firstyear",
+              "lastyear",
+              "nstep",
+              "timestep"
+            ),
+            private$.fields_set
+          )
+        )
       ]
     },
 
