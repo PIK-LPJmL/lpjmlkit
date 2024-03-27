@@ -204,7 +204,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   valid_dim_names <- c("cell", "time", "band")
   if (!all(dim_order %in% valid_dim_names)) {
     stop(
-      "Invalid dim_order prodided: c(",
+      "Invalid dim_order provided: c(",
       toString(sQuote(dim_order)), ")\n",
       "dim_order can be in any order but must include all of the following ",
       "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
@@ -212,7 +212,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   }
   if (!all(valid_dim_names %in% dim_order)) {
     stop(
-      "Invalid dim_order prodided: c(",
+      "Invalid dim_order provided: c(",
       toString(sQuote(dim_order)), ")\n",
       "dim_order can be in any order but must include all of the following ",
       "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
