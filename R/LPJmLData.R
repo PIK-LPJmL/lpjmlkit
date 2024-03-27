@@ -254,7 +254,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       # Summary
       cat(col_var("$summary()\n"))
       print(self$summary(cutoff = TRUE))
-
+      # default handling of LPJmLData objects else inherited like LPJmLGridData
       if (class(self)[1] == "LPJmLData") {
         cat(
           col_note("Note: summary is not weighted by grid area.\n")

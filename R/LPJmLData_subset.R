@@ -11,13 +11,13 @@
 #'   `cell = c(27411:27416)`, `band = -c(14:16, 19:32)`, or character vectors if
 #'   the dimension has a dimnames attribute, e.g.
 #'   `band = c("rainfed rice", "rainfed maize")`.\
-#'   Coordinate pairs of individual cells can be selected by providing a tibble
-#'   in the form of `coords = tibble(lon = ..., lat =...)`. Coordinate values
-#'   in the tibble need to be supplied as character vectors. The argument can
-#'   also be called `coordinates`. When coordinates are supplied as character
-#'   vectors to subset either along the `lon` or `lat` dimension or to subset
-#'   by coordinate pair, the function matches the grid cells closest to the
-#'   supplied coordinate value.
+#'   Coordinate pairs of individual cells can be selected by providing a list or
+#'   tibble in the form of `coords = list(lon = ..., lat =...)`. Coordinate
+#'   values need to be supplied as character vectors. The argument
+#'   can also be called `coordinates`. When coordinates are supplied as
+#'   character vectors to subset either along the `lon` or `lat` dimension or to
+#'   subset by coordinate pair, the function matches the grid cells closest to
+#'   the supplied coordinate value.
 #'
 #' @return An [`LPJmLData`] object with dimensions resulting from the selection
 #'   in `subset`. Meta data are updated as well.
@@ -95,9 +95,10 @@ LPJmLData$set(
         subset_array_pair(x = self$data,
                           pair = subset_list[[coords]])
       )
-
-      # Subset grid with coordinates and update corresponding grid meta data
-      private$.grid$.__subset_space__(subset_list[coords])
+      if (!is.null(private$.grid)) {
+        # Subset grid with coordinates and update corresponding grid meta data
+        do.call(private$.grid$subset, subset_list[coords])
+      }
 
     } else {
       # Avoid errors when subsetting list with coords
@@ -122,10 +123,9 @@ LPJmLData$set(
                    subset_list[names(subset_list) != coords],
                    drop = FALSE)
     )
-
     # Subset grid with space dimensions and update corresponding grid meta data
     if (!is.null(private$.grid) && !is.null(subset_space_dim)) {
-      private$.grid$.__subset_space__(subset_list[subset_space_dim])
+      do.call(private$.grid$subset, subset_list[subset_space_dim])
     }
 
     if ("time" %in% names(subset_list)) {
@@ -153,11 +153,17 @@ LPJmLData$set(
 
       } else {
 
-        if (is.null(private$.grid)) {
+        if (is.null(private$.grid) && class(self)[1] == "LPJmLData") {
           stop("Missing $grid attribute. Add via $add_grid()")
         }
-        cell_dimnames <- sort(private$.grid$data) %>%
-          format(trim = TRUE, scientific = FALSE, justify = "none")
+        # default handling of LPJmLData objects else inherited like LPJmLGridData
+        if (class(self)[1] == "LPJmLData") {
+          cell_dimnames <- sort(private$.grid$data) %>%
+            format(trim = TRUE, scientific = FALSE, justify = "none")
+        } else {
+          cell_dimnames <- sort(self$data) %>%
+            format(trim = TRUE, scientific = FALSE, justify = "none")
+        }
       }
 
     } else {
