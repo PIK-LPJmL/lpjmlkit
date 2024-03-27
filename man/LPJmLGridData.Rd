@@ -22,12 +22,7 @@ the meta data via \verb{$meta}.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LPJmLGridData-add_grid}{\code{LPJmLGridData$add_grid()}}
-\item \href{#method-LPJmLGridData-subset}{\code{LPJmLGridData$subset()}}
-\item \href{#method-LPJmLGridData-transform}{\code{LPJmLGridData$transform()}}
-\item \href{#method-LPJmLGridData-as_raster}{\code{LPJmLGridData$as_raster()}}
-\item \href{#method-LPJmLGridData-as_terra}{\code{LPJmLGridData$as_terra()}}
-\item \href{#method-LPJmLGridData-.__subset_space__}{\code{LPJmLGridData$.__subset_space__()}}
-\item \href{#method-LPJmLGridData-.__transform_space__}{\code{LPJmLGridData$.__transform_space__()}}
+\item \href{#method-LPJmLGridData-plot}{\code{LPJmLGridData$plot()}}
 \item \href{#method-LPJmLGridData-new}{\code{LPJmLGridData$new()}}
 \item \href{#method-LPJmLGridData-print}{\code{LPJmLGridData$print()}}
 \item \href{#method-LPJmLGridData-clone}{\code{LPJmLGridData$clone()}}
@@ -39,12 +34,15 @@ the meta data via \verb{$meta}.
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id=".__set_data__"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-.__set_data__'><code>lpjmlkit::LPJmLData$.__set_data__()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id=".__set_grid__"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-.__set_grid__'><code>lpjmlkit::LPJmLData$.__set_grid__()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_array"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_array'><code>lpjmlkit::LPJmLData$as_array()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_raster"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_raster'><code>lpjmlkit::LPJmLData$as_raster()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_terra"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_terra'><code>lpjmlkit::LPJmLData$as_terra()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_tibble"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_tibble'><code>lpjmlkit::LPJmLData$as_tibble()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dim"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dim'><code>lpjmlkit::LPJmLData$dim()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dimnames"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dimnames'><code>lpjmlkit::LPJmLData$dimnames()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="length"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-length'><code>lpjmlkit::LPJmLData$length()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="plot"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-plot'><code>lpjmlkit::LPJmLData$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="subset"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-subset'><code>lpjmlkit::LPJmLData$subset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="summary"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-summary'><code>lpjmlkit::LPJmLData$summary()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="transform"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-transform'><code>lpjmlkit::LPJmLData$transform()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -66,107 +64,19 @@ the meta data via \verb{$meta}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-subset"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-subset}{}}}
-\subsection{Method \code{subset()}}{
-! Not allowed to use dimension names of \code{LPJmLGridData$data}
-array directly to subset each dimension to match the supplied vectors.
+\if{html}{\out{<a id="method-LPJmLGridData-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLGridData-plot}{}}}
+\subsection{Method \code{plot()}}{
+! No plot function available for \code{LPJmLGridData} object. Use
+\code{\link[=as_raster]{as_raster()}} or \code{\link[=as_terra]{as_terra()}} (and \code{plot()}) to visualize the grid.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$subset(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$plot(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{See \code{\link[=subset.LPJmLData]{subset.LPJmLData()}}}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-transform"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-transform}{}}}
-\subsection{Method \code{transform()}}{
-! Not allowed to transform inner \code{LPJmLGridData$data} array
-into another space or time format.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$transform(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=transform]{transform()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-as_raster"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-as_raster}{}}}
-\subsection{Method \code{as_raster()}}{
-! Not allowed to coerce (convert) an \code{LPJmLGridData} object into a
-\link[raster]{raster} or \link[raster]{brick} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$as_raster(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=as_raster]{as_raster()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-as_terra"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-as_terra}{}}}
-\subsection{Method \code{as_terra()}}{
-! Not allowed to coerce (convert) an \code{LPJmLGridData} object into a
-\link[terra]{rast} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$as_terra(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=as_terra]{as_terra()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-.__subset_space__"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-.__subset_space__}{}}}
-\subsection{Method \code{.__subset_space__()}}{
-! Internal method only to be used for package development.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$.__subset_space__(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=subset]{subset()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-.__transform_space__"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-.__transform_space__}{}}}
-\subsection{Method \code{.__transform_space__()}}{
-! Internal method only to be used for package development.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$.__transform_space__(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=transform]{transform()}}.}
+\item{\code{...}}{See \code{\link[=plot]{plot()}}.}
 }
 \if{html}{\out{</div>}}
 }

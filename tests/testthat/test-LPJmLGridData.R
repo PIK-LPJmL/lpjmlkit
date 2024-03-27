@@ -97,23 +97,8 @@ test_that("test LPJmLGridData methods", {
   )
 
   expect_error(
-    grid$subset(),
-    "Not allowed for an object of class LPJmLGridData"
-  )
-
-  expect_error(
-    grid$transform(),
-    "Not allowed for an object of class LPJmLGridData"
-  )
-
-  expect_error(
-    grid$as_raster(),
-    "Not allowed for an object of class LPJmLGridData"
-  )
-
-  expect_error(
-    grid$as_terra(),
-    "Not allowed for an object of class LPJmLGridData"
+    grid$plot(),
+    "No plot function available for LPJmLGridData object."
   )
 
   # Only variable "grid" (and "LPJGRID") are valid to init LPJmLGridData
