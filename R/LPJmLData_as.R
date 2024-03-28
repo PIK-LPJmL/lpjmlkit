@@ -487,7 +487,7 @@ LPJmLData$set(
         tmp_data <- data_subset$data
       }
       # default handling of LPJmLData objects else inherited like LPJmLGridData
-      if (class(data_subset)[1] == "LPJmLData") {
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
         tmp_rast[
           terra::cellFromXY(
             tmp_rast,
