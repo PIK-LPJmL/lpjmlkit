@@ -268,7 +268,7 @@ LPJmLData$set(
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
       # default handling of LPJmLData objects else inherited like LPJmLGridData
-      if (class(data_subset)[1] == "LPJmLData") {
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
 
         data_subset$transform(to = "cell")
 
@@ -419,7 +419,7 @@ LPJmLData$set(
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
       # default handling of LPJmLData objects else inherited like LPJmLGridData
-      if (class(data_subset)[1] == "LPJmLData") {
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
 
         data_subset$transform(to = "cell")
 
@@ -487,7 +487,7 @@ LPJmLData$set(
         tmp_data <- data_subset$data
       }
       # default handling of LPJmLData objects else inherited like LPJmLGridData
-      if (class(data_subset)[1] == "LPJmLData") {
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
         tmp_rast[
           terra::cellFromXY(
             tmp_rast,
@@ -527,7 +527,7 @@ LPJmLData$set(
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
     # default handling of LPJmLData objects else inherited like LPJmLGridData
-    if (class(self)[1] == "LPJmLData") {
+    if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
       self$add_grid()
     }
 
