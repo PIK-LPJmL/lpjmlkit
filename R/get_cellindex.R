@@ -64,7 +64,7 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
     extent <- check_extent(extent) %>%
       correct_extent()
   } else if (!is.null(coordinates)) {
-    check_coordinates_length(coordinates)
+    coordinates <- check_coordinates(coordinates)
   }
 
   # Read the grid file and create a data frame
@@ -165,7 +165,6 @@ check_extent <- function(extent) {
 }
 
 
-# Check if the coordinates are a list of two numeric vectors of equal length
 
 # Check if both extent and coordinates are provided
 check_extent_and_coordinates <- function(extent, coordinates) {
@@ -193,12 +192,30 @@ correct_extent <- function(extent) {
       warning("Swapped values of latmin and latmax.")
     }
   }
-  return(extent)
+
+  extent
 }
 
-# Check the length of coordinates
-check_coordinates_length <- function(coordinates) {
+# Check if the coordinates are a list of two numeric vectors and of equal length
+check_coordinates <- function(coordinates) {
+  if (!is.list(coordinates) || length(coordinates) != 2) {
+    stop("coordinates must be a list of two vectors.")
+  }
+
+  coordinates <- lapply(coordinates, function(coord) {
+    if (!is.numeric(coord)) {
+      warning("Non-numeric coordinates detected, attempting to convert to numeric.")
+      coord <- as.numeric(coord)
+      if (any(is.na(coord))) {
+        stop("Unable to convert all coordinates to numeric.")
+      }
+    }
+    coord
+  })
+
   if (length(coordinates[[1]]) != length(coordinates[[2]])) {
     stop("The two vectors in coordinates must have the same length.")
   }
+
+  coordinates
 }

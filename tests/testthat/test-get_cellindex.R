@@ -40,12 +40,12 @@ test_that("get_cellindex handles extent values out of order", {
 })
 
 test_that("get_cellindex handles valid coordinates", {
-  expect_error(
+  expect_warning(
     get_cellindex(
       "../testdata/output/grid.bin.json",
-      coordinates = list(c(-87.25, -87.25), c(55.25, 55.75))
+      coordinates = list(lon = c("-87.25", -87.25), lat = c(55.25, 55.75))
     ),
-    "Values for coordinate pairs must be supplied as strings"
+    "Non-numeric coordinates detected"
   )
 })
 
@@ -58,7 +58,7 @@ test_that("get_cellindex returns correct cell index for given extent", {
 
 test_that("get_cellindex returns correct cell index for given coordinates", {
   result <- get_cellindex("../testdata/output/grid.bin.json",
-    coordinates = list(lon = c("-87.25", "-87.25"), lat = c("55.25", "55.75"))
+    coordinates = list(lon = c(-87.25, -87.25), lat = c(55.25, 55.75))
   )
   expect_true(length(result) == 2 && result[1] == 10001 && result[2] == 10002)
 })
