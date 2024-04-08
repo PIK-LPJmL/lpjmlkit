@@ -12,7 +12,7 @@ get_cellindex(grid_filename, extent = NULL, coordinates = NULL)
 \item{extent}{A numeric vector of length 4 representing the extent
 (lonmin, lonmax, latmin, latmax).}
 
-\item{coordinates}{A list of two numeric vectors representing the coordinates.}
+\item{coordinates}{A list of two named (lon, lat) numeric vectors representing the coordinates.}
 }
 \value{
 The cell index from the grid file based on the provided extent or
@@ -58,7 +58,7 @@ get_cellindex(
 )
 get_cellindex(
   grid_filename = "my_grid.bin.json",
-  coordinates = list(c(-123.25, -122.75), c(49.25, 49.75))
+  coordinates = list(lon = c(-123.25, -122.75), lat = c(49.25, 49.75))
 )
 }
 }
