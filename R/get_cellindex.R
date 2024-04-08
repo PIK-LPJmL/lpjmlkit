@@ -11,7 +11,7 @@
 #' @param grid_filename A string representing the grid file name.
 #' @param extent A numeric vector of length 4 representing the extent
 #' (lonmin, lonmax, latmin, latmax).
-#' @param coordinates A list of two numeric vectors representing the coordinates.
+#' @param coordinates A list of two named (lon, lat) numeric vectors representing the coordinates.
 #'
 #'
 #' @return The cell index from the grid file based on the provided extent or
@@ -26,7 +26,7 @@
 #' )
 #' get_cellindex(
 #'   grid_filename = "my_grid.bin.json",
-#'   coordinates = list(c(-123.25, -122.75), c(49.25, 49.75))
+#'   coordinates = list(lon = c(-123.25, -122.75), lat = c(49.25, 49.75))
 #' )
 #' }
 #' @details
