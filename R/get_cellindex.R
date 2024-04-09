@@ -9,8 +9,8 @@
 #' to correct it.
 #'
 #' @param grid_filename A string representing the grid file name.
-#' @param extent A numeric vector of length 4 representing the extent
-#' (lonmin, lonmax, latmin, latmax).
+#' @param extent A numeric vector (lonmin, lonmax, latmin, latmax) containing the
+#'  longitude and latitude boundaries between which values included in the subset.
 #' @param coordinates A list of two named (lon, lat) numeric vectors representing the coordinates.
 #'
 #'
@@ -22,7 +22,7 @@
 #' \dontrun{
 #' get_cellindex(
 #'   grid_filename = "my_grid.bin.json",
-#'   extent = c(-123.25, -122.75, 49.25, 49.75)
+#'   extent = c(-123.25, -122.75, 49.25, 49.75) # (lonmin, lonmax, latmin, latmax)
 #' )
 #' get_cellindex(
 #'   grid_filename = "my_grid.bin.json",
