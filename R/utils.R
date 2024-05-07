@@ -180,6 +180,12 @@ is_os_windows <- function() {
 # file_type options supported by read_io
 supported_types <- c("raw", "clm", "meta")
 
+# band_names in reservoir files (special LPJmL file type)
+band_names_reservoir <- c(
+  "year", "capacity", "area", "inst_cap", "height",
+  paste0("purpose", seq_len(5))
+)
+
 
 # Avoid note for "."...
 utils::globalVariables(".") # nolint:undesirable_function_linter
