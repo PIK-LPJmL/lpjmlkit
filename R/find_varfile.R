@@ -54,7 +54,7 @@ find_varfile <- function(searchdir, variable = "grid", strict = FALSE) {
     # Less strict pattern matching any file name that starts with "grid*".
     var_files <- list.files(
       path = searchdir,
-      pattern = "^grid",
+      pattern = paste0("^", variable),
       full.names = TRUE
     )
     if (length(var_files) > 0) {
