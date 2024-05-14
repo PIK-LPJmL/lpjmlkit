@@ -454,6 +454,11 @@ aggregate_array <- function(x,
 #' Function to search for a grid file in a specific directory.
 #'
 #' @param searchdir Directory where to look for a grid file.
+#' @param strict Boolean. If set to `TRUE`, grid file must be named "grid.*",
+#'   where "*" is one or two file extensions with 3 or 4 characters, e.g.
+#'   "grid.bin.json". If set to `FALSE`, the function will first try to match
+#'   the strict pattern. If unsuccessful, any filename that starts with "grid"
+#'   will be matched.
 #' @return Character string with the file name of a grid file upon success.
 #'   Function fails if no matching grid file can be detected.
 #'
@@ -463,14 +468,12 @@ aggregate_array <- function(x,
 #'   error if no suitable file or multiple files are found. Otherwise, the file
 #'   name of the grid file including the full path is returned.
 #' @noRd
-find_gridfile <- function(searchdir) {
-  # The pattern will match any file name that starts with "grid*".
-  # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
+find_gridfile <- function(searchdir, strict = FALSE) {
   # This will only match file names "grid.*", where * is one or two file
   # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
   grid_files <- list.files(
     path = searchdir,
-    pattern = "^grid",
+    pattern = "^grid(\\.[[:alpha:]]{3,4})+$",
     full.names = TRUE
   )
   if (length(grid_files) > 0) {
@@ -481,7 +484,7 @@ find_gridfile <- function(searchdir) {
     } else if (length(which(grid_types == "clm")) == 1) {
       # Second priority "clm" file_type
       filename <- grid_files[match("clm", grid_types)]
-    } else {
+    } else if (strict) {
       # Stop if either multiple files per file type or not the right type have
       # been detected
       stop(
@@ -489,13 +492,42 @@ find_gridfile <- function(searchdir) {
         "$add_grid has to be called supplying parameters as for read_io."
       )
     }
-  } else {
+  } else if (strict) {
     # Stop if no file name matching pattern detected
     stop(
       "Cannot detect grid file automatically.\n",
       "$add_grid has to be called supplying parameters as for read_io."
     )
+  } else {
+    # Less strict pattern matching any file name that starts with "grid*".
+    grid_files <- list.files(
+      path = searchdir,
+      pattern = "^grid",
+      full.names = TRUE
+    )
+    if (length(grid_files) > 0) {
+      grid_types <- sapply(grid_files, detect_io_type) # nolint:undesirable_function_linter.
+      # Prefer "meta" file_type if present
+      if (length(which(grid_types == "meta")) == 1) {
+        filename <- grid_files[match("meta", grid_types)]
+      } else if (length(which(grid_types == "clm")) == 1) {
+        # Second priority "clm" file_type
+        filename <- grid_files[match("clm", grid_types)]
+      } else {
+        # Stop if either multiple files per file type or not the right type have
+        # been detected
+        stop(
+          "Cannot detect grid file automatically.\n",
+          "$add_grid has to be called supplying parameters as for read_io."
+        )
+      }
+    } else {
+      # Stop if no file name matching pattern detected
+      stop(
+        "Cannot detect grid file automatically.\n",
+        "$add_grid has to be called supplying parameters as for read_io."
+      )
+    }
   }
-
   filename
 }
