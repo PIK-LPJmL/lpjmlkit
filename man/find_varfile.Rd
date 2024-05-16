@@ -18,8 +18,8 @@ will first try to match the strict pattern. If unsuccessful, any filename
 that starts with "variable" will be matched.}
 }
 \value{
-Character string with the file name of a matched file upon success.
-Function fails if no matching variable file or multiple files are detected.
+Character string with the file name of a matched file, including the
+full path.
 }
 \description{
 Function to search for a file containing a specific variable in a specific
@@ -29,6 +29,5 @@ directory.
 This function looks for file names in \code{searchdir} that match the
 \code{pattern} parameter in its \code{\link[=list.files]{list.files()}} call. Files of type "meta" are
 preferred. Files of type "clm" are also accepted. The function returns an
-error if no suitable file or multiple files are found. Otherwise, the file
-name of the variable file including the full path is returned.
+error if no suitable file or multiple files are found.
 }

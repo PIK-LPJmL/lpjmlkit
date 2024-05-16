@@ -10,14 +10,13 @@
 #'   "grid.bin.json" if `variable = "grid"`. If set to `FALSE`, the function
 #'   will first try to match the strict pattern. If unsuccessful, any filename
 #'   that starts with "variable" will be matched.
-#' @return Character string with the file name of a matched file upon success.
-#'   Function fails if no matching variable file or multiple files are detected.
+#' @return Character string with the file name of a matched file, including the
+#'   full path.
 #'
 #' @details This function looks for file names in `searchdir` that match the
 #'   `pattern` parameter in its [`list.files()`] call. Files of type "meta" are
 #'   preferred. Files of type "clm" are also accepted. The function returns an
-#'   error if no suitable file or multiple files are found. Otherwise, the file
-#'   name of the variable file including the full path is returned.
+#'   error if no suitable file or multiple files are found.
 #' @export
 find_varfile <- function(searchdir, variable = "grid", strict = FALSE) {
   if (length(variable) != 1 || !is.character(variable)) {

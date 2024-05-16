@@ -3,7 +3,7 @@ test_that("test find_varfile", {
   # grid file in directory matching search pattern
   expect_match(
     find_varfile("../testdata/output", "grid"),
-    "testdata/output"
+    "testdata/output/grid.bin.json"
   )
 
   # Error due to missing grid file
