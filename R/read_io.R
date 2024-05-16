@@ -321,10 +321,10 @@ read_io <- function( # nolint:cyclocomp_linter.
   # Check file size
   # Check if file is an LPJDAMS input file, which has a different format.
   if (get_header_item(file_header, "name") == "LPJDAMS") {
-    # Hardcoded size of 4
+    # Hardcoded size of 4 and number of bands
     expected_filesize <- unname(
       get_header_item(file_header, "ncell") *
-        get_header_item(file_header, "nbands") *
+        length(band_names_reservoir) *
         get_header_item(file_header, "nstep") *
         get_header_item(file_header, "nyear") *
         4 + start_offset

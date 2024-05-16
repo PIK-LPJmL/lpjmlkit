@@ -253,3 +253,17 @@ test_that("read_io messages", {
   )
   file.remove(tmp_filename)
 })
+
+test_that("read_io for reservoir file",  {
+  # Read in dummy reservoir file should be successful
+  expect_message(
+    testres <- read_io("../testdata/input/reservoir.bin"),
+    "Reservoir file detected"
+  )
+
+  # Grid file cannot be read as reservoir
+  expect_error(
+    read_io("../testdata/output/grid.bin.json", name = "LPJDAMS"),
+    "Expected size"
+  )
+})

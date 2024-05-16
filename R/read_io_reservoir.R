@@ -1,9 +1,10 @@
 # Internal function to read reservoir input file. Called by read_io().
 read_io_reservoir <- function(filename, meta_data, subset, silent) {
-  if (is.null(meta_data$nbands) || meta_data$nbands != 10) {
+  if (is.null(meta_data$nbands) || meta_data$nbands != length(band_names_reservoir)) {
     stop(
       "Invalid number of bands ", default(meta_data$nbands, 1),
-      " in reservoir file ", filename, ". Expected 10."
+      " in reservoir file ", filename, ". Expected ",
+      length(band_names_reservoir), "."
     )
   }
   if (!is.null(meta_data$nyear) && meta_data$nyear != 1) {
