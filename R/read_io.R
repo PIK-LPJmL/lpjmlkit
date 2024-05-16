@@ -318,23 +318,26 @@ read_io <- function( # nolint:cyclocomp_linter.
   # warnings should have been triggered in read_io_metadata already.
   file_header <- meta_data$as_header(silent = TRUE)
 
-  # Check if file is an LPJDAMS input file, which has a different format that is
-  # not supported by this function. TODO: Implement drop-in function for LPJDAMS
-  # input.
+  # Check file size
+  # Check if file is an LPJDAMS input file, which has a different format.
   if (get_header_item(file_header, "name") == "LPJDAMS") {
-    stop(
-      "This function currently does not support reading LPJDAMS input files."
+    # Hardcoded size of 4 and number of bands
+    expected_filesize <- unname(
+      get_header_item(file_header, "ncell") *
+        length(band_names_reservoir) *
+        get_header_item(file_header, "nstep") *
+        get_header_item(file_header, "nyear") *
+        4 + start_offset
+    )
+  } else {
+    expected_filesize <- unname(
+      get_header_item(file_header, "ncell") *
+        get_header_item(file_header, "nbands") *
+        get_header_item(file_header, "nstep") *
+        get_header_item(file_header, "nyear") *
+        get_datatype(file_header)$size + start_offset
     )
   }
-
-  # Check file size
-  expected_filesize <- unname(
-    get_header_item(file_header, "ncell") *
-      get_header_item(file_header, "nbands") *
-      get_header_item(file_header, "nstep") *
-      get_header_item(file_header, "nyear") *
-      get_datatype(file_header)$size + start_offset
-  )
   if (file.size(filename) != expected_filesize) {
     stop(
       "Unexpected file size (", file.size(filename), " bytes) of ", filename,
@@ -360,7 +363,11 @@ read_io <- function( # nolint:cyclocomp_linter.
   }
 
   # Read data from binary file
-  file_data <- read_io_data(filename, meta_data, subset, silent)
+  if (get_header_item(file_header, "name") == "LPJDAMS") {
+    file_data <- read_io_reservoir(filename, meta_data, subset, silent)
+  } else {
+    file_data <- read_io_data(filename, meta_data, subset, silent)
+  }
 
   # Update meta_data based on subset
   if (!is.null(subset$year) && is.numeric(subset$year)) {
@@ -717,7 +724,10 @@ read_io_data <- function(
       meta_data$band_names, seq_len(default(meta_data$nbands, 1))
     )
 
-    cell_dimnames <- seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell)
+    cell_dimnames <- seq(
+      default(meta_data$firstcell, 0),
+      length.out = meta_data$ncell
+    )
 
     dimnames(year_data) <- switch(
       default(meta_data$order, "cellyear"),
@@ -736,11 +746,10 @@ read_io_data <- function(
     )
 
     # Convert to read_band_order and apply subsetting along bands or cells
-    index <- which(!names(subset) %in% c("day", "month", "year", "time"))
-
     year_data <- aperm(year_data, perm = read_band_order)
 
     # Apply any subsetting along bands or cells
+    index <- which(!names(subset) %in% c("day", "month", "year", "time"))
     year_data <- subset_array(
       year_data,
       subset[index],
