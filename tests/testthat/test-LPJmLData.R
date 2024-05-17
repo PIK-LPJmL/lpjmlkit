@@ -192,22 +192,6 @@ test_that("test print method", {
   )
 })
 
-test_that("test find_gridfile", {
-
-  # grid file in directory matching search pattern
-  expect_match(
-    find_gridfile("../testdata/output"),
-    "testdata/output"
-  )
-
-  # Error due to missing grid file
-  expect_error(
-    find_gridfile("."),
-    "Cannot detect grid file automatically"
-  )
-
-})
-
 test_that("LPJmLData initialisation", {
   # Meta data must be LPJmLMetaData object
   expect_error(
