@@ -178,7 +178,7 @@ is_os_windows <- function() {
 
 
 # file_type options supported by read_io
-supported_types <- c("raw", "clm", "meta")
+supported_types <- c("raw", "clm", "meta","cdf")
 
 # band_names in reservoir files (special LPJmL file type)
 band_names_reservoir <- c(

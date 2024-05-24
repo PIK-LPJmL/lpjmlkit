@@ -182,6 +182,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   name         = NULL,
   silent       = FALSE
 ) {
+
   # Switch off fancy quotes but revert setting when leaving the function
   # scipen = 999 is to ensure that cell or band indices are not written in
   # scientific notation.
@@ -192,6 +193,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   if (is.null(file_type)) {
     file_type <- detect_io_type(filename)
   }
+
   # Check valid file_type
   if (!file_type %in% supported_types) {
     stop(
@@ -446,6 +448,95 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
     additional_attributes[["variable"]] <-
       unname(get_header_item(file_header, "name"))
   }
+  # Generate meta_data
+  meta_data <- LPJmLMetaData$new(
+    x = file_header,
+    additional_attributes = additional_attributes,
+    data_dir = dirname(filename)
+  )
+  meta_data
+}
+
+# Read & assign metadata for netcdf file
+read_io_metadata_cdf <- function(filename) {
+  # Read file_header
+  file_header <- read_cdf_header(filename, version, !silent)
+  
+  # Update header with the information passed as arguments. Especially for
+  # version 1 and 2 headers default values may need to be overwritten.
+  if (get_header_item(file_header, "version") > 3 && is.null(version)) {
+    verbose <- FALSE
+  } else if (!is.null(version) && version > 3) {
+    verbose <- FALSE
+  } else {
+    verbose <- TRUE
+  }
+  verbose <- verbose && !silent
+  
+  # Some existing LPJmL input files use order = 0, which is not a valid order
+  # value (1, 2, 3, 4 or corresponding string options). Reset order = 0 to
+  # order = 1. # nolint:commented_code_linter.
+  if (get_header_item(file_header, "order") == 0 && is.null(order)) {
+    if (!silent)
+      warning(
+        "Header in file ", sQuote(filename),
+        " has invalid order = 0. Setting to 1.\n",
+        "Provide order as function argument if default is incorrect."
+      )
+    file_header <- set_header_item(file_header, order = 1)
+  }
+  
+  # Do not allow overwriting name attribute in header because it may change the
+  # header length, which needs to be skipped when reading data from file.
+  if (!silent && !is.null(name)) {
+    warning("You cannot overwrite the header name in clm files.")
+  }
+  file_header <- create_header(
+    name = get_header_item(file_header, "name"),
+    version = default(version, get_header_item(file_header, "version")),
+    order = default(order, get_header_item(file_header, "order")),
+    firstyear = default(firstyear, get_header_item(file_header, "firstyear")),
+    nyear = default(nyear, get_header_item(file_header, "nyear")),
+    firstcell = default(firstcell, get_header_item(file_header, "firstcell")),
+    ncell = default(ncell, get_header_item(file_header, "ncell")),
+    nbands = default(nbands, get_header_item(file_header, "nbands")),
+    cellsize_lon = default(cellsize_lon,
+                           get_header_item(file_header, "cellsize_lon")),
+    scalar = default(scalar, get_header_item(file_header, "scalar")),
+    cellsize_lat = default(cellsize_lat,
+                           get_header_item(file_header, "cellsize_lat")),
+    datatype = default(datatype, get_header_item(file_header, "datatype")),
+    nstep = default(nstep, get_header_item(file_header, "nstep")),
+    timestep = default(timestep, get_header_item(file_header, "timestep")),
+    endian = default(endian, get_header_item(file_header, "endian")),
+    verbose = verbose
+  )
+  
+  # Check validity of band_names
+  check_band_names(get_header_item(file_header, "nbands"),
+                   band_names)
+  
+  # Prepare additional attributes to be added to meta information
+  additional_attributes <- list(
+    band_names = unname(band_names),
+    variable = unname(variable),
+    descr = unname(descr),
+    unit = unname(unit)
+  )
+  additional_attributes <-
+    additional_attributes[which(!sapply(additional_attributes, is.null))] # nolint
+  # Use header name as a substitute for variable if variable is not set. Here,
+  # use name argument if supplied by user.
+  if (is.null(additional_attributes[["variable"]])) {
+    additional_attributes[["variable"]] <- as.character(
+      unname(default(name, get_header_item(file_header, "name"))[1])
+    )
+  }
+  
+  # Offset at the start of the file before values begin
+  additional_attributes[["offset"]] <- unname(get_headersize(file_header))
+  additional_attributes[["format"]] <- unname(file_type)
+  
   # Generate meta_data
   meta_data <- LPJmLMetaData$new(
     x = file_header,
