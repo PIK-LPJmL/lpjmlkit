@@ -25,6 +25,8 @@ daily_discharge <- "/p/projects/isimip/isimip/ISIMIP2b/OutputData/water_global/L
 daily_meta <- lpjmlkit::read_cdf_header(nc_in_file = daily_discharge)
 daily_data <- lpjmlkit::read_cdf(nc_in_file = daily_discharge, nc_header = daily_meta)
 
+
+# directly calling read_io does not work yet ...
 read_data <- read_io(filename = fpc_file, 
                      subset = list(year = as.character(2000:2005), 
                           band = c("natural stand fraction", 
