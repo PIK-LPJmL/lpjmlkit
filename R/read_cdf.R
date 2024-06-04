@@ -5,14 +5,16 @@ get_timestep <- function(file_nc){
   if (grepl("years since", tunit, ignore.case = TRUE)){
     tres <- "annual"
     firstyr <- unlist(strsplit(unlist(strsplit(tunit, split = ' ', 
-                                               fixed = TRUE))[3], split = '-', fixed = TRUE))[1]
+                              fixed = TRUE))[3], split = '-', fixed = TRUE))[1]
   }else if (grepl("year", tunit, ignore.case = TRUE)){
     tres <- "annual"
     firstyr <- tvals[1]
   }else if (grepl("days since", tunit, fixed = TRUE)){
     ddiff <- tvals[2]-tvals[1]
-    firstyr <- unlist(strsplit(unlist(strsplit(tunit, split = ' ', 
-                                               fixed = TRUE))[3], split = '-', fixed = TRUE))[1]
+    baseyr <- as.integer(unlist(strsplit(unlist(strsplit(tunit, split = ' ', 
+                            fixed = TRUE))[3], split = '-', fixed = TRUE))[1])
+    offset_yr <- floor(tvals[1]/365)
+    firstyr <- baseyr + offset_yr
     if (ddiff > 27 && ddiff < 32){
       tres <- "monthly"
     }else if (ddiff > 364 && ddiff < 367){
@@ -83,11 +85,10 @@ read_cdf_header <- function( nc_in_file,
     bands <- 1
   }
 
-                           
   # get lon/lat information
   dimnames <- names(file_nc$dim)
-  latdim <- which(grepl("latitude", dimnames, ignore.case = TRUE))
-  londim <- which(grepl("longitude", dimnames, ignore.case = TRUE))
+  latdim <- which(grepl("lat", dimnames, ignore.case = TRUE))
+  londim <- which(grepl("lon", dimnames, ignore.case = TRUE))
   lon <- file_nc$dim[[londim]]$vals
   lat <- file_nc$dim[[latdim]]$vals
   nlonin <- length(lon)
@@ -105,14 +106,18 @@ read_cdf_header <- function( nc_in_file,
   timing <- get_timestep(file_nc = file_nc)
   tres <- timing$tres
   firstyr <- timing$firstyr
+  #browser()
   if (tres == "annual"){
     nyears <- length(tvals)
     nsteps <- 1
   }else if (tres == "monthly"){
     nyears <- length(tvals)/12
     nsteps <- 12
-  }else {
-    stop("time resolution unknown. (e.g. daily not implemented yet)")
+  }else if (tres == "daily"){
+    nyears <- length(tvals)/365
+    nsteps <- 365
+    if (!all.equal(round(nyears,0), nyears)) 
+       stop("Number of time records not a multiple of 365 - pls check calendar")
   }
   
   lastyr <- firstyr + nyears - 1
@@ -202,14 +207,14 @@ read_cdf <- function( nc_in_file,
   ngetyears <- get_year_stop - get_year_start + 1
   # get lon/lat information - not part of header yet
   dimnames <- names(file_nc$dim)
-  latdim <- which(grepl("latitude", dimnames, ignore.case = TRUE))
-  londim <- which(grepl("longitude", dimnames, ignore.case = TRUE))
+  latdim <- which(grepl("lat", dimnames, ignore.case = TRUE)) # todo: check if this variable is not the data variable
+  londim <- which(grepl("lon", dimnames, ignore.case = TRUE))
   lon <- file_nc$dim[[londim]]$vals
   lat <- file_nc$dim[[latdim]]$vals
   nlonin <- length(lon)
   nlatin <- length(lat)
   
-  print(paste(nlonin, nlatin, nc_header$nbands, nc_header$nstep, ngetyears,sep = ","))
+  #print(paste(nlonin, nlatin, nc_header$nbands, nc_header$nstep, ngetyears,sep = ","))
   outdata <- array(0, dim = c(nlonin, nlatin, nc_header$nbands, nc_header$nstep, ngetyears))
 
   # get spatial extent and resolution
@@ -219,16 +224,16 @@ read_cdf <- function( nc_in_file,
   for (year in get_year_start:get_year_stop){
     for (step in 1:nc_header$nstep){
       if (nc_header$nbands == 1){
-        print(paste(year,nc_header$firstyear,step,nc_header$nstep,nc_header$nbands,((year - nc_header$firstyear)*nc_header$nstep + step),sep=","))
+        #print(paste(year,nc_header$firstyear,step,nc_header$nstep,nc_header$nbands,((year - nc_header$firstyear)*nc_header$nstep + step),sep=","))
         data <- ncdf4::ncvar_get(nc = file_nc, varid = var, count=c(-1,-1,1),
                               start=c(1,1,((year - nc_header$firstyear)*nc_header$nstep + step)))
         # check whether data needs to be flipped vertically
         # lat axes in nc files can be from north - south or from south - north
-        if((raster::yFromRow(file_raster, 1) < raster::yFromRow(file_raster, 2)) 
-                 != (file_nc$dim$lat$vals[1] < file_nc$dim$lat$vals[2])) {
-          # flip vertically
-          data <- data[, nlatin:1]
-        }
+        #if((raster::yFromRow(file_raster, 1) < raster::yFromRow(file_raster, 2)) 
+        #         != (file_nc$dim$lat$vals[1] < file_nc$dim$lat$vals[2])) {
+        #  # flip vertically
+        #  data <- data[, nlatin:1]
+        #}
         outdata[,,1,step,(year - get_year_start + 1)] <- data
 
       }else{ #nbands>1
@@ -237,11 +242,11 @@ read_cdf <- function( nc_in_file,
                           start=c(1,1,1,((year - nc_header$firstyear)*nc_header$nstep + step)))
         # check whether data needs to be flipped vertically
         # lat axes in nc files can be from north - south or from south - north
-        if((raster::yFromRow(file_raster, 1) < raster::yFromRow(file_raster, 2)) 
-                 != (file_nc$dim$lat$vals[1] < file_nc$dim$lat$vals[2])) {
-          # flip vertically
-          data <- data[, nlatin:1,]
-        }
+        #if((raster::yFromRow(file_raster, 1) < raster::yFromRow(file_raster, 2)) 
+        #         != (file_nc$dim$lat$vals[1] < file_nc$dim$lat$vals[2])) {
+        #  # flip vertically
+        #  data <- data[, nlatin:1,]
+        #}
         outdata[,,,step,(year - get_year_start + 1)] <- data
 
       }# end if nbands == 1
