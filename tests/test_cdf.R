@@ -33,7 +33,6 @@ volat_meta <- lpjmlkit::read_cdf_header(nc_in_file = volat_file)
 volat_data <- lpjmlkit::read_cdf(nc_in_file = volat_file, nc_header = volat_meta)
 
 # test a file with timesteps
-devtools::load_all("/p/projects/open/Fabian/LPJbox/lpjmlkit_read_cdf/")
 soilc_timestep_file <- "/p/tmp/sibylls/Methane/output_holocene/soilc.nc"
 timestep_meta <- lpjmlkit::read_cdf_header(nc_in_file = soilc_timestep_file)
 timestep_data <- lpjmlkit::read_cdf(nc_in_file = soilc_timestep_file, 
@@ -49,6 +48,8 @@ fpc_file <- "/p/projects/open/Fabian/runs/metrics_cdf/output/lu_1500_2016/fpc.nc
 data <- read_io(filename = fpc_file)
 
 # directly calling read_io with subsetting does not work yet ...
+devtools::load_all("/p/projects/open/Fabian/LPJbox/lpjmlkit_read_cdf/")
+
 read_data <- read_io(filename = fpc_file, 
                      subset = list(year = as.character(2000:2005), 
                           band = c("natural stand fraction", 

@@ -400,6 +400,7 @@ read_io <- function( # nolint:cyclocomp_linter.
     
     file_data <- read_cdf(filename, meta_data, subset, silent)
     dimn <- dimnames(file_data)
+
     # update meta data according to subset
     if (!is.null(subset$year)) {
       # todo: change this to work (.update_subset function?)

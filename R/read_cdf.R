@@ -5,8 +5,8 @@ get_timestep <- function(file_nc){
   timestep <- 1 # default
   if (grepl("years since", tunit, ignore.case = TRUE)){
     tres <- "annual"
-    baseyr <- unlist(strsplit(unlist(strsplit(tunit, split = ' ', 
-                              fixed = TRUE))[3], split = '-', fixed = TRUE))[1]
+    baseyr <- as.integer(unlist(strsplit(unlist(strsplit(tunit, split = ' ', 
+                              fixed = TRUE))[3], split = '-', fixed = TRUE))[1])
     offset_yr <- tvals[1]
     firstyr <- baseyr + offset_yr
   }else if (grepl("year", tunit, ignore.case = TRUE)){
