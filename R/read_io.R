@@ -417,7 +417,6 @@ read_io <- function( # nolint:cyclocomp_linter.
     # todo: directly create LPJmLData object from lat-lon
     latlon_data <- LPJmLData$new(data = file_data,
                                 meta_data = meta_data)
-    rm(file_data, meta_data) # is this necessary?
     latlon_data
   }# end if !cdf
 
