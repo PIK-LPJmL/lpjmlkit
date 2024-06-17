@@ -20,7 +20,7 @@
 #'   `model_path` is used. See also [write_config]
 #'
 #' @param group Character string defining the user group for which the job is
-#'   submitted. Defaults to `"lpjml"`.
+#'   submitted.
 #'
 #' @param sclass Character string defining the job classification. Available
 #'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
@@ -185,7 +185,7 @@
 submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          model_path,
                          sim_path = NULL,
-                         group = "lpjml",
+                         group = "",
                          sclass = "short",
                          ntasks = 256,
                          wtime = "",
@@ -254,7 +254,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
         # to this function by mapply call
         slurm_param <- (
           x[slurm_args[slurm_args %in% colnames(x)]][
-              sim_idx, ]
+                                                     sim_idx, ]
         )
 
         mapply( # nolint:undesirable_function_linter.
@@ -306,7 +306,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
       # this function by mapply call
       slurm_param <- (
         x[slurm_args[slurm_args %in% colnames(x)]][
-            sim_idx, ]
+                                                   sim_idx, ]
       )
 
       mapply( # nolint:undesirable_function_linter.
@@ -375,28 +375,28 @@ submit_run <- function(sim_name,
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 
   stdout <- paste0(sim_path,
-                  "/output/",
-                  sim_name,
-                  "/",
-                  "outfile_",
-                  timestamp,
-                  ".out")
+                   "/output/",
+                   sim_name,
+                   "/",
+                   "outfile_",
+                   timestamp,
+                   ".out")
 
   stderr <- paste0(sim_path,
-                  "/output/",
-                  sim_name,
-                  "/",
-                  "errfile_",
-                  timestamp,
-                  ".err")
+                   "/output/",
+                   sim_name,
+                   "/",
+                   "errfile_",
+                   timestamp,
+                   ".err")
 
   output_config <- paste0(sim_path,
-                  "/output/",
-                  sim_name,
-                  "/",
-                  "config_",
-                  timestamp,
-                  ".json")
+                          "/output/",
+                          sim_name,
+                          "/",
+                          "config_",
+                          timestamp,
+                          ".json")
 
   if (is.list(slurm_options) && length(slurm_options) > 0) {
     further_slurm_options <- paste0(
@@ -409,7 +409,9 @@ submit_run <- function(sim_name,
   inner_command <-  paste0(model_path, "/bin/lpjsubmit", # nolint:absolute_path_linter.
                            " -nocheck",
                            " -class ", sclass,
-                           " -group ", group,
+                           ifelse(group != "",
+                                  paste0(" -group ", group),
+                                  ""),
                            ifelse(wtime != "",
                                   paste0(" -wtime ", wtime),
                                   ""),
