@@ -8,7 +8,7 @@ submit_lpjml(
   x,
   model_path,
   sim_path = NULL,
-  group = "lpjml",
+  group = "",
   sclass = "short",
   ntasks = 256,
   wtime = "",
@@ -35,7 +35,7 @@ written, including output, restart and configuration files. If \code{NULL},
 \code{model_path} is used. See also \link{write_config}}
 
 \item{group}{Character string defining the user group for which the job is
-submitted. Defaults to \code{"lpjml"}.}
+submitted.}
 
 \item{sclass}{Character string defining the job classification. Available
 options at PIK: \code{c("short", "medium", "long", "priority", "standby", "io")}
