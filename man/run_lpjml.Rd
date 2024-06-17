@@ -8,6 +8,7 @@ run_lpjml(
   x,
   model_path = ".",
   sim_path = NULL,
+  lpj_cmd = "srun --propagate",
   parallel_cores = 1,
   write_stdout = FALSE,
   raise_error = TRUE,
@@ -28,6 +29,10 @@ multiple generated configuration file(s).}
 \item{sim_path}{Character string defining path where all simulation data are
 written, including output, restart and configuration files. If \code{NULL},
 \code{model_path} is used. See also \link{write_config}}
+
+\item{lpj_cmd}{Character string defining the command to run LPJmL.
+Defaults to "srun --propagate" (old cluster at PIK).
+Change to "mpirun" for HPC2024 at PIK.}
 
 \item{parallel_cores}{Integer defining the number of available CPU
 cores/nodes for parallelization. Defaults to \code{1} (no parallelization).
