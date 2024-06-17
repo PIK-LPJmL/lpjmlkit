@@ -19,6 +19,10 @@
 #'   written, including output, restart and configuration files. If `NULL`,
 #'   `model_path` is used. See also [write_config]
 #'
+#' @param lpj_cmd Character string defining the command to run LPJmL.
+#'   Defaults to "srun --propagate" (old cluster at PIK).
+#'   Change to "mpirun" for HPC2024 at PIK.
+#'
 #' @param parallel_cores Integer defining the number of available CPU
 #'   cores/nodes for parallelization. Defaults to `1` (no parallelization).
 #'   Please note that parallelization is only supported for SLURM jobs and not
@@ -149,6 +153,7 @@
 run_lpjml <- function(x,
                       model_path = ".",
                       sim_path = NULL,
+                      lpj_cmd = "srun --propagate",
                       parallel_cores = 1,
                       write_stdout = FALSE,
                       raise_error = TRUE,
@@ -191,11 +196,11 @@ run_lpjml <- function(x,
 
       if (parallel_cores == 1) {
         do_sequential(
-          sim_names, model_path, sim_path, write_stdout, raise_error
+          sim_names, model_path, sim_path, lpj_cmd, write_stdout, raise_error
         )
       } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
         do_parallel(
-          sim_names, model_path, sim_path, parallel_cores, raise_error
+          sim_names, model_path, sim_path, lpj_cmd, parallel_cores, raise_error
         )
       } else {
         stop(
@@ -209,11 +214,11 @@ run_lpjml <- function(x,
   } else {
     if (parallel_cores == 1) {
       do_sequential(
-        x$sim_name, model_path, sim_path, write_stdout, raise_error
+        x$sim_name, model_path, sim_path, lpj_cmd, write_stdout, raise_error
       )
     } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
       do_parallel(
-        x$sim_name, model_path, sim_path, parallel_cores, raise_error
+        x$sim_name, model_path, sim_path, lpj_cmd, parallel_cores, raise_error
       )
     } else {
       stop(
@@ -233,6 +238,7 @@ run_lpjml <- function(x,
 do_run <- function(sim_name,
                    model_path,
                    sim_path,
+                   lpj_cmd,
                    write_stdout,
                    raise_error) {
 
@@ -248,8 +254,8 @@ do_run <- function(sim_name,
 
   # When running inside a slurm job it ensures to propagate ressources
   inner_command <-  paste0(ifelse(Sys.getenv("SLURM_JOB_ID") == "",
-                                  "",
-                                  "srun --propagate "),
+                                  ifelse(grepl("mpirun", lpj_cmd), lpj_cmd, ""),
+                                  lpj_cmd),
                            model_path,
                            "/bin/lpjml ", # nolint:absolute_path_linter.
                            sim_path,
@@ -289,9 +295,9 @@ do_run <- function(sim_name,
                 echo = !testthat::is_testing(),
                 cleanup_tree = TRUE,
                 spinner = ifelse(write_stdout &&
-                                 Sys.getenv("SLURM_JOB_ID") == "",
-                                            TRUE,
-                                            FALSE),
+                                   Sys.getenv("SLURM_JOB_ID") == "",
+                                 TRUE,
+                                 FALSE),
                 error_on_status = raise_error,
                 wd = sim_path)
 }
@@ -302,6 +308,7 @@ do_run <- function(sim_name,
 do_sequential <- function(sim_names,
                           model_path,
                           sim_path,
+                          lpj_cmd,
                           write_stdout,
                           raise_error) {
 
@@ -311,14 +318,19 @@ do_sequential <- function(sim_names,
   tryCatch({
 
     # Check if slurm is available
-    if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "") {
+    if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") == "" && !grepl("mpirun", lpj_cmd)) {
       mpi_var <- Sys.getenv("I_MPI_DAPL_UD_PROVIDER")
       Sys.unsetenv("I_MPI_DAPL_UD_PROVIDER")# nolint:undesirable_function_linter.
     } else {
       mpi_var <- NULL
+      # If not specified by the user set number of processes to 1 to run lpjml
+      #  in interactive mode
+      if (lpj_cmd == "mpirun") {
+        lpj_cmd <- paste0(lpj_cmd, " -np 1 ")
+      }
     }
     for (sim_name in sim_names) {
-      do_run(sim_name, model_path, sim_path, write_stdout, raise_error)
+      do_run(sim_name, model_path, sim_path, lpj_cmd, write_stdout, raise_error)
     }
   }, finally = {
     # Check if slurm is available
@@ -333,6 +345,7 @@ do_sequential <- function(sim_names,
 do_parallel <- function(sim_names,
                         model_path,
                         sim_path,
+                        lpj_cmd,
                         parallel_cores,
                         raise_error) {
 
@@ -346,16 +359,16 @@ do_parallel <- function(sim_names,
 
   # Parallel foreach sim_name.
   job_details <- foreach::foreach(sim_name = sim_names, # nolint:object_usage_linter.
-                                  .errorhandling = "stop"
+    .errorhandling = "stop"
   ) %dopar% {
 
     # Write single call
     tryCatch({
       do_run(
-        sim_name, model_path, sim_path, write_stdout = TRUE, raise_error
+        sim_name, model_path, sim_path, lpj_cmd, write_stdout = TRUE, raise_error
       )
 
-    # Stop when error occures
+      # Stop when error occures
     }, error = function(e) {
 
       # Check if error is returned
