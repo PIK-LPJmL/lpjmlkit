@@ -20,7 +20,7 @@
 #'   `model_path` is used. See also [write_config]
 #'
 #' @param group Character string defining the user group for which the job is
-#'   submitted. Defaults to `"lpjml"`.
+#'   submitted.
 #'
 #' @param sclass Character string defining the job classification. Available
 #'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
@@ -185,7 +185,7 @@
 submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          model_path,
                          sim_path = NULL,
-                         group = "lpjml",
+                         group = "",
                          sclass = "short",
                          ntasks = 256,
                          wtime = "",
@@ -409,7 +409,9 @@ submit_run <- function(sim_name,
   inner_command <-  paste0(model_path, "/bin/lpjsubmit", # nolint:absolute_path_linter.
                            " -nocheck",
                            " -class ", sclass,
-                           " -group ", group,
+                           ifelse(group != "",
+                                  paste0(" -group ", group),
+                                  ""),
                            ifelse(wtime != "",
                                   paste0(" -wtime ", wtime),
                                   ""),
