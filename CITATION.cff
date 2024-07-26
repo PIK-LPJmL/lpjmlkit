@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'lpjmlkit: Toolkit for Basic LPJmL Handling'
-version: 1.7.0
-date-released: '2024-06-17'
+version: 1.7.1
+date-released: '2024-07-26'
 abstract: A collection of basic functions to facilitate the work with the Dynamic
   Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land (LPJmL) hosted at
   the Potsdam Institute for Climate Impact Research (PIK). It provides functions for
@@ -13,27 +13,30 @@ authors:
 - family-names: Breier
   given-names: Jannes
   email: jannesbr@pik-potsdam.de
-  orcid: 0000-0002-9055-6904
+  orcid: https://orcid.org/0000-0002-9055-6904
 - family-names: Ostberg
   given-names: Sebastian
   email: ostberg@pik-potsdam.de
-  orcid: 0000-0002-2368-7015
+  orcid: https://orcid.org/0000-0002-2368-7015
 - family-names: Wirth
   given-names: Stephen Björn
   email: wirth@pik-potsdam.de
-  orcid: 0000-0003-3090-3318
+  orcid: https://orcid.org/0000-0003-3090-3318
 - family-names: Minoli
   given-names: Sara
   email: minoli@pik-potsdam.de
-  orcid: 0000-0001-7920-3107
+  orcid: https://orcid.org/0000-0001-7920-3107
 - family-names: Stenzel
   given-names: Fabian
   email: stenzel@pik-potsdam.de
-  orcid: 0000-0002-5109-0048
+  orcid: https://orcid.org/0000-0002-5109-0048
+- family-names: Hötten
+  given-names: David
+  email: davidho@pik-potsdam.de
 - family-names: Müller
   given-names: Christoph
   email: cmueller@pik-potsdam.de
-  orcid: 0000-0002-9491-3550
+  orcid: https://orcid.org/0000-0002-9491-3550
 license: AGPL-3.0
 repository-code: https://github.com/PIK-LPJmL/lpjmlkit
 doi: 10.5281/zenodo.7773134

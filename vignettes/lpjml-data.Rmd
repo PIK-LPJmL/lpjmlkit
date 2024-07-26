@@ -28,7 +28,8 @@ module that groups around the data class `LPJmLData` and aims to facilitate
 reading and processing of LPJmL inputs and outputs by combining the raw data
 with available meta data (meta files, header files or manually) to avoid a large
 overhead. It further enables easy subsetting, transformations and basic
-statistics of the data and allows export to common data formats.
+statistics of the data and allows export to common data formats.  
+Example data files can be downloaded from https://doi.org/10.5281/zenodo.12915168
 
 &nbsp;
 
@@ -50,7 +51,7 @@ or exported (5) to common data formats.
   in "meta" format.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
   # Read monthly runoff with meta file.
-  runoff <- read_io("./output/mrunoff.bin.json")
+  runoff <- read_io("./output/runoff.bin.json")
   ```
 
 * **"clm"** - *Use if "meta" is not available or in combination*.  
@@ -60,16 +61,16 @@ or exported (5) to common data formats.
   information about file structure is derived automatically from the file header.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
   # Read monthly runoff data with header.
-  runoff <- read_io("./output/mrunoff.clm",
-                   # If the clm version is lower than 4 set nbands and nstep
-                   # manually so that month dimension is recognized correctly.
-                   nbands = 1,
-                   nstep = 12,
-                   # Useful additional information that is not needed to read the
-                   # Data.
-                   variable = "runoff",
-                   descr = "monthly runoff",
-                   unit = "mm/month")
+  runoff <- read_io("./output/runoff.clm",
+                    # If the clm version is lower than 4 set nbands and nstep
+                    # manually so that month dimension is recognized correctly.
+                    nbands = 1,
+                    nstep = 12,
+                    # Useful additional information that is not needed to read the
+                    # Data.
+                    variable = "runoff",
+                    descr = "monthly runoff",
+                    unit = "mm/month")
   ```
 
 * **"raw"** - *Not recommended for use (with lpjmlkit)*.  
@@ -81,10 +82,10 @@ or exported (5) to common data formats.
   LPJmL input files use "raw" format.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
   # Read monthly runoff raw data.
-  runoff <- read_io("./output/mrunoff.bin",
-                   # Specify all meta data if they differ from the function
-                   # default values.
-                   ...)
+  runoff <- read_io("./output/runoff.bin",
+                    # Specify all meta data if they differ from the function
+                    # default values.
+                    ...)
   ```
 
 &nbsp;
@@ -195,14 +196,14 @@ plot(runoff)
   **$grid** attribute (as an LPJmLData object) to the object, providing the spatial
   reference (longitude and latitude) for each cell.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
-  # Object- oriented (R6 class) notation (assigning grid directly to runoff)
-  runoff$add_grid()
+# Object- oriented (R6 class) notation (assigning grid directly to runoff)
+runoff$add_grid()
 
-  # Common R notation (overwriting the original object)
-  runoff <- add_grid(runoff)
+# Common R notation (overwriting the original object)
+runoff <- add_grid(runoff)
 
-  # Use the read_io arguments if a grid file cannot be detected automatically.
-  runoff <- add_grid(runoff, "./output/grid.clm")
+# Use the read_io arguments if a grid file cannot be detected automatically.
+runoff <- add_grid(runoff, "./output/grid.clm")
   ```
 
 * **`r if (!knitr::is_latex_output()) {"&#128257;"}` `transform()`** the `$data` dimensions.  
@@ -212,43 +213,43 @@ plot(runoff)
   Transformation into the format "lon_lat" requires a `$grid` attribute (see `add_grid` above).
   Any transformation does not change the contents of the data, only the structure.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
-  # Transform into lon and lat dimensions. If add_grid has not been executed
-  #   before it is called implicitly.
-  runoff <- transform(runoff, to = "lon_lat")
-  runoff
-  # [...]
-  # $data |>
-  #   dimnames() |>
-  #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
-  #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
-  #     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2011-12-31"
-  #     .$band  "1"
-  # [...]
+# Transform into lon and lat dimensions. If add_grid has not been executed
+#   before it is called implicitly.
+runoff <- transform(runoff, to = "lon_lat")
+runoff
+# [...]
+# $data |>
+#   dimnames() |>
+#     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
+#     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
+#     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2011-12-31"
+#     .$band  "1"
+# [...]
 
-  # Transform into year and month dimensions (day not available for monthly
-  #   runoff)
-  runoff <- transform(runoff, to = "year_month_day")
-  runoff
-  # [...]
-  # $data |>
-  #   dimnames() |>
-  #     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
-  #     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
-  #     .$month  "1" "2" "3" "4" ... "12"
-  #     .$year  "1901" "1902" "1903" "1904" ... "2011"
-  #     .$band  "1"
-  # [...]
+# Transform into year and month dimensions (day not available for monthly
+#   runoff)
+runoff <- transform(runoff, to = "year_month_day")
+runoff
+# [...]
+# $data |>
+#   dimnames() |>
+#     .$lat  "-55.75" "-55.25" "-54.75" "-54.25" ... "83.75"
+#     .$lon  "-179.75" "-179.25" "-178.75" "-178.25" ... "179.75"
+#     .$month  "1" "2" "3" "4" ... "12"
+#     .$year  "1901" "1902" "1903" "1904" ... "2011"
+#     .$band  "1"
+# [...]
 
-  # Transform back to original dimensions.
-  runoff <- transform(runoff, to = c("cell", "time"))
-  runoff
-  # [...]
-  # $data |>
-  #   dimnames() |>
-  #     .$cell  "0" "1" "2" "3" ... "67419"
-  #     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2100-12-31"
-  #     .$band  "1"
-  # [...]
+# Transform back to original dimensions.
+runoff <- transform(runoff, to = c("cell", "time"))
+runoff
+# [...]
+# $data |>
+#   dimnames() |>
+#     .$cell  "0" "1" "2" "3" ... "67419"
+#     .$time  "1901-01-31" "1901-02-28" "1901-03-31" "1901-04-30" ... "2100-12-31"
+#     .$band  "1"
+# [...]
   ```
 
 * **`r if (!knitr::is_latex_output()) {"&#9986;"}` `subset()`** the `$data`.  
@@ -256,37 +257,37 @@ plot(runoff)
   `$meta` data are adjusted according to the subset. Applying a subset changes
   the contents of the data and cannot be reversed.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
-  # Subset by dimnames (character string).
-  runoff <- subset(runoff, time = "1991-05-31")
-  runoff
-  # $meta |>
-  #   .$nyear 1
-  #   .$ncell 67420
-  #   .$subset TRUE
-  # [...]
-  # Note: not printing all meta data, use $meta to get all.
-  # $data |>
-  #   dimnames() |>
-  #     .$cell  "0" "1" "2" "3" ... "67419"
-  #     .$time  "1991-05-31"
-  #     .$band  "1"
-  # [...]
+# Subset by dimnames (character string).
+runoff <- subset(runoff, time = "1991-05-31")
+runoff
+# $meta |>
+#   .$nyear 1
+#   .$ncell 67420
+#   .$subset TRUE
+# [...]
+# Note: not printing all meta data, use $meta to get all.
+# $data |>
+#   dimnames() |>
+#     .$cell  "0" "1" "2" "3" ... "67419"
+#     .$time  "1991-05-31"
+#     .$band  "1"
+# [...]
 
-  # Subset by indices
-  runoff <- subset(runoff, cell = 28697:28700)
-  runoff
-  # $meta |>
-  #   .$nyear 1
-  #   .$ncell 4
-  #   .$subset TRUE
-  # [...]
-  # Note: not printing all meta data, use $meta to get all.
-  # $data |>
-  #   dimnames() |>
-  #     .$cell  "28696" "28697" "28698" "28699"
-  #     .$time  "1991-05-31"
-  #     .$band  "1"
-  # [...]
+# Subset by indices
+runoff <- subset(runoff, cell = 28697:28700)
+runoff
+# $meta |>
+#   .$nyear 1
+#   .$ncell 4
+#   .$subset TRUE
+# [...]
+# Note: not printing all meta data, use $meta to get all.
+# $data |>
+#   dimnames() |>
+#     .$cell  "28696" "28697" "28698" "28699"
+#     .$time  "1991-05-31"
+#     .$band  "1"
+# [...]
   ```
 &nbsp;
 
@@ -344,55 +345,55 @@ plot(runoff)
   as_raster() returns a RasterLayer for a single data field and a RasterBrick if
   the result contains more than one band or more than one time step.
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
-  # Export the first time step as a RasterLayer object from the raster package.
-  as_raster(runoff, subset = list(time = 1))
-  # class      : RasterLayer
-  # dimensions : 280, 720, 201600  (nrow, ncol, ncell)
-  # resolution : 0.5, 0.5  (x, y)
-  # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
-  # source     : memory
-  # names      : runoff
-  # values     : -1.682581e-13, 671.8747  (min, max)
+# Export the first time step as a RasterLayer object from the raster package.
+as_raster(runoff, subset = list(time = 1))
+# class      : RasterLayer
+# dimensions : 280, 720, 201600  (nrow, ncol, ncell)
+# resolution : 0.5, 0.5  (x, y)
+# extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
+# crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
+# source     : memory
+# names      : runoff
+# values     : -1.682581e-13, 671.8747  (min, max)
 
-  # Export the first time step as a terra SpatRaster object.
-  as_terra(runoff, subset = list(time = 1))
-  # class       : SpatRaster
-  # dimensions  : 280, 720, 1  (nrow, ncol, nlyr)
-  # resolution  : 0.5, 0.5  (x, y)
-  # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # coord. ref. : lon/lat WGS 84 (EPSG:4326)
-  # source      : memory
-  # name        :        runoff
-  # min value   : -1.682581e-13
-  # max value   :  6.718747e+02
-  # unit        :      mm/month # nolint:commented_code_linter.
+# Export the first time step as a terra SpatRaster object.
+as_terra(runoff, subset = list(time = 1))
+# class       : SpatRaster
+# dimensions  : 280, 720, 1  (nrow, ncol, nlyr)
+# resolution  : 0.5, 0.5  (x, y)
+# extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
+# coord. ref. : lon/lat WGS 84 (EPSG:4326)
+# source      : memory
+# name        :        runoff
+# min value   : -1.682581e-13
+# max value   :  6.718747e+02
+# unit        :      mm/month # nolint:commented_code_linter.
 
-  # Export the first 4 times step as a RasterBrick object.
-  as_raster(runoff, subset = list(time = 1:4))
-  # class      : RasterBrick
-  # dimensions : 280, 720, 201600, 4  (nrow, ncol, ncell, nlayers)
-  # resolution : 0.5, 0.5  (x, y)
-  # extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
-  # source     : memory
-  # names      :   X1901.01.31,   X1901.02.28,   X1901.03.31,   X1901.04.30
-  # min values : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
-  # max values :      671.8747,      785.2363,      828.2853,      987.4359
+# Export the first 4 times step as a RasterBrick object.
+as_raster(runoff, subset = list(time = 1:4))
+# class      : RasterBrick
+# dimensions : 280, 720, 201600, 4  (nrow, ncol, ncell, nlayers)
+# resolution : 0.5, 0.5  (x, y)
+# extent     : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
+# crs        : +proj=longlat +datum=WGS84 +no_defs # nolint:commented_code_linter.
+# source     : memory
+# names      :   X1901.01.31,   X1901.02.28,   X1901.03.31,   X1901.04.30
+# min values : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
+# max values :      671.8747,      785.2363,      828.2853,      987.4359
 
-  # Export the first 4 time steps as a terra SpatRaster object.
-  as_terra(runoff, subset = list(time = 1:4))
-  # class       : SpatRaster
-  # dimensions  : 280, 720, 4  (nrow, ncol, nlyr)
-  # resolution  : 0.5, 0.5  (x, y)
-  # extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
-  # coord. ref. : lon/lat WGS 84 (EPSG:4326)
-  # source      : memory
-  # names       :    1901-01-31,    1901-02-28,    1901-03-31,    1901-04-30
-  # min values  : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
-  # max values  :  6.718747e+02,  7.852363e+02,  8.282853e+02,  9.874359e+02
-  # unit        :      mm/month,      mm/month,      mm/month,      mm/month
-  # time (days) : 1901-01-31 to 1901-04-30
+# Export the first 4 time steps as a terra SpatRaster object.
+as_terra(runoff, subset = list(time = 1:4))
+# class       : SpatRaster
+# dimensions  : 280, 720, 4  (nrow, ncol, nlyr)
+# resolution  : 0.5, 0.5  (x, y)
+# extent      : -180, 180, -56, 84  (xmin, xmax, ymin, ymax)
+# coord. ref. : lon/lat WGS 84 (EPSG:4326)
+# source      : memory
+# names       :    1901-01-31,    1901-02-28,    1901-03-31,    1901-04-30
+# min values  : -1.682581e-13, -1.750495e-13, -2.918900e-13, -1.516298e-13
+# max values  :  6.718747e+02,  7.852363e+02,  8.282853e+02,  9.874359e+02
+# unit        :      mm/month,      mm/month,      mm/month,      mm/month
+# time (days) : 1901-01-31 to 1901-04-30
   ```
 &nbsp;
 
@@ -452,7 +453,7 @@ global_npp_trend <- as_array(npp,
 
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 runoff <- read_io(filename = "./output/runoff.bin.json",
-               subset = list(year = as.character(2002:2011)))
+                  subset = list(year = as.character(2002:2011)))
 
 # Usage of pipe operator operator |> (%>% via package magrittr R version < 4.1)
 runoff |>
@@ -516,9 +517,9 @@ read_io(
   R6 class, that function as a data container.  
   Do not replicate R6 objects like  
     ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
-      my_copy <- lpjml_data
-      # Instead use:
-      my_copy <- lpjml_data$clone(deep = TRUE)
+my_copy <- lpjml_data
+# Instead use:
+my_copy <- lpjml_data$clone(deep = TRUE)
     ```
   Otherwise, `my_copy` and `lpjml_data` point to the same environment, and any
   subsetting or transformation methods applied to `my_copy` will also affect

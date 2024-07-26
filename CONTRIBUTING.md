@@ -6,8 +6,6 @@ We currently prefer contributions in the form of bug reports, feature requests,
 and suggestions of code improvements as issues in the
 [lpjmlkit GitHub repository](https://github.com/PIK-LPJmL/lpjmlkit/issues).
 If you want to contribute code, please follow the instructions below.
-Please note that due to our current worflow information on the authorship of
-code contributions may get lost.
 
 
 ## Getting Started
