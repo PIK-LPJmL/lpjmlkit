@@ -183,7 +183,9 @@ read_io <- function( # nolint:cyclocomp_linter.
   silent       = FALSE
 ) {
   # Switch off fancy quotes but revert setting when leaving the function
-  quotes_option <- options(useFancyQuotes = FALSE) # nolint:undesirable_function_linter.
+  # scipen = 999 is to ensure that cell or band indices are not written in
+  # scientific notation.
+  quotes_option <- options(useFancyQuotes = FALSE, scipen = 999) # nolint:undesirable_function_linter.
   on.exit(options(quotes_option)) # nolint:undesirable_function_linter.
 
   # Detect file_type if not provided by user
@@ -202,7 +204,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   valid_dim_names <- c("cell", "time", "band")
   if (!all(dim_order %in% valid_dim_names)) {
     stop(
-      "Invalid dim_order prodided: c(",
+      "Invalid dim_order provided: c(",
       toString(sQuote(dim_order)), ")\n",
       "dim_order can be in any order but must include all of the following ",
       "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
@@ -210,7 +212,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   }
   if (!all(valid_dim_names %in% dim_order)) {
     stop(
-      "Invalid dim_order prodided: c(",
+      "Invalid dim_order provided: c(",
       toString(sQuote(dim_order)), ")\n",
       "dim_order can be in any order but must include all of the following ",
       "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
@@ -316,23 +318,26 @@ read_io <- function( # nolint:cyclocomp_linter.
   # warnings should have been triggered in read_io_metadata already.
   file_header <- meta_data$as_header(silent = TRUE)
 
-  # Check if file is an LPJDAMS input file, which has a different format that is
-  # not supported by this function. TODO: Implement drop-in function for LPJDAMS
-  # input.
+  # Check file size
+  # Check if file is an LPJDAMS input file, which has a different format.
   if (get_header_item(file_header, "name") == "LPJDAMS") {
-    stop(
-      "This function currently does not support reading LPJDAMS input files."
+    # Hardcoded size of 4 and number of bands
+    expected_filesize <- unname(
+      get_header_item(file_header, "ncell") *
+        length(band_names_reservoir) *
+        get_header_item(file_header, "nstep") *
+        get_header_item(file_header, "nyear") *
+        4 + start_offset
+    )
+  } else {
+    expected_filesize <- unname(
+      get_header_item(file_header, "ncell") *
+        get_header_item(file_header, "nbands") *
+        get_header_item(file_header, "nstep") *
+        get_header_item(file_header, "nyear") *
+        get_datatype(file_header)$size + start_offset
     )
   }
-
-  # Check file size
-  expected_filesize <- unname(
-    get_header_item(file_header, "ncell") *
-    get_header_item(file_header, "nbands") *
-    get_header_item(file_header, "nstep") *
-    get_header_item(file_header, "nyear") *
-    get_datatype(file_header)$size + start_offset
-  )
   if (file.size(filename) != expected_filesize) {
     stop(
       "Unexpected file size (", file.size(filename), " bytes) of ", filename,
@@ -345,9 +350,8 @@ read_io <- function( # nolint:cyclocomp_linter.
 
   # Check whether nbands may actually be nstep
   if (!silent && get_header_item(file_header, "version") < 4 &&
-    get_header_item(file_header, "nstep") == 1 &&
-    get_header_item(file_header, "nbands") %in% c(12, 365)
-  ) {
+        get_header_item(file_header, "nstep") == 1 &&
+        get_header_item(file_header, "nbands") %in% c(12, 365)) {
     message(
       "read_io: Detected \"nbands = ", get_header_item(file_header, "nbands"),
       "\" and \"nstep = 1\". If this is a ",
@@ -359,7 +363,11 @@ read_io <- function( # nolint:cyclocomp_linter.
   }
 
   # Read data from binary file
-  file_data <- read_io_data(filename, meta_data, subset, silent)
+  if (get_header_item(file_header, "name") == "LPJDAMS") {
+    file_data <- read_io_reservoir(filename, meta_data, subset, silent)
+  } else {
+    file_data <- read_io_data(filename, meta_data, subset, silent)
+  }
 
   # Update meta_data based on subset
   if (!is.null(subset$year) && is.numeric(subset$year)) {
@@ -404,8 +412,7 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
     firstyear = default(firstyear, 1901),
     nyear = default(nyear, 1),
     firstcell = default(firstcell, 0),
-    ncell = default(ncell, 67420), # Default: number of cells in global CRU
-                                   # grid
+    ncell = default(ncell, 67420), # Default: number of cells in global CRU grid
     nbands = default(nbands, 1),
     cellsize_lon = default(cellsize_lon, 0.5),
     # Default: resolution of global CRU grid
@@ -586,7 +593,7 @@ read_io_metadata_meta <- function(filename, file_type, band_names,
   }
 
   if (!"band_names" %in% set_args && is.null(meta_data$band_names) &&
-    !is.null(meta_data$map) && !is.null(nbands)
+      !is.null(meta_data$map) && !is.null(nbands)
   ) {
     if (length(meta_data$map) == nbands / 2) {
       # Create band_names from the map attribute that is included in meta data.
@@ -713,15 +720,13 @@ read_io_data <- function(
     )
 
     # Assign dimension names to array.
-    # Ensure cell or band indices are not written in scientific notation.
     band_names <- default(
       meta_data$band_names, seq_len(default(meta_data$nbands, 1))
-    ) %>%
-      format(trim = TRUE, scientific = FALSE, justify = "none")
+    )
 
-    cell_dimnames <- format(
-      seq(default(meta_data$firstcell, 0), length.out = meta_data$ncell),
-      trim = TRUE, scientific = FALSE, justify = "none"
+    cell_dimnames <- seq(
+      default(meta_data$firstcell, 0),
+      length.out = meta_data$ncell
     )
 
     dimnames(year_data) <- switch(
@@ -741,17 +746,18 @@ read_io_data <- function(
     )
 
     # Convert to read_band_order and apply subsetting along bands or cells
-    index <- which(!names(subset) %in%
-      c("day", "month", "year", "time")
+    year_data <- aperm(year_data, perm = read_band_order)
+
+    # Apply any subsetting along bands or cells
+    index <- which(!names(subset) %in% c("day", "month", "year", "time"))
+    year_data <- subset_array(
+      year_data,
+      subset[index],
+      drop = FALSE,
+      silent = silent
     )
 
-    year_data <- aperm(year_data, perm = read_band_order) %>%
-      # Apply any subsetting along bands or cells
-      subset_array(
-        subset[index],
-        drop = FALSE,
-        silent = silent
-      )
+
 
     # Concatenate years together
     if (!result_is_init) {
@@ -813,15 +819,15 @@ read_raw <- function(file_connection, data_offset, n_values, datatype, endian) {
 # Simple validity check for band_names
 check_band_names <- function(nbands, band_names) {
   if (!is.null(band_names) &&
-    length(band_names) != nbands
+      length(band_names) != nbands
   ) {
     stop(
       "Provided band_names ",
       toString(
         dQuote(
           if (length(band_names) > 6) {
-              c(utils::head(band_names, n = 4), "...",
-                utils::tail(band_names, n = 1))
+            c(utils::head(band_names, n = 4), "...",
+              utils::tail(band_names, n = 1))
           } else {
             band_names
           }
@@ -840,7 +846,7 @@ check_year_subset <- function(subset, meta_data, silent = FALSE) {
     if (is.numeric(subset[["year"]])) {
       outside_range <- which(
         as.integer(subset[["year"]]) < 1 |
-        as.integer(subset[["year"]]) > default(meta_data$nyear, 1)
+          as.integer(subset[["year"]]) > default(meta_data$nyear, 1)
       )
       if (length(outside_range) > 0) {
         stop(

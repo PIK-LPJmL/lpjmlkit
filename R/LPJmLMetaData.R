@@ -9,6 +9,8 @@
 #' [`as_list()`].
 #' The enclosing environment is locked and cannot be altered.
 #'
+#' @md
+#' @export
 LPJmLMetaData <- R6::R6Class( # nolint
 
   classname = "LPJmLMetaData",
@@ -75,7 +77,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
       cat(
         paste0(spaces,
                col_var(
-                paste0("$", print_fields)
+                 paste0("$", print_fields)
                ),
                " ",
                to_char1,
@@ -106,13 +108,14 @@ LPJmLMetaData <- R6::R6Class( # nolint
       )
       cat("\n")
 
+      # Print information about subset if subsetted
       cat(
         paste0(
           spaces,
           col_var("$subset"),
           " ",
           # Color red if subset.
-          ifelse(self$subset, col_warn(self$subset), ""),
+          ifelse(self$subset, col_warn(self$subset), self$subset),
           "\n"
         )
       )
@@ -125,8 +128,11 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #' !Internal method only to be used for package development!
     .__init_grid__ = function() {
 
-      if (private$.variable != "grid") {
-        stop("Only valid for variable ", sQuote("grid"), ".")
+      if (!private$.variable %in% c("grid", "cellid")) {
+        stop(
+          "Only valid for variable ", sQuote("grid"),
+          " or ", sQuote("cellid"), "."
+        )
       }
 
       # Set all time fields to NULL
@@ -138,12 +144,18 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
       # Update fields_set
       private$.fields_set <- private$.fields_set[
-        -na.omit(match(c("nyear",
-                         "firstyear",
-                         "lastyear",
-                         "nstep",
-                         "timestep"),
-                       private$.fields_set))
+        -stats::na.omit(
+          match(
+            c(
+              "nyear",
+              "firstyear",
+              "lastyear",
+              "nstep",
+              "timestep"
+            ),
+            private$.fields_set
+          )
+        )
       ]
     },
 
@@ -170,7 +182,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
       # Update cell fields - distinguish between character -> LPJmL C index
       #   starting from 0 and numeric/integer -> R index starting from 1 -> -1.
       if (!is.null(subset$cell) ||
-          !is.null(subset$lon) || !is.null(subset$lat)) {
+            !is.null(subset$lon) || !is.null(subset$lat)) {
 
         # Subset of subset$cell, subset$lon or subset$lat always have to be
         #   accompanied by cell_dimnames.
@@ -276,39 +288,39 @@ LPJmLMetaData <- R6::R6Class( # nolint
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
             # "descr" = tolower(x$name), # nolint
             "lastyear" = x$header[["firstyear"]] +
-                         x$header[["timestep"]] *
-                         (x$header[["nyear"]] - 1),
+              x$header[["timestep"]] *
+                (x$header[["nyear"]] - 1),
             "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
           )) %>%
           `[[<-`("order",
-                switch(as.character(.$order),
-                       `1` = "cellyear",
-                       `2` = "yearcell",
-                       `3` = "cellindex",
-                       `4` = "cellseq",
-                       stop(
-                         paste(
-                           "Invalid order value", sQuote(.$order), "in header"
-                         )
-                       )
-                  )
-                ) %>%
-          `[[<-`("datatype",
-                switch(as.character(.$datatype),
-                       `0` = "byte",
-                       `1` = "short",
-                       `2` = "int",
-                       `3` = "float",
-                       `4` = "double",
-                       stop(
-                         paste(
-                           "Invalid datatype value", sQuote(.$datatype),
-                           "in header"
-                         )
-                       )
-                    )
+            switch(as.character(.$order),
+              `1` = "cellyear",
+              `2` = "yearcell",
+              `3` = "cellindex",
+              `4` = "cellseq",
+              stop(
+                paste(
+                  "Invalid order value", sQuote(.$order), "in header"
                 )
-          private$init_list(header_to_meta, additional_attributes)
+              )
+            )
+          ) %>%
+          `[[<-`("datatype",
+            switch(as.character(.$datatype),
+              `0` = "byte",
+              `1` = "short",
+              `2` = "int",
+              `3` = "float",
+              `4` = "double",
+              stop(
+                paste(
+                  "Invalid datatype value", sQuote(.$datatype),
+                  "in header"
+                )
+              )
+            )
+          )
+        private$init_list(header_to_meta, additional_attributes)
 
       } else {
         private$init_list(x, additional_attributes)
@@ -326,111 +338,130 @@ LPJmLMetaData <- R6::R6Class( # nolint
   active = list(
 
     #' @field sim_name Simulation name (works as identifier in LPJmL Runner).
-    sim_name = function() {
+    sim_name = function(...) {
+      check_change(self, "sim_name", ...)
       return(private$.sim_name)
     },
 
     #' @field source LPJmL version (character string).
-    source = function() {
+    source = function(...) {
+      check_change(self, "source", ...)
       return(private$.source)
     },
 
     #' @field history Character string of the call used to run LPJmL. This
     #'   normally includes the path to the LPJmL executable and the path to the
     #'   configuration file for the simulation.
-    history = function() {
+    history = function(...) {
+      check_change(self, "history", ...)
       return(private$.history)
     },
 
     #' @field variable Name of the input/output variable, e.g. `"npp"` or
     #'   `"runoff"`.
-    variable = function() {
+    variable = function(...) {
+      check_change(self, "variable", ...)
       return(private$.variable)
     },
 
     #' @field descr Description of the input/output variable.
-    descr = function() {
+    descr = function(...) {
+      check_change(self, "descr", ...)
       return(private$.descr)
     },
 
     #' @field unit Unit of the input/output variable.
-    unit = function() {
+    unit = function(...) {
+      check_change(self, "unit", ...)
       return(private$.unit)
     },
 
     #' @field nbands Number (numeric) of bands (categoric dimension). Please
     #'   note that `nbands` follows the convention in LPJmL, which uses the
     #'   plural form for bands as opposed to `nyear` or `ncell`.
-    nbands = function() {
+    nbands = function(...) {
+      check_change(self, "nbands", ...)
       return(private$.nbands)
     },
 
     #' @field band_names Name of the bands (categoric dimension). Not included
     #'   if `nbands = 1`.
-    band_names = function() {
+    band_names = function(...) {
+      check_change(self, "band_names", ...)
       return(private$.band_names)
     },
 
     #' @field nyear Number (numeric) of data years in the parent `LPJmLData`
     #'   object.
-    nyear = function() {
+    nyear = function(...) {
+      check_change(self, "nyear", ...)
       return(private$.nyear)
     },
 
     #' @field firstyear First calendar year (numeric) in the parent `LPJmLData`
     #'   object.
-    firstyear = function() {
+    firstyear = function(...) {
+      check_change(self, "firstyear", ...)
       return(private$.firstyear)
     },
 
     #' @field lastyear Last calendar year (numeric) in the parent `LPJmLData`
     #'   object.
-    lastyear = function() {
+    lastyear = function(...) {
+      check_change(self, "lastyear", ...)
       return(private$.lastyear)
     },
 
     #' @field nstep Number (numeric) of intra-annual time steps. `1` for annual,
     #' `12` for monthly, and `365` for daily data.
-    nstep = function() {
+    nstep = function(...) {
+      check_change(self, "nstep", ...)
       return(private$.nstep)
     },
 
     #' @field timestep Number (numeric) of years between time steps.
     #'   `timestep = 5` means that output is written every 5 years.
-    timestep = function() {
+    timestep = function(...) {
+      check_change(self, "timestep", ...)
       return(private$.timestep)
     },
 
     #' @field ncell Number (numeric) of cells in the parent `LPJmLData` object.
-    ncell = function() {
+    ncell = function(...) {
+      check_change(self, "ncell", ...)
       return(private$.ncell)
     },
 
     #' @field firstcell First cell (numeric) in the parent `LPJmLData` object.
-    firstcell = function() {
+    firstcell = function(...) {
+      check_change(self, "firstcell", ...)
       return(private$.firstcell)
     },
 
     #' @field cellsize_lon Longitude cellsize in degrees (numeric).
-    cellsize_lon = function() {
+    cellsize_lon = function(...) {
+      check_change(self, "cellsize_lon", ...)
       return(private$.cellsize_lon)
     },
 
     #' @field cellsize_lat Latitude cellsize in degrees (numeric).
-    cellsize_lat = function() {
+    cellsize_lat = function(...) {
+      check_change(self, "cellsize_lat", ...)
       return(private$.cellsize_lat)
     },
 
     #' @field datatype File data type (character string), e.g. `"float"`. Note
     #'   that data are converted into R-internal data type by [`read_io()`].
-    datatype = function() {
+    datatype = function(...) {
+      check_change(self, "datatype", ...)
       return(private$.datatype)
     },
 
     #' @field scalar Conversion factor (numeric) applied when reading raw data
     #'   from file. The parent `LPJmLData` object contains the values after
     #'   the application of the conversion factor.
-    scalar = function() {
+    scalar = function(...) {
+      check_change(self, "scalar", ...)
       return(private$.scalar)
     },
 
@@ -439,13 +470,15 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #'   array in the parent `LPJmLData` object may differ from the original
     #'   order in the file depending on the `dim_order` parameter used in
     #'   [`read_io()`].
-    order = function() {
+    order = function(...) {
+      check_change(self, "order", ...)
       return(private$.order)
     },
 
     #' @field offset Offset (numeric) at the start of the binary file before the
     #'   actual data start.
-    offset = function() {
+    offset = function(...) {
+      check_change(self, "offset", ...)
       return(private$.offset)
     },
 
@@ -453,24 +486,28 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #' are stored in a multi-byte value, with big-endian storing the most
     #' significant byte at the lowest address and little-endian storing the
     #' least significant byte at the lowest address.
-    bigendian = function() {
+    bigendian = function(...) {
+      check_change(self, "bigendian", ...)
       return(private$.bigendian)
     },
 
     #' @field format Binary format (character string) of the file containing the
     #'   actual data. Either `"raw"`, `"clm"` (raw with header), or `"cdf"` for
     #'   NetCDF format.
-    format = function() {
+    format = function(...) {
+      check_change(self, "format", ...)
       return(private$.format)
     },
 
     #' @field filename Name of the file containing the actual data.
-    filename = function() {
+    filename = function(...) {
+      check_change(self, "filename", ...)
       return(private$.filename)
     },
 
     #' @field subset Logical. Whether parent `LPJmLData` object is subsetted.
-    subset = function() {
+    subset = function(...) {
+      check_change(self, "subset", ...)
       if (!is.null(self$variable) && self$variable == "grid") {
         return(private$.subset_space)
       } else {
@@ -481,48 +518,56 @@ LPJmLMetaData <- R6::R6Class( # nolint
     #' @field map Character vector describing how to map the bands in an input
     #'   file to the bands used inside LPJmL. May be used by [`read_io()`] to
     #'   construct a `band_names` attribute.
-    map = function() {
+    map = function(...) {
+      check_change(self, "map", ...)
       return(private$.map)
     },
 
     #' @field version Version of data file.
-    version = function() {
+    version = function(...) {
+      check_change(self, "version", ...)
       return(private$.version)
     },
 
     #' @field ._data_dir_ *Internal* character string containing the directory
     #'   from which the file was loaded.
-    ._data_dir_ = function() {
+    ._data_dir_ = function(...) {
+      check_change(self, "._data_dir_", ...)
       return(private$.data_dir)
     },
 
     #' @field ._subset_space_ *Internal* logical. Whether space dimensions are
     #' subsetted in the parent `LPJmLData` object.
-    ._subset_space_ = function() {
+    ._subset_space_ = function(...) {
+      check_change(self, "._subset_space_", ...)
       return(private$.subset_space)
     },
 
     #' @field ._fields_set_ *Internal* character vector of names of attributes
     #' set by the meta file.
-    ._fields_set_ = function() {
+    ._fields_set_ = function(...) {
+      check_change(self, "._fields_set_", ...)
       return(private$.fields_set)
     },
 
     #' @field ._time_format_ *Internal* character string describing the time
     #'   dimension format, either `"time"` or `"year_month_day"`.
-    ._time_format_ = function() {
+    ._time_format_ = function(...) {
+      check_change(self, "._time_format_", ...)
       return(private$.time_format)
     },
 
     #' @field ._space_format_ *Internal* character string describing the space
     #'   dimension format, either `"cell"` or `"lon_lat"`.
-    ._space_format_ = function() {
+    ._space_format_ = function(...) {
+      check_change(self, "._space_format_", ...)
       return(private$.space_format)
     },
 
     #' @field ._dimension_map_ *Internal* dictionary/list of space and time
     #' dimension formats with categories and namings.
-    ._dimension_map_ = function() {
+    ._dimension_map_ = function(...) {
+      check_change(self, "._dimension_map_", ...)
       return(private$.dimension_map)
     }
   ),
@@ -574,19 +619,19 @@ LPJmLMetaData <- R6::R6Class( # nolint
         "filename"
       ) %>%
 
-      # Only append scalar if != 1
-      append(
-        ifelse(
-          !is.null(private$.scalar),
-          ifelse(private$.scalar == 1, "scalar", NA),
-          NA
-        )
-      ) %>%
+        # Only append scalar if != 1
+        append(
+          ifelse(
+            !is.null(private$.scalar),
+            ifelse(private$.scalar == 1, "scalar", NA),
+            NA
+          )
+        ) %>%
 
-      # Workaround to deal with NAs (NULL not possible in ifelse)
-      stats::na.omit() %>%
-      as.vector() %>%
-      return()
+        # Workaround to deal with NAs (NULL not possible in ifelse)
+        stats::na.omit() %>%
+        as.vector() %>%
+        return()
     },
 
     .sim_name = NULL,
@@ -681,8 +726,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
                     "name",
                     "map",
                     "version",
-                    "offset"
-                   ),
+                    "offset"),
 
     .dimension_map = list(space_format = c("cell", "lon_lat"),
                           time_format = c("time", "year_month_day"),

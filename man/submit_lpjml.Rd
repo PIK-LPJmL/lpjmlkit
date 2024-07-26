@@ -8,11 +8,13 @@ submit_lpjml(
   x,
   model_path,
   sim_path = NULL,
-  group = "lpjml",
+  group = "",
   sclass = "short",
   ntasks = 256,
   wtime = "",
   blocking = "",
+  constraint = "",
+  slurm_options = list(),
   no_submit = FALSE,
   output_path = NULL
 )
@@ -33,24 +35,38 @@ written, including output, restart and configuration files. If \code{NULL},
 \code{model_path} is used. See also \link{write_config}}
 
 \item{group}{Character string defining the user group for which the job is
-submitted. Defaults to \code{"lpjml"}.}
+submitted.}
 
 \item{sclass}{Character string defining the job classification. Available
 options at PIK: \code{c("short", "medium", "long", "priority", "standby", "io")}
 More information at \url{https://www.pik-potsdam.de/en}. Defaults to \code{"short"}.}
 
 \item{ntasks}{Integer defining the number of tasks/threads. More information
-at \url{https://www.pik-potsdam.de/en} and \url{https://slurm.schedmd.com}.
-Defaults to \code{256}.}
+at \url{https://www.pik-potsdam.de/en} and
+\url{https://slurm.schedmd.com/sbatch.html}. Defaults to \code{256}.}
 
 \item{wtime}{Character string defining the time limit. Setting a lower time
 limit than the maximum runtime for \code{sclass} can reduce the wait time in the
 SLURM job queue. More information at \url{https://www.pik-potsdam.de/en} and
-\url{https://slurm.schedmd.com}.}
+\url{https://slurm.schedmd.com/sbatch.html}.}
 
 \item{blocking}{Integer defining the number of cores to be blocked. More
 information at \url{https://www.pik-potsdam.de/en} and
-\url{https://slurm.schedmd.com}.}
+\url{https://slurm.schedmd.com/sbatch.html}.}
+
+\item{constraint}{Character string defining constraints for node selection.
+Use \code{constraint = "haswell"} to request nodes of the type haswell with 16
+cores per node, \code{constraint = "broadwell"} to request nodes of the type
+broadwell CPUs with 32 cores per node or \code{constraint = "exclusive"} to
+reserve all CPUs of assigned nodes even if less are requested by \code{ntasks}.
+Using \code{exclusive} should prevent interference of other batch jobs with
+LPJmL. More information at \url{https://www.pik-potsdam.de} and
+\url{https://slurm.schedmd.com/sbatch.html}.}
+
+\item{slurm_options}{A named list of further arguments to be passed to sbatch.
+E.g. list(\code{mail-user} = "max.mustermann@pik-potsdam.de")
+More information at \url{https://www.pik-potsdam.de} and
+\url{https://slurm.schedmd.com/sbatch.html}}
 
 \item{no_submit}{Logical. Set to \code{TRUE} to test if \code{x} set correctly or
 \code{FALSE} to actually submit job to SLURM.}
@@ -87,11 +103,8 @@ parameter \code{"dependency"} needs to be provided within the initial
 
 
 To use different SLURM settings for each run the optional SLURM options
-\code{"sclass"}, \code{"ntask"}, \code{"wtime"} or \code{"blocking"} can also be supplied to the
-initial \link[tibble]{tibble} supplied as \code{param} to
-\code{\link[=write_config]{write_config()}}. These overwrite the (default) SLURM
-arguments (\code{sclass}, \code{ntask}, \code{wtime} or \code{blocking}) supplied to
-\code{submit_lpjml}.\tabular{llr}{
+\code{"sclass"}, \code{"ntasks"}, \code{"wtime"}, "blocking"\code{or}constraint\verb{can also be supplied to the initial \link[tibble]\{tibble\} supplied as}param\verb{ to [}write_config()\verb{]. These overwrite the (default) SLURM arguments (}sclass\verb{, }ntasks\verb{, }wtime\verb{, }blocking\code{or} \code{constraint})
+supplied to \code{submit_lpjml}.\tabular{llr}{
    \strong{sim_name} \tab \strong{dependency} \tab \strong{wtime} \cr
    scen1_spinup \tab NA \tab "8:00:00" \cr
    scen2_transient \tab scen1 _spinup \tab "2:00:00" \cr

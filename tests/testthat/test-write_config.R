@@ -31,7 +31,7 @@ test_that("write correct config with dot syntax", {
     output_list = c(),
     output_list_timestep = "annual",
     output_format = "clm",
-    js_filename = "lpjml.js",
+    cjson_filename = "lpjml_config.cjson",
     config_tmp = test_tmp,
     slurm_args = slurm_args
   )
@@ -49,7 +49,7 @@ test_that("write correct config with dot syntax", {
   expect_true(
     all(
       tmp_objects[[2]][1, which(tmp_objects != "dependency")] %in%
-      check_tibble[1, which(tmp_objects != "dependency")]
+        check_tibble[1, which(tmp_objects != "dependency")]
     )
   )
 
@@ -63,7 +63,7 @@ test_that("write correct config with dot syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -81,7 +81,7 @@ test_that("write correct config with dot syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -120,7 +120,7 @@ test_that("write correct config with common list syntax", {
     output_list = c(),
     output_list_timestep = "annual",
     output_format = "clm",
-    js_filename = "lpjml.js",
+    cjson_filename = "lpjml_config.cjson",
     config_tmp = test_tmp,
     slurm_args = slurm_args
   )
@@ -139,7 +139,7 @@ test_that("write correct config with common list syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -157,7 +157,7 @@ test_that("write correct config with common list syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -175,7 +175,7 @@ test_that("write correct config with common list syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -195,7 +195,7 @@ test_that("write correct config with common list syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -212,7 +212,7 @@ test_that("write correct config with common list syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -230,7 +230,7 @@ test_that("write correct config with common list syntax", {
       output_list = c(),
       output_list_timestep = "annual",
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -249,7 +249,7 @@ test_that("write correct config with common list syntax", {
       output_list = c("irrig", "irrig"),
       output_list_timestep = c("subannual", "subannual"),
       output_format = "clm",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -266,7 +266,7 @@ test_that("write correct config with common list syntax", {
       output_list = c("irrig"),
       output_list_timestep = c("annual", "annual"),
       output_format = "cdf",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -282,7 +282,7 @@ test_that("write correct config with common list syntax", {
       output_list = c("soil_health"),
       output_list_timestep = c("annual"),
       output_format = "cdf",
-      js_filename = "lpjml.js",
+      cjson_filename = "lpjml_config.cjson",
       config_tmp = test_tmp,
       slurm_args = slurm_args
     ),
@@ -293,16 +293,16 @@ test_that("write correct config with common list syntax", {
   test_params["wtime"] <- "10:00:00"
   test_params["-DMY_MACRO"] <- TRUE
   tmp_objects <- write_single_config(
-      x = test_params,
-      model_path = "../testdata",
-      sim_path = "../testdata",
-      output_list = c(),
-      output_list_timestep = "annual",
-      output_format = "clm",
-      js_filename = "lpjml.js",
-      config_tmp = test_tmp,
-      slurm_args = slurm_args
-    )
+    x = test_params,
+    model_path = "../testdata",
+    sim_path = "../testdata",
+    output_list = c(),
+    output_list_timestep = "annual",
+    output_format = "clm",
+    cjson_filename = "lpjml_config.cjson",
+    config_tmp = test_tmp,
+    slurm_args = slurm_args
+  )
   expect_true(!"-DMY_MACRO" %in% tmp_objects)
 })
 
@@ -311,11 +311,11 @@ test_that("include non output defined outputvars", {
 
   skip_on_os("mac")
 
-    test_params <- tibble::tibble(
-      sim_name = c("transient_pnv"),
-      order = c(2),
-      dependency = c("testdep"),
-      )
+  test_params <- tibble::tibble(
+    sim_name = c("transient_pnv"),
+    order = c(2),
+    dependency = c("testdep"),
+  )
 
   # create template that would usually be created by write_config directly
   test_tmp <- tibble::tibble(sim_name = NA,
@@ -332,7 +332,7 @@ test_that("include non output defined outputvars", {
     output_list = c("grid", "irrig"),
     output_list_timestep = "annual",
     output_format = "clm",
-    js_filename = "lpjml.js",
+    cjson_filename = "lpjml_config.cjson",
     config_tmp = test_tmp,
     slurm_args = slurm_args
   )
@@ -351,7 +351,6 @@ test_that("include non output defined outputvars", {
             length(tmp_objects[[1]][["output"]])
           ]]$file$name)
   )
-
 })
 
 

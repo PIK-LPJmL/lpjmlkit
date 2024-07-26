@@ -69,11 +69,14 @@ as_array <- function(x,
 }
 
 # as_array method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_array",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_array",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     # Initiate clone to be returned on which following methods are executed
     data_subset <- self$clone(deep = TRUE)
@@ -150,12 +153,15 @@ as_tibble.LPJmLData <- function(x,
 }
 
 # as_tibble method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_tibble",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       value_name = "value",
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_tibble",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    value_name = "value",
+    ...
+  ) {
 
     data <- self$as_array(subset, aggregate, ...)
 
@@ -236,11 +242,14 @@ as_raster <- function(x,
 }
 
 # as_raster method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_raster",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_raster",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
@@ -258,9 +267,20 @@ LPJmLData$set("private",
     # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
-      data_subset$transform(to = "cell")
+      # default handling of LPJmLData objects else inherited like LPJmLGridData
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
 
-      multi_dims <- get_multidims(data_subset)
+        data_subset$transform(to = "cell")
+
+        multi_dims <- get_multidims(data_subset)
+
+      } else {
+
+        tmp_raster <- raster::setValues(
+          tmp_raster,
+          t(data_subset$data)
+        )
+      }
     }
 
     # For space_format "cell" allow one additional dimension
@@ -297,13 +317,24 @@ LPJmLData$set("private",
       } else {
         tmp_data <- data_subset$data
       }
-      tmp_raster[
-        raster::cellFromXY(
-          tmp_raster,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- tmp_data
+      # default handling of LPJmLData objects else inherited like LPJmLGridData
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      } else {
+        tmp_raster[
+          raster::cellFromXY(
+            tmp_raster,
+            cbind(subset_array(data_subset$data, list(band = "lon")),
+                  subset_array(data_subset$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      }
     }
 
     return(tmp_raster)
@@ -356,22 +387,21 @@ LPJmLData$set("private",
 #' @md
 #' @aliases as_rast as_SpatRaster
 #' @export
-as_terra <- function(x,
-                     subset = NULL,
-                     aggregate = NULL,
-                      ...) {
-  y <- x$as_terra(subset,
-                  aggregate,
-                  ...)
+as_terra <- function(x, subset = NULL, aggregate = NULL, ...) {
+
+  y <- x$as_terra(subset, aggregate, ...)
   y
 }
 
 # as_terra method roxygen documentation in LPJmlData.R
-LPJmLData$set("private",
-              ".as_terra",
-              function(subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".as_terra",
+  function(
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     data_subset <- private$.subset_raster_data(self, subset, aggregate, ...)
 
@@ -388,9 +418,20 @@ LPJmLData$set("private",
     # dimensions.
     if (data_subset$meta$._space_format_ == "lon_lat") {
 
-      data_subset$transform(to = "cell")
+      # default handling of LPJmLData objects else inherited like LPJmLGridData
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
 
-      multi_dims <- get_multidims(data_subset)
+        data_subset$transform(to = "cell")
+
+        multi_dims <- get_multidims(data_subset)
+
+      } else {
+
+        tmp_rast <- terra::setValues(
+          tmp_rast,
+          t(data_subset$data)
+        )
+      }
     }
 
     # For space_format "cell" allow one additional dimension
@@ -410,7 +451,8 @@ LPJmLData$set("private",
         multi_layer <- multi_dims[which(multi_dims != "cell")]
 
         tmp_rast <- terra::rast(tmp_rast,
-                                nl = dim(data_subset$data)[multi_layer])
+                                nl = dim(data_subset$data)[multi_layer],
+                                vals = NA)
 
         names(tmp_rast) <- dimnames(data_subset$data)[[multi_layer]]
 
@@ -444,13 +486,24 @@ LPJmLData$set("private",
       } else {
         tmp_data <- data_subset$data
       }
-      tmp_rast[
-        terra::cellFromXY(
-          tmp_rast,
-          cbind(subset_array(data_subset$grid$data, list(band = "lon")),
-                subset_array(data_subset$grid$data, list(band = "lat")))
-        )
-      ] <- tmp_data
+      # default handling of LPJmLData objects else inherited like LPJmLGridData
+      if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
+        tmp_rast[
+          terra::cellFromXY(
+            tmp_rast,
+            cbind(subset_array(data_subset$grid$data, list(band = "lon")),
+                  subset_array(data_subset$grid$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      } else {
+        tmp_rast[
+          terra::cellFromXY(
+            tmp_rast,
+            cbind(subset_array(data_subset$data, list(band = "lon")),
+                  subset_array(data_subset$data, list(band = "lat")))
+          )
+        ] <- tmp_data
+      }
     }
 
     # Assign units (meta data)
@@ -461,16 +514,22 @@ LPJmLData$set("private",
 )
 
 
-LPJmLData$set("private",
-              ".subset_raster_data",
-              function(self,
-                       subset = NULL,
-                       aggregate = NULL,
-                       ...) {
+LPJmLData$set(
+  "private",
+  ".subset_raster_data",
+  function(
+    self,
+    subset = NULL,
+    aggregate = NULL,
+    ...
+  ) {
 
     # Support lazy loading of grid for meta files. This throws an error if no
     # suitable grid file is detected.
-    self$add_grid()
+    # default handling of LPJmLData objects else inherited like LPJmLGridData
+    if (class(self)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
+      self$add_grid()
+    }
 
     # Workflow adjusted for subsetted grid (via cell)
     data_subset <- self$clone(deep = TRUE)
@@ -506,9 +565,14 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   # Calculate grid extent from range to span raster
   if (data_subset$meta$._space_format_ == "cell") {
-    data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
-                         max = apply(data_subset$grid$data, "band", max))
-
+    # default handling of LPJmLData objects else inherited like LPJmLGridData
+    if (class(data_subset)[1] %in% c("LPJmLData", "LPJmLDataCalc")) {
+      data_extent <- rbind(min = apply(data_subset$grid$data, "band", min),
+                           max = apply(data_subset$grid$data, "band", max))
+    } else {
+      data_extent <- rbind(min = apply(data_subset$data, "band", min),
+                           max = apply(data_subset$data, "band", max))
+    }
   } else {
     data_extent <- cbind(
       lon = range(as.numeric(dimnames(data_subset$data)[["lon"]])),
@@ -532,7 +596,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
       xmax = grid_extent[2, 1],
       ymin = grid_extent[1, 2],
       ymax = grid_extent[2, 2],
-      crs = "EPSG:4326"
+      crs = "EPSG:4326",
+      vals = NA
     )
 
   } else {

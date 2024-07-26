@@ -11,6 +11,8 @@
 #' As in LPJmLData the data array can be accessed via `$data`,
 #' the meta data via `$meta`.
 #'
+#' @md
+#' @export
 LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
 
   classname = "LPJmLGridData",
@@ -30,76 +32,27 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
       stop("Not allowed for an object of class LPJmLGridData")
     },
 
-
     #' @description
-    #' ! Not allowed to use dimension names of `LPJmLGridData$data`
-    #' array directly to subset each dimension to match the supplied vectors.
+    #' ! No plot function available for `LPJmLGridData` object. Use
+    #' [`as_raster()`] or [`as_terra()`] (and `plot()`) to visualize the grid.
     #'
-    #' @param ... See [`subset.LPJmLData()`]
-    subset = function(...) {
+    #' @param ... See [`plot()`].
+    plot = function(...) {
 
-      stop("Not allowed for an object of class LPJmLGridData")
+      stop(
+        "No plot function available for LPJmLGridData object. Use ",
+        "as_raster() or as_terra() (and plot()) to visualize grid data."
+      )
     },
 
-
-    #' @description
-    #' ! Not allowed to transform inner `LPJmLGridData$data` array
-    #' into another space or time format.
-    #'
-    #' @param ... See [`transform()`].
-    transform = function(...) {
-
-      stop("Not allowed for an object of class LPJmLGridData")
-    },
-
-    # export methods --------------------------------------------------------- #
-
-
-    #' @description
-    #' ! Not allowed to coerce (convert) an `LPJmLGridData` object into a
-    #' \link[raster]{raster} or \link[raster]{brick} object.
-    #'
-    #' @param ... See [`as_raster()`].
-    as_raster = function(...) {
-
-      stop("Not allowed for an object of class LPJmLGridData")
-    },
-
-
-    #' @description
-    #' ! Not allowed to coerce (convert) an `LPJmLGridData` object into a
-    #' \link[terra]{rast} object.
-    #'
-    #' @param ... See [`as_terra()`].
-    as_terra = function(...) {
-
-      stop("Not allowed for an object of class LPJmLGridData")
-    },
-
-
-    #' @description
-    #' ! Internal method only to be used for package development.
-    #'
-    #' @param ... See [`subset()`].
-    .__subset_space__ = function(...) {
-      private$.subset_space(...)
-    },
-
-
-    #' @description
-    #' ! Internal method only to be used for package development.
-    #'
-    #' @param ... See [`transform()`].
-    .__transform_space__ = function(...) {
-      private$.transform_space(...)
-    },
 
 
     # Create a new LPJmLGridData object only to be used internally or explicitly
     #' @description
     #' !Internal method only to be used for package development!
     #'
-    #' @param lpjml_data LPJmLData object with variable `"grid"` or `"LPJGRID"`
+    #' @param lpjml_data LPJmLData object with variable `"grid"`, `"cellid"`
+    #'   or `"LPJGRID"`
     initialize = function(lpjml_data) {
 
       x <- lpjml_data$clone(deep = TRUE)
@@ -110,10 +63,9 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
       # Assign LPJmLData data
       private$.data <- x$data
 
-
       if (!is.null(private$.meta$variable)) {
 
-        if (private$.meta$variable == "grid") {
+        if (private$.meta$variable %in% c("grid", "cellid")) {
           private$init_grid()
 
         } else if (private$.meta$variable == "LPJGRID") {

@@ -12,6 +12,8 @@
 #' [`plot.LPJmLData()`] to get insights and export methods like [`as_tibble()`]
 #' or [`as_raster()`] to export it into common working formats.
 #'
+#' @md
+#' @export
 LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
   classname = "LPJmLData",
@@ -28,7 +30,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #'
     #' @param ... See [`add_grid()`].
     add_grid = function(...) {
-
       # Skip if grid is already attached
       if (!is.null(private$.grid)) {
         return(invisible(self))
@@ -38,7 +39,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         # If user has not supplied any parameters try to find a grid file in the
         # same directory as data. This throws an error if no suitable file is
         # found.
-        filename <- find_gridfile(private$.meta$._data_dir_)
+        filename <- find_varfile(private$.meta$._data_dir_, "grid")
 
         message(
           paste0(
@@ -52,15 +53,14 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         #   does not say if cell is subsetted - but ok for now.
         if (private$.meta$._subset_space_) {
           lpjml_data <- read_io(
-              filename = filename,
-              subset = list(cell = self$dimnames()[["cell"]]),
-              silent = TRUE
-            )
+            filename = filename,
+            subset = list(cell = self$dimnames()[["cell"]]),
+            silent = TRUE
+          )
         } else {
           lpjml_data <- read_io(filename = filename, silent = TRUE)
         }
       } else {
-
         # All arguments have to be provided manually to read_io.
         #   Ellipsis (...) does that.
 
@@ -202,7 +202,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     #' Method to print the `LPJmLData` object. \cr
     #' See also \link[base]{print}.
     print = function() {
-
       # Print meta data
       cat(paste0(bold_head(col_var("$meta |>"))[1], "\n"))
       private$.meta$print(all = FALSE, spaces = "  .")
@@ -228,13 +227,15 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         to_char2 <- ifelse(is.character(dim_names[[sub]]), "\"", "")
 
         if (length(dim_names[[sub]]) > 6) {
-          abbr_dim_names <- paste0(c(paste0(to_char2,
-                                            dim_names[[sub]][1:4],
-                                            to_char2),
-                                   "...",
-                                   paste0(to_char2,
-                                          utils::tail(dim_names[[sub]], n = 1),
-                                          to_char2)))
+          abbr_dim_names <- paste0(c(
+            paste0(to_char2,
+                   dim_names[[sub]][1:4],
+                   to_char2),
+            "...",
+            paste0(to_char2,
+                   utils::tail(dim_names[[sub]], n = 1),
+                   to_char2)
+          ))
 
         } else {
           abbr_dim_names <- paste0(to_char2, dim_names[[sub]], to_char2)
@@ -253,7 +254,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       # Summary
       cat(col_var("$summary()\n"))
       print(self$summary(cutoff = TRUE))
-
+      # default handling of LPJmLData objects else inherited like LPJmLGridData
       if (class(self)[1] == "LPJmLData") {
         cat(
           col_note("Note: summary is not weighted by grid area.\n")
@@ -300,7 +301,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
     initialize = function(data, meta_data = NULL) {
 
       if (methods::is(meta_data, "LPJmLMetaData") |
-          methods::is(meta_data, "NULL")) {
+          methods::is(meta_data, "NULL")) { #nolint:indentation_linter
         private$.meta <- meta_data
       } else {
         stop("Provide an LPJmLMetaData object for meta data.")
@@ -315,22 +316,24 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
   active = list(
 
     #' @field meta [`LPJmLMetaData`] object to store corresponding meta data.
-    meta = function() {
+    meta = function(...) {
+      check_change(self, "meta", ...)
       # Clone meta object so that if meta is changed outside of the LPJmLData
       #   instance it will not change this instance
       return(private$.meta$clone())
     },
 
     #' @field data \link[base]{array} containing the underlying data.
-    data = function() {
+    data = function(...) {
+      check_change(self, "data", ...)
       return(private$.data)
     },
 
     #' @field grid Optional `LPJmLData` object containing the underlying grid.
-    grid = function() {
+    grid = function(...) {
+      check_change(self, "grid", ...)
 
       if (!is.null(private$.grid)) {
-
         # Clone grid object so that if grid is changed outside of the LPJmLData
         #   instance it will not change this instance. `deep = TRUE` because
         #   grid includes another R6 class object (meta) which is another
@@ -397,7 +400,6 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 #'
 #' # Add grid as attribute (via grid file in output directory)
 #' vegc_with_grid <- add_grid(vegc)
-#'
 #' }
 #'
 #' @md
@@ -444,56 +446,4 @@ aggregate_array <- function(x,
     }
   }
   data
-}
-
-
-#' Search for a grid file in a directory
-#'
-#' Function to search for a grid file in a specific directory.
-#'
-#' @param searchdir Directory where to look for a grid file.
-#' @return Character string with the file name of a grid file upon success.
-#'   Function fails if no matching grid file can be detected.
-#'
-#' @details This function looks for file names in `searchdir` that match the
-#'   `pattern` parameter in its [`list.files()`] call. Files of type "meta" are
-#'   preferred. Files of type "clm" are also accepted. The function returns an
-#'   error if no suitable file or multiple files are found. Otherwise, the file
-#'   name of the grid file including the full path is returned.
-#' @noRd
-find_gridfile <- function(searchdir) {
-  # The pattern will match any file name that starts with "grid*".
-  # Alternative stricter pattern: pattern = "^grid(\\.[[:alpha:]]{3,4})+$"
-  # This will only match file names "grid.*", where * is one or two file
-  # extensions with 3 or 4 characters, e.g. "grid.bin" or "grid.bin.json".
-  grid_files <- list.files(
-    path = searchdir,
-    pattern = "^grid",
-    full.names = TRUE
-  )
-  if (length(grid_files) > 0) {
-    grid_types <- sapply(grid_files, detect_io_type) # nolint:undesirable_function_linter.
-    # Prefer "meta" file_type if present
-    if (length(which(grid_types == "meta")) == 1) {
-      filename <- grid_files[match("meta", grid_types)]
-    } else if (length(which(grid_types == "clm")) == 1) {
-      # Second priority "clm" file_type
-      filename <- grid_files[match("clm", grid_types)]
-    } else {
-      # Stop if either multiple files per file type or not the right type have
-      # been detected
-      stop(
-        "Cannot detect grid file automatically.\n",
-        "$add_grid has to be called supplying parameters as for read_io."
-      )
-    }
-  } else {
-    # Stop if no file name matching pattern detected
-    stop(
-      "Cannot detect grid file automatically.\n",
-      "$add_grid has to be called supplying parameters as for read_io."
-    )
-  }
-
-  filename
 }

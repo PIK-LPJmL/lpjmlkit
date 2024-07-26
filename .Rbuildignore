@@ -17,3 +17,4 @@
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
 ^.*CITATION.cff$
+^docs$

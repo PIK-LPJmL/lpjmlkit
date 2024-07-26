@@ -1,7 +1,10 @@
 # Collection of small utility function applied across the package
 
 # Function to deprecate a function argument that is replaced by a new one
-deprecate_arg <- function(new_arg, deprec_arg, version = "1.0.0") {
+deprecate_arg <- function(new_arg,
+                          deprec_arg,
+                          version = "1.0.0",
+                          ignore_new_arg = FALSE) {
 
   new_name <- deparse(substitute(new_arg))
   deprec_name <- deparse(substitute(deprec_arg))
@@ -9,7 +12,7 @@ deprecate_arg <- function(new_arg, deprec_arg, version = "1.0.0") {
   # Only if deprecated argument is set
   if (!is.null(deprec_arg)) {
 
-    if (is.null(new_arg)) {
+    if (is.null(new_arg) || ignore_new_arg) {
       new_arg <- deprec_arg
 
     } else {
@@ -50,7 +53,6 @@ drop_omit <- function(x, omit_dim) {
 
 # Function to get list names recursively
 names_recursively <- function(x) {
-
   # Standard names of list elements
   y <- names(x)
 
@@ -95,7 +97,6 @@ bold_head <- function(x) {
 get_git_urlhash <- function(path = ".",
                             include_url = TRUE,
                             raise_error = TRUE) {
-
   # List of bash commands
   inner_commands <- paste0(
     # Filter .git in URL
@@ -149,13 +150,14 @@ get_git_urlhash <- function(path = ".",
 
 # Function checks and returns whether SLURM is available
 is_slurm_available <- function() {
-  processx::run(command = "bash",
-                args = c("-c", "sinfo"),
-                error_on_status = FALSE) %>%
-  .$status == 0 %>%
+  processx::run(
+    command = "bash",
+    args = c("-c", "sinfo"),
+    error_on_status = FALSE
+  ) %>%
+    .$status == 0 %>%
     return()
 }
-
 
 # Warn if OS is windows and thus not unix-based (ignoring other non unix based
 # OS)
@@ -178,6 +180,25 @@ is_os_windows <- function() {
 # file_type options supported by read_io
 supported_types <- c("raw", "clm", "meta")
 
+# band_names in reservoir files (special LPJmL file type)
+band_names_reservoir <- c(
+  "year", "capacity", "area", "inst_cap", "height",
+  paste0("purpose", seq_len(5))
+)
+
 
 # Avoid note for "."...
 utils::globalVariables(".") # nolint:undesirable_function_linter
+
+# Stop if user has supplied ellipsis argument. Used to test if user tries to set
+# active bindings directly.
+check_change <- function(self, att, ...) {
+  if (...length() > 0) {
+    stop(
+      sQuote(att, q = FALSE), " attribute cannot be set directly in ",
+      class(self)[1],
+      " object.",
+      call. = FALSE
+    )
+  }
+}

@@ -21,7 +21,7 @@ test_that("check submit_lpjml with tibble", {
   test_params$status <- "not submitted"
 
   expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
-              na.rm = TRUE))
+                  na.rm = TRUE))
 
   # Check submit_run functionality
   test_submit <- submit_lpjml(
@@ -31,7 +31,7 @@ test_that("check submit_lpjml with tibble", {
   test_params$status <- "failed"
 
   expect_true(all(unlist(as.list(test_submit)) == unlist(as.list(test_params)),
-              na.rm = TRUE))
+                  na.rm = TRUE))
 })
 
 
@@ -86,7 +86,16 @@ test_that("raise run_lpjml errors", {
     "Folder of model_path"
   )
 
-  # Check if system command failes
+  # Check if unsuported run_cmd fails
+  expect_error(
+    run_lpjml(
+      "./config_scen1_spinup.json",
+      run_cmd = "invalid_command"
+    ),
+    "run command"
+  )
+
+  # Check if system command fails
   expect_error(
     run_lpjml(
       "./config_scen1_spinup.json"

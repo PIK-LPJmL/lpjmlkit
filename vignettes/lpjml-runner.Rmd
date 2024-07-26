@@ -27,7 +27,9 @@ knitr::opts_chunk$set(
 is a lpjmlkit module of functions that have the goal to
 simplify the execution of simulations with LPJmL and further to execute
 complex, nested and multiple simulation sequences fast and less error prone
-without having a big (bash) script overhead.
+without having a big (bash) script overhead.  
+To install LPJmL, read the [LPJmL installation instructions](https://github.com/PIK-LPJmL/LPJmL/blob/master/INSTALL).
+\newline
 \newline
 
 
@@ -52,7 +54,7 @@ run or submit LPJmL with each configurations (4).
   \
   Define what LPJmL configurations/parameters to be changed. Please familiarize
   yourself with available configuration options.  
-  The base configuration file (e.g."lpjml.js") can be read in via
+  The base configuration file (e.g."lpjml_config.cjson") can be read in via
   `read_config` as a nested list object.
   Using the same syntax configurations/parameters can be changed directly in the
   corresponding configuration file or in a data frame (see example).  
@@ -73,7 +75,8 @@ run or submit LPJmL with each configurations (4).
   \
   Now the central function is `write_config`, create and write
   LPJmL Configuration (config) file(s) `"config_*.json"` from a data frame
-  with the parameters of a base config file `"lpjml.js"` to be changed.  
+  with the parameters of a base config file `"lpjml_config.cjson"` to be
+  changed.
   `?write_config` *for more information.*
 
   ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
@@ -100,7 +103,6 @@ run or submit LPJmL with each configurations (4).
   ```{r, eval = FALSE, highlight = TRUE}
   # run interactively
   run_details <- run_lpjml(config_details, model_path, sim_path)
-
   # OR submit to SLURM
   submit_details <- submit_lpjml(config_details, model_path, sim_path)
   ```
@@ -170,7 +172,7 @@ config_details <- write_config(
   x = params, # pass the defined parameter tibble
   model_path = model_path,
   sim_path = sim_path,
-  js_filename = "lpjml.js" # (default) the base config file
+  js_filename = "lpjml_config.cjson" # (default) the base config file
 )
 
 # read and view config
@@ -190,7 +192,8 @@ check_config(
 run_details <- run_lpjml(
   config_details,
   model_path = model_path,
-  sim_path = sim_path)
+  sim_path = sim_path
+)
 
 ```
 
@@ -262,7 +265,7 @@ params <- tibble(
   dependency = c(NA, "spinup", "spinup"),
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
-  #   (same for sclass, ntasks, blocking)
+  #   (same for sclass, ntasks, blocking or constraint)
   wtime = c("15:00:00", "3:00:00", "3:00:00")
 )
 
@@ -284,7 +287,8 @@ run_details <- submit_lpjml(
   x = config_details,
   model_path = model_path,
   sim_path = sim_path,
-  group = "open")
+  group = "open"
+)
 
 ```
 
@@ -301,10 +305,10 @@ for a rerun or resubmission next time ...
     ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
     saveRDS(config_details,
             paste0(sim_path, "/configurations/config_details.rds")) # nolint:absolute_path_linter.
-
     # next time ...
-    config_details <- readRDS(paste0(sim_path,
-                                "/configurations/config_details.rds")) # nolint:absolute_path_linter.
+    config_details <- readRDS(
+      paste0(sim_path, "/configurations/config_details.rds") # nolint:absolute_path_linter.
+    )
     ```
 
 2. Also if you want do not want to submit all runs you can ...
@@ -316,7 +320,8 @@ for a rerun or resubmission next time ...
       x = config_details[2:3, ],
       model_path = model_path,
       sim_path = sim_path,
-      group = "open")
+      group = "open"
+    )
     ```
 
 3. *a bit dirty though* If you want to reuse an old spinup simulation, you can copy the file or

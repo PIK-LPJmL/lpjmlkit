@@ -20,24 +20,39 @@
 #'   `model_path` is used. See also [write_config]
 #'
 #' @param group Character string defining the user group for which the job is
-#'   submitted. Defaults to `"lpjml"`.
+#'   submitted.
 #'
 #' @param sclass Character string defining the job classification. Available
 #'   options at PIK: `c("short", "medium", "long", "priority", "standby", "io")`
 #'   More information at <https://www.pik-potsdam.de/en>. Defaults to `"short"`.
 #'
 #' @param ntasks Integer defining the number of tasks/threads. More information
-#'   at <https://www.pik-potsdam.de/en> and <https://slurm.schedmd.com>.
-#'   Defaults to `256`.
+#'   at <https://www.pik-potsdam.de/en> and
+#'   <https://slurm.schedmd.com/sbatch.html>. Defaults to `256`.
 #'
 #' @param wtime Character string defining the time limit. Setting a lower time
 #'   limit than the maximum runtime for `sclass` can reduce the wait time in the
 #'   SLURM job queue. More information at <https://www.pik-potsdam.de/en> and
-#'   <https://slurm.schedmd.com>.
+#'   <https://slurm.schedmd.com/sbatch.html>.
 #'
 #' @param blocking Integer defining the number of cores to be blocked. More
 #'   information at <https://www.pik-potsdam.de/en> and
-#'   <https://slurm.schedmd.com>.
+#'   <https://slurm.schedmd.com/sbatch.html>.
+#'
+#' @param constraint Character string defining constraints for node selection.
+#'   Use `constraint = "haswell"` to request nodes of the type haswell with 16
+#'   cores per node, `constraint = "broadwell"` to request nodes of the type
+#'   broadwell CPUs with 32 cores per node or `constraint = "exclusive"` to
+#'   reserve all CPUs of assigned nodes even if less are requested by `ntasks`.
+#'   Using `exclusive` should prevent interference of other batch jobs with
+#'   LPJmL. More information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com/sbatch.html>.
+
+#'
+#' @param slurm_options A named list of further arguments to be passed to sbatch.
+#'   E.g. list(`mail-user` = "max.mustermann@pik-potsdam.de")
+#'   More information at <https://www.pik-potsdam.de> and
+#'   <https://slurm.schedmd.com/sbatch.html>
 #'
 #' @param no_submit Logical. Set to `TRUE` to test if `x` set correctly or
 #'   `FALSE` to actually submit job to SLURM.
@@ -67,11 +82,11 @@
 #' | scen2_transient | scen1 _spinup  |
 #'
 #' To use different SLURM settings for each run the optional SLURM options
-#' `"sclass"`, `"ntask"`, `"wtime"` or `"blocking"` can also be supplied to the
-#' initial \link[tibble]{tibble} supplied as `param` to
+#' `"sclass"`, `"ntasks"`, `"wtime"`, "blocking"` or `constraint` can also be
+#' supplied to the initial \link[tibble]{tibble} supplied as `param` to
 #' [`write_config()`]. These overwrite the (default) SLURM
-#' arguments (`sclass`, `ntask`, `wtime` or `blocking`) supplied to
-#' `submit_lpjml`.
+#' arguments (`sclass`, `ntasks`, `wtime`, `blocking` or ` `constraint`)
+#' supplied to `submit_lpjml`.
 #'
 #' | **sim_name**    | **dependency** | **wtime** |
 #' |:--------------- |:-------------- |----------:|
@@ -170,11 +185,13 @@
 submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          model_path,
                          sim_path = NULL,
-                         group = "lpjml",
+                         group = "",
                          sclass = "short",
                          ntasks = 256,
                          wtime = "",
                          blocking = "",
+                         constraint = "",
+                         slurm_options = list(),
                          no_submit = FALSE,
                          output_path = NULL) {
 
@@ -213,7 +230,9 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
   x$type <- "simulation"
   x$job_id <- NA
   x$status <- "failed"
-  slurm_args <- c("sclass", "ntask", "wtime", "blocking")
+  slurm_args <- c(
+    "sclass", "ntasks", "wtime", "blocking", "constraint", "slurm_options"
+  )
 
   if ("order" %in% colnames(x)) {
 
@@ -235,7 +254,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
         # to this function by mapply call
         slurm_param <- (
           x[slurm_args[slurm_args %in% colnames(x)]][
-              sim_idx, ]
+                                                     sim_idx, ]
         )
 
         mapply( # nolint:undesirable_function_linter.
@@ -258,7 +277,9 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                             ntasks,
                             wtime,
                             blocking,
-                            dependency)
+                            constraint,
+                            dependency,
+                            slurm_options)
 
           if (job$status == 0) {
             x$job_id[sim_idx] <- strsplit(
@@ -285,7 +306,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
       # this function by mapply call
       slurm_param <- (
         x[slurm_args[slurm_args %in% colnames(x)]][
-            sim_idx, ]
+                                                   sim_idx, ]
       )
 
       mapply( # nolint:undesirable_function_linter.
@@ -307,7 +328,9 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                           ntasks,
                           wtime,
                           blocking,
-                          dependency = NA)
+                          constraint,
+                          dependency = NA,
+                          slurm_options)
 
         if (job$status == 0) {
           x$job_id[sim_idx] <- strsplit(
@@ -341,7 +364,9 @@ submit_run <- function(sim_name,
                        ntasks,
                        wtime,
                        blocking,
-                       dependency) {
+                       constraint,
+                       dependency,
+                       slurm_options) {
 
   config_file <- paste0("config_",
                         sim_name,
@@ -350,42 +375,56 @@ submit_run <- function(sim_name,
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 
   stdout <- paste0(sim_path,
-                  "/output/",
-                  sim_name,
-                  "/",
-                  "outfile_",
-                  timestamp,
-                  ".out")
+                   "/output/",
+                   sim_name,
+                   "/",
+                   "outfile_",
+                   timestamp,
+                   ".out")
 
   stderr <- paste0(sim_path,
-                  "/output/",
-                  sim_name,
-                  "/",
-                  "errfile_",
-                  timestamp,
-                  ".err")
+                   "/output/",
+                   sim_name,
+                   "/",
+                   "errfile_",
+                   timestamp,
+                   ".err")
 
   output_config <- paste0(sim_path,
-                  "/output/",
-                  sim_name,
-                  "/",
-                  "config_",
-                  timestamp,
-                  ".json")
+                          "/output/",
+                          sim_name,
+                          "/",
+                          "config_",
+                          timestamp,
+                          ".json")
+
+  if (is.list(slurm_options) && length(slurm_options) > 0) {
+    further_slurm_options <- paste0(
+      " -option ", names(slurm_options), "=", slurm_options, collapse = " "
+    )
+  } else {
+    further_slurm_options <- ""
+  }
 
   inner_command <-  paste0(model_path, "/bin/lpjsubmit", # nolint:absolute_path_linter.
                            " -nocheck",
                            " -class ", sclass,
-                           " -group ", group,
+                           ifelse(group != "",
+                                  paste0(" -group ", group),
+                                  ""),
                            ifelse(wtime != "",
                                   paste0(" -wtime ", wtime),
                                   ""),
                            ifelse(blocking != "",
                                   paste0(" -blocking ", blocking),
                                   ""),
+                           ifelse(constraint != "",
+                                  paste0(" -constraint ", constraint),
+                                  ""),
                            ifelse(!is.na(dependency),
                                   paste0(" -dependency ", dependency),
                                   ""),
+                           further_slurm_options,
                            " -o ", stdout,
                            " -e ", stderr,
                            " ",

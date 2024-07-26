@@ -10,12 +10,13 @@ write_config(
   sim_path = NULL,
   output_list = c(),
   output_list_timestep = "annual",
-  output_format = "raw",
-  js_filename = "lpjml.js",
+  output_format = NULL,
+  cjson_filename = "lpjml_config.cjson",
   parallel_cores = 4,
   debug = FALSE,
   params = NULL,
-  output_path = NULL
+  output_path = NULL,
+  js_filename = NULL
 )
 }
 \arguments{
@@ -31,7 +32,7 @@ used.}
 
 \item{output_list}{Character vector containing the \code{"id"} of outputvars.
 If defined, only these defined outputs will be written. Otherwise, all
-outputs set in \code{js_filename} will be written. Defaults to \code{NULL}.}
+outputs set in \code{cjson_filename} will be written. Defaults to \code{NULL}.}
 
 \item{output_list_timestep}{Single character string or character vector
 defining what temporal resolution the defined outputs from \code{output_list}
@@ -40,11 +41,11 @@ a vector with the length of \code{output_list} defining each timestep
 individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.}
 
 \item{output_format}{Character string defining the format of the output.
-Defaults to \code{"raw"}. Further options: \code{"cdf"} (NetCDF) or \code{"clm"}
-(file with header).}
+Defaults to \code{NULL} (use default from cjson file). Options: \code{"raw"},
+\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).}
 
-\item{js_filename}{Character string providing the name of the main js file to
-be parsed. Defaults to \code{"lpjml.js"}.}
+\item{cjson_filename}{Character string providing the name of the main LPJmL
+configuration file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
 
 \item{parallel_cores}{Integer defining the number of available CPU cores for
 parallelization. Defaults to \code{4}.}
@@ -57,6 +58,9 @@ instead.}
 
 \item{output_path}{Argument is deprecated as of version 1.0; use sim_path
 instead.}
+
+\item{js_filename}{Argument is deprecated as of version 1.3; use
+cjson_filename instead.}
 }
 \value{
 \link[tibble]{tibble} with at least one column named \code{"sim_name"}.
@@ -68,15 +72,16 @@ Run parameters \code{"order"} and \code{"dependency"} are included if defined in
 Requires a \link[tibble]{tibble} (modern \link[base]{data.frame} class) in a
 specific format (see details & examples) to write the model configuration
 file \code{"config_*.json"}. Each row in the tibble corresponds to a model run.
-The generated \code{"config_*.json"} is based on a js file (e.g. \code{"lpjml_*.js"}).
+The generated \code{"config_*.json"} is based on a cjson file
+(e.g. \code{"lpjml_config.cjson"}).
 }
 \details{
 Supply a \link[tibble]{tibble} for \code{x}, in which each row represents
 a configuration (config) for an LPJmL simulation. \cr
-Here a config is referred to as the precompiled \code{"lpjml.js"} file (or file
-name provided as \code{js_filename} argument), which links to all other
-mandatory ".js" files. The precompilation is done internally by
-\code{\link[=write_config]{write_config()}}.\cr
+Here a config refers to a precompiled \code{"lpjml_config.cjson"} file (or file
+name provided as \code{cjson_filename} argument) which already contains all the
+information from the mandatory cjson files.
+The precompilation is done internally by \code{\link[=write_config]{write_config()}}.\cr
 \code{write_config()} uses the column names of \code{param} as keys for the config
 json using the same syntax as lists, e.g. \code{"k_temp"} from \code{"param.js"}
 can be accessed with \code{"param$k_temp"} or \verb{"param[["k_temp"]]"} as the column
@@ -138,9 +143,8 @@ separately. For example, users may want to set a lower wall clock limit
 (\code{wtime}) for the transient run than the spin-up run to get a higher priority
 in the SLURM queue. This can be achieved by supplying this option as a
 parameter to \code{param}. \cr
-4 options are available, namely \code{sclass}, \code{ntask}, \code{wtime}, \code{blocking}. \cr
-If specified in \code{param}, they overwrite the corresponding function arguments
-in \code{\link[=submit_lpjml]{submit_lpjml()}}.
+6 options are available, namely \code{sclass}, \code{ntasks}, \code{wtime}, \code{blocking},
+\code{constraint} and \code{slurm_options}. Use as arguments for [submit_lpjml()\verb{].\\cr If specified in }param\verb{, they overwrite the corresponding function arguments in [}submit_lpjml()`].
 
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{my_params4 <- tibble(
  sim_name = c("scen1_spinup", "scen1_transient"),
