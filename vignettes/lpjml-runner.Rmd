@@ -27,7 +27,9 @@ knitr::opts_chunk$set(
 is a lpjmlkit module of functions that have the goal to
 simplify the execution of simulations with LPJmL and further to execute
 complex, nested and multiple simulation sequences fast and less error prone
-without having a big (bash) script overhead.
+without having a big (bash) script overhead.  
+To install LPJmL, read the [LPJmL installation instructions](https://github.com/PIK-LPJmL/LPJmL/blob/master/INSTALL).
+\newline
 \newline
 
 
