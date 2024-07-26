@@ -259,7 +259,7 @@ Special thanks go to Werner von Bloh for implementing new features into
 LPJmL to enable the development of lpjmlkit, such as writing meta
 files.
 We would also like to thank the Earth4All project for the support that made this development possible.  
-Further thanks go to Susanne Rolinski and Marie Hemmen who supported the project
+Further thanks go to Susanne Rolinski, David Hötten and Marie Hemmen who supported the project
 along the way.
 
 # References
