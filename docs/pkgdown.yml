@@ -1,0 +1,8 @@
+pandoc: 3.1.5
+pkgdown: 2.0.9
+pkgdown_sha: ~
+articles:
+  lpjml-data: lpjml-data.html
+  lpjml-runner: lpjml-runner.html
+last_built: 2024-07-26T07:16Z
+
