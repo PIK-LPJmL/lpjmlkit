@@ -13,7 +13,7 @@ authors:
   - name: Jannes Breier
     orcid: 0000-0002-9055-6904
     equal-contrib: true
-    affiliation: 1
+    affiliation: 1, 4
     corresponding: true
   - name: Sebastian Ostberg
     orcid: 0000-0002-2368-7015
@@ -43,6 +43,8 @@ affiliations:
    index: 2
  - name: Climate Focus, Germany
    index: 3
+ - name: Geography Department, Humboldt-Universität zu Berlin, Unter den Linden 6, 10099 Berlin, Germany
+   index: 4
 
 
 date: 22 March 2023
