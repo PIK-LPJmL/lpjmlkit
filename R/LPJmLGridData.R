@@ -77,13 +77,15 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
               "Invalid variable ",
               sQuote(private$.meta$variable),
               ". Supported variables are ",
-              sQuote("grid"),
+              sQuote("grid"), ", ", sQuote("cellid"),
               " and ",
               sQuote("LPJGRID"),
               "."
             )
           )
         }
+      } else {
+        stop("Missing ", sQuote("variable"), " attribute in lpjml_data$meta")
       }
     },
 
