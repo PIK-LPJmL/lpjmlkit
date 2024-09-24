@@ -12,10 +12,13 @@
 #' @param extent A numeric vector (lonmin, lonmax, latmin, latmax) containing the
 #'  longitude and latitude boundaries between which values included in the subset.
 #' @param coordinates A list of two named (lon, lat) numeric vectors representing the coordinates.
+#' @param shape A terra SpatVector object in the WGS 84 coordinate reference system
+#' representing the shape to subset the grid.
+#' @param simplify A logical indicating whether to simplify the output to a vector.
 #'
 #'
-#' @return The cell index from the grid file based on the provided extent or
-#' coordinates.
+#' @return Either an LPJmLData object containing the grid or a vector subsetted
+#' to the provided extent, coordinates or shape.
 #' @export
 #'
 #' @examples
@@ -43,28 +46,36 @@
 #' should be a list of two character vectors representing the longitude and
 #' latitude values as for [`subset()`].
 #'
-#' If both `extent` and `coordinates` are provided, the function will stop and
-#' ask for only one of them. If neither `extent` nor `coordinates` are provided,
-#' the function will return the cell numbers for all cells in the grid.
+#' If a shape is provided as a SpatVector object, the function will return the
+#' cell index for the cells that intersect with the shape.
+#'
+#' If more than on of `extent`, `coordinates` `shape` are provided, the function
+#' will stop and ask for only one of them. If neither `extent` nor `coordinates`
+#' nor `shape` are provided, the function will return the cell numbers for all
+#' cells in the grid.
 #'
 #' The function also includes checks for input types and values, and gives
 #' specific error messages for different error conditions. For example, it
 #' checks if the `grid_filename` exists, if the `extent` vector has the correct
 #' length, and if the `coordinates` list contains two vectors of equal length.
-get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
+get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shape = NULL, simplify = TRUE) {
   # check if filepath is valid
   check_filepath(grid_filename)
   # check if (only) one of extent or coordinates is provided
-  check_extent_and_coordinates(extent, coordinates)
+  check_multiple(extent, coordinates, shape)
 
-  grid_lonlat <- read_io(filename = grid_filename) %>%
+  grid_lonlat <- read_io(filename = grid_filename) |>
     LPJmLGridData$new()
 
   if (!is.null(extent)) {
-    extent <- check_extent(extent) %>%
+    extent <- check_extent(extent) |>
       correct_extent()
   } else if (!is.null(coordinates)) {
     coordinates <- check_coordinates(coordinates)
+  } else if (!is.null(shape)) {
+    if (!("SpatVector" %in% class(shape))) {
+      stop("shape must be a SpatVector object.")
+    }
   }
 
   # Read the grid file and create a data frame
@@ -76,7 +87,7 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
 
   # Check if extent values are within the longitude and latitude range in the cells
   if (!is.null(extent)) {
-    cells$cellindex <- as.numeric(row.names(cells)) + 1
+    cells$cellindex <- as.numeric(row.names(cells))
 
     out_of_bounds_lon <- extent[c(1, 2)][extent[c(1, 2)] < lon_range[1] |
                                            extent[c(1, 2)] > lon_range[2]]
@@ -94,7 +105,14 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
 
     cells <- cells[cells$lon >= extent[1] &
                      cells$lon <= extent[2] &
-                     cells$lat >= extent[3] & cells$lat <= extent[4], ]$cellindex
+                     cells$lat >= extent[3] & cells$lat <= extent[4], ]
+
+    grid_cell <- transform(grid_lonlat, "lon_lat")
+
+    cells <- grid_cell$subset(coordinates = lapply(X = list(lon = cells$lon,
+                                                            lat = cells$lat),
+                                                   FUN = as.character))
+
   }
 
   # Check if coordinates are within the longitude and latitude range in the cells
@@ -120,15 +138,30 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL) {
 
     grid_cell <- transform(grid_lonlat, "lon_lat")
 
-    grid_cell$subset(coordinates = lapply(X = coordinates, FUN = as.character))
-
-    cells <- c(stats::na.omit(c(grid_cell$data + 1)))
+    cells <- grid_cell$subset(coordinates = lapply(X = coordinates,
+                                                   FUN = as.character))
 
     message(
       col_note(
         "Note: Possible duplicates of cell ids are removed."
       )
     )
+  }
+
+  if (!is.null(shape)) {
+    cell_coords <- grid_lonlat |>
+      as_terra() |>
+      terra::mask(shape) |>
+      terra::as.data.frame(xy = TRUE) |>
+      dplyr::select("x", "y")
+
+    cells <- grid_lonlat$transform("lon_lat") |>
+      subset(coordinates = lapply(list(lon = cell_coords$x, lat = cell_coords$y),
+                                  FUN = as.character))
+  }
+
+  if (simplify) {
+    cells <- c(stats::na.omit(c(cells$data + 1)))
   }
 
   cells
@@ -167,14 +200,16 @@ check_extent <- function(extent) {
 
 
 # Check if both extent and coordinates are provided
-check_extent_and_coordinates <- function(extent, coordinates) {
-  if (is.null(extent) && is.null(coordinates)) {
-    warning("Neither extent or coordinates provided. Full grid will be returned.")
+check_multiple <- function(extent, coordinates, shape) {
+  if (is.null(extent) && is.null(coordinates) && is.null(shape)) {
+    warning("Neither extent, coordinates or shape provided. Full grid will be returned.")
   }
-  if (!is.null(extent) && !is.null(coordinates)) {
+  if ((!is.null(extent) && !is.null(coordinates)) ||
+        (!is.null(extent) && !is.null(shape)) ||
+        (!is.null(coordinates) && !is.null(shape))) {
     stop(
-      "Both extent and coordinates are provided.",
-      " Please provide only one of them."
+      "Multiple subset options provided.",
+      " Please provide only one of coordinates, extent and shape."
     )
   }
 }
