@@ -26,7 +26,7 @@ test_that("get_cellindex handles both extent and coordinates provided", {
       extent = c(1.25, 2.75, 3.25, 4.75),
       coordinates = list(c(1.25, 2.75), c(1.25, 2.75))
     ),
-    "Both extent and coordinates are provided. Please provide only one of them."
+    "Multiple subset options provided. Please provide only"
   )
 })
 
@@ -61,4 +61,12 @@ test_that("get_cellindex returns correct cell index for given coordinates", {
     coordinates = list(lon = c(-87.25, -87.25), lat = c(55.25, 55.75))
   )
   expect_true(length(result) == 2 && result[1] == 10001 && result[2] == 10002)
+})
+
+test_that("get_cellindex returns correct cell index for a given shape", {
+  result <- get_cellindex("../testdata/output/grid.bin.json",
+                          shape = terra::vect(terra::ext(c(-87.25, -87.25,
+                                                           55.25, 55.75)),
+                                              crs = "+proj=longlat +datum=WGS84"))
+  expect_true(length(result) == 2 && result[1] == 10002 && result[2] == 10001)
 })

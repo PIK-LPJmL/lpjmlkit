@@ -4,7 +4,13 @@
 \alias{get_cellindex}
 \title{Get Cell Index}
 \usage{
-get_cellindex(grid_filename, extent = NULL, coordinates = NULL)
+get_cellindex(
+  grid_filename,
+  extent = NULL,
+  coordinates = NULL,
+  shape = NULL,
+  simplify = TRUE
+)
 }
 \arguments{
 \item{grid_filename}{A string representing the grid file name.}
@@ -13,10 +19,15 @@ get_cellindex(grid_filename, extent = NULL, coordinates = NULL)
 longitude and latitude boundaries between which values included in the subset.}
 
 \item{coordinates}{A list of two named (lon, lat) numeric vectors representing the coordinates.}
+
+\item{shape}{A terra SpatVector object in the WGS 84 coordinate reference system
+representing the shape to subset the grid.}
+
+\item{simplify}{A logical indicating whether to simplify the output to a vector.}
 }
 \value{
-The cell index from the grid file based on the provided extent or
-coordinates.
+Either an LPJmLData object containing the grid or a vector subsetted
+to the provided extent, coordinates or shape.
 }
 \description{
 This function returns the cell index from a grid file based on
@@ -41,9 +52,13 @@ include only those that match the specified coordinates. The \code{coordinates}
 should be a list of two character vectors representing the longitude and
 latitude values as for \code{\link[=subset]{subset()}}.
 
-If both \code{extent} and \code{coordinates} are provided, the function will stop and
-ask for only one of them. If neither \code{extent} nor \code{coordinates} are provided,
-the function will return the cell numbers for all cells in the grid.
+If a shape is provided as a SpatVector object, the function will return the
+cell index for the cells that intersect with the shape.
+
+If more than on of \code{extent}, \code{coordinates} \code{shape} are provided, the function
+will stop and ask for only one of them. If neither \code{extent} nor \code{coordinates}
+nor \code{shape} are provided, the function will return the cell numbers for all
+cells in the grid.
 
 The function also includes checks for input types and values, and gives
 specific error messages for different error conditions. For example, it
