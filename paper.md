@@ -20,10 +20,13 @@ authors:
     equal-contrib: true
     affiliation: 1
     corresponding: true
-  - name: Stephen Wirth
+  - name: Stephen Björn Wirth
     orcid: 0000-0003-3090-3318
     corresponding: false
     affiliation: 1, 2
+  - name: David Hötten
+    corresponding: false
+    affiliation: 1
   - name: Sara Minoli
     orcid: 0000-0001-7920-3107
     corresponding: false
@@ -47,7 +50,7 @@ affiliations:
    index: 4
 
 
-date: 22 March 2023
+date: 03 October 20234
 bibliography: paper.bib
 
 ---
