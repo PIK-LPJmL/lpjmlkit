@@ -28,8 +28,8 @@ create_time_names <- function(
   mm <- {if (is.null(months)) seq_len(12) else months} %>% #nolint
     sprintf("%02d", .)
 
-  # Daily data: YYYY-MM-DD
   if (nstep == 365) {
+    # Daily data: YYYY-MM-DD
     d_mmdd <- paste(
       rep(x = mm, times = {
         # Cases of months or days being subsetted or not.
@@ -44,11 +44,13 @@ create_time_names <- function(
       ), dd, sep = "-"
     )
 
-    time_dimnames <- paste(rep(years, each = length(dd)),
-                        rep(d_mmdd, times = length(years)), sep = "-")
-
-  # Monthly data: YYYY-MM-LastDayOfMonth
+    time_dimnames <- paste(
+      rep(years, each = length(dd)),
+      rep(d_mmdd, times = length(years)),
+      sep = "-"
+    )
   } else if (nstep == 12) {
+    # Monthly data: YYYY-MM-LastDayOfMonth
     m_mmdd <- paste(mm, ndays_in_month, sep = "-")
 
     time_dimnames  <- paste(
@@ -56,13 +58,11 @@ create_time_names <- function(
       rep(m_mmdd, times = length(years)),
       sep = "-"
     )
-
-  # Annual data: YYYY-12-31
   } else if (nstep == 1) {
+    # Annual data: YYYY-12-31
     time_dimnames <- paste(years, 12, 31, sep = "-")
-
-  # Currently no support for other (special) nstep cases
   } else {
+    # Currently no support for other (special) nstep cases
     stop("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365")
   }
 
@@ -85,5 +85,5 @@ split_time_names <- function(time_names) {
                          c("year", "month", "day"))) %>%
     apply(2, unique) %>%
     as.list() %>%
-  return()
+    return()
 }
