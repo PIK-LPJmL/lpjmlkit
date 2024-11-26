@@ -28,8 +28,8 @@ create_time_names <- function(
   mm <- {if (is.null(months)) seq_len(12) else months} %>% #nolint
     sprintf("%02d", .)
 
-  # Daily data: YYYY-MM-DD
   if (nstep == 365) {
+    # Daily data: YYYY-MM-DD
     d_mmdd <- paste(
       rep(x = mm, times = {
         # Cases of months or days being subsetted or not.
@@ -44,11 +44,13 @@ create_time_names <- function(
       ), dd, sep = "-"
     )
 
-    time_dimnames <- paste(rep(years, each = length(dd)),
-                        rep(d_mmdd, times = length(years)), sep = "-")
-
-  # Monthly data: YYYY-MM-LastDayOfMonth
+    time_dimnames <- paste(
+      rep(years, each = length(dd)),
+      rep(d_mmdd, times = length(years)),
+      sep = "-"
+    )
   } else if (nstep == 12) {
+    # Monthly data: YYYY-MM-LastDayOfMonth
     m_mmdd <- paste(mm, ndays_in_month, sep = "-")
 
     time_dimnames  <- paste(
@@ -56,24 +58,49 @@ create_time_names <- function(
       rep(m_mmdd, times = length(years)),
       sep = "-"
     )
-
-  # Annual data: YYYY-12-31
   } else if (nstep == 1) {
+    # Annual data: YYYY-12-31
     time_dimnames <- paste(years, 12, 31, sep = "-")
-
-  # Currently no support for other (special) nstep cases
   } else {
+    # Currently no support for other (special) nstep cases
     stop("Invalid nstep: ", nstep, "\nnstep has to be 1, 12 or 365")
   }
 
   return(time_dimnames)
 }
 
+#' Split date strings into years, months and days
+#'
+#' Splits one or several date strings into a list of unique days, months and
+#' years.
+#'
+#' @param time_names Character vector with one or several date strings in the
+#'   form YYYY-MM-DD.
+#'
+#' @return List containing unique `year`, `month` and `day` values included in
+#'   `time_names`.
+#'
+#' @examples
+#' \dontrun{
+#'  time_names <- split_time_names(c("2024-11-25", "2024-11-26"))
+#'  time_names
+#'  # $year
+#'  # [1] "2024"
+#'  # $month
+#'  # [1] "11"
+#'  # $day
+#'  # [1] "25" "26"
+#' }
+#'
+#' @md
+#' @export
 split_time_names <- function(time_names) {
 
   # Split time string "year-month-day" into year, month, day integer vector
-  time_split <- strsplit(time_names, "-") %>%
-    lapply(function(x) as.character(as.integer(x)))
+  time_split <- regmatches(
+    time_names,
+    regexec("([-]?[[:digit:]]+)-([[:digit:]]+)-([[:digit:]]+)", time_names)
+  ) %>% lapply(function(x) as.character(as.integer(x[-1])))
 
   # Create corresponding dimnames for disaggregated array by unique entry
   matrix(unlist(time_split),
@@ -83,5 +110,5 @@ split_time_names <- function(time_names) {
                          c("year", "month", "day"))) %>%
     apply(2, unique) %>%
     as.list() %>%
-  return()
+    return()
 }
