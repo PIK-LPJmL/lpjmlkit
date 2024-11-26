@@ -55,4 +55,4 @@ Suggests:
     sf
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2024-11-15
+Date: 2024-11-26

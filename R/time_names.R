@@ -69,6 +69,31 @@ create_time_names <- function(
   return(time_dimnames)
 }
 
+#' Split date strings into years, months and days
+#'
+#' Splits one or several date strings into a list of unique days, months and
+#' years.
+#'
+#' @param time_names Character vector with one or several date strings in the
+#'   form YYYY-MM-DD.
+#'
+#' @return List containing unique `year`, `month` and `day` values included in
+#'   `time_names`.
+#'
+#' @examples
+#' \dontrun{
+#'  time_names <- split_time_names(c("2024-11-25", "2024-11-26"))
+#'  time_names
+#'  # $year
+#'  # [1] "2024"
+#'  # $month
+#'  # [1] "11"
+#'  # $day
+#'  # [1] "25" "26"
+#' }
+#'
+#' @md
+#' @export
 split_time_names <- function(time_names) {
 
   # Split time string "year-month-day" into year, month, day integer vector
