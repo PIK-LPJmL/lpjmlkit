@@ -87,7 +87,7 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shap
 
   # Check if extent values are within the longitude and latitude range in the cells
   if (!is.null(extent)) {
-    cells$cellindex <- as.numeric(row.names(cells))
+    cells$cellindex <- as.numeric(row.names(cells)) + 1
 
     out_of_bounds_lon <- extent[c(1, 2)][extent[c(1, 2)] < lon_range[1] |
                                            extent[c(1, 2)] > lon_range[2]]
@@ -107,12 +107,15 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shap
                      cells$lon <= extent[2] &
                      cells$lat >= extent[3] & cells$lat <= extent[4], ]
 
-    grid_cell <- transform(grid_lonlat, "lon_lat")
+    if (!simplify) {
+      grid_cell <- transform(grid_lonlat, "lon_lat")
 
-    cells <- grid_cell$subset(coordinates = lapply(X = list(lon = cells$lon,
-                                                            lat = cells$lat),
-                                                   FUN = as.character))
-
+      cells <- grid_cell$subset(coordinates = lapply(X = list(lon = cells$lon,
+                                                              lat = cells$lat),
+                                                     FUN = as.character))
+    } else {
+      cells <- cells$cellindex
+    }
   }
 
   # Check if coordinates are within the longitude and latitude range in the cells
@@ -149,18 +152,20 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shap
   }
 
   if (!is.null(shape)) {
+    grid_lonlat <- grid_lonlat$transform("lon_lat")
+
     cell_coords <- grid_lonlat |>
       as_terra() |>
       terra::mask(shape) |>
       terra::as.data.frame(xy = TRUE) |>
       dplyr::select("x", "y")
 
-    cells <- grid_lonlat$transform("lon_lat") |>
+    cells <- grid_lonlat |>
       subset(coordinates = lapply(list(lon = cell_coords$x, lat = cell_coords$y),
                                   FUN = as.character))
   }
 
-  if (simplify) {
+  if (simplify && is.null(extent)) {
     cells <- c(stats::na.omit(c(cells$data + 1)))
   }
 
