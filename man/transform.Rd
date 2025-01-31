@@ -25,8 +25,10 @@ possible.
 \examples{
 \dontrun{
 
-runoff <- read_io(filename = "runoff.bin.json",
-                  subset = list(year = as.character(1991:2000)))
+runoff <- read_io(
+  filename = "runoff.bin.json",
+  subset = list(year = as.character(1991:2000))
+)
 
 # Transform into space format "lon_lat". This assumes a "grid.bin.json" file
 # is present in the same directory as "runoff.bin.json".
