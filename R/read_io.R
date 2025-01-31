@@ -677,8 +677,51 @@ read_io_data <- function(
   # Dimension order during reading. Note: Must be 3 dimensions in total, with
   # "time" being last dimension for code below to work.
   read_band_order <- c("cell", "band", "time")
-  # Loop over subset years
   result_is_init <- FALSE
+
+  # Prepare dimensions and dimension names for array containing one year of data
+  read_dim <- switch(
+    default(meta_data$order, "cellyear"),
+    cellyear = c(
+      band = unname(default(meta_data$nbands, 1)),
+      time = unname(default(meta_data$nstep, 1)),
+      cell = unname(meta_data$ncell)
+    ),
+    yearcell = stop("Order yearcell not supported"),
+    cellindex = stop("Order cellindex not supported"),
+    cellseq = c(
+      cell = unname(meta_data$ncell),
+      band = unname(default(meta_data$nbands, 1)),
+      time = unname(default(meta_data$nstep, 1))
+    )
+  )
+
+  band_names <- default(
+    meta_data$band_names, seq_len(default(meta_data$nbands, 1))
+  )
+
+  cell_dimnames <- seq(
+    default(meta_data$firstcell, 0),
+    length.out = meta_data$ncell
+  )
+  read_dimnames <- switch(
+    default(meta_data$order, "cellyear"),
+    cellyear  = list(                                                # order 1
+      band = band_names,
+      time = NULL, # Assign dates later
+      cell = cell_dimnames
+    ),
+    yearcell  = stop("Order yearcell not supported"),                # order 2
+    cellindex = stop("Order cellindex not supported"),               # order 3
+    cellseq   = list(                                                # order 4
+      cell = cell_dimnames,
+      band = band_names,
+      time = NULL # Assign dates later
+    )
+  )
+  need_perm <- !identical(names(read_dim), read_band_order)
+
+  # Loop over subset years
   for (yy in years) {
     # Compute offset
     data_offset <- (yy - default(meta_data$firstyear, 1901)) /
@@ -703,50 +746,13 @@ read_io_data <- function(
     # Convert to array.
     # Note: order of nbands and nstep for "cellyear" (order = 1) is currently
     # not defined in LPJmL.
-    dim(year_data) <- switch(
-      default(meta_data$order, "cellyear"),
-      cellyear = c(
-        band = unname(default(meta_data$nbands, 1)),
-        time = unname(default(meta_data$nstep, 1)),
-        cell = unname(meta_data$ncell)
-      ),
-      yearcell = stop("Order yearcell not supported"),
-      cellindex = stop("Order cellindex not supported"),
-      cellseq = c(
-        cell = unname(meta_data$ncell),
-        band = unname(default(meta_data$nbands, 1)),
-        time = unname(default(meta_data$nstep, 1))
-      )
-    )
+    dim(year_data) <- read_dim
 
-    # Assign dimension names to array.
-    band_names <- default(
-      meta_data$band_names, seq_len(default(meta_data$nbands, 1))
-    )
-
-    cell_dimnames <- seq(
-      default(meta_data$firstcell, 0),
-      length.out = meta_data$ncell
-    )
-
-    dimnames(year_data) <- switch(
-      default(meta_data$order, "cellyear"),
-      cellyear  = list(                                                # order 1
-        band = band_names,
-        time = NULL, # Assign dates later
-        cell = cell_dimnames
-      ),
-      yearcell  = stop("Order yearcell not supported"),                # order 2
-      cellindex = stop("Order cellindex not supported"),               # order 3
-      cellseq   = list(                                                # order 4
-        cell = cell_dimnames,
-        band = band_names,
-        time = NULL # Assign dates later
-      )
-    )
+    dimnames(year_data) <- read_dimnames
 
     # Convert to read_band_order and apply subsetting along bands or cells
-    year_data <- aperm(year_data, perm = read_band_order)
+    if (need_perm)
+      year_data <- aperm(year_data, perm = read_band_order)
 
     # Apply any subsetting along bands or cells
     index <- which(!names(subset) %in% c("day", "month", "year", "time"))

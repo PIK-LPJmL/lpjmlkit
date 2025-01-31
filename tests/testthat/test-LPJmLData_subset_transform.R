@@ -154,10 +154,18 @@ test_that("test transform (time) method", {
     aperm(output$data, names(dim(output2)))
   )
 
+  output$transform("year_month_day")
+  # remove a month, check that remaining data is not affected
+  output$subset(month = -11)
+  output$transform("time")
+  expect_identical(
+    subset(output2, time = dimnames(output)$time)$data,
+    aperm(output$data, names(dim(output2)))
+  )
 })
 
 
-# test transform_time method
+# test transform_space method
 test_that("test transform (space) method", {
   file_name <- "../testdata/output/transp.bin.json"
   output <- read_io(filename = file_name)
@@ -291,5 +299,69 @@ test_that("test transform (space) method", {
   expect_error(
     output_trans$subset(coordinates = coordinates_numeric),
     "Values for coordinate pairs must be supplied as strings"
+  )
+})
+
+# test transforming daily data into different time formats
+test_that("test transform (time) method", {
+
+  file_name <- "../testdata/input/tas_gswp3-w5e5_obsclim_2015-2019.clm"
+  tas <- read_io(filename = file_name)
+
+  # transformation to "year_month_day" format
+  tas_time_transformed <- transform(tas, "year_month_day")
+  expect_true(all(is.na(tas_time_transformed$data[, 31, 2, , ])))
+
+  # back transformation to time format
+  tas_time_transformed$transform("time")
+  # check against original data
+  expect_identical(tas$data, tas_time_transformed$data)
+
+  # add grid for spatial transformation
+  tas$add_grid("../testdata/output/grid.bin.json")
+  # test NA handling of days in combination with spatial transformation
+  #   includes additional NAs in lat, lon matrix
+  tas_transformed <- transform(tas, "lat_lon")
+
+  # transformation to "year_month_day" format
+  tas_transformed$transform("year_month_day")
+  expect_true(all(is.na(tas_transformed$data[, , 31, 2, , ])))
+
+  # back transformation to time format
+  tas_transformed$transform("time")
+  # back transformation to cell format
+  tas_transformed$transform("cell")
+
+  # check against original data
+  expect_identical(tas$data, tas_time_transformed$data)
+
+  # test subsetting daily data with gaps in time and random shuffling
+  subset_tas <- subset(tas, time = sample(dim(tas)["time"])[-c(10, 200)])
+  missing_timestep <- setdiff(dimnames(tas)$time, dimnames(subset_tas)$time)
+
+  # transformation to "year_month_day" format, avoid NA warning
+  expect_warning(
+    tas_subset_transformed <- transform(subset_tas, "year_month_day"),
+    "gaps"
+  )
+  # back transformation to time format
+  tas_subset_transformed$transform("time")
+
+  # Timesteps removed randomly before transformation have been reintroduced
+  # containing NAs.
+  expect_true(
+    all(
+      is.na(subset(tas_subset_transformed, time = missing_timestep)$data)
+    )
+  )
+  # Non-removed timesteps should be restored to original sequence after
+  # transformation and be identical with original data.
+  remaining_time_steps <- setdiff(
+    dimnames(tas_subset_transformed)$time,
+    missing_timestep
+  )
+  expect_identical(
+    subset(tas, time = remaining_time_steps)$data,
+    subset(tas_subset_transformed, time = remaining_time_steps)$data
   )
 })

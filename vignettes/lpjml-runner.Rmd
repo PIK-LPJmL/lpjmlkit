@@ -39,8 +39,6 @@ To install LPJmL, read the [LPJmL installation instructions](https://github.com/
 operating systems in which the
 [working environment for LPJmL](https://github.com/PIK-LPJmL/LPJmL/blob/master/INSTALL)
 is configured!\
-For users on the PIK cluster: Load the `"lpjml"` module or add it to your 
-`".profile"`.
 &nbsp;
 
 ## Overview
