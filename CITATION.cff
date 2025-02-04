@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'lpjmlkit: Toolkit for Basic LPJmL Handling'
-version: 1.7.6
-date-released: '2025-01-27'
+version: 1.7.7
+date-released: '2025-02-04'
 abstract: A collection of basic functions to facilitate the work with the Dynamic
   Global Vegetation Model (DGVM) Lund-Potsdam-Jena managed Land (LPJmL) hosted at
   the Potsdam Institute for Climate Impact Research (PIK). It provides functions for
