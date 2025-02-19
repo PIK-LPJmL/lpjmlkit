@@ -427,6 +427,7 @@ submit_run <- function(sim_name,
                            further_slurm_options,
                            " -o ", stdout,
                            " -e ", stderr,
+                           " -cmd \"module purge; module load legacy gcc mpich/gcc netcdf/gcc/64/4.6.1 udunits/gcc/64/2.2.25 2023 json-c/0.16-GCCcore-12.3.0\"",
                            " ",
                            ntasks,
                            " ",
@@ -444,7 +445,7 @@ submit_run <- function(sim_name,
 
     # Run lpjsubmit.
     submit_status <- processx::run(command = "bash",
-                                   args = c("-c", inner_command),
+                                   args =c("-c", inner_command),
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
                                    wd = sim_path)
