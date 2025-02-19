@@ -443,8 +443,9 @@ submit_run <- function(sim_name,
     Sys.setenv(LPJROOT = model_path) # nolint:undesirable_function_linter.
 
     # Run lpjsubmit.
-    submit_status <- processx::run(command = "bash",
-                                   args = c("-c", inner_command),
+    args_vector <- strsplit(inner_command, " ")[[1]]
+    submit_status <- processx::run(command = "sbatch",
+                                   args =args_vector,
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
                                    wd = sim_path)
