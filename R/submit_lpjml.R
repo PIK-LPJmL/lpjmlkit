@@ -444,7 +444,7 @@ submit_run <- function(sim_name,
 
     # Run lpjsubmit.
     args_vector <- strsplit(inner_command, " ")[[1]]
-    submit_status <- processx::run(command = "sbatch",
+    submit_status <- processx::run(command = "bash",
                                    args =args_vector,
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
