@@ -1,7 +1,7 @@
 Package: lpjmlkit
 Type: Package
 Title: Toolkit for Basic LPJmL Handling
-Version: 1.7.7
+Version: 1.7.8
 Authors@R: c(
     person("Jannes", "Breier", , "jannesbr@pik-potsdam.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9055-6904")),
     person("Sebastian","Ostberg", , "ostberg@pik-potsdam.de", role = "aut", comment = c(ORCID = "0000-0002-2368-7015")),
@@ -56,4 +56,4 @@ Suggests:
     R6
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2025-02-04
+Date: 2025-02-27

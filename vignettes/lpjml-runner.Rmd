@@ -166,11 +166,7 @@ params <- tibble(
 )
 
 # write config files
-config_details <- write_config(
-  x = params, # pass the defined parameter tibble
-  model_path = model_path,
-  sim_path = sim_path,
-)
+config_details <- write_config(x = params,   model_path = model_path, sim_path = sim_path)
 
 
 
@@ -213,10 +209,8 @@ params <- tibble(
 )
 
 # write config files
-config_details <- write_config(x=params, model_path=model_path, sim_path=sim_path, debug = TRUE)
+config_details <- write_config(x = params, model_path = model_path, sim_path = sim_path, debug = TRUE)
 
-# check config & LPJmL
-#check_config(config_details, model_path, sim_path)
 
 # execute runs sequentially
 run_details <- run_lpjml(config_details, model_path, sim_path)
@@ -240,7 +234,7 @@ scheduler. Therefore LPJmL has to be "submitted".
 ```{r, echo = TRUE, eval = FALSE, highlight = TRUE}
 # create parameter tibble
 params <- tibble(
-  ntasks =1,
+  ntasks = 1,
   sim_name = c("spinup",
                "old_lu",
                "lu_toolbox"),
@@ -250,7 +244,7 @@ params <- tibble(
     "input_toolbox_30arcmin/cftfrac_1500-2017_64bands_f2o.clm"
   ),
   firstyear = c(1973, 1973, 1973),
-  outputyear = c(-1527, -1527,-1527),
+  outputyear = c(-1527, -1527, -1527),
   dependency = c(NA, "spinup", "spinup"),
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
@@ -270,14 +264,10 @@ config_details <- write_config(
 )
 
 # check config & LPJmL
-check_config(config_details[1,], model_path, sim_path)
+check_config(config_details[1, ], model_path, sim_path)
 
 # submit runs to slurm
-run_details <- submit_lpjml(
-  x = config_details,
-  model_path = model_path,
-  sim_path = sim_path,
-)
+run_details <- submit_lpjml(x = config_details, model_path = model_path, sim_path = sim_path)
 ```
 
 &nbsp;
