@@ -168,10 +168,10 @@ params <- tibble(
 
 # write config files
 config_details <- write_config(
-	x = params,   # pass the defined parameter tibble
-	model_path = model_path, 
-	sim_path = sim_path,
-	cjson_filename = "lpjml_config.cjson" # (default) the base config file
+  x = params,   # pass the defined parameter tibble
+  model_path = model_path,
+  sim_path = sim_path,
+  cjson_filename = "lpjml_config.cjson" # (default) the base config file
 )
 
 # read and view config
@@ -227,9 +227,9 @@ params <- tibble(
 
 # write config files
 config_details <- write_config(
-        x = params, 
-	model_path = model_path, 
-	sim_path = sim_path
+  x = params,
+  model_path = model_path,
+  sim_path = sim_path
 )
 
 # write config files
@@ -269,7 +269,7 @@ params <- tibble(
     NA,
     "input_toolbox_30arcmin/cftfrac_1500-2017_64bands_f2o.clm"
   ),
-    dependency = c(NA, "spinup", "spinup"),
+  dependency = c(NA, "spinup", "spinup"),
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
   #   (same for sclass, ntasks, blocking or constraint)
@@ -291,9 +291,10 @@ config_details <- write_config(
 check_config(config_details, model_path, sim_path)
 
 # submit runs to slurm
-run_details <- submit_lpjml(x = config_details, 
-	model_path = model_path, 
-	sim_path = sim_path
+run_details <- submit_lpjml(
+  x = config_details,
+  model_path = model_path,
+  sim_path = sim_path
 )
 ```
 
