@@ -427,6 +427,7 @@ submit_run <- function(sim_name,
                            further_slurm_options,
                            " -o ", stdout,
                            " -e ", stderr,
+                           " -cmd \"module purge; module load legacy gcc mpich/gcc netcdf/gcc/64/4.6.1 udunits/gcc/64/2.2.25 2023 json-c/0.16-GCCcore-12.3.0\"",
                            " ",
                            ntasks,
                            " ",
@@ -443,9 +444,7 @@ submit_run <- function(sim_name,
     Sys.setenv(LPJROOT = model_path) # nolint:undesirable_function_linter.
 
     # Run lpjsubmit.
-    args_vector <- strsplit(inner_command, " ")[[1]]
     submit_status <- processx::run(command = "bash",
-                                   args =args_vector,
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
                                    wd = sim_path)
