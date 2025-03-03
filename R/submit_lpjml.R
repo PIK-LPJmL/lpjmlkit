@@ -445,6 +445,7 @@ submit_run <- function(sim_name,
 
     # Run lpjsubmit.
     submit_status <- processx::run(command = "bash",
+                                   args =c("-c", inner_command),
                                    cleanup_tree = TRUE,
                                    error_on_status = FALSE,
                                    wd = sim_path)
