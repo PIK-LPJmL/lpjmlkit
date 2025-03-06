@@ -194,7 +194,8 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          session_commands = "",
                          slurm_options = list(),
                          no_submit = FALSE,
-                         output_path = NULL) {
+                         output_path = NULL,
+                         log_folder = FALSE) {
 
   warn_runner_os("submit_lpjml")
 
@@ -226,6 +227,12 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
         )[[1]]
       }
     ))
+  }
+
+  if (log_folder) {
+    log_path <- "logs/"
+  } else {
+    log_path <- ""
   }
 
   x$type <- "simulation"
@@ -281,7 +288,8 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                             constraint,
                             dependency,
                             session_commands,
-                            slurm_options)
+                            slurm_options,
+                            log_path)
 
           if (job$status == 0) {
             x$job_id[sim_idx] <- strsplit(
@@ -333,7 +341,8 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                           constraint,
                           dependency = NA,
                           session_commands,
-                          slurm_options)
+                          slurm_options,
+                          log_path)
 
         if (job$status == 0) {
           x$job_id[sim_idx] <- strsplit(
@@ -370,7 +379,8 @@ submit_run <- function(sim_name,
                        constraint,
                        dependency,
                        session_commands,
-                       slurm_options) {
+                       slurm_options,
+                       log_path = "") {
 
   config_file <- paste0("config_",
                         sim_name,
@@ -382,6 +392,7 @@ submit_run <- function(sim_name,
                    "/output/",
                    sim_name,
                    "/",
+                   log_path,
                    "outfile_",
                    timestamp,
                    ".out")
@@ -390,6 +401,7 @@ submit_run <- function(sim_name,
                    "/output/",
                    sim_name,
                    "/",
+                   log_path,
                    "errfile_",
                    timestamp,
                    ".err")
@@ -398,6 +410,7 @@ submit_run <- function(sim_name,
                           "/output/",
                           sim_name,
                           "/",
+                          log_path,
                           "config_",
                           timestamp,
                           ".json")

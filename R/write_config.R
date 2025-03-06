@@ -275,7 +275,8 @@ write_config <- function(x,
                          debug = FALSE,
                          params = NULL,
                          output_path = NULL,
-                         js_filename = NULL) {
+                         js_filename = NULL,
+                         log_folder = FALSE) {
 
 
   # Deprecate argument params
@@ -378,7 +379,8 @@ write_config <- function(x,
                             cjson_filename = cjson_filename,
                             config_tmp = config_tmp,
                             slurm_args = slurm_args,
-                            commit_hash = commit_hash)
+                            commit_hash = commit_hash,
+                            log_folder = log_folder)
 
         # Stop if an error occurs
       }, error = function(e) {
@@ -428,7 +430,8 @@ write_config <- function(x,
         cjson_filename = cjson_filename,
         config_tmp = config_tmp,
         slurm_args = slurm_args,
-        commit_hash = commit_hash
+        commit_hash = commit_hash,
+        log_folder = log_folder
       )
     }
   }
@@ -467,7 +470,8 @@ write_single_config <- function(x,
                                 cjson_filename,
                                 config_tmp,
                                 slurm_args,
-                                commit_hash = "") {
+                                commit_hash = "",
+                                log_folder = FALSE) {
 
   # Read json file without simplification (to vector) to avoid destroying the
   #   original json structure (important to be readable for LPJmL).
@@ -540,7 +544,8 @@ write_single_config <- function(x,
                          output_format = output_format,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
-                         dir_create = !testthat::is_testing()) %>%
+                         dir_create = !testthat::is_testing(),
+                         log_folder = log_folder) %>%
 
     # Insert parameters/keys from x.
     #   Columns as keys and rows as values (values, vectors possible).
@@ -613,10 +618,16 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  output_format,
                                  output_list,
                                  output_timestep,
-                                 dir_create = FALSE) {
+                                 dir_create = FALSE,
+                                 log_folder = FALSE) {
 
   # Concatenate output path and create folder if set
-  opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
+  if (log_folder) {
+    opath <- paste(sim_path, "output", params[["sim_name"]], "logs", "", sep = "/")
+  } else {
+    opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
+  }
+  
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
   if (is.null(output_list) || x[["nspinup"]] > 500) {
