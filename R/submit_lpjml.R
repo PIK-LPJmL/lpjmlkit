@@ -191,6 +191,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          wtime = "",
                          blocking = "",
                          constraint = "",
+                         session_commands = "",
                          slurm_options = list(),
                          no_submit = FALSE,
                          output_path = NULL) {
@@ -231,7 +232,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
   x$job_id <- NA
   x$status <- "failed"
   slurm_args <- c(
-    "sclass", "ntasks", "wtime", "blocking", "constraint", "slurm_options"
+    "sclass", "ntasks", "wtime", "blocking", "constraint", "session_commands", "slurm_options"
   )
 
   if ("order" %in% colnames(x)) {
@@ -279,6 +280,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                             blocking,
                             constraint,
                             dependency,
+                            session_commands,
                             slurm_options)
 
           if (job$status == 0) {
@@ -330,6 +332,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                           blocking,
                           constraint,
                           dependency = NA,
+                          session_commands,
                           slurm_options)
 
         if (job$status == 0) {
@@ -366,6 +369,7 @@ submit_run <- function(sim_name,
                        blocking,
                        constraint,
                        dependency,
+                       session_commands,
                        slurm_options) {
 
   config_file <- paste0("config_",
@@ -424,10 +428,12 @@ submit_run <- function(sim_name,
                            ifelse(!is.na(dependency),
                                   paste0(" -dependency ", dependency),
                                   ""),
+                           ifelse(!is.na(session_commands),
+                                  paste0(" -cmd \"", session_commands, "\""),
+                                  ""),
                            further_slurm_options,
                            " -o ", stdout,
                            " -e ", stderr,
-                           " -cmd \"module purge; module load legacy gcc mpich/gcc netcdf/gcc/64/4.6.1 udunits/gcc/64/2.2.25 2023 json-c/0.16-GCCcore-12.3.0\"",
                            " ",
                            ntasks,
                            " ",
