@@ -621,14 +621,17 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  dir_create = FALSE,
                                  log_folder = FALSE) {
 
-  # Concatenate output path and create folder if set
+  # Concatenate output path and create folder if set.
+  # If log_folder is set, create a subfolder for logs but keep 
+  # the output folder as the main output folder.
   if (log_folder) {
-    opath <- paste(sim_path, "output", params[["sim_name"]], "logs", "", sep = "/")
+    output_struct <- paste(sim_path, "output", params[["sim_name"]], "logs", "", sep = "/")
   } else {
-    opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
+    output_struct <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   }
+  opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   
-  if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
+  if (dir_create) dir.create(output_struct, recursive = TRUE, showWarnings = FALSE)
 
   if (is.null(output_list) || x[["nspinup"]] > 500) {
     for (x_id in seq_len(length(x[["output"]]))) {
