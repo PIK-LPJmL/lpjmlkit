@@ -85,7 +85,7 @@ A BibTeX entry for LaTeX users is
   title = {lpjmlkit: Toolkit for Basic LPJmL Handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Björn Wirth and Sara Minoli and Fabian Stenzel and David Hötten and Christoph Müller},
   doi = {10.5281/zenodo.7773134},
-  date = {2025-03-03},
+  date = {2025-03-17},
   year = {2025},
   url = {https://github.com/PIK-LPJmL/lpjmlkit},
   note = {Version: 1.7.8},

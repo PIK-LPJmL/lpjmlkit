@@ -89,28 +89,28 @@ check_config <- function(x,
   config_files <- paste0("config_", x$sim_name, ".json")
 
   if (length(config_files) > 1) {
-      files <- paste0(sim_path,
-                      "/configurations/",
-                      config_files,
-                      collapse = " ")
+    files <- paste0(sim_path,
+                    "/configurations/",
+                    config_files,
+                    collapse = " ")
 
-      # For loop in bash -> background: process limit on the cluster
-      inner_command <- paste0("files=( ",
-                              paste("\"", files, "\"", collapse = " "),
-                              " ) ;",
-                              "for ff in ${files[@]};",
-                              "do echo '\n'$ff: >&2;",
-                              "echo '\n'$ff: ;",
-                              model_path,
-                              "/bin/lpjcheck", # nolint:absolute_path_linter.
-                              " $ff; done;")
+    # For loop in bash -> background: process limit on the cluster
+    inner_command <- paste0("files=( ",
+                            paste("\"", files, "\"", collapse = " "),
+                            " ) ;",
+                            "for ff in ${files[@]};",
+                            "do echo '\n'$ff: >&2;",
+                            "echo '\n'$ff: ;",
+                            model_path,
+                            "/bin/lpjcheck", # nolint:absolute_path_linter.
+                            " $ff; done;")
 
   } else {
     inner_command <- paste0(model_path,
-                      "/bin/lpjcheck ", # nolint:absolute_path_linter.
-                      sim_path,
-                      "/configurations/",
-                      config_files)
+                            "/bin/lpjcheck ", # nolint:absolute_path_linter.
+                            sim_path,
+                            "/configurations/",
+                            config_files)
   }
 
   # Call sh command via processx to kill any subprocesses after

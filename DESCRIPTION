@@ -56,4 +56,4 @@ Suggests:
     R6
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2025-03-03
+Date: 2025-03-17

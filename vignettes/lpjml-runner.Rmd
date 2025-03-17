@@ -168,7 +168,7 @@ params <- tibble(
 
 # write config files
 config_details <- write_config(
-  x = params,   # pass the defined parameter tibble
+  x = params, # pass the defined parameter tibble
   model_path = model_path,
   sim_path = sim_path,
   cjson_filename = "lpjml_config.cjson" # (default) the base config file
@@ -178,7 +178,8 @@ config_details <- write_config(
 config_lu <- read_config(
   filename = paste0(sim_path, "/configurations/config_lu.json") # nolint:absolute_path_linter.
 )
-View(config_lu) #comment this out if working directly on cluster
+
+head(config_lu)
 
 # check config & LPJmL
 check_config(
@@ -273,7 +274,6 @@ params <- tibble(
   # slurm option wtime: analogous to sbatch -wtime defines slurm option
   #   individually per config, overwrites submit_lpjml argument
   #   (same for sclass, ntasks, blocking or constraint)
-  restart = c(FALSE, FALSE, FALSE),
   wtime = c("15:00:00", "3:00:00", "3:00:00")
 )
 
@@ -284,7 +284,7 @@ config_details <- write_config(
   sim_path = sim_path,
   output_list = c("vegc", "soilc", "cftfrac", "pft_harvestc", "irrig"),
   output_list_timestep = c("annual", "annual", "annual", "annual", "monthly"),
-  output_format = "clm",
+  output_format = "clm"
 )
 
 # check config & LPJmL
@@ -297,7 +297,6 @@ run_details <- submit_lpjml(
   sim_path = sim_path
 )
 ```
-
 &nbsp;
 &nbsp;
 
