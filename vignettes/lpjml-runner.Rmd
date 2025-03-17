@@ -152,7 +152,6 @@ params <- tibble(
   sim_name = c("spinup", "lu", "pnv"),
   landuse = c("no", "yes", "no"),
   # only for demonstration
-  nspinup = c(1000, NA, NA),
   reservoir = c(FALSE, TRUE, FALSE),
   startgrid = c(27410, 27410, 27410),
   endgrid = c(27410, 27410, 27410),
@@ -218,7 +217,6 @@ params <- tibble(
     NA,
     "input_toolbox_30arcmin/cftfrac_1500-2017_64bands_f2o.clm"
   ),
-  nspinup = c(1000, 1000, NA, NA, NA),
   gsi_phenology = c(FALSE, TRUE, FALSE, TRUE, TRUE),
   startgrid = c(27410, 27410, 27410, 27410, 27410),
   endgrid =   c(27410, 27410, 27410, 27410, 27410),
@@ -235,7 +233,6 @@ config_details <- write_config(
 
 # write config files
 config_details <- write_config(params, model_path, sim_path)
-
 
 # check config & LPJmL
 check_config(config_details, model_path, sim_path)
