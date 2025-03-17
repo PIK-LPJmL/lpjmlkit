@@ -187,7 +187,6 @@ check_config(
   sim_path = sim_path
 )
 
-
 # execute runs sequentially
 run_details <- run_lpjml(
   config_details,
