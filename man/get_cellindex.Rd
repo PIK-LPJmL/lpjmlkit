@@ -15,15 +15,18 @@ get_cellindex(
 \arguments{
 \item{grid_filename}{A string representing the grid file name.}
 
-\item{extent}{A numeric vector (lonmin, lonmax, latmin, latmax) containing the
-longitude and latitude boundaries between which values included in the subset.}
+\item{extent}{A numeric vector (lonmin, lonmax, latmin, latmax) containing
+the longitude and latitude boundaries between which values included in the
+subset.}
 
-\item{coordinates}{A list of two named (lon, lat) numeric vectors representing the coordinates.}
+\item{coordinates}{A list of two named (lon, lat) numeric vectors
+representing the coordinates.}
 
-\item{shape}{A terra SpatVector object in the WGS 84 coordinate reference system
-representing the shape to subset the grid.}
+\item{shape}{A terra SpatVector object in the WGS 84 coordinate reference
+system representing the shape to subset the grid.}
 
-\item{simplify}{A logical indicating whether to simplify the output to a vector.}
+\item{simplify}{A logical indicating whether to simplify the output to a
+vector.}
 }
 \value{
 Either an LPJmLData object containing the grid or a vector subsetted
@@ -45,7 +48,8 @@ number is a sequence from 1 to the number of rows in the data frame.
 
 If an \code{extent} is provided, the function filters the cells to include only
 those within the specified longitude and latitude range. The \code{extent} should
-be a numeric vector of length 4 in the form c(lonmin, lonmax, latmin, latmax).
+be a numeric vector of length 4 in the form c(lonmin, lonmax, latmin,
+latmax).
 
 If a list of \code{coordinates} is provided, the function filters the cells to
 include only those that match the specified coordinates. The \code{coordinates}
@@ -69,7 +73,8 @@ length, and if the \code{coordinates} list contains two vectors of equal length.
 \dontrun{
 get_cellindex(
   grid_filename = "my_grid.bin.json",
-  extent = c(-123.25, -122.75, 49.25, 49.75) # (lonmin, lonmax, latmin, latmax)
+  extent = c(-123.25, -122.75, 49.25, 49.75) # (lonmin, lonmax, latmin,
+                                                latmax)
 )
 get_cellindex(
   grid_filename = "my_grid.bin.json",

@@ -36,10 +36,10 @@ read_meta <- function(filename, ...) {
 
   # Meta (JSON) file handling
   if (file_type == "meta") {
-    meta_object <- jsonlite::read_json(path = filename, simplify = TRUE) %>%
+    meta_object <- jsonlite::read_json(path = filename, simplifyVector = TRUE) %>%
       LPJmLMetaData$new(data_dir = pathname)
 
-  # Handling of input or output file containing a header
+    # Handling of input or output file containing a header
   } else if (file_type == "clm") {
     header <- read_header(filename, ...)
     additional_attributes <- list(
@@ -53,7 +53,7 @@ read_meta <- function(filename, ...) {
       data_dir = pathname
     )
 
-  # Other formats are not supported yet
+    # Other formats are not supported yet
   } else {
     stop("Non readable (meta) file format.")
   }

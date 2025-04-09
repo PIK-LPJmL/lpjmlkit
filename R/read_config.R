@@ -55,7 +55,7 @@ read_config <- function(filename,
   # Read compiled config files. detect_io_type returns "json" for pure JSON without
   # comments.
   if (tolower(file_type) == "json") {
-    tmp_json <- jsonlite::read_json(path = filename, simplify = FALSE)
+    tmp_json <- jsonlite::read_json(path = filename, simplifyVector = FALSE)
 
   } else {
     # Read compilable cjson or js files - the standard default config files. These
