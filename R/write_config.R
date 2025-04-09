@@ -598,7 +598,7 @@ parse_config <- function(path,
                             ),
                             wd = path,
                             cleanup_tree = TRUE)$stdout %>%
-    jsonlite::parse_json(simplify = FALSE)
+    jsonlite::parse_json(simplifyVector = FALSE)
 
   tmp_json
 }

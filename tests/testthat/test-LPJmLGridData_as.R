@@ -35,7 +35,7 @@ test_that("raster export lon_lat", {
   output2 <- transform(output, to = "lon_lat")
   replace_array <- output2$data
   # create tmp_raster with expected dimensions and coordinate ref system
-  test_raster <- raster::raster(res = 0.5,
+  test_raster <- raster::raster(resolution = 0.5,
                                 crs = raster_crs_fallback("EPSG:4326"),
                                 xmn = -87.5,
                                 xmx = -87,
