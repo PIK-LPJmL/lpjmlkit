@@ -47,7 +47,8 @@
 #'   Using `exclusive` should prevent interference of other batch jobs with
 #'   LPJmL. More information at <https://www.pik-potsdam.de> and
 #'   <https://slurm.schedmd.com/sbatch.html>.
-
+#'
+#' @param partition Character string defining the slurm partition type.
 #'
 #' @param slurm_options A named list of further arguments to be passed to sbatch.
 #'   E.g. list(`mail-user` = "max.mustermann@pik-potsdam.de")
@@ -59,6 +60,15 @@
 #'
 #' @param output_path Argument is deprecated as of version 1.0; use sim_path
 #'   instead.
+#' 
+#' @param log_folder Logical. If `TRUE`, the output and error files are
+#'  written to a subfolder called `"logs/"` within the simulation output
+#' #  directory. If `FALSE`, the output and error files are written to the
+#'  simulation output directory. Defaults to `FALSE`.
+#' 
+#' @param session_commands Character string defining commands to be executed
+#'  before the job is started. This is useful to load modules or set
+#'  environment variables. 
 #'
 #' @return See `x`, extended by columns `"type"`, `"job_id"` and `"status"`.
 #'
