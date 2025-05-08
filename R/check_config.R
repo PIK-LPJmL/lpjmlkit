@@ -63,7 +63,8 @@ check_config <- function(x,
                          sim_path = NULL,
                          return_output = FALSE,
                          raise_error = FALSE,
-                         output_path = NULL) {
+                         output_path = NULL,
+                         confirm_overwrite = FALSE) {
 
   warn_runner_os("check_config")
 
@@ -114,7 +115,24 @@ check_config <- function(x,
   }
 
   # Call sh command via processx to kill any subprocesses after
-  #   background: process limit on the cluster
+  # background: process limit on the cluster
+
+  # Check for existing output files
+  output_dirs <- file.path(sim_path, "output", x$sim_name)
+  existing_outputs <- sapply(output_dirs, function(dir) {
+    dir.exists(dir) && length(list.files(dir, recursive = TRUE)) > 0
+  })
+
+  if (any(existing_outputs) && !confirm_overwrite) {
+    stop(
+      paste0(
+        "Output already exists for: ",
+        paste(x$sim_name[existing_outputs], collapse = ", "),
+        ".\nAborting to prevent overwriting. Set `confirm_overwrite = TRUE` to override."
+      )
+    )
+  }
+
   check <- processx::run(command = "bash",
                          args = c("-c", inner_command),
                          error_on_status = raise_error,
