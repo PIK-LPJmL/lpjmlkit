@@ -50,6 +50,10 @@
 #'
 #' @param partition Character string defining the slurm partition type.
 #'
+#' @param exclusive Logical defining whether to use exclusive node allocation.
+#'   If `TRUE`, adds `--exclusive` flag to the SLURM submit command.
+#'   Defaults to `FALSE`.
+#'
 #' @param slurm_options A named list of further arguments to be passed to sbatch.
 #'   E.g. list(`mail-user` = "max.mustermann@pik-potsdam.de")
 #'   More information at <https://www.pik-potsdam.de> and
@@ -202,6 +206,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                          blocking = "",
                          constraint = "",
                          partition = "",
+                         exclusive = FALSE,
                          session_commands = "",
                          slurm_options = list(),
                          no_submit = FALSE,
@@ -250,7 +255,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
   x$job_id <- NA
   x$status <- "failed"
   slurm_args <- c(
-    "sclass", "ntasks", "wtime", "blocking", "constraint", "session_commands", "slurm_options"
+    "sclass", "ntasks", "wtime", "blocking", "constraint", "exclusive", "session_commands", "slurm_options"
   )
 
   if ("order" %in% colnames(x)) {
@@ -298,6 +303,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                             blocking,
                             constraint,
                             partition,
+                            exclusive,
                             dependency,
                             session_commands,
                             slurm_options,
@@ -352,6 +358,7 @@ submit_lpjml <- function(x, # nolint:cyclocomp_linter.
                           blocking,
                           constraint,
                           partition,
+                          exclusive,
                           dependency = NA,
                           session_commands,
                           slurm_options,
@@ -391,6 +398,7 @@ submit_run <- function(sim_name,
                        blocking,
                        constraint,
                        partition,
+                       exclusive,
                        dependency,
                        session_commands,
                        slurm_options,
@@ -429,18 +437,28 @@ submit_run <- function(sim_name,
                           timestamp,
                           ".json")
 
+  # Add exclusive option to slurm_options if exclusive is TRUE
+  if (exclusive) {
+    if (is.null(slurm_options) || !is.list(slurm_options)) {
+      slurm_options <- list()
+    }
+    slurm_options[["exclusive"]] <- ""
+  }
+  
   if (is.list(slurm_options) && length(slurm_options) > 0) {
     further_slurm_options <- paste0(
-      " -option ", names(slurm_options), "=", slurm_options, collapse = " "
+      " -option ", names(slurm_options), 
+      ifelse(slurm_options == "", "", paste0("=", slurm_options)), 
+      collapse = " "
     )
   } else {
     further_slurm_options <- ""
   }
 
-  inner_command <-  paste0(model_path, "/bin/lpjsubmit", # nolint:absolute_path_linter.
+  inner_command <-  paste0(model_path, "/bin/lpjsubmit_slurm", # nolint:absolute_path_linter.
                            " -nocheck",
                            " -class ", sclass,
-                          #  " -norun",
+                           " -norun",
                            ifelse(group != "",
                                   paste0(" -group ", group),
                                   ""),
