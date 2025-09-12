@@ -458,7 +458,7 @@ submit_run <- function(sim_name,
   inner_command <-  paste0(model_path, "/bin/lpjsubmit_slurm", # nolint:absolute_path_linter.
                            " -nocheck",
                            " -class ", sclass,
-                           " -norun",
+                          #  " -norun",
                            ifelse(group != "",
                                   paste0(" -group ", group),
                                   ""),
