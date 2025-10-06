@@ -8,11 +8,12 @@ run_lpjml(
   x,
   model_path = ".",
   sim_path = NULL,
-  run_cmd = "srun --propagate",
+  run_cmd = "mpirun ",
   parallel_cores = 1,
   write_stdout = FALSE,
   raise_error = TRUE,
-  output_path = NULL
+  output_path = NULL,
+  debug = FALSE
 )
 }
 \arguments{
@@ -48,6 +49,9 @@ non-zero exit status. Defaults to \code{TRUE}.}
 
 \item{output_path}{Argument is deprecated as of version 1.0; use sim_path
 instead.}
+
+\item{debug}{Logical. If \code{TRUE}, only the command to run LPJmL is printed
+and parallelization is switched off.}
 }
 \value{
 See \code{x}, extended by columns \code{"type"}, \code{"job_id"} and \code{"status"}.

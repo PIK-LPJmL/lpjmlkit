@@ -38,6 +38,9 @@
 #' @param output_path Argument is deprecated as of version 1.0; use sim_path
 #'   instead.
 #'
+#' @param debug Logical. If `TRUE`, only the command to run LPJmL is printed
+#'   and parallelization is switched off.
+#'
 #' @return See `x`, extended by columns `"type"`, `"job_id"` and `"status"`.
 #'
 #' @details
@@ -164,16 +167,22 @@
 #'
 #' @md
 #' @export
-run_lpjml <- function(x,
+run_lpjml <- function(x, # nolint:cyclocomp_linter.
                       model_path = ".",
                       sim_path = NULL,
-                      run_cmd = "srun --propagate",
+                      run_cmd = "mpirun ",
                       parallel_cores = 1,
                       write_stdout = FALSE,
                       raise_error = TRUE,
-                      output_path = NULL) {
+                      output_path = NULL,
+                      debug = FALSE) {
 
   warn_runner_os("run_lpjml")
+
+  if (run_cmd != "" && !grepl(" $", run_cmd)) {
+    run_cmd <- paste0(run_cmd, " ")
+    message("Note: Added trailing space to run_cmd")
+  }
 
   # Check if model_path is set or unit test flag provided
   if (!dir.exists(model_path)) {
@@ -212,9 +221,10 @@ run_lpjml <- function(x,
     for (order in unique(sort(x$order))) {
       sim_names <- x$sim_name[which(x$order == order)]
 
-      if (parallel_cores == 1) {
+      if (parallel_cores == 1 || debug) { # nolint:undesirable_function_linter.
         do_sequential(
-          sim_names, model_path, sim_path, run_cmd, write_stdout, raise_error
+          sim_names, model_path, sim_path, run_cmd, write_stdout, raise_error,
+          debug = debug # nolint:undesirable_function_linter.
         )
       } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
         do_parallel(
@@ -230,9 +240,10 @@ run_lpjml <- function(x,
     }
 
   } else {
-    if (parallel_cores == 1) {
+    if (parallel_cores == 1 || debug) { # nolint:undesirable_function_linter.
       do_sequential(
-        x$sim_name, model_path, sim_path, run_cmd, write_stdout, raise_error
+        x$sim_name, model_path, sim_path, run_cmd, write_stdout, raise_error,
+        debug = debug # nolint:undesirable_function_linter.
       )
     } else if (parallel_cores > 1 && Sys.getenv("SLURM_JOB_ID") != "") {
       do_parallel(
@@ -258,7 +269,8 @@ do_run <- function(sim_name,
                    sim_path,
                    run_cmd,
                    write_stdout,
-                   raise_error) {
+                   raise_error,
+                   debug) {
 
   config_file <- paste0("config_",
                         sim_name,
@@ -279,6 +291,9 @@ do_run <- function(sim_name,
                            sim_path,
                            "/configurations/",
                            config_file)
+  if (debug) { # nolint:undesirable_function_linter.
+    message("Debug mode is on, only printing command:\n", inner_command)
+  }
 
   stdout_file <- ifelse(write_stdout,
                         paste0(sim_path,
@@ -328,7 +343,8 @@ do_sequential <- function(sim_names,
                           sim_path,
                           run_cmd,
                           write_stdout,
-                          raise_error) {
+                          raise_error,
+                          debug) {
 
   # tryCatch to unset and set MPI for function call outside of slurm job on
   #   an HPC cluster even when function call is interrupted or has thrown
@@ -343,12 +359,13 @@ do_sequential <- function(sim_names,
       mpi_var <- NULL
       # If not specified by the user set number of processes to 1 to run lpjml
       #  in interactive mode
-      if (run_cmd == "mpirun") {
+      if (run_cmd == "mpirun " && Sys.getenv("SLURM_JOB_ID") == "") {
         run_cmd <- paste0(run_cmd, " -np 1 ")
       }
     }
     for (sim_name in sim_names) {
-      do_run(sim_name, model_path, sim_path, run_cmd, write_stdout, raise_error)
+      do_run(sim_name, model_path, sim_path, run_cmd, write_stdout, raise_error,
+             debug = debug) # nolint:undesirable_function_linter.
     }
   }, finally = {
     # Check if slurm is available
