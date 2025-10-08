@@ -98,7 +98,7 @@ specify.
   random_seed = c(42, 404),
   `pftpar[[1]]$name` = c("first_tree", NA),
   `param$k_temp` = c(NA, 0.03),
-  new_phenology = c(TRUE, FALSE)
+  gsi_phenology = c(TRUE, FALSE)
 )
 
 my_params1
@@ -223,7 +223,7 @@ my_params <- tibble(
   random_seed = c(12, 404),
   `pftpar[[1]]$name` = c("first_tree", NA),
   `param$k_temp` = c(NA, 0.03),
-  new_phenology = c(TRUE, FALSE)
+  gsi_phenology = c(TRUE, FALSE)
 )
 
 config_details <- write_config(

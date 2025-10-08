@@ -3,7 +3,7 @@ test_that("test LPJmLMetaData content", {
   file_name <- "../testdata/output/pft_npp.bin.json"
 
   # read in json data via jsonlite library
-  meta_list <- jsonlite::read_json(path = file_name, simplify = TRUE)
+  meta_list <- jsonlite::read_json(path = file_name, simplifyVector = TRUE)
 
   # read in meta data to LPJmLMetaData object
   meta_data <- read_meta(
@@ -29,20 +29,20 @@ test_that("test LPJmLMetaData as_header", {
 
   # create header object
   test_header <- create_header(
-      name = "LPJDUMMY",
-      version = 4,
-      order = 4,
-      firstyear = 2001,
-      nyear = 11,
-      firstcell = 10000,
-      ncell = 3,
-      nbands = 43,
-      cellsize_lon = 0.5,
-      cellsize_lat = 0.5,
-      datatype = 3,
-      nstep = 1,
-      timestep = 1,
-      verbose = FALSE
+    name = "LPJDUMMY",
+    version = 4,
+    order = 4,
+    firstyear = 2001,
+    nyear = 11,
+    firstcell = 10000,
+    ncell = 3,
+    nbands = 43,
+    cellsize_lon = 0.5,
+    cellsize_lat = 0.5,
+    datatype = 3,
+    nstep = 1,
+    timestep = 1,
+    verbose = FALSE
   )
 
   # test if meta_data header export matches that of created header

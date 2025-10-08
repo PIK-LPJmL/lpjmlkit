@@ -451,7 +451,7 @@ LPJmLData$set(
         multi_layer <- multi_dims[which(multi_dims != "cell")]
 
         tmp_rast <- terra::rast(tmp_rast,
-                                nl = dim(data_subset$data)[multi_layer],
+                                nlyrs = dim(data_subset$data)[multi_layer],
                                 vals = NA)
 
         names(tmp_rast) <- dimnames(data_subset$data)[[multi_layer]]
@@ -590,8 +590,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   if (is_terra) {
     tmp_raster <- terra::rast(
-      res = c(data_subset$meta$cellsize_lon,
-              data_subset$meta$cellsize_lat),
+      resolution = c(data_subset$meta$cellsize_lon,
+                     data_subset$meta$cellsize_lat),
       xmin = grid_extent[1, 1],
       xmax = grid_extent[2, 1],
       ymin = grid_extent[1, 2],
@@ -602,8 +602,8 @@ create_tmp_raster <- function(data_subset, is_terra = FALSE) {
 
   } else {
     tmp_raster <- raster::raster(
-      res = c(data_subset$meta$cellsize_lon,
-              data_subset$meta$cellsize_lat),
+      resolution = c(data_subset$meta$cellsize_lon,
+                     data_subset$meta$cellsize_lat),
       xmn = grid_extent[1, 1],
       xmx = grid_extent[2, 1],
       ymn = grid_extent[1, 2],

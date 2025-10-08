@@ -123,7 +123,7 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
 
       # Update grid meta data
       self$.__set_data__(
-        drop_omit(self$data, omit = "cell")
+        drop_omit(self$data, omit_dim = "cell")
       )
 
       # Update grid meta data

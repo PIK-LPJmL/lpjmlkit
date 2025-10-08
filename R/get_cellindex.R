@@ -9,12 +9,15 @@
 #' to correct it.
 #'
 #' @param grid_filename A string representing the grid file name.
-#' @param extent A numeric vector (lonmin, lonmax, latmin, latmax) containing the
-#'  longitude and latitude boundaries between which values included in the subset.
-#' @param coordinates A list of two named (lon, lat) numeric vectors representing the coordinates.
-#' @param shape A terra SpatVector object in the WGS 84 coordinate reference system
-#' representing the shape to subset the grid.
-#' @param simplify A logical indicating whether to simplify the output to a vector.
+#' @param extent A numeric vector (lonmin, lonmax, latmin, latmax) containing
+#'   the longitude and latitude boundaries between which values included in the
+#'   subset.
+#' @param coordinates A list of two named (lon, lat) numeric vectors
+#'   representing the coordinates.
+#' @param shape A terra SpatVector object in the WGS 84 coordinate reference
+#'   system representing the shape to subset the grid.
+#' @param simplify A logical indicating whether to simplify the output to a
+#'   vector.
 #'
 #'
 #' @return Either an LPJmLData object containing the grid or a vector subsetted
@@ -25,7 +28,8 @@
 #' \dontrun{
 #' get_cellindex(
 #'   grid_filename = "my_grid.bin.json",
-#'   extent = c(-123.25, -122.75, 49.25, 49.75) # (lonmin, lonmax, latmin, latmax)
+#'   extent = c(-123.25, -122.75, 49.25, 49.75) # (lonmin, lonmax, latmin,
+#'                                                 latmax)
 #' )
 #' get_cellindex(
 #'   grid_filename = "my_grid.bin.json",
@@ -39,7 +43,8 @@
 #'
 #' If an `extent` is provided, the function filters the cells to include only
 #' those within the specified longitude and latitude range. The `extent` should
-#' be a numeric vector of length 4 in the form c(lonmin, lonmax, latmin, latmax).
+#' be a numeric vector of length 4 in the form c(lonmin, lonmax, latmin,
+#'                                               latmax).
 #'
 #' If a list of `coordinates` is provided, the function filters the cells to
 #' include only those that match the specified coordinates. The `coordinates`
@@ -58,7 +63,10 @@
 #' specific error messages for different error conditions. For example, it
 #' checks if the `grid_filename` exists, if the `extent` vector has the correct
 #' length, and if the `coordinates` list contains two vectors of equal length.
-get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shape = NULL, simplify = TRUE) {
+get_cellindex <- function(grid_filename, extent = NULL,
+                          coordinates = NULL,
+                          shape = NULL,
+                          simplify = TRUE) {
   # check if filepath is valid
   check_filepath(grid_filename)
   # check if (only) one of extent or coordinates is provided
@@ -85,7 +93,8 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shap
   lon_range <- range(cells$lon)
   lat_range <- range(cells$lat)
 
-  # Check if extent values are within the longitude and latitude range in the cells
+  # Check if extent values are within the longitude and latitude range in the
+  #   cells
   if (!is.null(extent)) {
     cells$cellindex <- as.numeric(row.names(cells)) + 1
 
@@ -118,7 +127,8 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shap
     }
   }
 
-  # Check if coordinates are within the longitude and latitude range in the cells
+  # Check if coordinates are within the longitude and latitude range in the
+  #   cells
   if (!is.null(coordinates)) {
     out_of_bounds <- coordinates[[1]] < lon_range[1] |
       coordinates[[1]] > lon_range[2] |
@@ -161,7 +171,8 @@ get_cellindex <- function(grid_filename, extent = NULL, coordinates = NULL, shap
       dplyr::select("x", "y")
 
     cells <- grid_lonlat |>
-      subset(coordinates = lapply(list(lon = cell_coords$x, lat = cell_coords$y),
+      subset(coordinates = lapply(list(lon = cell_coords$x,
+                                       lat = cell_coords$y),
                                   FUN = as.character))
   }
 
@@ -189,7 +200,8 @@ check_extent <- function(extent) {
     stop("extent must be a numeric vector of length 4.")
   }
 
-  # check if character vector present and convert to numeric (to be consistent with coordinates) # nolint
+  # check if character vector present and convert to numeric (to be consistent
+  #   with coordinates)
   if (is.character(extent)) {
     extent <- as.numeric(extent)
   }
@@ -207,7 +219,8 @@ check_extent <- function(extent) {
 # Check if both extent and coordinates are provided
 check_multiple <- function(extent, coordinates, shape) {
   if (is.null(extent) && is.null(coordinates) && is.null(shape)) {
-    warning("Neither extent, coordinates or shape provided. Full grid will be returned.")
+    warning("Neither extent, coordinates or shape provided.",
+            " Full grid will be returned.")
   }
   if ((!is.null(extent) && !is.null(coordinates)) ||
         (!is.null(extent) && !is.null(shape)) ||
@@ -236,7 +249,8 @@ correct_extent <- function(extent) {
   extent
 }
 
-# Check if the coordinates are a list of two numeric vectors and of equal length
+# Check if the coordinates are a list of two numeric vectors and of equal
+#   length
 check_coordinates <- function(coordinates) {
   if (!is.list(coordinates) || length(coordinates) != 2) {
     stop("coordinates must be a list of two vectors.")
@@ -244,7 +258,8 @@ check_coordinates <- function(coordinates) {
 
   coordinates <- lapply(coordinates, function(coord) {
     if (!is.numeric(coord)) {
-      warning("Non-numeric coordinates detected, attempting to convert to numeric.")
+      warning("Non-numeric coordinates detected,",
+              " attempting to convert to numeric.")
       coord <- as.numeric(coord)
       if (any(is.na(coord))) {
         stop("Unable to convert all coordinates to numeric.")

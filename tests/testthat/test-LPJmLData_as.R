@@ -81,7 +81,7 @@ test_that("raster export lon_lat", {
   )
 
   # create tmp_raster with expected dimensions and coordinate ref system
-  tmp_raster <- raster::raster(res = 0.5,
+  tmp_raster <- raster::raster(resolution = 0.5,
                                crs = raster_crs_fallback("EPSG:4326"),
                                xmn = -87.5,
                                xmx = -87,
@@ -139,7 +139,7 @@ test_that("raster export 3rd dim", {
   )
 
   # create tmp_raster with expected dimensions and coordinate ref system
-  tmp_raster <- raster::raster(res = 0.5,
+  tmp_raster <- raster::raster(resolution = 0.5,
                                crs = raster_crs_fallback("EPSG:4326"),
                                xmn = -87.5,
                                xmx = -87,
@@ -229,7 +229,7 @@ test_that("terra export 3rd dim", {
 
   # create tmp_rast with expected dimensions and coordinate ref system
   test_rast <- terra::rast(
-    res = 0.5,
+    resolution = 0.5,
     crs = "EPSG:4326",
     xmin = -87.5,
     xmax = -87,
