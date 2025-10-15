@@ -400,14 +400,15 @@ do_parallel <- function(sim_names,
     # Write single call
     tryCatch({
 
-      if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") != "") {
+      if (is_slurm_available() && Sys.getenv("SLURM_JOB_ID") != "" && !grepl("mpirun", run_cmd)) {
         mpi_lib <- Sys.getenv("I_MPI_PMI_LIBRARY")
         Sys.setenv(I_MPI_PMI_LIBRARY = "/p/system/slurm/lib/libpmi.so") # nolint
       } else {
         mpi_lib <- NULL
       }
       do_run(
-        sim_name, model_path, sim_path, run_cmd, write_stdout = TRUE, raise_error
+        sim_name, model_path, sim_path, run_cmd, write_stdout = TRUE,
+        raise_error, debug = FALSE
       )
 
       # Stop when error occures
