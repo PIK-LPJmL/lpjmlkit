@@ -33,13 +33,24 @@
 #'   *Deprecated in favor of `output_config` for more flexible configuration.*
 #'
 #' @param output_config Optional \link[tibble]{tibble} for flexible per-output
-#'   configuration. Each row represents an output and each column an attribute.
-#'   The `"id"` column is mandatory and must match output IDs from outputvars.
-#'   Supported attributes include: `"timestep"` (`"annual"`, `"monthly"`,
-#'   `"daily"`), `"format"` (`"raw"`, `"clm"`, `"cdf"`), `"scale"`, `"offset"`,
-#'   `"unit"`, and any other attributes defined in outputvars.par.
-#'   If provided, this takes precedence over `output_list_timestep` and
-#'   `output_format`. See details for examples.
+#'   configuration. Each row represents one output, and each column represents
+#'   an attribute to configure for that output. The `"id"` column is mandatory
+#'   and must match output IDs from outputvars.par (e.g., "vegc", "soilc").
+#'   Supported attributes include:
+#'   \itemize{
+#'     \item `"timestep"`: temporal resolution (`"annual"`, `"monthly"`,
+#'       `"daily"`)
+#'     \item `"format"`: output format (`"raw"`, `"clm"`, `"cdf"`)
+#'     \item `"scale"`: numeric scaling factor
+#'     \item `"offset"`: numeric offset value
+#'     \item `"unit"`: custom unit string
+#'     \item Any other attributes defined in outputvars.par
+#'   }
+#'   Use `NA` to keep the default value for an attribute. When `output_config`
+#'   is provided, it takes precedence over `output_list_timestep` and
+#'   `output_format` for the outputs specified in `output_config`.
+#'   Must be used together with `output_list` to specify which outputs to
+#'   include. See details for examples.
 #'
 #' @param cjson_filename Character string providing the name of the main LPJmL
 #'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
@@ -180,24 +191,55 @@
 #' ```
 #'
 #' ### Output Configuration
-#' The `output_config` parameter provides flexible per-output configuration:
+#' The `output_config` parameter provides flexible per-output configuration,
+#' allowing you to specify different attributes for each output variable.
+#' This is particularly useful for variable area scaling or when different
+#' outputs require different temporal resolutions or formats.
 #'
+#' **Basic example with timestep and format:**
 #' ```R
 #' my_output_config <- tibble(
 #'   id = c("vegc", "soilc", "irrig"),
 #'   timestep = c("annual", "annual", "monthly"),
-#'   format = c("clm", "clm", "raw"),
-#'   scale = c(1.0, 1.0, 0.1),
-#'   offset = c(0.0, 0.0, 0.0)
+#'   format = c("clm", "clm", "raw")
 #' )
 #'
 #' config_details <- write_config(
 #'   x = my_params,
 #'   model_path = model_path,
 #'   sim_path = sim_path,
+#'   output_list = c("vegc", "soilc", "irrig"),
 #'   output_config = my_output_config
 #' )
 #' ```
+#'
+#' **Advanced example with scaling and custom attributes:**
+#' ```R
+#' # Configure outputs with different scaling factors (e.g., for area weighting)
+#' my_output_config <- tibble(
+#'   id = c("vegc", "soilc", "discharge"),
+#'   timestep = c("annual", "monthly", "daily"),
+#'   format = c("cdf", "cdf", "raw"),
+#'   scale = c(1.0, 1.0, 0.001),  # discharge in m³/s instead of mm
+#'   offset = c(0.0, 0.0, 0.0),
+#'   unit = c(NA, NA, "m3/s")     # custom unit for discharge
+#' )
+#'
+#' config_details <- write_config(
+#'   x = my_params,
+#'   model_path = model_path,
+#'   sim_path = sim_path,
+#'   output_list = c("vegc", "soilc", "discharge"),
+#'   output_config = my_output_config
+#' )
+#' ```
+#'
+#' **Note:** When using `output_config`:
+#' - The `id` column is mandatory
+#' - Use `NA` to keep default values for optional attributes
+#' - Must be combined with `output_list` to specify which outputs to include
+#' - Takes precedence over `output_list_timestep` and `output_format`
+#'
 #'
 #' ### In short
 #' * `write_config()` creates subdirectories within the `sim_path` directory
@@ -291,6 +333,37 @@
 #' #   <chr>           <dbl> <chr>        <chr>
 #' # 1 scen1_spinup        1 NA           8:00:00
 #' # 2 scen1_transient     2 scen1_spinup 2:00:00
+#'
+#'
+#' # Usage with output_config for flexible per-output configuration
+#' my_params <- tibble(
+#'   sim_name = c("scenario_A", "scenario_B"),
+#'   random_seed = c(42, 404)
+#' )
+#'
+#' # Configure different outputs with individual attributes
+#' my_output_config <- tibble(
+#'   id = c("vegc", "soilc", "discharge"),
+#'   timestep = c("annual", "monthly", "daily"),
+#'   format = c("cdf", "cdf", "raw"),
+#'   scale = c(1.0, 1.0, 0.001),
+#'   unit = c(NA, NA, "m3/s")
+#' )
+#'
+#' config_details <- write_config(
+#'   x = my_params,
+#'   model_path = model_path,
+#'   sim_path = sim_path,
+#'   output_list = c("vegc", "soilc", "discharge"),
+#'   output_config = my_output_config
+#' )
+#'
+#' config_details
+#' # A tibble: 2 x 1
+#' #   sim_name
+#' #   <chr>
+#' # 1 scenario_A
+#' # 2 scenario_B
 #'
 #' }
 #' @md
