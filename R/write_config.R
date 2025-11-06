@@ -483,11 +483,12 @@ write_config <- function(x,
       }, error = function(e) {
 
         # Check if error is returned
-        if (e != "") {
+        error_msg <- conditionMessage(e)
+        if (nzchar(error_msg)) {
 
           # Error with hint to use the debug argument
           stop(
-            e,
+            error_msg,
             "Please use argument debug = TRUE for traceback ",
             " functionality",
             call. = FALSE
@@ -722,14 +723,15 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
   opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
-  if (is.null(output_list) || length(output_list) == 0 || x[["nspinup"]] > 500) {
+  if (is.null(output_list) || length(output_list) == 0 || (length(x[["nspinup"]]) > 0 && x[["nspinup"]][1] > 500)) {
     for (x_id in seq_len(length(x[["output"]]))) {
 
       # Replace output format in x if defined (e.g. raw, clm, cdf)
-      if (!is.null(output_format) &&
-            (is.null(x[["output"]][[x_id]]$file$fmt) ||
-               x[["output"]][[x_id]]$file$fmt != "txt")) {
-        x[["output"]][[x_id]]$file$fmt <- output_format
+      if (!is.null(output_format)) {
+        if (is.null(x[["output"]][[x_id]]$file$fmt) ||
+            (length(x[["output"]][[x_id]]$file$fmt) > 0 && x[["output"]][[x_id]]$file$fmt[1] != "txt")) {
+          x[["output"]][[x_id]]$file$fmt <- output_format
+        }
       }
 
       # make it backwards compatible for old way of explicitly mentioning the
@@ -1001,15 +1003,15 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                       "restart.lpj")
 
   } else if (!is.null(x[["restart_filename"]]) &&
-               is.null(params[["dependency"]]) &&
-               (is.na(params[["restart_filename"]]) ||
-                  is.null(params[["restart_filename"]]))) {
-
+               is.null(params[["dependency"]])) {
+    if (is.null(params[["restart_filename"]]) || 
+        (length(params[["restart_filename"]]) > 0 && is.na(params[["restart_filename"]][1]))) {
     warning(
       "With `-DFROM_RESTART` being set to TRUE",
       " please make sure to explicitly set restart_filename in",
       " params. Otherwise, the original entry is used."
     )
+    }
   }
 
   x[["write_restart_filename"]] <- paste0(rpath, "restart.lpj")
