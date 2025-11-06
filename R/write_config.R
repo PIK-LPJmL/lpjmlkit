@@ -402,8 +402,11 @@ write_config <- function(x,
     }
     
     # Warn if both old and new parameters are used
-    if (!is.null(output_config) && 
-        (!all(output_list_timestep == "annual") || !is.null(output_format))) {
+    # Check if user is using non-default values for old parameters
+    using_old_timestep <- !isTRUE(all(output_list_timestep == "annual"))
+    using_old_format <- !is.null(output_format)
+    
+    if (!is.null(output_config) && (using_old_timestep || using_old_format)) {
       message(
         "Note: output_config takes precedence over ",
         "output_list_timestep and output_format."
@@ -719,7 +722,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
   opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
-  if (is.null(output_list) || x[["nspinup"]] > 500) {
+  if (is.null(output_list) || length(output_list) == 0 || x[["nspinup"]] > 500) {
     for (x_id in seq_len(length(x[["output"]]))) {
 
       # Replace output format in x if defined (e.g. raw, clm, cdf)
@@ -796,14 +799,15 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         }
 
         # Handle format - prioritize output_config, then output_format
-        if (!is.null(output_cfg_row) && "format" %in% colnames(output_cfg_row) &&
-            !is.na(output_cfg_row$format[1])) {
+        if (!is.null(output_cfg_row) && "format" %in% colnames(output_cfg_row)) {
+          if (!is.na(output_cfg_row$format[1])) {
           # Use format from output_config
           new_output[["file"]][["fmt"]] <- ifelse(
             output_list[id_ov] == "globalflux",
             "txt",
             output_cfg_row$format[1]
           )
+          }
         } else if (!is.null(output_format)) {
           # Output format three possibilities: netcdf: cdf, raw: bin and clm
           new_output[["file"]][["fmt"]] <- ifelse(
@@ -820,10 +824,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         # Handle timestep - prioritize output_config, then output_timestep
         if (!(output_list[id_ov] %in% c("grid", "globalflux"))) {
           
-          if (!is.null(output_cfg_row) && "timestep" %in% colnames(output_cfg_row) &&
-              !is.na(output_cfg_row$timestep[1])) {
+          if (!is.null(output_cfg_row) && "timestep" %in% colnames(output_cfg_row)) {
+            if (!is.na(output_cfg_row$timestep[1])) {
             # Use timestep from output_config
             new_output[["file"]][["timestep"]] <- output_cfg_row$timestep[1]
+            }
             
           } else if (length_output_timestep == 1) {
             # Single timestep for all outputs
@@ -871,36 +876,45 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         
         # Adjust correct units to avoid correction factors in LPJmL
         # Prioritize unit from output_config if available
-        if (!is.null(output_cfg_row) && "unit" %in% colnames(output_cfg_row) &&
-            !is.na(output_cfg_row$unit[1])) {
+        if (!is.null(output_cfg_row) && "unit" %in% colnames(output_cfg_row)) {
+          if (!is.na(output_cfg_row$unit[1])) {
           new_output[["file"]][["unit"]] <- output_cfg_row$unit[1]
+          }
         } else {
           unit_replace <- outputvar_units[
             which(output_list[id_ov] == outputvar_names)
           ]
           
+          # Determine the time suffix for the unit based on timestep
+          time_suffix <- if (is.na(current_timestep) || is.null(current_timestep)) {
+            "/yr"  # default to annual
+          } else {
+            switch(current_timestep,
+                   annual = "/yr",
+                   monthly = "/month",
+                   daily = "/day",
+                   "/yr")  # default fallback
+          }
+          
           new_output[["file"]][["unit"]] <- gsub(
             "/yr$|/month$|/day$",
-            switch(
-              ifelse(is.na(current_timestep), "annual", current_timestep),
-              annual = "/yr",
-              monthly = "/month",
-              daily = "/day"
-            ),
+            time_suffix,
             unit_replace
           )
         }
         
         # Add scale if provided in output_config
-        if (!is.null(output_cfg_row) && "scale" %in% colnames(output_cfg_row) &&
-            !is.na(output_cfg_row$scale[1])) {
+        if (!is.null(output_cfg_row) && "scale" %in% colnames(output_cfg_row)) {
+          if (!is.na(output_cfg_row$scale[1])) {
           new_output[["file"]][["scale"]] <- output_cfg_row$scale[1]
+          }
         }
         
         # Add offset if provided in output_config
-        if (!is.null(output_cfg_row) && "offset" %in% colnames(output_cfg_row) &&
-            !is.na(output_cfg_row$offset[1])) {
+        if (!is.null(output_cfg_row) && "offset" %in% colnames(output_cfg_row)) {
+          if (!is.na(output_cfg_row$offset[1])) {
           new_output[["file"]][["offset"]] <- output_cfg_row$offset[1]
+          }
         }
         
         # Add any other attributes from output_config
