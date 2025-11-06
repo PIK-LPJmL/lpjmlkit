@@ -11,6 +11,7 @@ write_config(
   output_list = c(),
   output_list_timestep = "annual",
   output_format = NULL,
+  output_config = NULL,
   cjson_filename = "lpjml_config.cjson",
   parallel_cores = 4,
   debug = FALSE,
@@ -38,11 +39,22 @@ outputs set in \code{cjson_filename} will be written. Defaults to \code{NULL}.}
 defining what temporal resolution the defined outputs from \code{output_list}
 should have. Either provide a single character string for all outputs or
 a vector with the length of \code{output_list} defining each timestep
-individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.}
+individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.
+\emph{Deprecated in favor of \code{output_config} for more flexible configuration.}}
 
 \item{output_format}{Character string defining the format of the output.
 Defaults to \code{NULL} (use default from cjson file). Options: \code{"raw"},
-\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).}
+\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).
+\emph{Deprecated in favor of \code{output_config} for more flexible configuration.}}
+
+\item{output_config}{Optional \link[tibble]{tibble} for flexible per-output
+configuration. Each row represents an output and each column an attribute.
+The \code{"id"} column is mandatory and must match output IDs from outputvars.
+Supported attributes include: \code{"timestep"} (\code{"annual"}, \code{"monthly"},
+\code{"daily"}), \code{"format"} (\code{"raw"}, \code{"clm"}, \code{"cdf"}), \code{"scale"}, \code{"offset"},
+\code{"unit"}, and any other attributes defined in outputvars.par.
+If provided, this takes precedence over \code{output_list_timestep} and
+\code{output_format}. See details for examples.}
 
 \item{cjson_filename}{Character string providing the name of the main LPJmL
 configuration file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
@@ -185,6 +197,27 @@ my_params2
 }\if{html}{\out{</div>}}
 }
 
+\subsection{Output Configuration}{
+
+The \code{output_config} parameter provides flexible per-output configuration:
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_output_config <- tibble(
+  id = c("vegc", "soilc", "irrig"),
+  timestep = c("annual", "annual", "monthly"),
+  format = c("clm", "clm", "raw"),
+  scale = c(1.0, 1.0, 0.1),
+  offset = c(0.0, 0.0, 0.0)
+)
+
+config_details <- write_config(
+  x = my_params,
+  model_path = model_path,
+  sim_path = sim_path,
+  output_config = my_output_config
+)
+}\if{html}{\out{</div>}}
+}
+
 \subsection{In short}{
 \itemize{
 \item \code{write_config()} creates subdirectories within the \code{sim_path} directory
@@ -206,6 +239,8 @@ consecutive runs using \code{\link[=submit_lpjml]{submit_lpjml()}}.
 boolean parameters in the config json.
 \item Value types need to be set correctly, e.g. no strings where numeric values
 are expected.
+\item For flexible output configuration, use \code{output_config} tibble instead of
+\code{output_list_timestep} and \code{output_format}.
 }
 }
 }

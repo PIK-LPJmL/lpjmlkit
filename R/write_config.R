@@ -25,10 +25,21 @@
 #'   should have. Either provide a single character string for all outputs or
 #'   a vector with the length of `output_list` defining each timestep
 #'   individually. Choose between `"annual"`, `"monthly"` or `"daily"`.
+#'   *Deprecated in favor of `output_config` for more flexible configuration.*
 #'
 #' @param output_format Character string defining the format of the output.
 #'   Defaults to `NULL` (use default from cjson file). Options: `"raw"`,
 #'  `"cdf"` (NetCDF) or `"clm"` (file with header).
+#'   *Deprecated in favor of `output_config` for more flexible configuration.*
+#'
+#' @param output_config Optional \link[tibble]{tibble} for flexible per-output
+#'   configuration. Each row represents an output and each column an attribute.
+#'   The `"id"` column is mandatory and must match output IDs from outputvars.
+#'   Supported attributes include: `"timestep"` (`"annual"`, `"monthly"`,
+#'   `"daily"`), `"format"` (`"raw"`, `"clm"`, `"cdf"`), `"scale"`, `"offset"`,
+#'   `"unit"`, and any other attributes defined in outputvars.par.
+#'   If provided, this takes precedence over `output_list_timestep` and
+#'   `output_format`. See details for examples.
 #'
 #' @param cjson_filename Character string providing the name of the main LPJmL
 #'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
@@ -168,6 +179,26 @@
 #' # 2 scen1_transient         404 FALSE
 #' ```
 #'
+#' ### Output Configuration
+#' The `output_config` parameter provides flexible per-output configuration:
+#'
+#' ```R
+#' my_output_config <- tibble(
+#'   id = c("vegc", "soilc", "irrig"),
+#'   timestep = c("annual", "annual", "monthly"),
+#'   format = c("clm", "clm", "raw"),
+#'   scale = c(1.0, 1.0, 0.1),
+#'   offset = c(0.0, 0.0, 0.0)
+#' )
+#'
+#' config_details <- write_config(
+#'   x = my_params,
+#'   model_path = model_path,
+#'   sim_path = sim_path,
+#'   output_config = my_output_config
+#' )
+#' ```
+#'
 #' ### In short
 #' * `write_config()` creates subdirectories within the `sim_path` directory
 #'    * `"./configurations"` to store the config files.
@@ -186,6 +217,8 @@
 #'   boolean parameters in the config json.
 #' * Value types need to be set correctly, e.g. no strings where numeric values
 #'   are expected.
+#' * For flexible output configuration, use `output_config` tibble instead of
+#'   `output_list_timestep` and `output_format`.
 #'
 #' @examples
 #' \dontrun{
@@ -270,6 +303,7 @@ write_config <- function(x,
                          output_list = c(),
                          output_list_timestep = "annual",
                          output_format = NULL,
+                         output_config = NULL,
                          cjson_filename = "lpjml_config.cjson",
                          parallel_cores = 4,
                          debug = FALSE,
@@ -315,6 +349,67 @@ write_config <- function(x,
   }
 
   if (is.null(sim_path)) sim_path <- model_path
+
+  # Validate output_config if provided
+  if (!is.null(output_config)) {
+    # Check if output_config is a data.frame/tibble
+    if (!is.data.frame(output_config)) {
+      stop("output_config must be a data.frame or tibble.")
+    }
+    
+    # Check for required 'id' column
+    if (!"id" %in% colnames(output_config)) {
+      stop("output_config must have an 'id' column specifying output names.")
+    }
+    
+    # Validate timestep values if present
+    if ("timestep" %in% colnames(output_config)) {
+      valid_timesteps <- c("annual", "monthly", "daily")
+      invalid_timesteps <- output_config$timestep[
+        !is.na(output_config$timestep) & 
+        !output_config$timestep %in% valid_timesteps
+      ]
+      if (length(invalid_timesteps) > 0) {
+        stop(
+          "Invalid timestep value(s) in output_config: ",
+          paste(unique(invalid_timesteps), collapse = ", "),
+          ". Must be one of: ",
+          paste(valid_timesteps, collapse = ", ")
+        )
+      }
+    }
+    
+    # Validate format values if present
+    if ("format" %in% colnames(output_config)) {
+      valid_formats <- c("raw", "clm", "cdf")
+      invalid_formats <- output_config$format[
+        !is.na(output_config$format) & 
+        !output_config$format %in% valid_formats
+      ]
+      if (length(invalid_formats) > 0) {
+        stop(
+          "Invalid format value(s) in output_config: ",
+          paste(unique(invalid_formats), collapse = ", "),
+          ". Must be one of: ",
+          paste(valid_formats, collapse = ", ")
+        )
+      }
+    }
+    
+    # If output_config is provided, derive output_list from it
+    if (length(output_list) == 0) {
+      output_list <- output_config$id
+    }
+    
+    # Warn if both old and new parameters are used
+    if (!is.null(output_config) && 
+        (!all(output_list_timestep == "annual") || !is.null(output_format))) {
+      message(
+        "Note: output_config takes precedence over ",
+        "output_list_timestep and output_format."
+      )
+    }
+  }
 
   # Create configurations directory to store config_*.json files
   dir.create(
@@ -375,6 +470,7 @@ write_config <- function(x,
                             output_format = output_format,
                             output_list = output_list,
                             output_list_timestep = output_list_timestep,
+                            output_config = output_config,
                             cjson_filename = cjson_filename,
                             config_tmp = config_tmp,
                             slurm_args = slurm_args,
@@ -425,6 +521,7 @@ write_config <- function(x,
         output_format = output_format,
         output_list = output_list,
         output_list_timestep = output_list_timestep,
+        output_config = output_config,
         cjson_filename = cjson_filename,
         config_tmp = config_tmp,
         slurm_args = slurm_args,
@@ -464,6 +561,7 @@ write_single_config <- function(x,
                                 output_list,
                                 output_list_timestep,
                                 output_format,
+                                output_config,
                                 cjson_filename,
                                 config_tmp,
                                 slurm_args,
@@ -540,6 +638,7 @@ write_single_config <- function(x,
                          output_format = output_format,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
+                         output_config = output_config,
                          dir_create = !testthat::is_testing()) %>%
 
     # Insert parameters/keys from x.
@@ -613,6 +712,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  output_format,
                                  output_list,
                                  output_timestep,
+                                 output_config = NULL,
                                  dir_create = FALSE) {
 
   # Concatenate output path and create folder if set
@@ -686,8 +786,25 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         new_output[["id"]] <- output_list[id_ov]
         new_output[["file"]] <- list()
 
+        # Check if output_config provides settings for this output
+        output_cfg_row <- NULL
+        if (!is.null(output_config)) {
+          output_cfg_row <- output_config[output_config$id == output_list[id_ov], ]
+          if (nrow(output_cfg_row) == 0) {
+            output_cfg_row <- NULL
+          }
+        }
 
-        if (!is.null(output_format)) {
+        # Handle format - prioritize output_config, then output_format
+        if (!is.null(output_cfg_row) && "format" %in% colnames(output_cfg_row) &&
+            !is.na(output_cfg_row$format[1])) {
+          # Use format from output_config
+          new_output[["file"]][["fmt"]] <- ifelse(
+            output_list[id_ov] == "globalflux",
+            "txt",
+            output_cfg_row$format[1]
+          )
+        } else if (!is.null(output_format)) {
           # Output format three possibilities: netcdf: cdf, raw: bin and clm
           new_output[["file"]][["fmt"]] <- ifelse(
             length(output_format) == 1 && is.character(output_format),
@@ -699,76 +816,124 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
             )
           )
         }
-        # Output_timestep could be supplied as a single character string
-        #   prescribing a timestep for all outputs or as a character vector
-        #   with the length of output_list to assign an individual timestep for
-        #   each output.
-        if (length_output_timestep == 1 &&
-              !(output_list[id_ov] %in% c("grid", "globalflux"))) {
-
-          new_output[["file"]][["timestep"]] <- ifelse(
-            stats::na.omit(output_timestep)[1] %in% c("daily",
-                                                      "monthly",
-                                                      "annual"),
-            stats::na.omit(output_timestep)[1],
-            stop(
-              "No valid output_timestep. Please choose from ",
-              "\"daily\", \"monthly\" or \"annual\" in form of",
-              " a single character string."
+        
+        # Handle timestep - prioritize output_config, then output_timestep
+        if (!(output_list[id_ov] %in% c("grid", "globalflux"))) {
+          
+          if (!is.null(output_cfg_row) && "timestep" %in% colnames(output_cfg_row) &&
+              !is.na(output_cfg_row$timestep[1])) {
+            # Use timestep from output_config
+            new_output[["file"]][["timestep"]] <- output_cfg_row$timestep[1]
+            
+          } else if (length_output_timestep == 1) {
+            # Single timestep for all outputs
+            new_output[["file"]][["timestep"]] <- ifelse(
+              stats::na.omit(output_timestep)[1] %in% c("daily",
+                                                        "monthly",
+                                                        "annual"),
+              stats::na.omit(output_timestep)[1],
+              stop(
+                "No valid output_timestep. Please choose from ",
+                "\"daily\", \"monthly\" or \"annual\" in form of",
+                " a single character string."
+              )
             )
-          )
 
-        } else if (length_output_timestep == length(output_list) &&
-                     !(output_list[id_ov] %in% c("grid", "globalflux"))) {
-
-          new_output[["file"]][["timestep"]] <- ifelse(
-            output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
-            output_timestep[id_ov],
-            stop(
-              "No valid output_timestep. Please choose of \"daily\"",
-              " \"monthly\" or \"annual\" in form of a single ",
-              "character string."
+          } else if (length_output_timestep == length(output_list)) {
+            # Individual timestep per output
+            new_output[["file"]][["timestep"]] <- ifelse(
+              output_timestep[id_ov] %in% c("daily", "monthly", "annual"),
+              output_timestep[id_ov],
+              stop(
+                "No valid output_timestep. Please choose of \"daily\"",
+                " \"monthly\" or \"annual\" in form of a single ",
+                "character string."
+              )
             )
-          )
 
-        } else if (!(length_output_timestep %in% c(1, length(output_list)))) {
-          stop(
-            "output_timestep does not have a valid length. Please ",
-            "supply either a single character string or a vector ",
-            "matching the length of output_list."
-          )
+          } else if (!(length_output_timestep %in% c(1, length(output_list)))) {
+            stop(
+              "output_timestep does not have a valid length. Please ",
+              "supply either a single character string or a vector ",
+              "matching the length of output_list."
+            )
+          }
         }
 
+        # Get the timestep for unit adjustment
+        current_timestep <- if (!is.null(new_output[["file"]][["timestep"]])) {
+          new_output[["file"]][["timestep"]]
+        } else if (length(output_timestep) > 1) {
+          output_timestep[id_ov]
+        } else {
+          output_timestep
+        }
+        
         # Adjust correct units to avoid correction factors in LPJmL
-        unit_replace <- outputvar_units[
-          which(output_list[id_ov] == outputvar_names)
-        ]
+        # Prioritize unit from output_config if available
+        if (!is.null(output_cfg_row) && "unit" %in% colnames(output_cfg_row) &&
+            !is.na(output_cfg_row$unit[1])) {
+          new_output[["file"]][["unit"]] <- output_cfg_row$unit[1]
+        } else {
+          unit_replace <- outputvar_units[
+            which(output_list[id_ov] == outputvar_names)
+          ]
+          
+          new_output[["file"]][["unit"]] <- gsub(
+            "/yr$|/month$|/day$",
+            switch(
+              ifelse(is.na(current_timestep), "annual", current_timestep),
+              annual = "/yr",
+              monthly = "/month",
+              daily = "/day"
+            ),
+            unit_replace
+          )
+        }
+        
+        # Add scale if provided in output_config
+        if (!is.null(output_cfg_row) && "scale" %in% colnames(output_cfg_row) &&
+            !is.na(output_cfg_row$scale[1])) {
+          new_output[["file"]][["scale"]] <- output_cfg_row$scale[1]
+        }
+        
+        # Add offset if provided in output_config
+        if (!is.null(output_cfg_row) && "offset" %in% colnames(output_cfg_row) &&
+            !is.na(output_cfg_row$offset[1])) {
+          new_output[["file"]][["offset"]] <- output_cfg_row$offset[1]
+        }
+        
+        # Add any other attributes from output_config
+        if (!is.null(output_cfg_row)) {
+          # Get column names that are not already handled
+          handled_cols <- c("id", "timestep", "format", "scale", "offset", "unit")
+          other_cols <- setdiff(colnames(output_cfg_row), handled_cols)
+          
+          for (col in other_cols) {
+            if (!is.na(output_cfg_row[[col]][1])) {
+              new_output[["file"]][[col]] <- output_cfg_row[[col]][1]
+            }
+          }
+        }
 
-        new_output[["file"]][["unit"]] <- gsub(
-          "/yr$|/month$|/day$",
-          switch(
-            ifelse(length(output_timestep) > 1,
-                   output_timestep[id_ov],
-                   output_timestep) %>%
-              ifelse(is.na(.), "annual", .),
-            annual = "/yr",
-            monthly = "/month",
-            daily = "/day"
-          ),
-          unit_replace
-        )
+        # Determine file format for extension
+        file_fmt <- if (!is.null(new_output[["file"]][["fmt"]])) {
+          new_output[["file"]][["fmt"]]
+        } else {
+          output_format
+        }
 
         # Create file name with correct path, corresponding outputvar name and
         #   file extension based on the output_format
         # make it backwards compatible for old way of explicitly mentioning the
         #   file extension in the output file name
-        if (!is.null(output_format) && is.null(x[["default_fmt"]])) {
+        if (!is.null(file_fmt) && is.null(x[["default_fmt"]])) {
           new_output[["file"]][["name"]] <- paste0(
             opath,
             output_list[id_ov], ".",
             ifelse(output_list[id_ov] == "globalflux",
               "txt",
-              switch(output_format,
+              switch(file_fmt,
                      raw = "bin",
                      clm = "clm",
                      cdf = "nc4")

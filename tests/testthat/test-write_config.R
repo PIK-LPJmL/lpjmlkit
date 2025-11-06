@@ -365,3 +365,121 @@ test_that("get order", {
   order_params <- get_order(test_params)
   expect_equal(order_params$order, c(1, 2, 3))
 })
+
+
+# Test output_config parameter
+test_that("write config with output_config tibble", {
+  
+  test_params <- tibble::tibble(
+    sim_name = "test_output_config",
+    random_seed = as.integer(42)
+  )
+  
+  # Create output_config with various attributes
+  # Note: Only using outputs that exist in test config (grid, irrig)
+  test_output_config <- tibble::tibble(
+    id = c("grid", "irrig"),
+    timestep = c(NA, "monthly"),
+    format = c(NA, "raw"),
+    scale = c(NA, 0.5),
+    offset = c(NA, 5.0)
+  )
+  
+  # Create template that would usually be created by write_config directly
+  test_tmp <- tibble::tibble(sim_name = NA,
+                             order = NA,
+                             dependency = NA)
+  slurm_args <- c("sclass", "ntask", "wtime", "blocking")
+  test_tmp[slurm_args] <- NA
+  
+  # Test write_single_config with output_config
+  tmp_objects <- write_single_config(
+    x = test_params,
+    model_path = "../testdata",
+    sim_path = "../testdata",
+    output_list = c("grid", "irrig"),
+    output_list_timestep = "annual",
+    output_format = "clm",
+    output_config = test_output_config,
+    cjson_filename = "lpjml_config.cjson",
+    config_tmp = test_tmp,
+    slurm_args = slurm_args
+  )
+  
+  # Check that outputs were created
+  expect_true(length(tmp_objects[[1]][["output"]]) == 2)
+  
+  # Check grid output (should not have timestep since it's grid)
+  grid_output <- tmp_objects[[1]][["output"]][[1]]
+  expect_equal(grid_output$id, "grid")
+  
+  # Check irrig output has correct attributes from output_config
+  irrig_output <- tmp_objects[[1]][["output"]][[2]]
+  expect_equal(irrig_output$id, "irrig")
+  expect_equal(irrig_output$file$fmt, "raw")
+  expect_equal(irrig_output$file$timestep, "monthly")
+  expect_equal(irrig_output$file$scale, 0.5)
+  expect_equal(irrig_output$file$offset, 5.0)
+})
+
+
+# Test output_config validation
+test_that("output_config validation", {
+  
+  test_params <- tibble::tibble(
+    sim_name = "test",
+    random_seed = as.integer(42)
+  )
+  
+  # Test missing 'id' column
+  bad_config1 <- tibble::tibble(
+    name = c("irrig"),
+    timestep = c("annual")
+  )
+  
+  expect_error(
+    write_config(
+      x = test_params,
+      model_path = "../testdata",
+      sim_path = "../testdata",
+      output_config = bad_config1,
+      cjson_filename = "lpjml_config.cjson"
+    ),
+    "must have an 'id' column"
+  )
+  
+  # Test invalid timestep
+  bad_config2 <- tibble::tibble(
+    id = c("irrig"),
+    timestep = c("subannual")
+  )
+  
+  expect_error(
+    write_config(
+      x = test_params,
+      model_path = "../testdata",
+      sim_path = "../testdata",
+      output_config = bad_config2,
+      cjson_filename = "lpjml_config.cjson"
+    ),
+    "Invalid timestep value"
+  )
+  
+  # Test invalid format
+  bad_config3 <- tibble::tibble(
+    id = c("irrig"),
+    format = c("txt")
+  )
+  
+  expect_error(
+    write_config(
+      x = test_params,
+      model_path = "../testdata",
+      sim_path = "../testdata",
+      output_config = bad_config3,
+      cjson_filename = "lpjml_config.cjson"
+    ),
+    "Invalid format value"
+  )
+})
+
