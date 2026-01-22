@@ -16,28 +16,21 @@
 #'   created in `sim_path` to store respective data. If `NULL`, `model_path` is
 #'   used.
 #'
-#' @param output_list Character vector containing the `"id"` of outputvars.
-#'   If defined, only these defined outputs will be written. Otherwise, all
-#'   outputs set in `cjson_filename` will be written. Defaults to `NULL`.
-#'
-#' @param output_list_timestep Single character string or character vector
-#'   defining what temporal resolution the defined outputs from `output_list`
-#'   should have. Either provide a single character string for all outputs or
-#'   a vector with the length of `output_list` defining each timestep
-#'   individually. Choose between `"annual"`, `"monthly"` or `"daily"`.
-#'   *Deprecated in favor of `output_config` for more flexible configuration.*
-#'
-#' @param output_format Character string defining the format of the output.
-#'   Defaults to `NULL` (use default from cjson file). Options: `"raw"`,
-#'  `"cdf"` (NetCDF) or `"clm"` (file with header).
-#'   *Deprecated in favor of `output_config` for more flexible configuration.*
-#'
-#' @param output_config Optional \link[tibble]{tibble} for flexible per-output
-#'   configuration. Each row represents one output, and each column represents
-#'   an attribute to configure for that output. The `"id"` column is mandatory
-#'   and must match output IDs from outputvars.par (e.g., "vegc", "soilc").
-#'   Supported attributes include:
+#' @param output_list Either a character vector containing the `"id"` of
+#'   outputvars, or a \link[tibble]{tibble} for flexible per-output
+#'   configuration.
+#'   
+#'   **Character vector usage:** If a character vector is provided, only these
+#'   defined outputs will be written. Otherwise (if `NULL` or `c()`), all
+#'   outputs set in `cjson_filename` will be written.
+#'   
+#'   **Tibble usage:** For flexible per-output configuration, provide a tibble
+#'   where each row represents one output and each column represents an
+#'   attribute to configure. The `"id"` column is mandatory and must match
+#'   output IDs from outputvars.par (e.g., "vegc", "soilc"). Supported
+#'   attributes include:
 #'   \itemize{
+#'     \item `"id"`: output ID (mandatory)
 #'     \item `"timestep"`: temporal resolution (`"annual"`, `"monthly"`,
 #'       `"daily"`)
 #'     \item `"format"`: output format (`"raw"`, `"clm"`, `"cdf"`)
@@ -46,11 +39,21 @@
 #'     \item `"unit"`: custom unit string
 #'     \item Any other attributes defined in outputvars.par
 #'   }
-#'   Use `NA` to keep the default value for an attribute. When `output_config`
-#'   is provided, it takes precedence over `output_list_timestep` and
-#'   `output_format` for the outputs specified in `output_config`.
-#'   Must be used together with `output_list` to specify which outputs to
-#'   include. See details for examples.
+#'   Use `NA` to keep the default value for an attribute. When a tibble is
+#'   provided, it takes precedence over `output_list_timestep` and
+#'   `output_format`. Defaults to `c()`.
+#'
+#' @param output_list_timestep Single character string or character vector
+#'   defining what temporal resolution the defined outputs from `output_list`
+#'   should have. Either provide a single character string for all outputs or
+#'   a vector with the length of `output_list` defining each timestep
+#'   individually. Choose between `"annual"`, `"monthly"` or `"daily"`.
+#'   Only used when `output_list` is a character vector.
+#'
+#' @param output_format Character string defining the format of the output.
+#'   Defaults to `NULL` (use default from cjson file). Options: `"raw"`,
+#'  `"cdf"` (NetCDF) or `"clm"` (file with header).
+#'   Only used when `output_list` is a character vector.
 #'
 #' @param cjson_filename Character string providing the name of the main LPJmL
 #'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
@@ -191,14 +194,16 @@
 #' ```
 #'
 #' ### Output Configuration
-#' The `output_config` parameter provides flexible per-output configuration,
-#' allowing you to specify different attributes for each output variable.
-#' This is particularly useful for variable area scaling or when different
-#' outputs require different temporal resolutions or formats.
+#' The `output_list` parameter can accept either a character vector or a
+#' tibble for flexible per-output configuration. When using a tibble, you can
+#' specify different attributes for each output variable. This is particularly
+#' useful for variable area scaling or when different outputs require different
+#' temporal resolutions or formats.
 #'
 #' **Basic example with timestep and format:**
 #' ```R
-#' my_output_config <- tibble(
+#' # Using a tibble for output_list
+#' my_output_list <- tibble(
 #'   id = c("vegc", "soilc", "irrig"),
 #'   timestep = c("annual", "annual", "monthly"),
 #'   format = c("clm", "clm", "raw")
@@ -208,15 +213,14 @@
 #'   x = my_params,
 #'   model_path = model_path,
 #'   sim_path = sim_path,
-#'   output_list = c("vegc", "soilc", "irrig"),
-#'   output_config = my_output_config
+#'   output_list = my_output_list
 #' )
 #' ```
 #'
 #' **Advanced example with scaling and custom attributes:**
 #' ```R
 #' # Configure outputs with different scaling factors (e.g., for area weighting)
-#' my_output_config <- tibble(
+#' my_output_list <- tibble(
 #'   id = c("vegc", "soilc", "discharge"),
 #'   timestep = c("annual", "monthly", "daily"),
 #'   format = c("cdf", "cdf", "raw"),
@@ -229,15 +233,26 @@
 #'   x = my_params,
 #'   model_path = model_path,
 #'   sim_path = sim_path,
-#'   output_list = c("vegc", "soilc", "discharge"),
-#'   output_config = my_output_config
+#'   output_list = my_output_list
 #' )
 #' ```
 #'
-#' **Note:** When using `output_config`:
+#' **Character vector example (traditional usage):**
+#' ```R
+#' # Using a character vector for output_list
+#' config_details <- write_config(
+#'   x = my_params,
+#'   model_path = model_path,
+#'   sim_path = sim_path,
+#'   output_list = c("vegc", "soilc", "discharge"),
+#'   output_list_timestep = "annual",
+#'   output_format = "cdf"
+#' )
+#' ```
+#'
+#' **Note:** When using a tibble for `output_list`:
 #' - The `id` column is mandatory
 #' - Use `NA` to keep default values for optional attributes
-#' - Must be combined with `output_list` to specify which outputs to include
 #' - Takes precedence over `output_list_timestep` and `output_format`
 #'
 #'
@@ -259,8 +274,8 @@
 #'   boolean parameters in the config json.
 #' * Value types need to be set correctly, e.g. no strings where numeric values
 #'   are expected.
-#' * For flexible output configuration, use `output_config` tibble instead of
-#'   `output_list_timestep` and `output_format`.
+#' * For flexible output configuration, use a tibble for `output_list` instead
+#'   of `output_list_timestep` and `output_format`.
 #'
 #' @examples
 #' \dontrun{
@@ -335,14 +350,37 @@
 #' # 2 scen1_transient     2 scen1_spinup 2:00:00
 #'
 #'
-#' # Usage with output_config for flexible per-output configuration
+#' # Usage with output_list as character vector
+#' my_params <- tibble(
+#'   sim_name = c("scenario_A", "scenario_B"),
+#'   random_seed = c(42, 404)
+#' )
+#'
+#' config_details <- write_config(
+#'   x = my_params,
+#'   model_path = model_path,
+#'   sim_path = sim_path,
+#'   output_list = c("vegc", "soilc", "discharge"),
+#'   output_list_timestep = "annual",
+#'   output_format = "cdf"
+#' )
+#'
+#' config_details
+#' # A tibble: 2 x 1
+#' #   sim_name
+#' #   <chr>
+#' # 1 scenario_A
+#' # 2 scenario_B
+#'
+#'
+#' # Usage with output_list as tibble for flexible per-output configuration
 #' my_params <- tibble(
 #'   sim_name = c("scenario_A", "scenario_B"),
 #'   random_seed = c(42, 404)
 #' )
 #'
 #' # Configure different outputs with individual attributes
-#' my_output_config <- tibble(
+#' my_output_list <- tibble(
 #'   id = c("vegc", "soilc", "discharge"),
 #'   timestep = c("annual", "monthly", "daily"),
 #'   format = c("cdf", "cdf", "raw"),
@@ -354,8 +392,7 @@
 #'   x = my_params,
 #'   model_path = model_path,
 #'   sim_path = sim_path,
-#'   output_list = c("vegc", "soilc", "discharge"),
-#'   output_config = my_output_config
+#'   output_list = my_output_list
 #' )
 #'
 #' config_details
@@ -376,7 +413,6 @@ write_config <- function(x,
                          output_list = c(),
                          output_list_timestep = "annual",
                          output_format = NULL,
-                         output_config = NULL,
                          cjson_filename = "lpjml_config.cjson",
                          parallel_cores = 4,
                          debug = FALSE,
@@ -423,17 +459,22 @@ write_config <- function(x,
 
   if (is.null(sim_path)) sim_path <- model_path
 
-  # Validate output_config if provided
-  if (!is.null(output_config)) {
-    # Check if output_config is a data.frame/tibble
-    if (!is.data.frame(output_config)) {
-      stop("output_config must be a data.frame or tibble.")
+  # Detect if output_list is a tibble/data.frame or a character vector
+  output_config <- NULL
+  output_list_char <- output_list
+  
+  if (is.data.frame(output_list)) {
+    # output_list is a tibble - extract config and output IDs
+    output_config <- output_list
+    
+    # Validate output_config
+    # Check for required 'id' column first (before accessing it)
+    if (!"id" %in% colnames(output_config)) {
+      stop("When output_list is a tibble, it must have an 'id' column specifying output names.")
     }
     
-    # Check for required 'id' column
-    if (!"id" %in% colnames(output_config)) {
-      stop("output_config must have an 'id' column specifying output names.")
-    }
+    # Now safe to extract output IDs
+    output_list_char <- output_config$id
     
     # Validate timestep values if present
     if ("timestep" %in% colnames(output_config)) {
@@ -444,7 +485,7 @@ write_config <- function(x,
       ]
       if (length(invalid_timesteps) > 0) {
         stop(
-          "Invalid timestep value(s) in output_config: ",
+          "Invalid timestep value(s) in output_list: ",
           paste(unique(invalid_timesteps), collapse = ", "),
           ". Must be one of: ",
           paste(valid_timesteps, collapse = ", ")
@@ -461,7 +502,7 @@ write_config <- function(x,
       ]
       if (length(invalid_formats) > 0) {
         stop(
-          "Invalid format value(s) in output_config: ",
+          "Invalid format value(s) in output_list: ",
           paste(unique(invalid_formats), collapse = ", "),
           ". Must be one of: ",
           paste(valid_formats, collapse = ", ")
@@ -469,22 +510,21 @@ write_config <- function(x,
       }
     }
     
-    # If output_config is provided, derive output_list from it
-    if (length(output_list) == 0) {
-      output_list <- output_config$id
-    }
-    
-    # Warn if both old and new parameters are used
-    # Check if user is using non-default values for old parameters
+    # Warn if both tibble and old parameters are used
     using_old_timestep <- !isTRUE(all(output_list_timestep == "annual"))
     using_old_format <- !is.null(output_format)
     
-    if (!is.null(output_config) && (using_old_timestep || using_old_format)) {
+    if (using_old_timestep || using_old_format) {
       message(
-        "Note: output_config takes precedence over ",
+        "Note: When output_list is a tibble, it takes precedence over ",
         "output_list_timestep and output_format."
       )
     }
+    
+  } else if (!is.null(output_list) && !is.character(output_list)) {
+    stop(
+      "output_list must be either a character vector or a tibble/data.frame."
+    )
   }
 
   # Create configurations directory to store config_*.json files
@@ -544,7 +584,7 @@ write_config <- function(x,
                             model_path = model_path,
                             sim_path = sim_path,
                             output_format = output_format,
-                            output_list = output_list,
+                            output_list = output_list_char,
                             output_list_timestep = output_list_timestep,
                             output_config = output_config,
                             cjson_filename = cjson_filename,
@@ -596,7 +636,7 @@ write_config <- function(x,
         model_path = model_path,
         sim_path = sim_path,
         output_format = output_format,
-        output_list = output_list,
+        output_list = output_list_char,
         output_list_timestep = output_list_timestep,
         output_config = output_config,
         cjson_filename = cjson_filename,

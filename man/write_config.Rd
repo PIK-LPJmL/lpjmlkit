@@ -11,7 +11,6 @@ write_config(
   output_list = c(),
   output_list_timestep = "annual",
   output_format = NULL,
-  output_config = NULL,
   cjson_filename = "lpjml_config.cjson",
   parallel_cores = 4,
   debug = FALSE,
@@ -31,28 +30,21 @@ are written. Also an output, a restart and a configuration folder are
 created in \code{sim_path} to store respective data. If \code{NULL}, \code{model_path} is
 used.}
 
-\item{output_list}{Character vector containing the \code{"id"} of outputvars.
-If defined, only these defined outputs will be written. Otherwise, all
-outputs set in \code{cjson_filename} will be written. Defaults to \code{NULL}.}
+\item{output_list}{Either a character vector containing the \code{"id"} of
+outputvars, or a \link[tibble]{tibble} for flexible per-output
+configuration.
 
-\item{output_list_timestep}{Single character string or character vector
-defining what temporal resolution the defined outputs from \code{output_list}
-should have. Either provide a single character string for all outputs or
-a vector with the length of \code{output_list} defining each timestep
-individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.
-\emph{Deprecated in favor of \code{output_config} for more flexible configuration.}}
+\strong{Character vector usage:} If a character vector is provided, only these
+defined outputs will be written. Otherwise (if \code{NULL} or \code{c()}), all
+outputs set in \code{cjson_filename} will be written.
 
-\item{output_format}{Character string defining the format of the output.
-Defaults to \code{NULL} (use default from cjson file). Options: \code{"raw"},
-\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).
-\emph{Deprecated in favor of \code{output_config} for more flexible configuration.}}
-
-\item{output_config}{Optional \link[tibble]{tibble} for flexible per-output
-configuration. Each row represents one output, and each column represents
-an attribute to configure for that output. The \code{"id"} column is mandatory
-and must match output IDs from outputvars.par (e.g., "vegc", "soilc").
-Supported attributes include:
+\strong{Tibble usage:} For flexible per-output configuration, provide a tibble
+where each row represents one output and each column represents an
+attribute to configure. The \code{"id"} column is mandatory and must match
+output IDs from outputvars.par (e.g., "vegc", "soilc"). Supported
+attributes include:
 \itemize{
+\item \code{"id"}: output ID (mandatory)
 \item \code{"timestep"}: temporal resolution (\code{"annual"}, \code{"monthly"},
 \code{"daily"})
 \item \code{"format"}: output format (\code{"raw"}, \code{"clm"}, \code{"cdf"})
@@ -61,11 +53,21 @@ Supported attributes include:
 \item \code{"unit"}: custom unit string
 \item Any other attributes defined in outputvars.par
 }
-Use \code{NA} to keep the default value for an attribute. When \code{output_config}
-is provided, it takes precedence over \code{output_list_timestep} and
-\code{output_format} for the outputs specified in \code{output_config}.
-Must be used together with \code{output_list} to specify which outputs to
-include. See details for examples.}
+Use \code{NA} to keep the default value for an attribute. When a tibble is
+provided, it takes precedence over \code{output_list_timestep} and
+\code{output_format}. Defaults to \code{c()}.}
+
+\item{output_list_timestep}{Single character string or character vector
+defining what temporal resolution the defined outputs from \code{output_list}
+should have. Either provide a single character string for all outputs or
+a vector with the length of \code{output_list} defining each timestep
+individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.
+Only used when \code{output_list} is a character vector.}
+
+\item{output_format}{Character string defining the format of the output.
+Defaults to \code{NULL} (use default from cjson file). Options: \code{"raw"},
+\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).
+Only used when \code{output_list} is a character vector.}
 
 \item{cjson_filename}{Character string providing the name of the main LPJmL
 configuration file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
@@ -210,14 +212,16 @@ my_params2
 
 \subsection{Output Configuration}{
 
-The \code{output_config} parameter provides flexible per-output configuration,
-allowing you to specify different attributes for each output variable.
-This is particularly useful for variable area scaling or when different
-outputs require different temporal resolutions or formats.
+The \code{output_list} parameter can accept either a character vector or a
+tibble for flexible per-output configuration. When using a tibble, you can
+specify different attributes for each output variable. This is particularly
+useful for variable area scaling or when different outputs require different
+temporal resolutions or formats.
 
 \strong{Basic example with timestep and format:}
 
-\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_output_config <- tibble(
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{# Using a tibble for output_list
+my_output_list <- tibble(
   id = c("vegc", "soilc", "irrig"),
   timestep = c("annual", "annual", "monthly"),
   format = c("clm", "clm", "raw")
@@ -227,15 +231,14 @@ config_details <- write_config(
   x = my_params,
   model_path = model_path,
   sim_path = sim_path,
-  output_list = c("vegc", "soilc", "irrig"),
-  output_config = my_output_config
+  output_list = my_output_list
 )
 }\if{html}{\out{</div>}}
 
 \strong{Advanced example with scaling and custom attributes:}
 
 \if{html}{\out{<div class="sourceCode R">}}\preformatted{# Configure outputs with different scaling factors (e.g., for area weighting)
-my_output_config <- tibble(
+my_output_list <- tibble(
   id = c("vegc", "soilc", "discharge"),
   timestep = c("annual", "monthly", "daily"),
   format = c("cdf", "cdf", "raw"),
@@ -248,16 +251,27 @@ config_details <- write_config(
   x = my_params,
   model_path = model_path,
   sim_path = sim_path,
-  output_list = c("vegc", "soilc", "discharge"),
-  output_config = my_output_config
+  output_list = my_output_list
 )
 }\if{html}{\out{</div>}}
 
-\strong{Note:} When using \code{output_config}:
+\strong{Character vector example (traditional usage):}
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{# Using a character vector for output_list
+config_details <- write_config(
+  x = my_params,
+  model_path = model_path,
+  sim_path = sim_path,
+  output_list = c("vegc", "soilc", "discharge"),
+  output_list_timestep = "annual",
+  output_format = "cdf"
+)
+}\if{html}{\out{</div>}}
+
+\strong{Note:} When using a tibble for \code{output_list}:
 \itemize{
 \item The \code{id} column is mandatory
 \item Use \code{NA} to keep default values for optional attributes
-\item Must be combined with \code{output_list} to specify which outputs to include
 \item Takes precedence over \code{output_list_timestep} and \code{output_format}
 }
 }
@@ -283,8 +297,8 @@ consecutive runs using \code{\link[=submit_lpjml]{submit_lpjml()}}.
 boolean parameters in the config json.
 \item Value types need to be set correctly, e.g. no strings where numeric values
 are expected.
-\item For flexible output configuration, use \code{output_config} tibble instead of
-\code{output_list_timestep} and \code{output_format}.
+\item For flexible output configuration, use a tibble for \code{output_list} instead
+of \code{output_list_timestep} and \code{output_format}.
 }
 }
 }
@@ -360,14 +374,37 @@ config_details
 # 2 scen1_transient     2 scen1_spinup 2:00:00
 
 
-# Usage with output_config for flexible per-output configuration
+# Usage with output_list as character vector
+my_params <- tibble(
+  sim_name = c("scenario_A", "scenario_B"),
+  random_seed = c(42, 404)
+)
+
+config_details <- write_config(
+  x = my_params,
+  model_path = model_path,
+  sim_path = sim_path,
+  output_list = c("vegc", "soilc", "discharge"),
+  output_list_timestep = "annual",
+  output_format = "cdf"
+)
+
+config_details
+# A tibble: 2 x 1
+#   sim_name
+#   <chr>
+# 1 scenario_A
+# 2 scenario_B
+
+
+# Usage with output_list as tibble for flexible per-output configuration
 my_params <- tibble(
   sim_name = c("scenario_A", "scenario_B"),
   random_seed = c(42, 404)
 )
 
 # Configure different outputs with individual attributes
-my_output_config <- tibble(
+my_output_list <- tibble(
   id = c("vegc", "soilc", "discharge"),
   timestep = c("annual", "monthly", "daily"),
   format = c("cdf", "cdf", "raw"),
@@ -379,8 +416,7 @@ config_details <- write_config(
   x = my_params,
   model_path = model_path,
   sim_path = sim_path,
-  output_list = c("vegc", "soilc", "discharge"),
-  output_config = my_output_config
+  output_list = my_output_list
 )
 
 config_details

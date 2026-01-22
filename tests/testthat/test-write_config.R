@@ -367,17 +367,17 @@ test_that("get order", {
 })
 
 
-# Test output_config parameter
-test_that("write config with output_config tibble", {
+# Test output_list as tibble
+test_that("write config with output_list tibble", {
   
   test_params <- tibble::tibble(
     sim_name = "test_output_config",
     random_seed = as.integer(42)
   )
   
-  # Create output_config with various attributes
+  # Create output_list as tibble with various attributes
   # Note: Only using outputs that exist in test config (grid, irrig)
-  test_output_config <- tibble::tibble(
+  test_output_list <- tibble::tibble(
     id = c("grid", "irrig"),
     timestep = c(NA, "monthly"),
     format = c(NA, "raw"),
@@ -392,7 +392,7 @@ test_that("write config with output_config tibble", {
   slurm_args <- c("sclass", "ntask", "wtime", "blocking")
   test_tmp[slurm_args] <- NA
   
-  # Test write_single_config with output_config
+  # Test write_single_config with output_list as tibble
   tmp_objects <- write_single_config(
     x = test_params,
     model_path = "../testdata",
@@ -400,7 +400,7 @@ test_that("write config with output_config tibble", {
     output_list = c("grid", "irrig"),
     output_list_timestep = "annual",
     output_format = "clm",
-    output_config = test_output_config,
+    output_config = test_output_list,
     cjson_filename = "lpjml_config.cjson",
     config_tmp = test_tmp,
     slurm_args = slurm_args
@@ -413,7 +413,7 @@ test_that("write config with output_config tibble", {
   grid_output <- tmp_objects[[1]][["output"]][[1]]
   expect_equal(grid_output$id, "grid")
   
-  # Check irrig output has correct attributes from output_config
+  # Check irrig output has correct attributes from output_list tibble
   irrig_output <- tmp_objects[[1]][["output"]][[2]]
   expect_equal(irrig_output$id, "irrig")
   expect_equal(irrig_output$file$fmt, "raw")
@@ -423,8 +423,8 @@ test_that("write config with output_config tibble", {
 })
 
 
-# Test output_config validation
-test_that("output_config validation", {
+# Test output_list tibble validation
+test_that("output_list tibble validation", {
   
   test_params <- tibble::tibble(
     sim_name = "test",
@@ -442,7 +442,7 @@ test_that("output_config validation", {
       x = test_params,
       model_path = "../testdata",
       sim_path = "../testdata",
-      output_config = bad_config1,
+      output_list = bad_config1,
       cjson_filename = "lpjml_config.cjson"
     ),
     "must have an 'id' column"
@@ -459,7 +459,7 @@ test_that("output_config validation", {
       x = test_params,
       model_path = "../testdata",
       sim_path = "../testdata",
-      output_config = bad_config2,
+      output_list = bad_config2,
       cjson_filename = "lpjml_config.cjson"
     ),
     "Invalid timestep value"
@@ -476,7 +476,7 @@ test_that("output_config validation", {
       x = test_params,
       model_path = "../testdata",
       sim_path = "../testdata",
-      output_config = bad_config3,
+      output_list = bad_config3,
       cjson_filename = "lpjml_config.cjson"
     ),
     "Invalid format value"
