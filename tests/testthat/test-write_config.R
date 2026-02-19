@@ -367,22 +367,19 @@ test_that("get order", {
 })
 
 
-# Test output_list as tibble
-test_that("write config with output_list tibble", {
+# Test output_list as named list
+test_that("write config with output_list named list", {
   
   test_params <- tibble::tibble(
     sim_name = "test_output_config",
     random_seed = as.integer(42)
   )
   
-  # Create output_list as tibble with various attributes
+  # Create output_list as named list with various attributes
   # Note: Only using outputs that exist in test config (grid, irrig)
-  test_output_list <- tibble::tibble(
-    id = c("grid", "irrig"),
-    timestep = c(NA, "monthly"),
-    format = c(NA, "raw"),
-    scale = c(NA, 0.5),
-    offset = c(NA, 5.0)
+  test_output_list <- list(
+    grid = list(),
+    irrig = list(timestep = "monthly", format = "raw", scale = 0.5, offset = 5.0, filename = "irrig_custom")
   )
   
   # Create template that would usually be created by write_config directly
@@ -392,12 +389,12 @@ test_that("write config with output_list tibble", {
   slurm_args <- c("sclass", "ntask", "wtime", "blocking")
   test_tmp[slurm_args] <- NA
   
-  # Test write_single_config with output_list as tibble
+  # Test write_single_config with output_list as named list
   tmp_objects <- write_single_config(
     x = test_params,
     model_path = "../testdata",
     sim_path = "../testdata",
-    output_list = c("grid", "irrig"),
+    output_list = names(test_output_list),
     output_list_timestep = "annual",
     output_format = "clm",
     output_config = test_output_list,
@@ -413,73 +410,75 @@ test_that("write config with output_list tibble", {
   grid_output <- tmp_objects[[1]][["output"]][[1]]
   expect_equal(grid_output$id, "grid")
   
-  # Check irrig output has correct attributes from output_list tibble
+  # Check irrig output has correct attributes from output_list named list
   irrig_output <- tmp_objects[[1]][["output"]][[2]]
   expect_equal(irrig_output$id, "irrig")
   expect_equal(irrig_output$file$fmt, "raw")
   expect_equal(irrig_output$file$timestep, "monthly")
   expect_equal(irrig_output$file$scale, 0.5)
   expect_equal(irrig_output$file$offset, 5.0)
+  expect_match(irrig_output$file$name, "irrig_custom\\.bin$")
 })
 
 
-# Test output_list tibble validation
-test_that("output_list tibble validation", {
+# Test output_list named list validation
+test_that("output_list named list validation", {
   
   test_params <- tibble::tibble(
     sim_name = "test",
     random_seed = as.integer(42)
   )
   
-  # Test missing 'id' column
-  bad_config1 <- tibble::tibble(
-    name = c("irrig"),
-    timestep = c("annual")
-  )
-  
+  # Test missing names
+  bad_list1 <- list(list(timestep = "annual"))
   expect_error(
     write_config(
       x = test_params,
       model_path = "../testdata",
       sim_path = "../testdata",
-      output_list = bad_config1,
+      output_list = bad_list1,
       cjson_filename = "lpjml_config.cjson"
     ),
-    "must have an 'id' column"
+    "must be named with output IDs"
   )
   
   # Test invalid timestep
-  bad_config2 <- tibble::tibble(
-    id = c("irrig"),
-    timestep = c("subannual")
-  )
-  
+  bad_list2 <- list(irrig = list(timestep = "subannual"))
   expect_error(
     write_config(
       x = test_params,
       model_path = "../testdata",
       sim_path = "../testdata",
-      output_list = bad_config2,
+      output_list = bad_list2,
       cjson_filename = "lpjml_config.cjson"
     ),
     "Invalid timestep value"
   )
   
   # Test invalid format
-  bad_config3 <- tibble::tibble(
-    id = c("irrig"),
-    format = c("txt")
-  )
-  
+  bad_list3 <- list(irrig = list(format = "txt"))
   expect_error(
     write_config(
       x = test_params,
       model_path = "../testdata",
       sim_path = "../testdata",
-      output_list = bad_config3,
+      output_list = bad_list3,
       cjson_filename = "lpjml_config.cjson"
     ),
     "Invalid format value"
+  )
+
+  # Tibble/data.frame should be rejected
+  bad_df <- data.frame(id = "irrig", timestep = "annual")
+  expect_error(
+    write_config(
+      x = test_params,
+      model_path = "../testdata",
+      sim_path = "../testdata",
+      output_list = bad_df,
+      cjson_filename = "lpjml_config.cjson"
+    ),
+    "Each element of output_list must be a list"
   )
 })
 

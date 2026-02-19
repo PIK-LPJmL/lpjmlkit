@@ -17,43 +17,32 @@
 #'   used.
 #'
 #' @param output_list Either a character vector containing the `"id"` of
-#'   outputvars, or a \link[tibble]{tibble} for flexible per-output
-#'   configuration.
-#'   
-#'   **Character vector usage:** If a character vector is provided, only these
-#'   defined outputs will be written. Otherwise (if `NULL` or `c()`), all
-#'   outputs set in `cjson_filename` will be written.
-#'   
-#'   **Tibble usage:** For flexible per-output configuration, provide a tibble
-#'   where each row represents one output and each column represents an
-#'   attribute to configure. The `"id"` column is mandatory and must match
-#'   output IDs from outputvars.par (e.g., "vegc", "soilc"). Supported
-#'   attributes include:
+#'   outputvars, or a **named list** for flexible per-output configuration.
 #'   \itemize{
-#'     \item `"id"`: output ID (mandatory)
-#'     \item `"timestep"`: temporal resolution (`"annual"`, `"monthly"`,
-#'       `"daily"`)
-#'     \item `"format"`: output format (`"raw"`, `"clm"`, `"cdf"`)
-#'     \item `"scale"`: numeric scaling factor
-#'     \item `"offset"`: numeric offset value
-#'     \item `"unit"`: custom unit string
-#'     \item Any other attributes defined in outputvars.par
+#'     \item **Character vector (classic):** selects outputs to write. If
+#'       `NULL` or `c()`, all outputs from `cjson_filename` are written.
+#'     \item **Named list (recommended):** names are output IDs; each element
+#'       is a list of attributes to override (e.g.,
+#'       `list(vegc = list(timestep = "annual"), discharge = list(format = "raw", scale = 0.001))`).
+#'       Only attributes provided are changed; others keep defaults from
+#'       `outputvars.par`.
 #'   }
-#'   Use `NA` to keep the default value for an attribute. When a tibble is
-#'   provided, it takes precedence over `output_list_timestep` and
-#'   `output_format`. Defaults to `c()`.
 #'
-#' @param output_list_timestep Single character string or character vector
-#'   defining what temporal resolution the defined outputs from `output_list`
-#'   should have. Either provide a single character string for all outputs or
-#'   a vector with the length of `output_list` defining each timestep
-#'   individually. Choose between `"annual"`, `"monthly"` or `"daily"`.
-#'   Only used when `output_list` is a character vector.
+#'   Supported attributes include `timestep` (`"annual"`, `"monthly"`,
+#'   `"daily"`), `format` (`"raw"`, `"clm"`, `"cdf"`), `filename` (custom
+#'   file name; extension is appended if missing and format is known), `scale`,
+#'   `offset`, `unit`, and any other attributes defined in `outputvars.par`.
+#'   Attributes not supplied keep their defaults. Defaults to `c()`.
 #'
-#' @param output_format Character string defining the format of the output.
-#'   Defaults to `NULL` (use default from cjson file). Options: `"raw"`,
-#'  `"cdf"` (NetCDF) or `"clm"` (file with header).
-#'   Only used when `output_list` is a character vector.
+#' @param output_list_timestep Deprecated in favor of list-based `output_list`.
+#'   If supplied as a character string/vector (names must match outputs),
+#'   values must be `"annual"`, `"monthly"` or `"daily"`. Only used when
+#'   `output_list` is a character vector. Defaults to `NULL`.
+#'
+#' @param output_format Deprecated in favor of list-based `output_list`.
+#'   If supplied as a named character vector (names must match outputs),
+#'   values must be `"raw"`, `"clm"` or `"cdf"`. Only used when `output_list`
+#'   is a character vector. Defaults to `NULL`.
 #'
 #' @param cjson_filename Character string providing the name of the main LPJmL
 #'   configuration file to be parsed. Defaults to `"lpjml_config.cjson"`.
@@ -194,19 +183,16 @@
 #' ```
 #'
 #' ### Output Configuration
-#' The `output_list` parameter can accept either a character vector or a
-#' tibble for flexible per-output configuration. When using a tibble, you can
-#' specify different attributes for each output variable. This is particularly
-#' useful for variable area scaling or when different outputs require different
-#' temporal resolutions or formats.
+#' The `output_list` parameter can accept either a character vector (classic
+#' selection) or a flexible per-output configuration. A named list is the
+#' recommended way to configure per-output attributes.
 #'
-#' **Basic example with timestep and format:**
+#' **Basic example with timestep and format (named list):**
 #' ```R
-#' # Using a tibble for output_list
-#' my_output_list <- tibble(
-#'   id = c("vegc", "soilc", "irrig"),
-#'   timestep = c("annual", "annual", "monthly"),
-#'   format = c("clm", "clm", "raw")
+#' my_output_list <- list(
+#'   vegc = list(timestep = "annual", format = "clm"),
+#'   soilc = list(timestep = "annual", format = "clm"),
+#'   irrig = list(timestep = "monthly", format = "raw")
 #' )
 #'
 #' config_details <- write_config(
@@ -217,16 +203,12 @@
 #' )
 #' ```
 #'
-#' **Advanced example with scaling and custom attributes:**
+#' **Advanced example with scaling and custom attributes (named list):**
 #' ```R
-#' # Configure outputs with different scaling factors (e.g., for area weighting)
-#' my_output_list <- tibble(
-#'   id = c("vegc", "soilc", "discharge"),
-#'   timestep = c("annual", "monthly", "daily"),
-#'   format = c("cdf", "cdf", "raw"),
-#'   scale = c(1.0, 1.0, 0.001),  # discharge in m³/s instead of mm
-#'   offset = c(0.0, 0.0, 0.0),
-#'   unit = c(NA, NA, "m3/s")     # custom unit for discharge
+#' my_output_list <- list(
+#'   vegc = list(timestep = "annual", format = "cdf"),
+#'   soilc = list(timestep = "monthly", format = "cdf"),
+#'   discharge = list(timestep = "daily", format = "raw", scale = 0.001, unit = "m3/s")
 #' )
 #'
 #' config_details <- write_config(
@@ -250,10 +232,11 @@
 #' )
 #' ```
 #'
-#' **Note:** When using a tibble for `output_list`:
-#' - The `id` column is mandatory
-#' - Use `NA` to keep default values for optional attributes
-#' - Takes precedence over `output_list_timestep` and `output_format`
+#' **Note:**
+#' - For named lists, only attributes you set are changed; others use defaults
+#'   from `outputvars.par`.
+#' - Per-output configs take precedence over `output_list_timestep` and
+#'   `output_format` for the specified outputs.
 #'
 #'
 #' ### In short
@@ -274,8 +257,8 @@
 #'   boolean parameters in the config json.
 #' * Value types need to be set correctly, e.g. no strings where numeric values
 #'   are expected.
-#' * For flexible output configuration, use a tibble for `output_list` instead
-#'   of `output_list_timestep` and `output_format`.
+#' * For flexible output configuration, use a named list for `output_list`
+#'   instead of `output_list_timestep` and `output_format`.
 #'
 #' @examples
 #' \dontrun{
@@ -459,72 +442,71 @@ write_config <- function(x,
 
   if (is.null(sim_path)) sim_path <- model_path
 
-  # Detect if output_list is a tibble/data.frame or a character vector
+  # Detect if output_list is a named list or a character vector
   output_config <- NULL
   output_list_char <- output_list
-  
-  if (is.data.frame(output_list)) {
-    # output_list is a tibble - extract config and output IDs
-    output_config <- output_list
-    
-    # Validate output_config
-    # Check for required 'id' column first (before accessing it)
-    if (!"id" %in% colnames(output_config)) {
-      stop("When output_list is a tibble, it must have an 'id' column specifying output names.")
-    }
-    
-    # Now safe to extract output IDs
-    output_list_char <- output_config$id
-    
-    # Validate timestep values if present
-    if ("timestep" %in% colnames(output_config)) {
-      valid_timesteps <- c("annual", "monthly", "daily")
-      invalid_timesteps <- output_config$timestep[
-        !is.na(output_config$timestep) & 
-        !output_config$timestep %in% valid_timesteps
-      ]
-      if (length(invalid_timesteps) > 0) {
-        stop(
-          "Invalid timestep value(s) in output_list: ",
-          paste(unique(invalid_timesteps), collapse = ", "),
-          ". Must be one of: ",
-          paste(valid_timesteps, collapse = ", ")
-        )
-      }
-    }
-    
-    # Validate format values if present
-    if ("format" %in% colnames(output_config)) {
-      valid_formats <- c("raw", "clm", "cdf")
-      invalid_formats <- output_config$format[
-        !is.na(output_config$format) & 
-        !output_config$format %in% valid_formats
-      ]
-      if (length(invalid_formats) > 0) {
-        stop(
-          "Invalid format value(s) in output_list: ",
-          paste(unique(invalid_formats), collapse = ", "),
-          ". Must be one of: ",
-          paste(valid_formats, collapse = ", ")
-        )
-      }
-    }
-    
-    # Warn if both tibble and old parameters are used
-    using_old_timestep <- !isTRUE(all(output_list_timestep == "annual"))
-    using_old_format <- !is.null(output_format)
-    
-    if (using_old_timestep || using_old_format) {
-      message(
-        "Note: When output_list is a tibble, it takes precedence over ",
-        "output_list_timestep and output_format."
+
+  if (!is.null(output_list) && !is.character(output_list)) {
+
+    if (!is.list(output_list)) {
+      stop(
+        "output_list must be either a character vector or a named list of per-output attributes."
       )
     }
-    
-  } else if (!is.null(output_list) && !is.character(output_list)) {
-    stop(
-      "output_list must be either a character vector or a tibble/data.frame."
-    )
+
+    if (is.null(names(output_list)) || any(names(output_list) == "")) {
+      stop("When output_list is a list, it must be named with output IDs.")
+    }
+
+    if (!all(vapply(output_list, is.list, logical(1)))) {
+      stop("Each element of output_list must be a list of attributes.")
+    }
+
+    # Validate attributes (timestep/format) if present
+    valid_timesteps <- c("annual", "monthly", "daily")
+    valid_formats <- c("raw", "clm", "cdf")
+
+    invalid_ts <- unlist(lapply(output_list, function(cfg) {
+      if (is.null(cfg[["timestep"]]) || is.na(cfg[["timestep"]])) return(NULL)
+      if (cfg[["timestep"]] %in% valid_timesteps) return(NULL)
+      cfg[["timestep"]]
+    }))
+
+    invalid_fmt <- unlist(lapply(output_list, function(cfg) {
+      if (is.null(cfg[["format"]]) || is.na(cfg[["format"]])) return(NULL)
+      if (cfg[["format"]] %in% valid_formats) return(NULL)
+      cfg[["format"]]
+    }))
+
+    if (length(invalid_ts) > 0) {
+      stop(
+        "Invalid timestep value(s) in output_list: ",
+        paste(unique(invalid_ts), collapse = ", "),
+        ". Must be one of: ",
+        paste(valid_timesteps, collapse = ", ")
+      )
+    }
+
+    if (length(invalid_fmt) > 0) {
+      stop(
+        "Invalid format value(s) in output_list: ",
+        paste(unique(invalid_fmt), collapse = ", "),
+        ". Must be one of: ",
+        paste(valid_formats, collapse = ", ")
+      )
+    }
+
+    # Warn if old parameters are supplied alongside list-based config
+    using_old_timestep <- !isTRUE(all(output_list_timestep == "annual"))
+    using_old_format <- !is.null(output_format)
+    if (using_old_timestep || using_old_format) {
+      message(
+        "Note: output_list list config takes precedence over output_list_timestep and output_format when attributes are set."
+      )
+    }
+
+    output_config <- output_list
+    output_list_char <- names(output_list)
   }
 
   # Create configurations directory to store config_*.json files
@@ -832,6 +814,11 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  output_config = NULL,
                                  dir_create = FALSE) {
 
+  # Normalize output_timestep when provided as NULL (common with list configs)
+  if (is.null(output_timestep)) {
+    output_timestep <- NA_character_
+  }
+
   # Concatenate output path and create folder if set
   opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
@@ -905,23 +892,19 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         new_output[["file"]] <- list()
 
         # Check if output_config provides settings for this output
-        output_cfg_row <- NULL
-        if (!is.null(output_config)) {
-          output_cfg_row <- output_config[output_config$id == output_list[id_ov], ]
-          if (nrow(output_cfg_row) == 0) {
-            output_cfg_row <- NULL
-          }
+        output_cfg <- NULL
+        if (!is.null(output_config) && !is.null(output_config[[output_list[id_ov]]])) {
+          output_cfg <- output_config[[output_list[id_ov]]]
         }
 
         # Handle format - prioritize output_config, then output_format
-        if (!is.null(output_cfg_row) && "format" %in% colnames(output_cfg_row)) {
-          if (!is.na(output_cfg_row$format[1])) {
-          # Use format from output_config
-          new_output[["file"]][["fmt"]] <- ifelse(
-            output_list[id_ov] == "globalflux",
-            "txt",
-            output_cfg_row$format[1]
-          )
+        if (!is.null(output_cfg) && !is.null(output_cfg[["format"]])) {
+          if (!is.na(output_cfg[["format"]])) {
+            new_output[["file"]][["fmt"]] <- ifelse(
+              output_list[id_ov] == "globalflux",
+              "txt",
+              output_cfg[["format"]]
+            )
           }
         } else if (!is.null(output_format)) {
           # Output format three possibilities: netcdf: cdf, raw: bin and clm
@@ -939,10 +922,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         # Handle timestep - prioritize output_config, then output_timestep
         if (!(output_list[id_ov] %in% c("grid", "globalflux"))) {
           
-          if (!is.null(output_cfg_row) && "timestep" %in% colnames(output_cfg_row)) {
-            if (!is.na(output_cfg_row$timestep[1])) {
-            # Use timestep from output_config
-            new_output[["file"]][["timestep"]] <- output_cfg_row$timestep[1]
+          if (!is.null(output_cfg) && !is.null(output_cfg[["timestep"]])) {
+            if (!is.na(output_cfg[["timestep"]])) {
+              new_output[["file"]][["timestep"]] <- output_cfg[["timestep"]]
             }
             
           } else if (length_output_timestep == 1) {
@@ -983,6 +965,8 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         # Get the timestep for unit adjustment
         current_timestep <- if (!is.null(new_output[["file"]][["timestep"]])) {
           new_output[["file"]][["timestep"]]
+        } else if (!is.null(output_cfg) && !is.null(output_cfg[["timestep"]])) {
+          output_cfg[["timestep"]]
         } else if (length(output_timestep) > 1) {
           output_timestep[id_ov]
         } else {
@@ -991,9 +975,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         
         # Adjust correct units to avoid correction factors in LPJmL
         # Prioritize unit from output_config if available
-        if (!is.null(output_cfg_row) && "unit" %in% colnames(output_cfg_row)) {
-          if (!is.na(output_cfg_row$unit[1])) {
-          new_output[["file"]][["unit"]] <- output_cfg_row$unit[1]
+        if (!is.null(output_cfg) && !is.null(output_cfg[["unit"]])) {
+          if (!is.na(output_cfg[["unit"]])) {
+            new_output[["file"]][["unit"]] <- output_cfg[["unit"]]
           }
         } else {
           unit_replace <- outputvar_units[
@@ -1019,28 +1003,27 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         }
         
         # Add scale if provided in output_config
-        if (!is.null(output_cfg_row) && "scale" %in% colnames(output_cfg_row)) {
-          if (!is.na(output_cfg_row$scale[1])) {
-          new_output[["file"]][["scale"]] <- output_cfg_row$scale[1]
+        if (!is.null(output_cfg) && !is.null(output_cfg[["scale"]])) {
+          if (!is.na(output_cfg[["scale"]])) {
+            new_output[["file"]][["scale"]] <- output_cfg[["scale"]]
           }
         }
         
         # Add offset if provided in output_config
-        if (!is.null(output_cfg_row) && "offset" %in% colnames(output_cfg_row)) {
-          if (!is.na(output_cfg_row$offset[1])) {
-          new_output[["file"]][["offset"]] <- output_cfg_row$offset[1]
+        if (!is.null(output_cfg) && !is.null(output_cfg[["offset"]])) {
+          if (!is.na(output_cfg[["offset"]])) {
+            new_output[["file"]][["offset"]] <- output_cfg[["offset"]]
           }
         }
         
         # Add any other attributes from output_config
-        if (!is.null(output_cfg_row)) {
-          # Get column names that are not already handled
-          handled_cols <- c("id", "timestep", "format", "scale", "offset", "unit")
-          other_cols <- setdiff(colnames(output_cfg_row), handled_cols)
-          
+        if (!is.null(output_cfg)) {
+          handled_cols <- c("timestep", "format", "scale", "offset", "unit")
+          other_cols <- setdiff(names(output_cfg), handled_cols)
+
           for (col in other_cols) {
-            if (!is.na(output_cfg_row[[col]][1])) {
-              new_output[["file"]][[col]] <- output_cfg_row[[col]][1]
+            if (!is.null(output_cfg[[col]]) && !is.na(output_cfg[[col]])) {
+              new_output[["file"]][[col]] <- output_cfg[[col]]
             }
           }
         }
@@ -1052,11 +1035,36 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           output_format
         }
 
-        # Create file name with correct path, corresponding outputvar name and
-        #   file extension based on the output_format
-        # make it backwards compatible for old way of explicitly mentioning the
-        #   file extension in the output file name
-        if (!is.null(file_fmt) && is.null(x[["default_fmt"]])) {
+        # Build filename (allow override via output_config$filename)
+        filename_override <- if (!is.null(output_cfg)) output_cfg[["filename"]] else NULL
+
+        build_name <- function(base_name, fmt) {
+          # Add extension if missing and fmt known (except globalflux -> txt)
+          has_ext <- grepl("\\.[^.]+$", base_name)
+          if (!has_ext && !is.null(fmt)) {
+            ext <- ifelse(
+              output_list[id_ov] == "globalflux",
+              "txt",
+              switch(fmt,
+                     raw = "bin",
+                     clm = "clm",
+                     cdf = "nc4",
+                     NULL)
+            )
+            if (!is.null(ext)) {
+              base_name <- paste0(base_name, ".", ext)
+            }
+          }
+          # Prepend output path unless caller supplied a path
+          if (!grepl("/", base_name)) {
+            base_name <- paste0(opath, base_name)
+          }
+          base_name
+        }
+
+        if (!is.null(filename_override) && !is.na(filename_override)) {
+          new_output[["file"]][["name"]] <- build_name(filename_override, file_fmt)
+        } else if (!is.null(file_fmt) && is.null(x[["default_fmt"]])) {
           new_output[["file"]][["name"]] <- paste0(
             opath,
             output_list[id_ov], ".",
