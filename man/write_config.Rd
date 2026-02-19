@@ -31,43 +31,33 @@ created in \code{sim_path} to store respective data. If \code{NULL}, \code{model
 used.}
 
 \item{output_list}{Either a character vector containing the \code{"id"} of
-outputvars, or a \link[tibble]{tibble} for flexible per-output
-configuration.
-
-\strong{Character vector usage:} If a character vector is provided, only these
-defined outputs will be written. Otherwise (if \code{NULL} or \code{c()}), all
-outputs set in \code{cjson_filename} will be written.
-
-\strong{Tibble usage:} For flexible per-output configuration, provide a tibble
-where each row represents one output and each column represents an
-attribute to configure. The \code{"id"} column is mandatory and must match
-output IDs from outputvars.par (e.g., "vegc", "soilc"). Supported
-attributes include:
+outputvars, or a \strong{named list} for flexible per-output configuration.
 \itemize{
-\item \code{"id"}: output ID (mandatory)
-\item \code{"timestep"}: temporal resolution (\code{"annual"}, \code{"monthly"},
-\code{"daily"})
-\item \code{"format"}: output format (\code{"raw"}, \code{"clm"}, \code{"cdf"})
-\item \code{"scale"}: numeric scaling factor
-\item \code{"offset"}: numeric offset value
-\item \code{"unit"}: custom unit string
-\item Any other attributes defined in outputvars.par
+\item \strong{Character vector (classic):} selects outputs to write. If
+\code{NULL} or \code{c()}, all outputs from \code{cjson_filename} are written.
+\item \strong{Named list (recommended):} names are output IDs; each element
+is a list of attributes to override (e.g.,
+\code{list(vegc = list(timestep = "annual"), discharge = list(format = "raw", scale = 0.001))}).
+Only attributes provided are changed; others keep defaults from
+\code{outputvars.par}.
 }
-Use \code{NA} to keep the default value for an attribute. When a tibble is
-provided, it takes precedence over \code{output_list_timestep} and
-\code{output_format}. Defaults to \code{c()}.}
 
-\item{output_list_timestep}{Single character string or character vector
-defining what temporal resolution the defined outputs from \code{output_list}
-should have. Either provide a single character string for all outputs or
-a vector with the length of \code{output_list} defining each timestep
-individually. Choose between \code{"annual"}, \code{"monthly"} or \code{"daily"}.
-Only used when \code{output_list} is a character vector.}
+Supported attributes include \code{timestep} (\code{"annual"}, \code{"monthly"},
+\code{"daily"}), \code{format} (\code{"raw"}, \code{"clm"}, \code{"cdf"}), \code{filename} (custom
+file name; mapped to \code{file$name}—no separate \code{filename} field is added; the
+extension is appended if missing and format is known), \code{scale}, \code{offset},
+\code{unit}, and any other attributes defined in \code{outputvars.par}.
+Attributes not supplied keep their defaults. Defaults to \code{c()}.}
 
-\item{output_format}{Character string defining the format of the output.
-Defaults to \code{NULL} (use default from cjson file). Options: \code{"raw"},
-\code{"cdf"} (NetCDF) or \code{"clm"} (file with header).
-Only used when \code{output_list} is a character vector.}
+\item{output_list_timestep}{Deprecated in favor of list-based \code{output_list}.
+If supplied as a character string/vector (names must match outputs),
+values must be \code{"annual"}, \code{"monthly"} or \code{"daily"}. Only used when
+\code{output_list} is a character vector. Defaults to \code{NULL}.}
+
+\item{output_format}{Deprecated in favor of list-based \code{output_list}.
+If supplied as a named character vector (names must match outputs),
+values must be \code{"raw"}, \code{"clm"} or \code{"cdf"}. Only used when \code{output_list}
+is a character vector. Defaults to \code{NULL}.}
 
 \item{cjson_filename}{Character string providing the name of the main LPJmL
 configuration file to be parsed. Defaults to \code{"lpjml_config.cjson"}.}
@@ -212,19 +202,16 @@ my_params2
 
 \subsection{Output Configuration}{
 
-The \code{output_list} parameter can accept either a character vector or a
-tibble for flexible per-output configuration. When using a tibble, you can
-specify different attributes for each output variable. This is particularly
-useful for variable area scaling or when different outputs require different
-temporal resolutions or formats.
+The \code{output_list} parameter can accept either a character vector (classic
+selection) or a flexible per-output configuration. A named list is the
+recommended way to configure per-output attributes.
 
-\strong{Basic example with timestep and format:}
+\strong{Basic example with timestep and format (named list):}
 
-\if{html}{\out{<div class="sourceCode R">}}\preformatted{# Using a tibble for output_list
-my_output_list <- tibble(
-  id = c("vegc", "soilc", "irrig"),
-  timestep = c("annual", "annual", "monthly"),
-  format = c("clm", "clm", "raw")
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_output_list <- list(
+  vegc = list(timestep = "annual", format = "clm"),
+  soilc = list(timestep = "annual", format = "clm"),
+  irrig = list(timestep = "monthly", format = "raw")
 )
 
 config_details <- write_config(
@@ -235,16 +222,12 @@ config_details <- write_config(
 )
 }\if{html}{\out{</div>}}
 
-\strong{Advanced example with scaling and custom attributes:}
+\strong{Advanced example with scaling and custom attributes (named list):}
 
-\if{html}{\out{<div class="sourceCode R">}}\preformatted{# Configure outputs with different scaling factors (e.g., for area weighting)
-my_output_list <- tibble(
-  id = c("vegc", "soilc", "discharge"),
-  timestep = c("annual", "monthly", "daily"),
-  format = c("cdf", "cdf", "raw"),
-  scale = c(1.0, 1.0, 0.001),  # discharge in m³/s instead of mm
-  offset = c(0.0, 0.0, 0.0),
-  unit = c(NA, NA, "m3/s")     # custom unit for discharge
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{my_output_list <- list(
+  vegc = list(timestep = "annual", format = "cdf"),
+  soilc = list(timestep = "monthly", format = "cdf"),
+  discharge = list(timestep = "daily", format = "raw", scale = 0.001, unit = "m3/s")
 )
 
 config_details <- write_config(
@@ -268,11 +251,12 @@ config_details <- write_config(
 )
 }\if{html}{\out{</div>}}
 
-\strong{Note:} When using a tibble for \code{output_list}:
+\strong{Note:}
 \itemize{
-\item The \code{id} column is mandatory
-\item Use \code{NA} to keep default values for optional attributes
-\item Takes precedence over \code{output_list_timestep} and \code{output_format}
+\item For named lists, only attributes you set are changed; others use defaults
+from \code{outputvars.par}.
+\item Per-output configs take precedence over \code{output_list_timestep} and
+\code{output_format} for the specified outputs.
 }
 }
 
@@ -297,8 +281,8 @@ consecutive runs using \code{\link[=submit_lpjml]{submit_lpjml()}}.
 boolean parameters in the config json.
 \item Value types need to be set correctly, e.g. no strings where numeric values
 are expected.
-\item For flexible output configuration, use a tibble for \code{output_list} instead
-of \code{output_list_timestep} and \code{output_format}.
+\item For flexible output configuration, use a named list for \code{output_list}
+instead of \code{output_list_timestep} and \code{output_format}.
 }
 }
 }

@@ -30,8 +30,9 @@
 #'
 #'   Supported attributes include `timestep` (`"annual"`, `"monthly"`,
 #'   `"daily"`), `format` (`"raw"`, `"clm"`, `"cdf"`), `filename` (custom
-#'   file name; extension is appended if missing and format is known), `scale`,
-#'   `offset`, `unit`, and any other attributes defined in `outputvars.par`.
+#'   file name; mapped to `file$name`—no separate `filename` field is added; the
+#'   extension is appended if missing and format is known), `scale`, `offset`,
+#'   `unit`, and any other attributes defined in `outputvars.par`.
 #'   Attributes not supplied keep their defaults. Defaults to `c()`.
 #'
 #' @param output_list_timestep Deprecated in favor of list-based `output_list`.
