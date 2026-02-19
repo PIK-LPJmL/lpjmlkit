@@ -832,23 +832,28 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
             (length(x[["output"]][[x_id]]$file$fmt) > 0 && x[["output"]][[x_id]]$file$fmt[1] != "txt")) {
           x[["output"]][[x_id]]$file$fmt <- output_format
         }
-      }
 
-      # make it backwards compatible for old way of explicitly mentioning the
-      #   file extension in the output file name
-      if (!is.null(output_format) && is.null(x[["default_fmt"]])) {
+        # make it backwards compatible for old way of explicitly mentioning the
+        #   file extension in the output file name
         new_ext  <- switch(
           output_format,
           raw = ".bin",
           clm = ".clm",
-          cdf = ".nc4"
+          cdf = ".nc4",
+          NULL
         )
-        # Replace file extension of file name in output
-        x[["output"]][[x_id]]$file$name <- sub(
-          "\\.[^.]+$",
-          new_ext,
-          x[["output"]][[x_id]]$file$name
-        )
+        if (!is.null(new_ext)) {
+          has_ext <- grepl("\\.[^.]+$", x[["output"]][[x_id]]$file$name)
+          x[["output"]][[x_id]]$file$name <- if (has_ext) {
+            sub(
+              "\\.[^.]+$",
+              new_ext,
+              x[["output"]][[x_id]]$file$name
+            )
+          } else {
+            paste0(x[["output"]][[x_id]]$file$name, new_ext)
+          }
+        }
       }
 
       # Replace output path in x
@@ -1016,9 +1021,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           }
         }
         
-        # Add any other attributes from output_config
+        # Add any other attributes from output_config (exclude filename which maps to name)
         if (!is.null(output_cfg)) {
-          handled_cols <- c("timestep", "format", "scale", "offset", "unit")
+          handled_cols <- c("timestep", "format", "scale", "offset", "unit", "filename")
           other_cols <- setdiff(names(output_cfg), handled_cols)
 
           for (col in other_cols) {
@@ -1028,22 +1033,27 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           }
         }
 
-        # Determine file format for extension
+        # Determine file format for extension (treat NA/empty as NULL)
         file_fmt <- if (!is.null(new_output[["file"]][["fmt"]])) {
           new_output[["file"]][["fmt"]]
         } else {
           output_format
         }
+        if (length(file_fmt) == 0 || is.null(file_fmt) || (length(file_fmt) > 0 && is.na(file_fmt[1]))) {
+          file_fmt <- NULL
+        }
 
-        # Build filename (allow override via output_config$filename)
         filename_override <- if (!is.null(output_cfg)) output_cfg[["filename"]] else NULL
+        allow_ext <- is.null(x[["default_fmt"]]) || !is.null(file_fmt)
 
-        build_name <- function(base_name, fmt) {
-          # Add extension if missing and fmt known (except globalflux -> txt)
+        build_name <- function(base_name, fmt, id, prepend_path = TRUE) {
+          if (is.null(base_name) || is.na(base_name) || base_name == "") {
+            base_name <- id
+          }
           has_ext <- grepl("\\.[^.]+$", base_name)
-          if (!has_ext && !is.null(fmt)) {
+          if (!has_ext && !is.null(fmt) && allow_ext) {
             ext <- ifelse(
-              output_list[id_ov] == "globalflux",
+              id == "globalflux",
               "txt",
               switch(fmt,
                      raw = "bin",
@@ -1055,32 +1065,16 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
               base_name <- paste0(base_name, ".", ext)
             }
           }
-          # Prepend output path unless caller supplied a path
-          if (!grepl("/", base_name)) {
+          if (prepend_path && !grepl("/", base_name)) {
             base_name <- paste0(opath, base_name)
           }
           base_name
         }
 
         if (!is.null(filename_override) && !is.na(filename_override)) {
-          new_output[["file"]][["name"]] <- build_name(filename_override, file_fmt)
-        } else if (!is.null(file_fmt) && is.null(x[["default_fmt"]])) {
-          new_output[["file"]][["name"]] <- paste0(
-            opath,
-            output_list[id_ov], ".",
-            ifelse(output_list[id_ov] == "globalflux",
-              "txt",
-              switch(file_fmt,
-                     raw = "bin",
-                     clm = "clm",
-                     cdf = "nc4")
-            )
-          )
+          new_output[["file"]][["name"]] <- build_name(filename_override, file_fmt, output_list[id_ov])
         } else {
-          new_output[["file"]][["name"]] <- paste0(
-            opath,
-            output_list[id_ov]
-          )
+          new_output[["file"]][["name"]] <- build_name(output_list[id_ov], file_fmt, output_list[id_ov])
         }
 
         # Append new output to output in config
