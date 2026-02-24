@@ -30,6 +30,7 @@ test_that("test add_grid method", {
 
   # Test spatial subset
   output <- read_io(filename = file_name, subset = list(cell = 1))
+
   # Perform adding a grid object
   output_manual <- add_grid(
     output,

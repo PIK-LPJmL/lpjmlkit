@@ -32,8 +32,7 @@ written, including output, restart and configuration files. If \code{NULL},
 \code{model_path} is used. See also \link{write_config}}
 
 \item{run_cmd}{Character string defining the command used to execute lpjml
-(see details). Defaults to "srun --propagate" (compute ondes of old cluster
-at PIK). Change to "mpirun" for HPC2024 at PIK.}
+(see details). Defaults to "mpirun" (default for HPC2024 at PIK).}
 
 \item{parallel_cores}{Integer defining the number of available CPU
 cores/nodes for parallelization. Defaults to \code{1} (no parallelization).
@@ -94,9 +93,8 @@ is needed because the LPJmL executable can not directly be used on all
 machines. Which command has to be used depends on the software installed.
 Further information on this can be found in the INSTALL file of LPJmL.
 To determine the correct command, check the lpj_submit.sh file in the bin
-directory of LPJmL. Using PIK infrastrucure the command is \code{srun} for
-the hpc2015 and \code{mpirun} for the hpc2024. To facilitate usage on the
-interactive (login) nodes, no command is needed for hpc2015. For the hpc2024
+directory of LPJmL. Using PIK infrastrucure the command is \code{mpirun}
+for the hpc2024. To facilitate usage on the interactive (login) nodes,
 the command remains \code{mpirun} (in these cases \code{run_lpjml} adjusts
 \code{run_cmd} accordingly).
 }

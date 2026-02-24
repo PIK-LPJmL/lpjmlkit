@@ -8,7 +8,7 @@ test_that("basic array export", {
 
   expect_true(
     all(
-      output_array %in% as.numeric(unlist(dimnames(output$data)))
+      output_array %in% as.numeric(unlist(dimnames(output$data)[c("lon", "lat")]))
     )
   )
 })
@@ -65,11 +65,10 @@ test_that("raster export lon_lat", {
 
   raster::crs(test_raster) <- raster_crs_fallback("EPSG:4326")
   # add variable as layer name
-  names(test_raster) <- names(dim(output2))
+  names(test_raster) <- names(dim(output2)[c("lon", "lat")])
 
   # test for equality with test_raster
   expect_equal(output_raster, test_raster)
-
 
   test_raster2 <- output2$as_raster()
 
@@ -97,12 +96,16 @@ test_that("terra export lon_lat", {
   )
 
   # replace values in tmp_rast with expected values of longitude and latitude
-  replace_array[which(!is.na(output2$data)), 1] <- rev(subset(output, band = "lon")$data)
-  replace_array[which(!is.na(output2$data)), 2] <- rev(subset(output, band = "lat")$data)
+  replace_array[which(!is.na(output2$data)), 1] <- rev(
+    subset(output, band = "lon")$data
+  )
+  replace_array[which(!is.na(output2$data)), 2] <- rev(
+    subset(output, band = "lat")$data
+  )
   test_rast <- terra::setValues(test_rast, replace_array)
 
   # add variable as layer name
-  names(test_rast) <- names(dim(output2))
+  names(test_rast) <- names(dim(output2)[c("lon", "lat")])
   terra::units(test_rast) <- output$meta$unit
 
   # test for equality with test_rast

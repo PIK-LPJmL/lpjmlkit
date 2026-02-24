@@ -123,12 +123,12 @@ test_that("read_io errors", {
   )
   # Invalid dimension names for dim_order
   expect_error(
-    read_io(tempfile(), file_type = "clm", dim_order = c("test", "band")),
+    read_io("../testdata/output/pft_npp.clm", file_type = "clm", dim_order = c("test", "band")),
     "Invalid dim_order"
   )
   # Not all dimension names for dim_order
   expect_error(
-    read_io(tempfile(), file_type = "clm", dim_order = c("cell", "band")),
+    read_io("../testdata/output/pft_npp.clm", file_type = "clm", dim_order = c("cell", "band")),
     "Invalid dim_order"
   )
   # Empty year subset

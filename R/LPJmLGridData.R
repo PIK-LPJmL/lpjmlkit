@@ -56,7 +56,14 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
     initialize = function(lpjml_data) {
 
       x <- lpjml_data$clone(deep = TRUE)
-      x$transform(to = "cell")
+
+      if (lpjml_data$meta$format %in% c("raw", "clm")) {
+        x$transform(to = "cell")
+      } else if (lpjml_data$meta$format == "cdf") {
+        x$transform(to = "lon_lat")
+      } else {
+        stop("Unknown format for LPJmLGridData initialization.")
+      }
 
       # Clone LPJmLMetaData data into meta attribute
       private$.meta <- x$meta
@@ -115,21 +122,54 @@ LPJmLGridData <- R6::R6Class( # nolint:object_name_linter
     init_grid = function() {
 
       # Update grid data
-      if (dim(private$.data)[["band"]] == 2) {
+      if (dim(private$.data)[["band"]] == 2 &&
+          private$.meta$._space_format_ == "cell"
+      ) {
         dimnames(private$.data)[["band"]] <- c("lon", "lat")
+      } else if (dim(private$.data)[["band"]] == 1 &&
+          private$.meta$._space_format_ == "lon_lat"
+      ) {
+        dimnames(private$.data)[["band"]] <- "cell"
+
       } else {
         stop("Unknown number of bands for grid initialization.")
       }
 
-      # Update grid meta data
+      # Drop time dimension for grid data
       self$.__set_data__(
-        drop_omit(self$data, omit_dim = "cell")
+        drop_omit(self$data, omit_dim = c("cell", "band"))
       )
 
       # Update grid meta data
       private$.meta$.__init_grid__()
 
       return(invisible(self))
+    },
+
+    .summary = function(dimension = "band",
+                        subset = NULL,
+                        cutoff = FALSE,
+                        ...) {
+
+      data <- subset_array(self$data, subset, drop = FALSE)
+
+      # Check if dimension has length > 1 then rbind vector data to get
+      # summary for each dimension name
+      if (length(dimnames(data)[[dimension]]) > 1) {
+        mat_sum <- summary(rbind(data), ...)
+      } else {
+        mat_sum <- summary(matrix(data), ...)
+      }
+      var_name <- dimnames(data)[[dimension]]
+      mat_sum <- mat_sum[c(1, 6), , drop = FALSE]
+
+      # Assign dimname(s) as name for (each) summary
+      space_len <- pmax((9 - nchar(var_name)) * 0.5, 0)
+      attr(mat_sum, "dimnames")[[2]] <- paste0(
+        sapply(space_len, function(x) paste0(rep(" ", x), collapse = "")), # nolint:undesirable_function_linter.
+        var_name
+      )
+      return(mat_sum)
     }
   )
 )

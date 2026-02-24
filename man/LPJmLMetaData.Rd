@@ -95,6 +95,12 @@ construct a \code{band_names} attribute.}
 
 \item{\code{version}}{Version of data file.}
 
+\item{\code{grid}}{List including information on the filename and type of the
+corresponding grid file.}
+
+\item{\code{ref_area}}{List including information on the reference_area filename and type
+of the data.}
+
 \item{\code{._data_dir_}}{\emph{Internal} character string containing the directory
 from which the file was loaded.}
 

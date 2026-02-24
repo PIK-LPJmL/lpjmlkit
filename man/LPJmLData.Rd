@@ -12,7 +12,7 @@ The enclosing environment is locked and cannot be altered by any
 other than the available modify methods to ensure its integrity and
 validity.
 Use base stats methods like \code{\link[=print]{print()}}, \code{\link[=summary.LPJmLData]{summary.LPJmLData()}} or
-\code{\link[=plot.LPJmLData]{plot.LPJmLData()}} to get insights and export methods like \code{\link[=as_tibble]{as_tibble()}}
+\code{\link[=plot.LPJmLData]{plot.LPJmLData()}} to get insights and export methods like \code{\link[tibble:as_tibble]{tibble::as_tibble()}}
 or \code{\link[=as_raster]{as_raster()}} to export it into common working formats.
 }
 \section{Active bindings}{
@@ -133,7 +133,7 @@ Method to coerce (convert) an \code{LPJmLData} object into a
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{See \code{\link[=as_tibble]{as_tibble()}}.}
+\item{\code{...}}{See \code{\link[tibble:as_tibble]{tibble::as_tibble()}}.}
 }
 \if{html}{\out{</div>}}
 }

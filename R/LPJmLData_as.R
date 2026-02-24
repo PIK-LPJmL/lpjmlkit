@@ -278,7 +278,7 @@ LPJmLData$set(
 
         tmp_raster <- raster::setValues(
           tmp_raster,
-          t(data_subset$data)
+          t(drop_omit(data_subset$data, c("lon", "lat")))
         )
       }
     }
@@ -429,7 +429,7 @@ LPJmLData$set(
 
         tmp_rast <- terra::setValues(
           tmp_rast,
-          t(data_subset$data)
+          t(drop_omit(data_subset$data, c("lon", "lat")))
         )
       }
     }

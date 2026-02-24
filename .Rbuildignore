@@ -17,3 +17,5 @@
 ^cran-comments\.md$
 ^.*CITATION.cff$
 ^docs$
+^doc$
+^Meta$

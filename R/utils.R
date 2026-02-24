@@ -41,6 +41,19 @@ default <- function(value, default) {
   }
 }
 
+# function to merge two lists with priority to first list
+# list items from secondary are only preferred if they are NULL or not in priority 
+merge_lists <- function(priority, secondary) {
+  merged_lists <- priority
+  for (item in names(secondary)) {
+    if (!is.null(secondary[[item]])) {
+      if (is.null(priority[[item]])) {
+        merged_lists[[item]] <- secondary[[item]]
+      }
+    }
+  }
+  merged_lists
+}
 
 # Drop dimensions of length 1 except those that are selected by name
 drop_omit <- function(x, omit_dim) {
@@ -178,7 +191,7 @@ is_os_windows <- function() {
 
 
 # file_type options supported by read_io
-supported_types <- c("raw", "clm", "meta")
+supported_types <- c("raw", "clm", "meta", "cdf")
 
 # band_names in reservoir files (special LPJmL file type)
 band_names_reservoir <- c(
@@ -201,4 +214,35 @@ check_change <- function(self, att, ...) {
       call. = FALSE
     )
   }
+}
+
+# check and if required transpose longitude and/or latitude axis
+transpose_lon_lat <- function(x) {
+  if (length(dimnames(x)[["lon"]]) > 1) {
+    # check for correct order of longitudes (180°W to 180°E: - to +)
+    if (mean(diff(as.numeric(dimnames(x)[["lon"]]))) < 0) {
+      x <- subset_array(
+        x,
+        subset_list = list(
+          lon = rev(seq_len(dim(x)[["lon"]]))
+        ),
+        drop = FALSE
+      )
+    } else {
+      x
+    }
+  }
+  if (length(dimnames(x)[["lat"]]) > 1) {
+    # check for correct order of latitudes (90°N to 90°S: + to -)
+    if (mean(diff(as.numeric(dimnames(x)[["lat"]]))) > 0) {
+      x <- subset_array(
+        x,
+        subset_list = list(
+          lat = rev(seq_len(dim(x)[["lat"]]))
+        ),
+        drop = FALSE
+      )
+    }
+  }
+  x
 }
