@@ -96,22 +96,22 @@
 #'
 #' @export
 create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
-                          version = 3,
-                          order = 1,
-                          firstyear = 1901,
-                          nyear = 1,
-                          firstcell = 0,
-                          ncell,
-                          nbands = 2,
-                          cellsize_lon = 0.5,
-                          scalar = 1,
-                          cellsize_lat = cellsize_lon,
-                          datatype = 3,
-                          nstep = 1,
-                          timestep = 1,
-                          endian = .Platform$endian,
-                          verbose = TRUE
-                         ) {
+  version = 3,
+  order = 1,
+  firstyear = 1901,
+  nyear = 1,
+  firstcell = 0,
+  ncell,
+  nbands = 2,
+  cellsize_lon = 0.5,
+  scalar = 1,
+  cellsize_lat = cellsize_lon,
+  datatype = 3,
+  nstep = 1,
+  timestep = 1,
+  endian = .Platform$endian,
+  verbose = TRUE
+) {
   header <- list()
   if (length(name) == 1 && is.character(name)) {
     header[["name"]] <- name
@@ -153,7 +153,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   # in all header versions
   for (check in base_header_items) {
     if (length(get(check)) == 1 && is.numeric(get(check)) &&
-      get(check) == as.integer(get(check))
+        get(check) == as.integer(get(check))
     ) {
       header[["header"]] <- c(header[["header"]], as.integer(get(check)))
       names(header[["header"]])[length(header[["header"]])] <- check
@@ -213,7 +213,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
       # header version 4
       if (version >= 4) {
         if (length(nstep) == 1 && is.numeric(nstep) &&
-          nstep == as.integer(nstep)
+            nstep == as.integer(nstep)
         ) {
           header[["header"]] <- c(
             header[["header"]],
@@ -223,7 +223,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
           stop(sQuote("nstep"), " must be an integer of length 1")
         }
         if (length(timestep) == 1 && is.numeric(timestep) &&
-          timestep == as.integer(timestep)
+            timestep == as.integer(timestep)
         ) {
           header[["header"]] <- c(
             header[["header"]],
@@ -239,7 +239,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   warntext <- paste("Type", header$header["version"], "header:")
   if (!"cellsize_lon" %in% names(header$header)) {
     if (missing(cellsize_lon) || length(cellsize_lon) != 1 ||
-      !is.numeric(cellsize_lon)
+        !is.numeric(cellsize_lon)
     ) {
       header[["header"]] <- c(
         header[["header"]],
@@ -284,7 +284,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   }
   if (!"cellsize_lat" %in% names(header$header)) {
     if (missing(cellsize_lat) || length(cellsize_lat) != 1 ||
-      !is.numeric(cellsize_lat)
+        !is.numeric(cellsize_lat)
     ) {
       header[["header"]] <- c(
         header[["header"]],
@@ -335,7 +335,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   }
   if (!"nstep" %in% names(header$header)) {
     if (missing(nstep) || length(nstep) != 1 || !is.numeric(nstep) ||
-      nstep != as.integer(nstep)
+        nstep != as.integer(nstep)
     ) {
       header[["header"]] <- c(
         header[["header"]],
@@ -357,7 +357,7 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
   }
   if (!"timestep" %in% names(header$header)) {
     if (missing(timestep) || length(timestep) != 1 || !is.numeric(timestep) ||
-      timestep != as.integer(timestep)
+        timestep != as.integer(timestep)
     ) {
       header[["header"]] <- c(
         header[["header"]],
@@ -378,12 +378,12 @@ create_header <- function(name = "LPJGRID", # nolint:cyclocomp_linter.
     }
   }
   if (verbose &&
-    warntext != paste("Type", header$header["version"], "header:")
+      warntext != paste("Type", header$header["version"], "header:")
   ) {
     warning(warntext)
   }
   if (!is.null(endian) && length(endian) == 1 &&
-    endian %in% c("big", "little")
+      endian %in% c("big", "little")
   ) {
     header[["endian"]] <- endian
   } else {
@@ -409,7 +409,7 @@ is_valid_header <- function(header) {
   # Check header structure. Expect a list with elements "name", "header" and
   # "endian".
   if (!is.list(header) ||
-    any(sapply(header[c("name", "header", "endian")], is.null)) # nolint:undesirable_function_linter.
+      any(sapply(header[c("name", "header", "endian")], is.null)) # nolint:undesirable_function_linter.
   ) {
     stop(
       "Header has invalid structure. Must be a list with elements ",
@@ -508,7 +508,7 @@ base_header_items <- c(
 
 # All valid items in header
 valid_header_items <- c(
-    "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
-    "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
-    "timestep", "endian"
+  "name", "version", "order", "firstyear", "nyear", "firstcell", "ncell",
+  "nbands", "cellsize_lon", "scalar", "cellsize_lat", "datatype", "nstep",
+  "timestep", "endian"
 )

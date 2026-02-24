@@ -1,28 +1,28 @@
 test_that("Create LPJmL file header", {
-h1 <- create_header(
-  name = "LPJGRID",
-  version = 3,
-  order = 1,
-  firstyear = 1901,
-  nyear = 1,
-  firstcell = 0,
-  ncell = 67420,
-  nbands = 2,
-  cellsize_lon = 0.5,
-  scalar = 1,
-  cellsize_lat = 0.5,
-  datatype = 1,
-  nstep = 1,
-  timestep = 1,
-  endian = .Platform$endian,
-  verbose = FALSE
-)
-# Test that returned header has valid structure
-expect_type(h1, "list")
-expect_named(h1, c("name", "header", "endian"))
-expect_length(h1$name, 1)
-expect_length(h1$header, 13)
-expect_length(h1$endian, 1)
+  h1 <- create_header(
+    name = "LPJGRID",
+    version = 3,
+    order = 1,
+    firstyear = 1901,
+    nyear = 1,
+    firstcell = 0,
+    ncell = 67420,
+    nbands = 2,
+    cellsize_lon = 0.5,
+    scalar = 1,
+    cellsize_lat = 0.5,
+    datatype = 1,
+    nstep = 1,
+    timestep = 1,
+    endian = .Platform$endian,
+    verbose = FALSE
+  )
+  # Test that returned header has valid structure
+  expect_type(h1, "list")
+  expect_named(h1, c("name", "header", "endian"))
+  expect_length(h1$name, 1)
+  expect_length(h1$header, 13)
+  expect_length(h1$endian, 1)
 })
 
 test_that("Errors in create_header", {
@@ -36,11 +36,12 @@ test_that("Errors in create_header", {
     create_header(version = 2.4),
     "must be an integer"
   )
-  # Character value for integer header attribute
-  expect_error(
-    create_header(ncell = "0"),
-    "must be an integer"
-  )
+  # removed because of change in header defaults for netcdf reading
+  ## Character value for integer header attribute
+  # expect_error(
+  #  create_header(ncell = "0"), # nolint:commented_code_linter
+  #  "must be an integer"
+  # )
   # Multiple values for same header attribute
   expect_error(
     create_header(order = c(1, 2)),
@@ -124,7 +125,7 @@ test_that("Warnings in create_header", {
   expect_warning(
     create_header("NONAME", ncell = 1),
     "Header name.+is probably invalid"
-  ) %>% expect_message("Setting datatype")
+  ) %>% expect_message("Setting datatype") # nolint:pipe_consistency_linter
   expect_warning(
     create_header(version = 1, ncell = 1, cellsize_lon = 0.75),
     "Setting non-default cellsize_lon"
@@ -144,11 +145,11 @@ test_that("Warnings in create_header", {
   expect_warning(
     create_header(version = 3, ncell = 1, nstep = 12),
     "Setting non-default nstep"
-  ) %>% expect_message("Setting datatype")
+  ) %>% expect_message("Setting datatype") # nolint:pipe_consistency_linter
   expect_warning(
     create_header(version = 3, ncell = 1, timestep = 5),
     "Setting non-default timestep"
-  ) %>% expect_message("Setting datatype")
+  ) %>% expect_message("Setting datatype") # nolint:pipe_consistency_linter
 })
 
 test_that("Tests for is_valid_header", {

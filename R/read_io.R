@@ -20,6 +20,7 @@
 #'   detection is incorrect. Valid options:
 #'   * `"raw"`, a binary file without header.
 #'   * `"clm"`, a binary file with header.
+#'   * `"cdf"`, a netcdf file with meta data.
 #'   * `"meta"`, a meta information JSON file complementing a raw or clm file.
 #' @param version Integer indicating the clm file header version, currently
 #'   supports one of `c(1, 2, 3, 4)`.
@@ -192,6 +193,7 @@ read_io <- function( # nolint:cyclocomp_linter.
   if (is.null(file_type)) {
     file_type <- detect_io_type(filename)
   }
+
   # Check valid file_type
   if (!file_type %in% supported_types) {
     stop(
@@ -200,29 +202,10 @@ read_io <- function( # nolint:cyclocomp_linter.
     )
   }
 
-  # Check valid dim_order
-  valid_dim_names <- c("cell", "time", "band")
-  if (!all(dim_order %in% valid_dim_names)) {
-    stop(
-      "Invalid dim_order provided: c(",
-      toString(sQuote(dim_order)), ")\n",
-      "dim_order can be in any order but must include all of the following ",
-      "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
-    )
-  }
-  if (!all(valid_dim_names %in% dim_order)) {
-    stop(
-      "Invalid dim_order provided: c(",
-      toString(sQuote(dim_order)), ")\n",
-      "dim_order can be in any order but must include all of the following ",
-      "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
-    )
-  }
-
   # Construct meta data from JSON, clm header, and/or provided function
   # arguments
-  meta_data <- match.arg(file_type, supported_types) %>%
-    paste("read_io_metadata", ., sep = "_") %>%
+  meta_data <- match.arg(file_type, supported_types) %>% # nolint:pipe_consistency_linter.
+    paste("read_io_metadata", ., sep = "_") %>% # nolint:pipe_consistency_linter.
     do.call(args = list(filename = filename,
                         file_type = file_type,
                         band_names = band_names,
@@ -285,7 +268,7 @@ read_io <- function( # nolint:cyclocomp_linter.
     # Check format of the file linked in meta file
     if (is.null(meta_data$format)) {
       stop("Missing 'format' in meta file ", sQuote(filename))
-    } else if (! meta_data$format %in% setdiff(supported_types, "meta")) {
+    } else if (!meta_data$format %in% setdiff(supported_types, "meta")) {
       # Capture fringe case where the meta file links to a file in an
       # unsupported format
       stop("Format ", dQuote(meta_data$format), " specified in meta file ",
@@ -314,86 +297,152 @@ read_io <- function( # nolint:cyclocomp_linter.
       stop("File ", filename, " linked in meta file does not exist")
     }
   }
-  # Derive file_header from meta_data. Set silent = TRUE here because any
-  # warnings should have been triggered in read_io_metadata already.
-  file_header <- meta_data$as_header(silent = TRUE)
 
-  # Check file size
-  # Check if file is an LPJDAMS input file, which has a different format.
-  if (get_header_item(file_header, "name") == "LPJDAMS") {
-    # Hardcoded size of 4 and number of bands
-    expected_filesize <- unname(
-      get_header_item(file_header, "ncell") *
-        length(band_names_reservoir) *
-        get_header_item(file_header, "nstep") *
-        get_header_item(file_header, "nyear") *
-        4 + start_offset
-    )
+  # Check valid dim_order
+  if (meta_data$format == "cdf") {
+    valid_dim_names <- c("lon", "lat", "time", "band")
+    if ("cell" %in% dim_order) {
+      if (!missing(dim_order) && !silent) {
+        # Display warning message only if user has explicitly requested a
+        # dim_order containing "cell", not for function default.
+        warning(
+          sQuote("cell", q = FALSE), " in requested dim_order c(",
+          toString(sQuote(dim_order, q = FALSE)),
+          ") replaced with c(", toString(sQuote(c("lon", "lat"), q = FALSE)),
+          ") for format ", sQuote(meta_data$format, q = FALSE)
+        )
+      }
+      # Replace "cell" with "lon", "lat".
+      cell_pos <- grep("cell", dim_order)[1]
+      dim_order <- setdiff(
+        append(dim_order, values = c("lon", "lat"), after = cell_pos),
+        "cell"
+      )
+    }
   } else {
-    expected_filesize <- unname(
-      get_header_item(file_header, "ncell") *
-        get_header_item(file_header, "nbands") *
-        get_header_item(file_header, "nstep") *
-        get_header_item(file_header, "nyear") *
-        get_datatype(file_header)$size + start_offset
-    )
+    valid_dim_names <- c("cell", "time", "band")
   }
-  if (file.size(filename) != expected_filesize) {
+
+  if (!all(dim_order %in% valid_dim_names)) {
     stop(
-      "Unexpected file size (", file.size(filename), " bytes) of ", filename,
-      "\nExpected size: ", expected_filesize, " bytes",
-      "\nPlease check ",
-      switch(file_type, meta = "meta file", clm = "header", "supplied"),
-      " attributes."
+      "Invalid dim_order provided: c(",
+      toString(sQuote(dim_order)), ")\n",
+      "dim_order can be in any order but must include all of the following ",
+      "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
+    )
+  }
+  if (!all(valid_dim_names %in% dim_order)) {
+    stop(
+      "Invalid dim_order provided: c(",
+      toString(sQuote(dim_order)), ")\n",
+      "dim_order can be in any order but must include all of the following ",
+      "band names: c(", toString(sQuote(sort(valid_dim_names))), ")"
     )
   }
 
-  # Check whether nbands may actually be nstep
-  if (!silent && get_header_item(file_header, "version") < 4 &&
-        get_header_item(file_header, "nstep") == 1 &&
-        get_header_item(file_header, "nbands") %in% c(12, 365)) {
-    message(
-      "read_io: Detected \"nbands = ", get_header_item(file_header, "nbands"),
-      "\" and \"nstep = 1\". If this is a ",
-      ifelse(get_header_item(file_header, "nbands") == 12, "monthly", "daily"),
-      " file consider setting \"nbands = 1\" and \"nstep = ",
-      get_header_item(file_header, "nbands"),
-      "\" to allow correct setting of the time axis."
+  if (meta_data$format != "cdf") {
+    # Derive file_header from meta_data. Set silent = TRUE here because any
+    # warnings should have been triggered in read_io_metadata already.
+    file_header <- meta_data$as_header(silent = TRUE)
+    # Check file size
+    # Check if file is an LPJDAMS input file, which has a different format.
+    if (get_header_item(file_header, "name") == "LPJDAMS") {
+      # Hardcoded size of 4 and number of bands
+      expected_filesize <- unname(
+        get_header_item(file_header, "ncell") *
+          length(band_names_reservoir) *
+          get_header_item(file_header, "nstep") *
+          get_header_item(file_header, "nyear") *
+          4 + start_offset
+      )
+    } else {
+      expected_filesize <- unname(
+        get_header_item(file_header, "ncell") *
+          get_header_item(file_header, "nbands") *
+          get_header_item(file_header, "nstep") *
+          get_header_item(file_header, "nyear") *
+          get_datatype(file_header)$size + start_offset
+      )
+    }
+    if (file.size(filename) != expected_filesize) {
+      stop(
+        "Unexpected file size (", file.size(filename), " bytes) of ", filename,
+        "\nExpected size: ", expected_filesize, " bytes",
+        "\nPlease check ",
+        switch(file_type, meta = "meta file", clm = "header", "supplied"),
+        " attributes."
+      )
+    }
+
+    # Check whether nbands may actually be nstep
+    if (!silent && get_header_item(file_header, "version") < 4 &&
+          get_header_item(file_header, "nstep") == 1 &&
+          get_header_item(file_header, "nbands") %in% c(12, 365)) {
+      message(
+        "read_io: Detected \"nbands = ", get_header_item(file_header, "nbands"),
+        "\" and \"nstep = 1\". If this is a ",
+        ifelse(get_header_item(file_header, "nbands") == 12, "monthly", "daily"),
+        " file consider setting \"nbands = 1\" and \"nstep = ",
+        get_header_item(file_header, "nbands"),
+        "\" to allow correct setting of the time axis."
+      )
+    }
+    # Read data from binary file
+    if (get_header_item(file_header, "name") == "LPJDAMS") {
+      file_data <- read_io_reservoir(filename, meta_data, subset, silent)
+    } else {
+      file_data <- read_io_data(filename, meta_data, subset, silent)
+    }
+    # Update meta_data based on subset
+    if (!is.null(subset$year) && is.numeric(subset$year)) {
+      year_dimnames <- split_time_names(dimnames(file_data)[["time"]])$year
+    } else {
+      year_dimnames <- NULL
+    }
+    if (!is.null(subset$cell)) {
+      cell_dimnames <- dimnames(file_data)[["cell"]]
+    } else {
+      cell_dimnames <- NULL
+    }
+    if (length(subset) > 0) {
+      meta_data$.__update_subset__(subset,
+                                   cell_dimnames = cell_dimnames,
+                                   year_dimnames = year_dimnames)
+    }
+    # Adjust dimension order to dim_order
+    if (!identical(dim_order, names(dim(file_data))))
+      file_data <- aperm(file_data, perm = dim_order)
+
+    # Create LPJmLData object and combine data and meta_data
+    lpjml_data <- LPJmLData$new(data = file_data,
+                                meta_data = meta_data)
+    rm(file_data, meta_data)
+    lpjml_data
+
+  } else { # cdf file
+
+    file_data <- read_cdf(filename = filename,
+                          nc_header = meta_data,
+                          subset = subset,
+                          silent)
+
+    # update meta data according to subset
+    if (length(subset) > 0) {
+      meta_data$.__update_subset__(subset)
+    }
+
+    # Adjust dimension order to dim_order
+    if (!identical(dim_order, names(dim(file_data))))
+      file_data <- aperm(file_data, perm = dim_order)
+
+    # create LPJmLData object from lat-lon data in cdf
+    latlon_data <- LPJmLData$new(
+      data = file_data,
+      meta_data = meta_data
     )
-  }
 
-  # Read data from binary file
-  if (get_header_item(file_header, "name") == "LPJDAMS") {
-    file_data <- read_io_reservoir(filename, meta_data, subset, silent)
-  } else {
-    file_data <- read_io_data(filename, meta_data, subset, silent)
+    latlon_data
   }
-
-  # Update meta_data based on subset
-  if (!is.null(subset$year) && is.numeric(subset$year)) {
-    year_dimnames <- split_time_names(dimnames(file_data)[["time"]])$year
-  } else {
-    year_dimnames <- NULL
-  }
-  if (!is.null(subset$cell)) {
-    cell_dimnames <- dimnames(file_data)[["cell"]]
-  } else {
-    cell_dimnames <- NULL
-  }
-  if (length(subset) > 0) {
-    meta_data$.__update_subset__(subset,
-                                 cell_dimnames = cell_dimnames,
-                                 year_dimnames = year_dimnames)
-  }
-  # Adjust dimension order to dim_order
-  if (!identical(dim_order, names(dim(file_data))))
-    file_data <- aperm(file_data, perm = dim_order)
-
-  # Create LPJmLData object and combine data and meta_data
-  lpjml_data <- LPJmLData$new(data = file_data,
-                              meta_data = meta_data)
-  rm(file_data, meta_data)
-  lpjml_data
 }
 
 # Read & assign metadata for binary file without a header
@@ -450,6 +499,48 @@ read_io_metadata_raw <- function(filename, file_type, band_names,
   meta_data <- LPJmLMetaData$new(
     x = file_header,
     additional_attributes = additional_attributes,
+    data_dir = dirname(filename)
+  )
+  meta_data
+}
+
+# Read & assign metadata for netcdf file
+read_io_metadata_cdf <- function(filename, file_type, band_names,
+                                 version, order, firstyear, nyear, firstcell,
+                                 ncell, nbands, cellsize_lon, scalar,
+                                 cellsize_lat, datatype, nstep, timestep,
+                                 endian, variable, descr, unit, name, silent) {
+  # Read meta information from netcdf
+  meta_data_list <- read_cdf_meta(filename = filename,
+                                  variable_name = variable,
+                                  silent = silent)
+
+  # create a list from the manually supplied attributes
+  manual_attributes <- list(
+    band_names = band_names,
+    order = order,
+    firstyear = firstyear,
+    nyear = nyear,
+    firstcell = firstcell,
+    ncell = ncell,
+    nbands = nbands,
+    cellsize_lon = cellsize_lon,
+    scalar = scalar,
+    cellsize_lat = cellsize_lat,
+    datatype = datatype,
+    nstep = nstep,
+    timestep = timestep,
+    variable = variable,
+    descr = descr,
+    unit = unit,
+    name = name
+  )
+
+  merged_meta_data <- merge_lists(priority = meta_data_list,
+                                  secondary = manual_attributes)
+
+  meta_data <- LPJmLMetaData$new(
+    x = merged_meta_data,
     data_dir = dirname(filename)
   )
   meta_data
@@ -706,14 +797,14 @@ read_io_data <- function(
   )
   read_dimnames <- switch(
     default(meta_data$order, "cellyear"),
-    cellyear  = list(                                                # order 1
+    cellyear  = list( # order 1
       band = band_names,
       time = NULL, # Assign dates later
       cell = cell_dimnames
     ),
     yearcell  = stop("Order yearcell not supported"),                # order 2
     cellindex = stop("Order cellindex not supported"),               # order 3
-    cellseq   = list(                                                # order 4
+    cellseq   = list( # order 4
       cell = cell_dimnames,
       band = band_names,
       time = NULL # Assign dates later

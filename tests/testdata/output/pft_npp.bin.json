@@ -34,5 +34,6 @@
   "order" : "cellseq",
   "bigendian" : false,
   "format" : "raw",
+  "grid" : {"filename" : "grid.bin.json", "format" : "meta"},
   "filename" : "pft_npp.bin"
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_meta.R
 \name{read_meta}
 \alias{read_meta}
-\title{Read an LPJmL meta file or binary file header}
+\title{Read an LPJmL meta file, NetCDF or binary file header}
 \usage{
 read_meta(filename, ...)
 }
@@ -17,11 +17,15 @@ read.}
 An \code{\link{LPJmLMetaData}} object.
 }
 \description{
-Reads a meta JSON file or the header of a binary LPJmL input or output file.
+Reads the meta information of an LPJmL Meta (JSON) file, a NetCDF file or
+the header of a binary LPJmL input or output file. For NetCDF files, an
+additional arguments can be passed to the internal \code{\link{read_cdf_meta}}
+function to specify the variable name if multiple variables are present
+in the file and automatic detection fails.
 }
 \examples{
 \dontrun{
- meta <- read_meta(filename = "mpft_npp.bin.json")
+meta <- read_meta(filename = "mpft_npp.bin.json")
 
  meta$sim_name
  # [1] "LPJmL Run"

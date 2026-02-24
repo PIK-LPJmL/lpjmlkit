@@ -123,14 +123,9 @@ LPJmLData$set("private",
           summary(...)
 
       } else {
-        if (class(self)[1] == "LPJmLGridData") {
-          mat_sum %>%
-              summary(...) %>%
-              `[`(c(1, 6), )
-        } else {
-          mat_sum %>%
-            summary(...)
-        }
+
+        mat_sum %>%
+          summary(...)
       }
 
     } else {
@@ -142,18 +137,6 @@ LPJmLData$set("private",
         mat_sum <- summary(matrix(data), ...)
       }
       var_name <- dimnames(data)[[dimension]]
-
-      # Handle grid data, only min and max reasonable
-      if (!is.null(private$.meta$variable) &&
-          private$.meta$variable == "grid") {
-        # Handle LPJmLGridData, "cell" for "band"
-        if (class(self)[1] == "LPJmLGridData" &&
-            private$.meta$._space_format_ == "lon_lat" &&
-            dimension == "band") {
-          var_name <- "cell"
-        }
-        mat_sum <- mat_sum[c(1, 6), , drop = FALSE]
-      }
 
       # Assign dimname(s) as name for (each) summary
       space_len <- pmax((9 - nchar(var_name)) * 0.5, 0)

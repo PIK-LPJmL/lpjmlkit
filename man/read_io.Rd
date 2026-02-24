@@ -55,6 +55,7 @@ detection is incorrect. Valid options:
 \itemize{
 \item \code{"raw"}, a binary file without header.
 \item \code{"clm"}, a binary file with header.
+\item \code{"cdf"}, a netcdf file with meta data.
 \item \code{"meta"}, a meta information JSON file complementing a raw or clm file.
 }}
 
