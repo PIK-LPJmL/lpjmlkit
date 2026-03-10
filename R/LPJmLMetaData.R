@@ -53,17 +53,17 @@ LPJmLMetaData <- R6::R6Class( # nolint
     print = function(all = TRUE, spaces = "") {
 
       if (!all) {
-        print_fields <- self$._fields_set_ %>%
-          `[`(-stats::na.omit(match(private$exclude_print(), .)))
+        print_fields <- self$._fields_set_ |>
+          (\(x) x[-stats::na.omit(match(private$exclude_print(), x))])()
       } else {
         print_fields <- self$._fields_set_
       }
 
-      meta_fields <- print_fields %>%
+      meta_fields <- print_fields |>
         sapply(function(x) do.call("$", list(self, x)), # nolint:undesirable_function_linter.
                USE.NAMES = FALSE)
 
-      to_char1 <- print_fields %>%
+      to_char1 <- print_fields |>
         sapply(function(x) { # nolint:undesirable_function_linter
           check <- do.call("$", list(self, x))
           if (is.character(check) & length(check) <= 1) {
@@ -285,7 +285,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
       if (all(names(x) %in% c("name", "header", "endian"))) {
         is_valid_header(x)
-        header_to_meta <- as.list(x$header) %>%
+        header_to_meta <- as.list(x$header) |>
           append(list(
             "bigendian" = ifelse(x$endian == "big", TRUE, FALSE),
             # "descr" = tolower(x$name), # nolint
@@ -294,32 +294,25 @@ LPJmLMetaData <- R6::R6Class( # nolint
                 (x$header[["nyear"]] - 1),
             "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name),
             "format" = "clm"
+          )) |>
+          (\(lst) {
+            lst[["order"]] <- switch(as.character(lst[["order"]]),
               `1` = "cellyear",
               `2` = "yearcell",
               `3` = "cellindex",
               `4` = "cellseq",
-              stop(
-                paste(
-                  "Invalid order value", sQuote(.$order), "in header"
-                )
-              )
+              stop(paste("Invalid order value", sQuote(lst[["order"]]), "in header"))
             )
-          ) %>%
-          `[[<-`("datatype",
-            switch(as.character(.$datatype),
+            lst[["datatype"]] <- switch(as.character(lst[["datatype"]]),
               `0` = "byte",
               `1` = "short",
               `2` = "int",
               `3` = "float",
               `4` = "double",
-              stop(
-                paste(
-                  "Invalid datatype value", sQuote(.$datatype),
-                  "in header"
-                )
-              )
+              stop(paste("Invalid datatype value", sQuote(lst[["datatype"]]), "in header"))
             )
-          )
+            lst
+          })()
         private$init_list(header_to_meta, additional_attributes)
 
       } else {
@@ -639,7 +632,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
         "filename",
         "grid",
         "ref_area"
-      ) %>%
+      ) |>
 
         # Only append scalar if != 1
         append(
@@ -648,12 +641,13 @@ LPJmLMetaData <- R6::R6Class( # nolint
             ifelse(private$.scalar == 1, "scalar", NA),
             NA
           )
-        ) %>%
+        ) |>
 
         # Workaround to deal with NAs (NULL not possible in ifelse)
-        stats::na.omit() %>%
-        as.vector() %>%
-        return()
+        stats::na.omit() |>
+        as.vector()
+
+      return(to_exclude)
     },
 
     .sim_name = NULL,
