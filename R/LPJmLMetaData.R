@@ -292,10 +292,8 @@ LPJmLMetaData <- R6::R6Class( # nolint
             "lastyear" = x$header[["firstyear"]] +
               x$header[["timestep"]] *
                 (x$header[["nyear"]] - 1),
-            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name)
-          )) %>%
-          `[[<-`("order",
-            switch(as.character(.$order),
+            "name" = ifelse(is.null(x$name), "LPJDUMMY", x$name),
+            "format" = "clm"
               `1` = "cellyear",
               `2` = "yearcell",
               `3` = "cellindex",
@@ -334,7 +332,9 @@ LPJmLMetaData <- R6::R6Class( # nolint
       }
 
       # NetCDF files come directly in the format "lon_lat"
-      if (!is.null(private$.format) && private$.format == "cdf") {
+      if (is.null(private$.format)) {
+        warning("Meta data does not contain a ", sQuote("format"), " field.")
+      } else if (private$.format == "cdf") {
         private$.space_format <- "lon_lat"
       }
     }
