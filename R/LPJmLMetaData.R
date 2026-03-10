@@ -334,7 +334,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
       }
 
       # NetCDF files come directly in the format "lon_lat"
-      if (private$.format == "cdf") {
+      if (!is.null(private$.format) && private$.format == "cdf") {
         private$.space_format <- "lon_lat"
       }
     }
