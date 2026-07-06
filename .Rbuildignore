@@ -20,3 +20,4 @@
 ^doc$
 ^Meta$
 ^_pkgdown\.yml$
+^\.claude$

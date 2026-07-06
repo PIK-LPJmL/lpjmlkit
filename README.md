@@ -1,8 +1,8 @@
 # <a href=''><img src='inst/img/logo.png' align='right' alt='logo' height=139 /></a> Toolkit for Basic LPJmL Handling
 
-R package **lpjmlkit**, version **1.8.1**
+R package **lpjmlkit**, version **1.8.2**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/lpjmlkit)](https://cran.r-project.org/package=lpjmlkit) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7773134.svg)](https://doi.org/10.5281/zenodo.7773134) [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/builds)
+  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7773134.svg)](https://doi.org/10.5281/zenodo.7773134) [![R build status](https://github.com/PIK-LPJmL/lpjmlkit/workflows/check/badge.svg)](https://github.com/PIK-LPJmL/lpjmlkit/actions) [![codecov](https://codecov.io/gh/PIK-LPJmL/lpjmlkit/branch/master/graph/badge.svg)](https://app.codecov.io/gh/PIK-LPJmL/lpjmlkit) [![r-universe](https://pik-piam.r-universe.dev/badges/lpjmlkit)](https://pik-piam.r-universe.dev/builds)
 
 ## Purpose and Functionality
 
@@ -49,13 +49,13 @@ The additional repository can be made available permanently by adding the line a
 
 After that the most recent version of the package can be installed using `install.packages`:
 
-```r 
+```r
 install.packages("lpjmlkit")
 ```
 
 Package updates can be installed using `update.packages` (make sure that the additional repository has been added before running that command):
 
-```r 
+```r
 update.packages()
 ```
 
@@ -76,7 +76,7 @@ In case of questions / problems please contact Jannes Breier <jannesbr@pik-potsd
 
 To cite package **lpjmlkit** in publications use:
 
-Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Hötten D, Müller C (2026). "lpjmlkit: Toolkit for Basic LPJmL Handling." doi:10.5281/zenodo.7773134 <https://doi.org/10.5281/zenodo.7773134>, Version: 1.8.1, <https://github.com/PIK-LPJmL/lpjmlkit>.
+Breier J, Ostberg S, Wirth S, Minoli S, Stenzel F, Hötten D, Müller C (2026). "lpjmlkit: Toolkit for Basic LPJmL Handling." doi:10.5281/zenodo.7773134 <https://doi.org/10.5281/zenodo.7773134>, Version: 1.8.2, <https://github.com/PIK-LPJmL/lpjmlkit>.
 
 A BibTeX entry for LaTeX users is
 
@@ -85,9 +85,9 @@ A BibTeX entry for LaTeX users is
   title = {lpjmlkit: Toolkit for Basic LPJmL Handling},
   author = {Jannes Breier and Sebastian Ostberg and Stephen Björn Wirth and Sara Minoli and Fabian Stenzel and David Hötten and Christoph Müller},
   doi = {10.5281/zenodo.7773134},
-  date = {2026-03-10},
+  date = {2026-07-06},
   year = {2026},
   url = {https://github.com/PIK-LPJmL/lpjmlkit},
-  note = {Version: 1.8.1},
+  note = {Version: 1.8.2},
 }
 ```

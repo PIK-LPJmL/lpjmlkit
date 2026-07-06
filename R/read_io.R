@@ -274,25 +274,12 @@ read_io <- function( # nolint:cyclocomp_linter.
       stop("Format ", dQuote(meta_data$format), " specified in meta file ",
            sQuote(filename), " not supported.")
     }
-    # Get filename from meta file
-    if (basename(meta_data$filename) == meta_data$filename) {
-      # meta_data$filename is in same directory as filename. Can use path from
-      # filename.
-      filename <- file.path(dirname(filename), meta_data$filename)
-    } else {
-      # meta_data$filename is in a different directory than filename. Need to
-      # parse path.
-      # Save current working directory.
-      wd <- getwd()
-      # Reset working directory if function exits (breaks, fails, etc.)
-      on.exit(setwd(wd)) # nolint:undesirable_function_linter.
-      # Set working directory to path of filename
-      setwd(dirname(filename)) # nolint:undesirable_function_linter.
-      # Relative path can be parsed now
-      filename <- normalizePath(meta_data$filename, mustWork = FALSE)
-      # Reset working directory
-      setwd(wd) # nolint:undesirable_function_linter.
-    }
+    # Get filename from meta file. The code tries to normalize file locations
+    # given as relative or absolute paths.
+    filename <- withr::with_dir(
+      dirname(filename),
+      normalizePath(meta_data$filename)
+    )
     if (!file.exists(filename)) {
       stop("File ", filename, " linked in meta file does not exist")
     }
