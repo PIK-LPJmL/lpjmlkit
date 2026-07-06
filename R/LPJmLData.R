@@ -36,18 +36,15 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       }
 
       if (...length() == 0) {
-        # If user has not supplied any parameters try to find a grid file in the
+        # If user has not supplied any parameters look for grid attribute in
+        # meta data. If this is not available try to find a grid file in the
         # same directory as data. This throws an error if no suitable file is
         # found.
         if (!is.null(private$.meta$grid)) {
-          if (dirname(private$.meta$grid$filename) == ".") {
-            filename <- file.path(
-              private$.meta$._data_dir_,
-              private$.meta$grid$filename
-            )
-          } else {
-            filename <- private$.meta$grid$filename
-          }
+          filename <- withr::with_dir(
+            private$.meta$._data_dir_,
+            normalizePath(private$.meta$grid$filename, mustWork = TRUE)
+          )
         } else {
           filename <- find_varfile(private$.meta$._data_dir_, "grid")
         }

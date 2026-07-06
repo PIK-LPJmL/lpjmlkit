@@ -321,7 +321,7 @@ LPJmLMetaData <- R6::R6Class( # nolint
 
       # Add data_dir for lazy loading of (e.g.) grid later
       if (!is.null(data_dir)) {
-        private$.data_dir <- data_dir
+        private$.data_dir <- normalizePath(data_dir)
       }
 
       # NetCDF files come directly in the format "lon_lat"
