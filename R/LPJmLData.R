@@ -299,11 +299,15 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
 
         # Check if data dimensions match grid dimensions, no subsetting
         #   supported - too error prone
-        if (!all(dimnames(self)[["lat"]] %in% dimnames(grid)[["lat"]]) &&
-            all(data_dim_names$lon == grid_dim_names$lon)) {
-          warning("Cropping LPJmLData object with new LPJmLGridData")               
-        } else if (!all(data_dim_names$lon == grid_dim_names$lon) ||
-              !all(data_dim_names$lat == grid_dim_names$lat)) {
+        if (
+          !all(dimnames(self)[["lat"]] %in% dimnames(grid)[["lat"]]) &&
+            all(data_dim_names$lon == grid_dim_names$lon)
+        ) {
+          warning("Cropping LPJmLData object with new LPJmLGridData")
+        } else if (
+          !all(data_dim_names$lon == grid_dim_names$lon) ||
+            !all(data_dim_names$lat == grid_dim_names$lat)
+        ) {
           stop(
             "Data dimensions do not match LPJmL grid dimensions. ",
             "Please assure data and grid are consistent."
@@ -311,7 +315,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
         }
 
         # get LPJmL grid cells from grid data
-        cell_dimnames <- sort(grid$data) %>%
+        cell_dimnames <- sort(grid$data) |>
           format(trim = TRUE, scientific = FALSE, justify = "none")
 
         # Update meta data of data object
@@ -324,7 +328,7 @@ LPJmLData <- R6::R6Class( # nolint:object_name_linter
       # Set grid attribute
       private$.grid <- grid
       if (!all(dimnames(self)[["lat"]] %in% dimnames(grid)[["lat"]])) {
-        self$subset(lat=dimnames(grid)[["lat"]])        
+        self$subset(lat = dimnames(grid)[["lat"]])
       }
     },
 
