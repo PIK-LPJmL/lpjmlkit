@@ -16,115 +16,123 @@ As in LPJmLData the data array can be accessed via \verb{$data},
 the meta data via \verb{$meta}.
 }
 \section{Super class}{
-\code{\link[lpjmlkit:LPJmLData]{lpjmlkit::LPJmLData}} -> \code{LPJmLGridData}
+\code{\link[lpjmlkit:LPJmLData]{LPJmLData}} -> \code{LPJmLGridData}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-LPJmLGridData-add_grid}{\code{LPJmLGridData$add_grid()}}
-\item \href{#method-LPJmLGridData-plot}{\code{LPJmLGridData$plot()}}
-\item \href{#method-LPJmLGridData-new}{\code{LPJmLGridData$new()}}
-\item \href{#method-LPJmLGridData-print}{\code{LPJmLGridData$print()}}
-\item \href{#method-LPJmLGridData-clone}{\code{LPJmLGridData$clone()}}
+  \itemize{
+    \item \href{#method-LPJmLGridData-add_grid}{\code{LPJmLGridData$add_grid()}}
+    \item \href{#method-LPJmLGridData-plot}{\code{LPJmLGridData$plot()}}
+    \item \href{#method-LPJmLGridData-initialize}{\code{LPJmLGridData$new()}}
+    \item \href{#method-LPJmLGridData-print}{\code{LPJmLGridData$print()}}
+    \item \href{#method-LPJmLGridData-clone}{\code{LPJmLGridData$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id=".__set_data__"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-.__set_data__'><code>lpjmlkit::LPJmLData$.__set_data__()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id=".__set_grid__"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-.__set_grid__'><code>lpjmlkit::LPJmLData$.__set_grid__()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_array"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_array'><code>lpjmlkit::LPJmLData$as_array()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_raster"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_raster'><code>lpjmlkit::LPJmLData$as_raster()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_terra"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_terra'><code>lpjmlkit::LPJmLData$as_terra()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_tibble"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_tibble'><code>lpjmlkit::LPJmLData$as_tibble()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dim"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dim'><code>lpjmlkit::LPJmLData$dim()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dimnames"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dimnames'><code>lpjmlkit::LPJmLData$dimnames()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="length"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-length'><code>lpjmlkit::LPJmLData$length()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="subset"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-subset'><code>lpjmlkit::LPJmLData$subset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="summary"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-summary'><code>lpjmlkit::LPJmLData$summary()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="transform"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-transform'><code>lpjmlkit::LPJmLData$transform()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id=".__set_data__"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-.__set_data__'><code>LPJmLData$.__set_data__()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id=".__set_grid__"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-.__set_grid__'><code>LPJmLData$.__set_grid__()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_array"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_array'><code>LPJmLData$as_array()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_raster"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_raster'><code>LPJmLData$as_raster()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_terra"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_terra'><code>LPJmLData$as_terra()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="as_tibble"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-as_tibble'><code>LPJmLData$as_tibble()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dim"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dim'><code>LPJmLData$dim()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="dimnames"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-dimnames'><code>LPJmLData$dimnames()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="length"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-length'><code>LPJmLData$length()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="subset"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-subset'><code>LPJmLData$subset()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="summary"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-summary'><code>LPJmLData$summary()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="lpjmlkit" data-topic="LPJmLData" data-id="transform"><a href='../../lpjmlkit/html/LPJmLData.html#method-LPJmLData-transform'><code>LPJmLData$transform()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLGridData-add_grid"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLGridData-add_grid}{}}}
-\subsection{Method \code{add_grid()}}{
-! Not allowed to add a grid to an \code{LPJmLGridData} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$add_grid(...)}\if{html}{\out{</div>}}
+\subsection{\code{LPJmLGridData$add_grid()}}{
+  ! Not allowed to add a grid to an \code{LPJmLGridData} object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LPJmLGridData$add_grid(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{See \code{\link[=add_grid]{add_grid()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=add_grid]{add_grid()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLGridData-plot"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLGridData-plot}{}}}
-\subsection{Method \code{plot()}}{
-! No plot function available for \code{LPJmLGridData} object. Use
+\subsection{\code{LPJmLGridData$plot()}}{
+  ! No plot function available for \code{LPJmLGridData} object. Use
 \code{\link[=as_raster]{as_raster()}} or \code{\link[=as_terra]{as_terra()}} (and \code{plot()}) to visualize the grid.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$plot(...)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LPJmLGridData$plot(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{See \code{\link[=plot]{plot()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{See \code{\link[=plot]{plot()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LPJmLGridData-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LPJmLGridData-new}{}}}
-\subsection{Method \code{new()}}{
-!Internal method only to be used for package development!
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$new(lpjml_data)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-LPJmLGridData-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-LPJmLGridData-initialize}{}}}
+\subsection{\code{LPJmLGridData$new()}}{
+  !Internal method only to be used for package development!
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LPJmLGridData$new(lpjml_data)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{lpjml_data}}{LPJmLData object with variable \code{"grid"}, \code{"cellid"}
+or \code{"LPJGRID"}}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{lpjml_data}}{LPJmLData object with variable \code{"grid"}, \code{"cellid"}
-or \code{"LPJGRID"}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLGridData-print"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLGridData-print}{}}}
-\subsection{Method \code{print()}}{
-Method to print the \code{LPJmLGridData}. \cr
+\subsection{\code{LPJmLGridData$print()}}{
+  Method to print the \code{LPJmLGridData}. \cr
 See also \link[base]{print}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$print()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LPJmLGridData$print()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LPJmLGridData-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-LPJmLGridData-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LPJmLGridData$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{LPJmLGridData$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{LPJmLGridData$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
