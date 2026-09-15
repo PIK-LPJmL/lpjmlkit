@@ -103,7 +103,7 @@ specify.
 
 my_params1
 # A tibble: 2 x 5
-#   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
+#   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` gsi_phenology
 #   <chr>          <dbl> <chr>                <dbl> <lgl>
 # 1 scenario1         42 first_tree           NA    TRUE
 # 2 scenario2        404 NA                    0.03 FALSE
