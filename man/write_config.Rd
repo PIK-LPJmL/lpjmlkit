@@ -214,7 +214,7 @@ are expected.
 library(tibble)
 
 model_path <- "./LPJmL_internal"
-sim_path <-"./my_runs"
+sim_path <- "./my_runs"
 
 
 # Basic usage
@@ -279,6 +279,5 @@ config_details
 #   <chr>           <dbl> <chr>        <chr>
 # 1 scen1_spinup        1 NA           8:00:00
 # 2 scen1_transient     2 scen1_spinup 2:00:00
-
 }
 }

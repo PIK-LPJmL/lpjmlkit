@@ -365,35 +365,35 @@ write_config <- function(x,
     ) %dopar% {
       # Write a single configuration
       tryCatch(
-{
-        write_single_config(x = x[row_id, ],
-                            model_path = model_path,
-                            sim_path = sim_path,
-                            output_format = output_format,
-                            output_list = output_list,
-                            output_list_timestep = output_list_timestep,
-                            cjson_filename = cjson_filename,
-                            config_tmp = config_tmp,
-                            slurm_args = slurm_args,
-                            commit_hash = commit_hash)
+               {
+                 write_single_config(x = x[row_id, ],
+                                     model_path = model_path,
+                                     sim_path = sim_path,
+                                     output_format = output_format,
+                                     output_list = output_list,
+                                     output_list_timestep = output_list_timestep,
+                                     cjson_filename = cjson_filename,
+                                     config_tmp = config_tmp,
+                                     slurm_args = slurm_args,
+                                     commit_hash = commit_hash)
 
-        # Stop if an error occurs
-      },
- error = function(e) {
-        # Check if error is returned
-        if (e != "") {
-          # Error with hint to use the debug argument
-          stop(
-            e,
-            "Please use argument debug = TRUE for traceback ",
-            " functionality",
-            call. = FALSE
-          )
-        } else {
-          # Hint to use the debug argument
-          stop("This is not a common error, please use argument debug = TRUE")
-        }
-      })
+                 # Stop if an error occurs
+               },
+               error = function(e) {
+                 # Check if error is returned
+                 if (e != "") {
+                   # Error with hint to use the debug argument
+                   stop(
+                     e,
+                     "Please use argument debug = TRUE for traceback ",
+                     " functionality",
+                     call. = FALSE
+                   )
+                 } else {
+                   # Hint to use the debug argument
+                   stop("This is not a common error, please use argument debug = TRUE")
+                 }
+               })
     }
 
     # Close cluster
@@ -525,7 +525,7 @@ write_single_config <- function(x,
   tmp_json <- parse_config(path = model_path,
                            from_restart = from_restart,
                            cjson_filename = cjson_filename,
-                           macro = macro) %>%
+                           macro = macro) |>
 
     # Replace output and restart parameters (paths, output format & which
     # outputs)
@@ -534,7 +534,7 @@ write_single_config <- function(x,
                          output_format = output_format,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
-                         dir_create = !testthat::is_testing()) %>%
+                         dir_create = !testthat::is_testing()) |>
 
     # Insert parameters/keys from x.
     #   Columns as keys and rows as values (values, vectors possible).
@@ -589,7 +589,7 @@ parse_config <- function(path,
                                      paste(macro, collapse = " "))
                             ),
                             wd = path,
-                            cleanup_tree = TRUE)$stdout %>%
+                            cleanup_tree = TRUE)$stdout |>
     jsonlite::parse_json(simplifyVector = FALSE)
 
   tmp_json
@@ -611,7 +611,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
   if (is.null(output_list) || x[["nspinup"]] > 500) {
-    for (x_id in seq_len(length(x[["output"]]))) {
+    for (x_id in seq_along(x[["output"]])) {
       # Replace output format in x if defined (e.g. raw, clm, cdf)
       if (!is.null(output_format) &&
             (is.null(x[["output"]][[x_id]]$file$fmt) ||
@@ -665,7 +665,7 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     }
 
     # Iterate over all defined outputs.
-    for (id_ov in seq_len(length(output_list))) {
+    for (id_ov in seq_along(output_list)) {
       # Get elements in output list that are not defined in x[["outputvar"]]
       if (output_list[id_ov] %in% outputvar_names) {
         # Create empty (new) output list to be appended at the end
@@ -736,8 +736,8 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           switch(
             ifelse(length(output_timestep) > 1,
                    output_timestep[id_ov],
-                   output_timestep) %>%
-              ifelse(is.na(.), "annual", .),
+                   output_timestep) |>
+              (\(ts) ifelse(is.na(ts), "annual", ts))(),
             annual = "/yr",
             monthly = "/month",
             daily = "/day"
@@ -886,19 +886,19 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
   # non standard evaluation here to support using indices in combination with
   # keys in selection via "[[" and "[""
   tryCatch(
-{
-    eval(rlang::parse_expr(paste0("x$", colname)))
+           {
+             eval(rlang::parse_expr(paste0("x$", colname)))
 
-  },
- error = function(e) {
-    # Stop when error occures
-    stop(
-      paste(
-        col_var(colname),
-        "include a combination of keys or indices that do not exist!"
-      )
-    )
-  })
+           },
+           error = function(e) {
+             # Stop when error occures
+             stop(
+               paste(
+                 col_var(colname),
+                 "include a combination of keys or indices that do not exist!"
+               )
+             )
+           })
 
   # Again non standard evaluation with replacement of check function of
   # original type (R lacks distinction of float/double and integer values)
@@ -921,7 +921,7 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
 # by "." syntax -> names(unlist(x)) with indices for unnamed list items
 call_by_points <- function(x, colname, param_value, all_keys) {
   # Split each keys by "."
-  keys <- strsplit(colname, "[.]")[[1]] %>%
+  keys <- strsplit(colname, "[.]")[[1]] |>
 
     # Keys must be either existing in the original config or an index
     # this is also a check to not allow any bad code to be evaluated
@@ -951,17 +951,17 @@ call_by_points <- function(x, colname, param_value, all_keys) {
   # non standard evaluation here to support using indices in combination with
   # keys in selection via "[[" and "[""
   tryCatch(
-{
-    eval(rlang::parse_expr(eval_x))
+           {
+             eval(rlang::parse_expr(eval_x))
 
-  },
- error = function(e) {
-    # Stop when error occures
-    stop(
-      col_var(colname),
-      " include a combination of keys or indices that do not exist!"
-    )
-  })
+           },
+           error = function(e) {
+             # Stop when error occures
+             stop(
+               col_var(colname),
+               " include a combination of keys or indices that do not exist!"
+             )
+           })
 
   # Again non standard evaluation with replacement of check function of
   # original type (R lacks distinction of float/double and integer values)
@@ -1047,7 +1047,7 @@ get_order <- function(x) {
     return(order)
   }
 
-  dplyr::rowwise(x) %>%
+  dplyr::rowwise(x) %>% # nolint
     dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
     return()
 }
