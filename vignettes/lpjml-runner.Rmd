@@ -63,7 +63,7 @@ run or submit LPJmL with each configurations (4).
     sim_name = c("scenario1", "scenario2"),
     random_seed = c(42, 404),
     `param$k_temp` = c(NA, 0.03),
-    new_phenology = c(TRUE, FALSE)
+    gsi_phenology = c(TRUE, FALSE)
   )
   ```
 

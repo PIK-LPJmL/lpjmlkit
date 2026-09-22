@@ -114,7 +114,7 @@ my_params1 <- tibble(
   random_seed = c(42, 404),
   `pftpar[[1]]$name` = c("first_tree", NA),
   `param$k_temp` = c(NA, 0.03),
-  new_phenology = c(TRUE, FALSE)
+  gsi_phenology = c(TRUE, FALSE)
 )
 
 config_details1 <- write_config(my_params1, model_path, sim_path)

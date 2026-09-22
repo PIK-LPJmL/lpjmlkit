@@ -83,7 +83,7 @@
 #'
 #' my_params1
 #' # A tibble: 2 x 5
-#' #   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
+#' #   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` gsi_phenology
 #' #   <chr>          <dbl> <chr>                <dbl> <lgl>
 #' # 1 scenario1         42 first_tree           NA    TRUE
 #' # 2 scenario2        404 NA                    0.03 FALSE
@@ -192,7 +192,7 @@
 #' library(tibble)
 #'
 #' model_path <- "./LPJmL_internal"
-#' sim_path <-"./my_runs"
+#' sim_path <- "./my_runs"
 #'
 #'
 #' # Basic usage
@@ -258,7 +258,6 @@
 #' #   <chr>           <dbl> <chr>        <chr>
 #' # 1 scen1_spinup        1 NA           8:00:00
 #' # 2 scen1_transient     2 scen1_spinup 2:00:00
-#'
 #' }
 #' @md
 #' @importFrom foreach "%dopar%"
@@ -276,8 +275,6 @@ write_config <- function(x,
                          params = NULL,
                          output_path = NULL,
                          js_filename = NULL) {
-
-
   # Deprecate argument params
   if (missing("x")) x <- NULL
   x <- deprecate_arg(new_arg = x,
@@ -366,39 +363,37 @@ write_config <- function(x,
       .packages = "tibble",
       .errorhandling = "stop"
     ) %dopar% {
-
       # Write a single configuration
-      tryCatch({
-        write_single_config(x = x[row_id, ],
-                            model_path = model_path,
-                            sim_path = sim_path,
-                            output_format = output_format,
-                            output_list = output_list,
-                            output_list_timestep = output_list_timestep,
-                            cjson_filename = cjson_filename,
-                            config_tmp = config_tmp,
-                            slurm_args = slurm_args,
-                            commit_hash = commit_hash)
+      tryCatch(
+               {
+                 write_single_config(x = x[row_id, ],
+                                     model_path = model_path,
+                                     sim_path = sim_path,
+                                     output_format = output_format,
+                                     output_list = output_list,
+                                     output_list_timestep = output_list_timestep,
+                                     cjson_filename = cjson_filename,
+                                     config_tmp = config_tmp,
+                                     slurm_args = slurm_args,
+                                     commit_hash = commit_hash)
 
-        # Stop if an error occurs
-      }, error = function(e) {
-
-        # Check if error is returned
-        if (e != "") {
-
-          # Error with hint to use the debug argument
-          stop(
-            e,
-            "Please use argument debug = TRUE for traceback ",
-            " functionality",
-            call. = FALSE
-          )
-        } else {
-
-          # Hint to use the debug argument
-          stop("This is not a common error, please use argument debug = TRUE")
-        }
-      })
+                 # Stop if an error occurs
+               },
+               error = function(e) {
+                 # Check if error is returned
+                 if (e != "") {
+                   # Error with hint to use the debug argument
+                   stop(
+                     e,
+                     "Please use argument debug = TRUE for traceback ",
+                     " functionality",
+                     call. = FALSE
+                   )
+                 } else {
+                   # Hint to use the debug argument
+                   stop("This is not a common error, please use argument debug = TRUE")
+                 }
+               })
     }
 
     # Close cluster
@@ -468,7 +463,6 @@ write_single_config <- function(x,
                                 config_tmp,
                                 slurm_args,
                                 commit_hash = "") {
-
   # Read json file without simplification (to vector) to avoid destroying the
   #   original json structure (important to be readable for LPJmL).
   #   Save it as config.json (as a convention).
@@ -531,7 +525,7 @@ write_single_config <- function(x,
   tmp_json <- parse_config(path = model_path,
                            from_restart = from_restart,
                            cjson_filename = cjson_filename,
-                           macro = macro) %>%
+                           macro = macro) |>
 
     # Replace output and restart parameters (paths, output format & which
     # outputs)
@@ -540,7 +534,7 @@ write_single_config <- function(x,
                          output_format = output_format,
                          output_list = output_list,
                          output_timestep = output_list_timestep,
-                         dir_create = !testthat::is_testing()) %>%
+                         dir_create = !testthat::is_testing()) |>
 
     # Insert parameters/keys from x.
     #   Columns as keys and rows as values (values, vectors possible).
@@ -550,7 +544,6 @@ write_single_config <- function(x,
                         slurm_args = slurm_args)
 
   if (!testthat::is_testing()) {
-
     # Write config json file, use sim_name for naming.
     #   Additional jsonlite::write_json arguments are very important to be
     #   readable in LPJmL (type conservation/hinting).
@@ -584,7 +577,6 @@ parse_config <- function(path,
                          from_restart = FALSE,
                          cjson_filename = "lpjml_config.cjson",
                          macro = "") {
-
   # processx::run kills any occuring subprocesses to avoid fork bombs.
   tmp_json <- processx::run(command = "bash", # nolint:object_usage_linter.
                             args = c(
@@ -597,7 +589,7 @@ parse_config <- function(path,
                                      paste(macro, collapse = " "))
                             ),
                             wd = path,
-                            cleanup_tree = TRUE)$stdout %>%
+                            cleanup_tree = TRUE)$stdout |>
     jsonlite::parse_json(simplifyVector = FALSE)
 
   tmp_json
@@ -614,14 +606,12 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
                                  output_list,
                                  output_timestep,
                                  dir_create = FALSE) {
-
   # Concatenate output path and create folder if set
   opath <- paste(sim_path, "output", params[["sim_name"]], "", sep = "/")
   if (dir_create) dir.create(opath, recursive = TRUE, showWarnings = FALSE)
 
   if (is.null(output_list) || x[["nspinup"]] > 500) {
-    for (x_id in seq_len(length(x[["output"]]))) {
-
+    for (x_id in seq_along(x[["output"]])) {
       # Replace output format in x if defined (e.g. raw, clm, cdf)
       if (!is.null(output_format) &&
             (is.null(x[["output"]][[x_id]]$file$fmt) ||
@@ -653,10 +643,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     }
 
   } else {
-
     # Get list of outputvar names
-    outputvar_names <- unlist(lapply(x[["outputvar"]], function(x)x$name)) # nolint:paren_body_linter.
-    outputvar_units <- unlist(lapply(x[["outputvar"]], function(x)x$unit)) # nolint:paren_body_linter.
+    outputvar_names <- unlist(lapply(x[["outputvar"]], function(x) x$name)) # nolint:paren_body_linter.
+    outputvar_units <- unlist(lapply(x[["outputvar"]], function(x) x$unit)) # nolint:paren_body_linter.
 
     # Empty output and include grid if not done
     x["output"] <- list(c())
@@ -676,11 +665,9 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
     }
 
     # Iterate over all defined outputs.
-    for (id_ov in seq_len(length(output_list))) {
-
+    for (id_ov in seq_along(output_list)) {
       # Get elements in output list that are not defined in x[["outputvar"]]
       if (output_list[id_ov] %in% outputvar_names) {
-
         # Create empty (new) output list to be appended at the end
         new_output <- list()
         new_output[["id"]] <- output_list[id_ov]
@@ -749,8 +736,8 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
           switch(
             ifelse(length(output_timestep) > 1,
                    output_timestep[id_ov],
-                   output_timestep) %>%
-              ifelse(is.na(.), "annual", .),
+                   output_timestep) |>
+              (\(ts) ifelse(is.na(ts), "annual", ts))(),
             annual = "/yr",
             monthly = "/month",
             daily = "/day"
@@ -785,7 +772,6 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
         x[["output"]] <- append(x[["output"]], list(new_output))
 
       } else {
-
         # If ID not available print warning
         warning(
           "Output with ID ",
@@ -809,7 +795,6 @@ mutate_config_output <- function(x, # nolint:cyclocomp_linter.
   }
 
   if (!is.null(x[["restart_filename"]]) && !is.null(params[["dependency"]])) {
-
     # If dependency is defined start from restart file of dependency sim_name
     x[["restart_filename"]] <- paste0(ifelse(is.na(params[["dependency"]]),
                                         rpath,
@@ -849,7 +834,6 @@ mutate_config_param <- function(x,
                                 exclude_macros,
                                 commit_hash,
                                 slurm_args) {
-
   # Every column represents a key in config.json
   params[c("order", "dependency", slurm_args, exclude_macros)] <- NULL
 
@@ -859,7 +843,6 @@ mutate_config_param <- function(x,
   all_keys <- names_recursively(x)
 
   for (colname in colnames(params)) {
-
     # Use default value if NA is supplied
     param_value <- unlist(params[[colname]])
 
@@ -902,18 +885,20 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
   # Check if config/param does exists via checking if its NULL
   # non standard evaluation here to support using indices in combination with
   # keys in selection via "[[" and "[""
-  tryCatch({
-    eval(rlang::parse_expr(paste0("x$", colname)))
+  tryCatch(
+           {
+             eval(rlang::parse_expr(paste0("x$", colname)))
 
-  }, error = function(e) {
-    # Stop when error occures
-    stop(
-      paste(
-        col_var(colname),
-        "include a combination of keys or indices that do not exist!"
-      )
-    )
-  })
+           },
+           error = function(e) {
+             # Stop when error occures
+             stop(
+               paste(
+                 col_var(colname),
+                 "include a combination of keys or indices that do not exist!"
+               )
+             )
+           })
 
   # Again non standard evaluation with replacement of check function of
   # original type (R lacks distinction of float/double and integer values)
@@ -935,9 +920,8 @@ call_by_listsyntax <- function(x, colname, param_value, all_keys) {
 # Function to replace config/param (colname) of nested list x with param_value
 # by "." syntax -> names(unlist(x)) with indices for unnamed list items
 call_by_points <- function(x, colname, param_value, all_keys) {
-
   # Split each keys by "."
-  keys <- strsplit(colname, "[.]")[[1]] %>%
+  keys <- strsplit(colname, "[.]")[[1]] |>
 
     # Keys must be either existing in the original config or an index
     # this is also a check to not allow any bad code to be evaluated
@@ -966,16 +950,18 @@ call_by_points <- function(x, colname, param_value, all_keys) {
   # Check if config/param does exists via checking if its NULL
   # non standard evaluation here to support using indices in combination with
   # keys in selection via "[[" and "[""
-  tryCatch({
-    eval(rlang::parse_expr(eval_x))
+  tryCatch(
+           {
+             eval(rlang::parse_expr(eval_x))
 
-  }, error = function(e) {
-    # Stop when error occures
-    stop(
-      col_var(colname),
-      " include a combination of keys or indices that do not exist!"
-    )
-  })
+           },
+           error = function(e) {
+             # Stop when error occures
+             stop(
+               col_var(colname),
+               " include a combination of keys or indices that do not exist!"
+             )
+           })
 
   # Again non standard evaluation with replacement of check function of
   # original type (R lacks distinction of float/double and integer values)
@@ -996,10 +982,8 @@ call_by_points <- function(x, colname, param_value, all_keys) {
 # Function to convert numerics to integers since R is missing explicit
 #   non-/decimals. Both x <- 1 as well as x <- 1.0 assigns a numeric value.
 convert_integer <- function(x, check_value) {
-
   # Check if value is a list to replace
   if (!is.list(check_value)) {
-
     # Convert if target value is an integer
     if (is.integer(check_value) ||
           (is.character(check_value)) && is.numeric(x)) {
@@ -1010,9 +994,8 @@ convert_integer <- function(x, check_value) {
     }
 
   } else {
-
     # For list replacements, convert values if list elements are integer
-    if (all(sapply(check_value, is.integer))) {# nolint:undesirable_function_linter.
+    if (all(sapply(check_value, is.integer))) { # nolint:undesirable_function_linter.
       return(lapply(x, as.integer))
 
     } else {
@@ -1025,10 +1008,8 @@ convert_integer <- function(x, check_value) {
 # Function to convert numerics to integers since R is missing explicit
 #   non-/decimals. Both x <- 1 as well as x <- 1.0 assigns a numeric value.
 convert_integer <- function(x, check_value) {
-
   # Check if value is a list to replace
   if (!is.list(check_value)) {
-
     # Convert if target value is an integer
     if (is.integer(check_value) ||
           (is.character(check_value)) && is.numeric(x)) {
@@ -1039,9 +1020,8 @@ convert_integer <- function(x, check_value) {
     }
 
   } else {
-
     # For list replacements, convert values if list elements are integer
-    if (all(sapply(check_value, is.integer))) {# nolint:undesirable_function_linter.
+    if (all(sapply(check_value, is.integer))) { # nolint:undesirable_function_linter.
       return(lapply(x, as.integer))
 
     } else {
@@ -1067,7 +1047,7 @@ get_order <- function(x) {
     return(order)
   }
 
-  dplyr::rowwise(x) %>%
+  dplyr::rowwise(x) %>% # nolint
     dplyr::mutate(order = get_order_each(., .data$sim_name, .data$dependency)) %>% # nolint
     return()
 }

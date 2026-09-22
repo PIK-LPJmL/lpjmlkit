@@ -103,7 +103,7 @@ specify.
 
 my_params1
 # A tibble: 2 x 5
-#   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` new_phenology
+#   sim_name random_seed `pftpar[[1]]$name` `param$k_temp` gsi_phenology
 #   <chr>          <dbl> <chr>                <dbl> <lgl>
 # 1 scenario1         42 first_tree           NA    TRUE
 # 2 scenario2        404 NA                    0.03 FALSE
@@ -214,7 +214,7 @@ are expected.
 library(tibble)
 
 model_path <- "./LPJmL_internal"
-sim_path <-"./my_runs"
+sim_path <- "./my_runs"
 
 
 # Basic usage
@@ -279,6 +279,5 @@ config_details
 #   <chr>           <dbl> <chr>        <chr>
 # 1 scen1_spinup        1 NA           8:00:00
 # 2 scen1_transient     2 scen1_spinup 2:00:00
-
 }
 }
